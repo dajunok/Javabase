@@ -2,7 +2,6 @@ package liu.lang.ClassLoader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import com.sun.xml.internal.bind.v2.runtime.Name;
 
 @SuppressWarnings("unused")
 public class ClassLoaderTest {

@@ -3,9 +3,11 @@ package liu.lambda;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.prism.paint.Color;
+import liu.lang.Class.AboutInstance.Color;
 
-@SuppressWarnings({ "unused", "restriction" })
+
+
+@SuppressWarnings({ "unused" })
 public class Test {
 	//将接口作为函数形参
 	public static List<Apple> filterApplesByAppleFilter(List<Apple> apples, AppleFilter filter) {

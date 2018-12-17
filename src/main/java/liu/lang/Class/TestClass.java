@@ -4,8 +4,7 @@ import java.lang.reflect.AnnotatedType;
 import java.util.ArrayList;
 import java.util.List;
 
-import sun.reflect.CallerSensitive;
-import sun.reflect.Reflection;
+
 import sun.reflect.annotation.TypeAnnotationParser;
 import sun.security.util.SecurityConstants;
 
