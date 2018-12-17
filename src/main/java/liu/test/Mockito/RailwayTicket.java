@@ -1,4 +1,4 @@
-package liu.tes.Mockito;
+package liu.test.Mockito;
 
 /**
  * POJO,（火车票）用于模拟

@@ -1,12 +1,12 @@
-package liu.tes.Mockito;
+package liu.test.Mockito;
 
 /**
  *	 账户
  * @author LIU
- *
+ * 
  */
 public class Account {
-	private RailwayTicket railwayTicket;
+	private RailwayTicket railwayTicket;  //火车票
 
     public RailwayTicket getRailwayTicket() {
         return railwayTicket;

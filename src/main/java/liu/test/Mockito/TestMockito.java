@@ -1,4 +1,4 @@
-package liu.tes.Mockito;
+package liu.test.Mockito;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,7 +55,7 @@ public class TestMockito {
 	
 	@Test
     public void returnsSmartNullsTest() {
-        List<?> mock = mock(List.class, RETURNS_SMART_NULLS);
+        List<?> mock = mock(List.class, RETURNS_SMART_NULLS);  //, RETURNS_SMART_NULLS
         System.out.println(mock.get(0));
         
         //使用RETURNS_SMART_NULLS参数创建的mock对象，不会抛出NullPointerException异常。另外控制台窗口会提示信息“SmartNull returned by unstubbed get() method on mock”
@@ -70,7 +70,16 @@ public class TestMockito {
         when(railwayTicket.getDestination()).thenReturn("Beijing");
         
         account.getRailwayTicket().getDestination();
-        verify(account.getRailwayTicket()).getDestination();    
+        verify(account.getRailwayTicket()).getDestination();  //验证方法是否被调用过
         assertEquals("Beijing",account.getRailwayTicket().getDestination());
+        
     }  
+	
+	@SuppressWarnings("unchecked")
+	@Test(expected = RuntimeException.class)
+    public void doThrow_when(){        
+		List<Integer> list = mock(List.class);  
+        doThrow(new RuntimeException()).when(list).add(1);
+        list.add(1);
+    }
 }

@@ -2,15 +2,8 @@ package liu.lambda;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import liu.lang.Class.AboutInstance.Color;
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> b4aa223968969e3fa4f05b59fdcecca5a36ec5f8
-@SuppressWarnings({ "unused" })
 public class Test {
 	//将接口作为函数形参
 	public static List<Apple> filterApplesByAppleFilter(List<Apple> apples, AppleFilter filter) {
@@ -23,6 +16,7 @@ public class Test {
 	    return filterApples;
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		//具体调用：
 		    List<Apple> apples = new ArrayList<Apple>();
