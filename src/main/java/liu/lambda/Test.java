@@ -3,8 +3,13 @@ package liu.lambda;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.prism.paint.Color;
+import liu.lang.Class.AboutInstance.Color;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> b4aa223968969e3fa4f05b59fdcecca5a36ec5f8
 @SuppressWarnings({ "unused" })
 public class Test {
 	//将接口作为函数形参

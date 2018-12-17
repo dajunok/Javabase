@@ -1,6 +1,6 @@
 package liu.lambda;
 
-import com.sun.prism.paint.Color;
+import liu.lang.Class.AboutInstance.Color;
 
 @SuppressWarnings("restriction")
 public class Apple {

@@ -8,9 +8,9 @@ public class Test {
 		long t0=System.nanoTime();
 		long t1=System.nanoTime();
 		
-		sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+/*		sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
         sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
-        sun.misc.PerfCounter.getFindClasses().increment();
+        sun.misc.PerfCounter.getFindClasses().increment();*/
         //
         Test.class.getClassLoader().getSystemClassLoader();
 	}

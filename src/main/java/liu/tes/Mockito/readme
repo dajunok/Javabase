@@ -1,0 +1,23 @@
+一、案例说明：
+ 	1、运用Mockito模拟外部依赖。
+二、源代码文件（.java）介绍：
+三、知识点：
+	1、在写单元测试的过程中，我们往往会遇到要测试的类有很多依赖，这些依赖的类/对象/资源又有别的依赖，从而形成一个大的依赖树，要在单元测试的环境中完整地构建这样的依赖，是一件很困难的事情。
+		为了测试类A，我们需要Mock B类和C类（用虚拟对象来代替）。
+	2、Mock和Stub比较：它们都是模拟外部依赖，Stub是完全模拟一个外部依赖， 而Mock还可以用来判断测试通过还是失败 。
+	3、 Mockito资源
+		● 官网： http://mockito.org
+		● API文档：http://docs.mockito.googlecode.com/hg/org/mockito/Mockito.html
+		● 项目源码：https://github.com/mockito/mockito 
+	4、使用场景
+		● 前创建测试; TDD（测试驱动开发）
+		● 团队可以并行工作
+		● 你可以创建一个验证或者演示程序
+		● 为无法访问的资源编写测试
+		● Mock 可以交给用户
+		● 隔离系统  
+	5、RETURNS_SMART_NULLS和RETURNS_DEEP_STUBS
+		RETURNS_SMART_NULLS实现了Answer接口的对象，它是创建mock对象时的一个可选参数，mock(Class,Answer)。在创建mock对象时，有的方法我们没有进行stubbing，
+		所以调用时会返回Null，这样在进行操作是很可能抛出NullPointerException。如果通过RETURNS_SMART_NULLS参数创建的mock对象在没有调用stubbed方法时会返回SmartNull。
+		例如：返回类型是String，会返回"";是int，会返回0；是List，会返回空的List。另外，在控制台窗口中可以看到SmartNull的友好提示。
+		RETURNS_DEEP_STUBS也是创建mock对象时的备选参数，RETURNS_DEEP_STUBS参数程序会自动进行mock所需的对象，方法deepstubsTest和deepstubsTest2是等价的
