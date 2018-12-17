@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.sun.prism.paint.Color;
 
-@SuppressWarnings({ "unused", "restriction" })
+@SuppressWarnings({ "unused" })
 public class Test {
 	//将接口作为函数形参
 	public static List<Apple> filterApplesByAppleFilter(List<Apple> apples, AppleFilter filter) {
