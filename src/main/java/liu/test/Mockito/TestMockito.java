@@ -106,11 +106,11 @@ public class TestMockito {
 	@Test(expected = RuntimeException.class)
     public void doThrow_when(){        
 		List<Integer> list = mock(List.class);  //使用静态方法mock()模拟
-        //doThrow(new RuntimeException()).when(list).add(1);
-        when(list.add(1)).thenThrow(new RuntimeException());
+        doThrow(new RuntimeException()).when(list).add(1);
+        //when(list.add(1)).thenThrow(new RuntimeException());
         try {
         	list.add(1);
-        }catch (Exception e) {
+        }catch (RuntimeException e) {
         	System.out.println("发生RuntimeException异常！！");
         	e.printStackTrace();
         	Assert.assertEquals("测试", e.getMessage());  
