@@ -1,0 +1,128 @@
+一、案例说明：
+二、源代码文件（.java）介绍：
+三、知识点：
+	1、Hamcrest与Junit：
+		JUnit框架用一组assert方法封装了一些常用的断言。这些assert方法可以帮我们简化单元测试的编写。这样的话，Junit就可以根据这些断言是否抛出 AssertionFailedError错误来判断测试用例的执行结果。
+		使用过Junit 的应该有过体验：在实际开发中，一些基本的断言，如eqaul,null,true它们的可读性并不是很好。而且很多时候我们要比较对象、集合、Map等数据结构。这样我们要么进行大段的字段获取再断言。
+		或者干脆自己编写表达式并断言其结果。JUnit4.4引入了Hamcrest框架，Hamcest提供了一套匹配符Matcher，这些匹配符更接近自然语言，可读性高，更加灵活。Hamcrest 提供了大量被称为“匹配器”的方法。
+		其中每个匹配器都设计用于执行特定的比较操作。Hamcrest的可扩展性很好，让你能够创建自定义的匹配器。最重要的是，JUnit也包含了Hamcrest的核心，提供了对Hamcrest的原生支持，
+		可以直接使用Hamcrest。当然要使用功能齐备的Hamcrest，还是要引入对它的依赖。
+	2、maven依赖：
+		<dependency>
+		    <groupId>org.hamcrest</groupId>
+		    <artifactId>hamcrest-all</artifactId>
+		    <version>${hamcrest.version}</version>
+		    <!--<scope>test</scope>-->
+		</dependency>
+	3、Hamcrest断言(静态方法)：
+		● assertThat(String, boolean)
+		● assertThat(String, T, Matcher<? super T>)
+		● assertThat(T, Matcher<? super T>)
+	4、匹配器（Matcher）：
+		● allOf(Iterable<Matcher<? super T>>)：所有条件都必须满足，相当于&&		
+		● allOf(Iterable<Matcher<? super T>>)
+		● allOf(Matcher<? super T>, Matcher<? super T>)
+		● allOf(Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● allOf(Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● allOf(Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● allOf(Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● allOf(Matcher<? super T>...)
+		● anyOf(Matcher<? super T>...)：其中一个满足就通过， 相当于||
+		● any(Class<T>)
+		● anyOf(Iterable<Matcher<? super T>>)
+		● anyOf(Matcher<? super T>...)
+		● anyOf(Matcher<T>, Matcher<? super T>)
+		● anyOf(Matcher<T>, Matcher<? super T>, Matcher<? super T>)
+		● anyOf(Matcher<T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● anyOf(Matcher<T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● anyOf(Matcher<T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>, Matcher<? super T>)
+		● anything()
+		● anything(String)：
+		● array(Matcher<? super T>...)
+		● arrayContaining(E...)
+		● arrayContaining(List<Matcher<? super E>>)
+		● arrayContaining(Matcher<? super E>...)
+		● arrayContainingInAnyOrder(E...)
+		● arrayContainingInAnyOrder(Collection<Matcher<? super E>>)
+		● arrayContainingInAnyOrder(Matcher<? super E>...)
+		● arrayWithSize(int)
+		● arrayWithSize(Matcher<? super Integer>)
+		● both(Matcher<? super LHS>)：两者都满足，相当于 &&
+		● closeTo(double, double)
+		● closeTo(BigDecimal, BigDecimal)
+		● comparesEqualTo(T)
+		● contains(E...)
+		● contains(List<Matcher<? super E>>)
+		● contains(Matcher<? super E>)
+		● contains(Matcher<? super E>...)
+		● containsInAnyOrder(Collection<Matcher<? super T>>)
+		● containsInAnyOrder(Matcher<? super E>)
+		● containsInAnyOrder(Matcher<? super T>...)
+		● containsInAnyOrder(T...)
+		● containsString(String)：包含字符串
+		● describedAs(String, Matcher<T>, Object...)
+		● either(Matcher<? super LHS>) ：满足两者之一。
+		● empty()
+		● emptyArray()
+		● emptyCollectionOf(Class<E>)
+		● emptyIterable()
+		● emptyIterableOf(Class<E>)
+		● endsWith(String)
+		● equalTo(T)
+		● equalToIgnoringCase(String)
+		● equalToIgnoringWhiteSpace(String)
+		● eventFrom(Class<? extends EventObject>, Object)
+		● eventFrom(Object)
+		● everyItem(Matcher<U>)
+		● greaterThan(T)
+		● greaterThanOrEqualTo(T)
+		● hasEntry(K, V)
+		● hasEntry(Matcher<? super K>, Matcher<? super V>)
+		● hasItem(Matcher<? super T>)
+		● hasItem(T)
+		● hasItemInArray(Matcher<? super T>)
+		● hasItemInArray(T)
+		● hasItems(Matcher<? super T>...)
+		● hasItems(T...)
+		● hasKey(K)
+		● hasKey(Matcher<? super K>)
+		● hasProperty(String)
+		● hasProperty(String, Matcher<?>)
+		● hasSize(int)
+		● hasSize(Matcher<? super Integer>)
+		● hasToString(String)
+		● hasToString(Matcher<? super String>)
+		● hasValue(Matcher<? super V>)
+		● hasValue(V)
+		● hasXPath(String)
+		● hasXPath(String, NamespaceContext)
+		● hasXPath(String, NamespaceContext, Matcher<String>)
+		● hasXPath(String, Matcher<String>)
+		● instanceOf(Class<?>)
+		● is(Class<T>)
+		● is(Matcher<T>)
+		● is(T)
+		● isA(Class<T>)
+		● isEmptyOrNullString()
+		● isEmptyString()
+		● isIn(Collection<T>)
+		● isIn(T[])
+		● isOneOf(T...)
+		● iterableWithSize(int)
+		● iterableWithSize(Matcher<? super Integer>)
+		● lessThan(T)
+		● lessThanOrEqualTo(T)
+		● not(Matcher<T>)
+		● not(T)
+		● notNullValue()
+		● notNullValue(Class<T>)
+		● nullValue()
+		● nullValue(Class<T>)
+		● sameInstance(T)
+		● samePropertyValuesAs(T)
+		● startsWith(String)
+		● stringContainsInOrder(Iterable<String>)
+		● theInstance(T)
+		● typeCompatibleWith(Class<T>)
+			
+		
