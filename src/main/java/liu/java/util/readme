@@ -1,18 +1,21 @@
 一、案例说明：
 二、源代码文件（.java）介绍：
 三、知识点：
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	1、Collection<E>接口：它是java中容器的最主要的接口，该接口继承于Iterable<E>，使得java中所有实现Collection<E>的容器类，都能有统一的访问接口。Collection仅仅定义一组保存元素的最基本的操作集合。不包含获取元素和随机访问元素的操作集合，也不包含替换、插入等接口，就连remove、removeAll、retainAll方法都是可选的方法。但是作为持有元素的容器，这体现了接口最小职责的原则，使得大多数具体类型的容器能实现特定操作集合的同时，又能保证容器的通用性。
-		add(E):boolean
+		父接口：Iterable<E>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		add(E element):boolean
 			将元素e添加到此集合中，如果添加成功则返回true,添加失败则返回false
-		addAll(Collection<? extends E>):boolean
+		addAll(Collection<? extends E> c):boolean
 			将指定 collection 中的所有元素都添加到此 collection 中.
 		clear():void
 			移除此 collection 中的所有元素。
-		contains(Object):boolean
+		contains(Object o):boolean
 			如果此 collection 包含指定的元素，则返回 true。更确切地讲，当且仅当此 collection 至少包含一个满足 (o==null ? e==null : o.equals(e)) 的元素 e 时，返回 true。
-		containsAll(Collection<?>):boolean
+		containsAll(Collection<?> c):boolean
 			如果此 collection 包含指定 collection 中的所有元素，则返回 true。
-		equals(Object):boolean
+		equals(Object o):boolean
 			比较此 collection 与指定对象是否相等
 		hashCode():int
 				返回此 collection 的哈希码值
@@ -22,16 +25,16 @@
 			返回在此 collection 的元素上进行迭代的迭代器。关于元素返回的顺序没有任何保证（除非此 collection 是某个能提供保证顺序的类实例）。
 		parallelStream():Stream<E>
 			获取该集合的并行的流。
-		remove(Object):boolean
+		remove(Object o):boolean
 			从此 collection 中移除指定元素Object的单个实例,如果操作成功则返回true,操作失败则返回false
-		removeAll(Collection<?>):boolean
+		removeAll(Collection<?> c):boolean
 			移除此 collection 中那些也包含在指定 collection 中的所有元素。
 		removeIf(Predicate<? super E> filter):boolean
 			删除集合中符合条件的成员，empty集合也可以，但是null就炸啦。通过指定的过滤器来删除元素。
 		retainAll(Collection<?> c):boolean
-			仅保留此 collection 中那些也包含在指定 collection 的元素。
+			仅保留此 collection 中那些也包含在指定 c中的元素。
 		size():int   
-			返回此 collection 中的元素数。如果此 collection 包含的元素大于 Integer.MAX_VALUE，则返回 Integer.MAX_VALUE。
+			返回此 collection 中的元素数量。如果此 collection 包含的元素大于 Integer.MAX_VALUE，则返回 Integer.MAX_VALUE。
 		spliterator():Spliterator<E>
 			主要支持java8中的流式操作，如排序，过滤等，提供类似jquery的语法。
 			Spliterator接口是1.8新加的接口，字面意思可分割的迭代器，不同以往的iterator需要顺序迭代，
@@ -49,9 +52,131 @@
 			返回包含此 collection 中所有元素的数组。如果 collection 对其迭代器返回的元素顺序做出了某些保证，那么此方法必须以相同的顺序返回这些元素。
 		toArray(T[] a):T[]
 			返回包含此 collection 中所有元素的数组；返回数组的运行时类型与指定数组的运行时类型相同，也就是说此方法可以指定返回数组中的对象类型
-		
-		
-		
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	2、List<E>接口：列表
+		父接口：Collection<E>, Iterable<E>		
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		add(int index, E element):void
+			在此列表中的指定位置插入指定元素（可选操作）。将当前位于该位置的元素（如果有的话）和任何后续元素移到右边（向它们的索引中添加一个）。
+		addAll(int index, Collection<? extends E> c):boolean
+			将指定集合中的所有元素插入到指定位置的列表中（可选操作）。将当前位于该位置的元素（如果有的话）和任何后续元素向右移动（增加它们的索引）。
+			新元素将以指定集合的迭代器返回的顺序出现在此列表中。如果在操作进行中修改指定的集合，则此操作的行为未定义。（注意，如果指定的集合是这个列表，并且它是非空的，则会发生这种情况。）
+			成功插入所有元素后返回true。
+		get(int index):E	
+			返回列表中指定位置的元素。
+		indexOf(Object o):int
+			返回此列表中指定元素首次出现的索引位置，如果该列表不包含指定元素，则返回-1。方法的实现机制是从序列(List)的第0个元素开始依次循环，并且调用每个元素的equals()方法和参数对象进行比较，
+			如果某一个元素的equals()方法返回值为true，那么就把当前元素的索引位置作为结果返回。假如序列中有多个重复的元素，只返回这个重复的元素第一次出现时所在的索引位置的值。
+		lastIndexOf(Object o):int
+			返回此列表中指定元素的最后一次出现的索引位置，如果该列表不包含指定元素，则返回-1。也就是它会从序列的队尾向队头进行遍历。
+		listIterator():ListIterator<E>
+			返回此列表中的元素的列表迭代器（按适当顺序）。
+		listIterator(int index):ListIterator<E>
+			从列表中的指定位置开始，返回列表中元素的列表迭代器（按适当顺序）。
+		remove(int index):E
+			删除列表中指定位置的元素（可选操作）。向左移动任何后续元素（从其索引中减去一个）。返回从列表中删除的元素。
+		replaceAll(UnaryOperator<E> operator):void
+			对每个元素执行operator指定的操作，并用操作结果来替换原来的元素。其中UnaryOperator是一个函数接口，里面只有一个待实现函数T apply(T t)。
+			例如：假设有一个字符串列表，将其中所有长度大于3的元素转换成大写，其余元素不变。
+		set(int index, E element):E
+			用指定的元素替换列表中指定位置的元素（可选操作）。
+		sort(Comparator<? super E> c):void
+			根据c指定的比较规则（比较器）对容器元素进行排序。
+		subList(int fromIndex, int toIndex):List<E>
+			返回list中指定下标范围的元素组成的list新列表,左闭右开(包括fromIndex元素,不包括toIndex)。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	3、Queue<E>接口：队列，是一种特殊的线性表，它只允许在表的前端（front）进行删除操作，而在表的后端（rear）进行插入操作。进行插入操作的端称为队尾，进行删除操作的端称为队头。
+				       队列中没有元素时，称为空队列。在队列这种数据结构中，按照元素出入顺序，最先插入的元素将是最先被删除的元素；反之最后插入的元素将是最后被删除的元素，
+				       称为“先进先出”（FIFO—first in first out）。 
+		父接口：Collection<E>, Iterable<E>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		element():E
+			在队列的头部查询并返回元素。如果队列为空时，抛出一个异常。
+		offer(E e):boolean
+			在队列头部添加元素，成功返回true，否则返回false。注意与：一些队列有大小限制，因此如果想在一个满的队列中加入一个新项，多出的项就会被拒绝。这时新的 offer 方法就可以起作用了。它不是对调用 add() 方法抛出一个 unchecked 异常，而只是得到由 offer() 返回的 false。 
+		peek():E
+			在队列的头部查询并返回元素。如果队列为空时，返回null。
+		poll():E
+			从队列中删除第一个元素。注意remove() 和 poll() 方法都是从队列中删除第一个元素。remove() 的行为与 Collection 接口的版本相似，但是新的 poll() 方法在用空集合调用时不是抛出异常，只是返回 null。因此新的方法更适合容易出现异常条件的情况。
+		remove():E	
+			从队列中删除第一个元素。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	4、Deque<E>接口：双端队列，是一个线性collection,支持在两端插入和移除元素。（名称deque是"double ended queue" 双端队列）。接口既支持有容量限制的双端队列，也支持没有固定大小限制的双端队列。
+				      接口定义在双端队列访问元素的方法，提供插入、移除、检查元素的方法。每种方法都存在两种形式：一种形式在操作失败时抛出异常;另一种形式返回一个特殊值（null或false）。
+		父接口：Queue<E>,Collection<E>, Iterable<E>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		addFirst(E e):void 
+			将指定元素插入此双端队列的开头。
+		addLast(E e):void 
+			将指定元素插入此双端队列的末尾。
+		getFirst():E 
+			获取，但不移除此双端队列的第一个元素。
+		getLast():E 
+			获取，但不移除此双端队列的最后一个元素。
+		offerFirst(E e):boolean
+			将指定的元素插入此双端队列的开头，成功返回true，否则返回false。
+		offerLast(E e):boolean 
+			将指定的元素插入此双端队列的末尾。成功返回true，否则返回false。
+		peekFirst():E 
+			获取，但不移除此双端队列的第一个元素。
+		peekLast():E 
+			获取，但不移除此双端队列的最后一个元素。
+		pollFirst():E 
+			获取并移除此双端队列的第一个元素；如果此双端队列为空，则返回 null
+		pollLast():E 
+			获取并移除此双端队列的最后一个元素；如果此双端队列为空，则返回 null
+		pop():E 
+			从此双端队列所表示的堆栈中弹出一个元素。
+		push(E e):void 
+			将一个元素推入此双端队列所表示的堆栈。
+		removeFirst():E 
+			获取并移除此双端队列第一个元素。			
+		removeLast():E 
+			获取并移除此双端队列的最后一个元素。
+		removeFirstOccurrence(Object o):boolean
+			从此双端队列移除第一次出现的指定元素。
+		removeLastOccurrence(Object o):boolean 
+			从此双端队列移除最后一次出现的指定元素。
+		descendingIterator():Iterator<E> 
+			返回以逆向顺序在此双端队列的元素上进行迭代的迭代器。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	5、Set<E>接口：集合，Set是一个不能含有重复元素的collection，更准确的说其不能有重复元素，同时最多只能有一个空的元素。
+		父接口：Collection<E>, Iterable<E>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	6、SortedSet<E>接口：提供对其元素的进行排序的集合。保证迭代器按照元素递增顺序遍历的集合，可以按照元素的自然顺序（参见 Comparable）进行排序，
+					或者按照创建有序集合时提供的 Comparator进行排序。要采用此排序，还要提供一些其他操作（此接口是 SortedMap 的集合对应物）。 
+					插入有序集合的所有元素都必须实现 Comparable 接口（或者被指定的 Comparator 所接受）。另外，所有这些元素都必须是可相互比较的：
+					e1.compareTo(e2)（或 comparator.compare(e1, e2)）对于有序集合中的任意元素 e1 和 e2 都不能抛出 ClassCastException。
+					试图违反这些限制将导致违反规则的方法或者构造方法调用抛出 ClassCastException。
+		父接口：Set<E>,Collection<E>, Iterable<E>		
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		comparator():Comparator<? super E>
+		first():E 
+		headSet(E toElement):SortedSet<E> 
+		last():E 
+		subSet(E fromElement, E toElement):SortedSet<E> 
+		tailSet(E fromElement):SortedSet<E> 
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	2、Comparator<T>接口：该接口代表一个比较器，用于排序、分组。javase数组工具类和集合工具类中提供的sort方法sort就是使用Comparator接口来处理排序。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		comparing(Function<? super T, ? extends U> keyExtractor):Comparator<T>
+		comparing(Function<? super T, ? extends U>, Comparator<? super U> ):Comparator<T>
+		comparingDouble(ToDoubleFunction<? super T> keyExtractor):Comparator<T>
+		comparingInt(ToIntFunction<? super T> keyExtractor):Comparator<T>
+		comparingLong(ToLongFunction<? super T> keyExtractor):Comparator<T>
+		naturalOrder():Comparator<T>
+		nullsFirst(Comparator<? super T> comparator):Comparator<T>
+		nullsLast(Comparator<? super T> comparator):Comparator<T>
+		reverseOrder():Comparator<T>
+		compare(T o1, T o2):int
+		equals(Object obj):boolean
+		reversed():Comparator<T>
+		thenComparing(Comparator<? super T> other):Comparator<T>
+		thenComparing(Function<? super T, ? extends U> keyExtractor):Comparator<T>
+		thenComparing(Function<? super T, ? extends U> keyExtractor, Comparator<? super U> keyComparator):Comparator<T>
+		thenComparingDouble(ToDoubleFunction<? super T> keyExtractor):Comparator<T>
+		thenComparingInt(ToIntFunction<? super T> keyExtractor):Comparator<T>
+		thenComparingLong(ToLongFunction<? super T> keyExtractor):Comparator<T>	
 		
 		
 		
