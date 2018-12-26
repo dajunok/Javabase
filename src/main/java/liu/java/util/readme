@@ -163,7 +163,7 @@
 		subSet(E fromElement, E toElement):SortedSet<E> 
 			返回从指定fromElement到toElement范围之间所有元素的新集合（不包含toElement元素）。	
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	7、NavigableSet<E>接口：该接口扩展了 SortedSet，具有了为给定搜索目标报告最接近匹配项的导航方法。方法 lower、floor、ceiling 和 higher 分别返回小于、小于等于、大于等于、大于给定元素的元素，如果不存在这样的元素，则返回 null。
+	7、NavigableSet<E>接口：导航集合。该接口扩展了 SortedSet，具有了为给定搜索目标报告最接近匹配项的导航方法。方法 lower、floor、ceiling 和 higher 分别返回小于、小于等于、大于等于、大于给定元素的元素，如果不存在这样的元素，则返回 null。
 		父接口：SortedSet<E>,Set<E>,Collection<E>, Iterable<E>
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 		ceiling(E e):E
@@ -189,26 +189,49 @@
 		tailSet(E fromElement, boolean inclusive):NavigableSet<E> 		
 			 返回此 set 的部分元素视图，其元素大于（或等于，如果 inclusive 为 true）fromElement。				
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	8、Map<K,V>接口：映射。将键映射到值的对象。Map不能包含重复的键；每个键最多可以映射到一个值。这个接口代替了Dictionary类，它是一个完全抽象的类，而不是一个接口。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		clear():void 
+			从此映射中删除所有映射（可选操作）。
+		compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+			通过BiFunction类型的函数接口remappingFunction，计算指定key的V值得到新值。如果新值非空则则调用put(key, newValue)保存映射并返回。如果计算结果为空且key存在则调用remove(key)删除该key的映射并返回null。该函数式接口实现需在调用时由调用者实现。
+		computeIfAbsent(K key,Function<? super K, ? extends V> mappingFunction):default V 
+			如果key的映射值为空，则通过函数接口mappingFunction计算指定key的映射值，计算结果非空则保存映射值并返回，如果计算结果为空则返回旧的映射值。该函数式接口实现需在调用时由调用者实现。
+		computeIfPresent(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+			如果key的映射值非空，则通过函数接口mappingFunction计算指定key的映射值，计算结果非空则调用put(key, newValue)保存映射，计算结果为空则调用remove(key)删除此key映射并返回null。该函数式接口实现需在调用时由调用者实现。
+		containsKey(Object key):boolean 
+			如果Map包含指定键的映射，则返回true。
+		containsValue(Object value):boolean 
+			如果Map将一个或多个键映射到指定值，则返回true。
+		entrySet():Set<Map.Entry<K, V>> 
+			返回Map中包含的映射的Set视图。			
+		equals(Object o):boolean 
+			将指定对象与Map进行等同性比较。
+		forEach(BiConsumer<? super K, ? super V> action):default void 
+			对Map中的每个条目执行给定操作(执行函数式接口中的方法)，直到处理完所有条目或该操作引发异常。该函数式接口实现需在调用时由调用者实现。
+		get(Object key):V 
+			返回指定键被映射到的值，如果Map不包含键的映射，则返回null。
+		getOrDefault(Object key, V defaultValue):default V 
+			返回指定键映射到的值，或者如果Map不包含键的映射，则返回默认值defaultValue。
+		hashCode():int 
+			返回此Map的哈希代码值。
+		isEmpty():boolean 
+		keySet():Set<K> 
+		merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):default V 
+		put(K key, V value):V 
+		putAll(Map<? extends K, ? extends V> m):void 
+		putIfAbsent(K key, V value):default V 
+		remove(Object key):V 
+		remove(Object key, Object value):default boolean 
+		replace(K key, V value):default V 
+		replace(K key, V oldValue, V newValue):default boolean 
+		replaceAll(BiFunction<? super K, ? super V, ? extends V> function):default void 
+		size():int 
+		values():Collection<V> 
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	2、Comparator<T>接口：该接口代表一个比较器，用于排序、分组。javase数组工具类和集合工具类中提供的sort方法sort就是使用Comparator接口来处理排序。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-		comparing(Function<? super T, ? extends U> keyExtractor):Comparator<T>
-		comparing(Function<? super T, ? extends U>, Comparator<? super U> ):Comparator<T>
-		comparingDouble(ToDoubleFunction<? super T> keyExtractor):Comparator<T>
-		comparingInt(ToIntFunction<? super T> keyExtractor):Comparator<T>
-		comparingLong(ToLongFunction<? super T> keyExtractor):Comparator<T>
-		naturalOrder():Comparator<T>
-		nullsFirst(Comparator<? super T> comparator):Comparator<T>
-		nullsLast(Comparator<? super T> comparator):Comparator<T>
-		reverseOrder():Comparator<T>
-		compare(T o1, T o2):int
-		equals(Object obj):boolean
-		reversed():Comparator<T>
-		thenComparing(Comparator<? super T> other):Comparator<T>
-		thenComparing(Function<? super T, ? extends U> keyExtractor):Comparator<T>
-		thenComparing(Function<? super T, ? extends U> keyExtractor, Comparator<? super U> keyComparator):Comparator<T>
-		thenComparingDouble(ToDoubleFunction<? super T> keyExtractor):Comparator<T>
-		thenComparingInt(ToIntFunction<? super T> keyExtractor):Comparator<T>
-		thenComparingLong(ToLongFunction<? super T> keyExtractor):Comparator<T>	
+
 		
 		
 		
