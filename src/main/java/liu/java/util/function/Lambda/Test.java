@@ -1,4 +1,4 @@
-package liu.lambda;
+package liu.java.util.function.Lambda;
 
 import java.util.ArrayList;
 import java.util.List;

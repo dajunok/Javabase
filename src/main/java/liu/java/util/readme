@@ -216,18 +216,31 @@
 		hashCode():int 
 			返回此Map的哈希代码值。
 		isEmpty():boolean 
+			如果Map为空（不包含任何key-value映射）
 		keySet():Set<K> 
+			返回一个包含Map所有key对象的集合。
 		merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):default V 
+			如果指定的键尚未与值相关联或与null相关联，则将其与给定的非null值相关联。（如果key对应的旧值不为空，则将给定的value与旧值传入函数接口方法进行处理得出新值，如果新值非空映射新值，如果新值为空则删除该映射）。
 		put(K key, V value):V 
+			将指定值与Map中指定键关联（即添加映射）。
 		putAll(Map<? extends K, ? extends V> m):void 
+			将指定的映射对象m中的所有key-value映射复制到此Map中。
 		putIfAbsent(K key, V value):default V 
+			如果指定的键尚未与值关联（或映射为null），则将其与给定值关联并返回null，否则返回旧值。
 		remove(Object key):V 
+			如果存在指定键的映射，则从该映射中删除该键的映射。
 		remove(Object key, Object value):default boolean 
+			如果指定key对应的值与value相等，则删除Map中指定的映射，并返回true，否则不删除并返回false。
 		replace(K key, V value):default V 
+			仅当指定键key当前映射到某个值时，才替换该条目。
 		replace(K key, V oldValue, V newValue):default boolean 
+			只有在当前映射到指定值(oldValue)时才替换指定键的条目(newValue)。
 		replaceAll(BiFunction<? super K, ? super V, ? extends V> function):default void 
+			将每个条目的值替换为在该条目上调用给定函数的结果，直到处理完所有条目或函数抛出异常。
 		size():int 
+			返回此映射中的键值映射的数量。
 		values():Collection<V> 
+			返回此Map中包含的所有V值的Collection视图。			
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	2、Comparator<T>接口：该接口代表一个比较器，用于排序、分组。javase数组工具类和集合工具类中提供的sort方法sort就是使用Comparator接口来处理排序。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		

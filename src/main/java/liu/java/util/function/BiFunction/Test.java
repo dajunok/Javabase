@@ -9,7 +9,7 @@ public class Test {
 	public static void main(String[] args) {
 		
 		//匿名类方式调用apply
-		int j=DefBiFunction.sum(15, 30, new BiFunction<Integer, Integer, Integer>() {
+		int j=DefBiFunction.sum(15, 30, new MyBiFunction<Integer, Integer, Integer>() {
 			@Override
 			public Integer apply(Integer a, Integer b) {
 				System.out.println("计算a与b的和j：");
@@ -24,7 +24,7 @@ public class Test {
 		
 		
 		//匿名类方式调用andThen：先调用BiFunction的apply(a, b)，然后调用Function的apply(apply(a, b))方法。 也就是把第一个调用的结果作为参数传给第二个调用。
-		int k=DefBiFunction.compute(2, 3, new BiFunction<Integer, Integer, Integer>() {
+		int k=DefBiFunction.compute(2, 3, new MyBiFunction<Integer, Integer, Integer>() {
 
 			@Override
 			public Integer apply(Integer a, Integer b) {
@@ -44,6 +44,36 @@ public class Test {
 		int f=DefBiFunction.compute(2, 3,(a,b)->{return a+b;},(c)->{return c*c;});
 		System.out.println("f= "+f);
 		
+		
+		
+		
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

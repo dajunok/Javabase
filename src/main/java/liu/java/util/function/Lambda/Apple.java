@@ -1,4 +1,4 @@
-package liu.lambda;
+package liu.java.util.function.Lambda;
 
 import liu.lang.Class.AboutInstance.Color;
 
