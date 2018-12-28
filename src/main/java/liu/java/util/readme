@@ -242,6 +242,96 @@
 		values():Collection<V> 
 			返回此Map中包含的所有V值的Collection视图。			
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	9、Map$Entry<K,V>接口：它是Map的一个内部接口。Map的entrySet()方法返回一个实现Map.Entry接口的对象集合。集合中每个对象都是底层Map中一个特定的键/值对。通过这个集合的迭代器，您可以获得每一个条目(唯一获取方式)的键或值并对值进行更改。当条目通过迭代器返回后，除非是迭代器自身的remove()方法或者迭代器返回的条目的setValue()方法，其余对源Map外部的修改都会导致此条目集变得无效，同时产生条目行为未定义。因为Map这个类没有继承Iterable接口所以不能直接通过map.iterator来遍历(list，set就是实现了这个接口，所以可以直接这样遍历),所以就只能先转化为set类型，用entrySet()方法，其中set中的每一个元素值就是map中的一个键值对，也就是Map.Entry<K,V>了，然后就可以遍历了。基本上 就是遍历map的时候才用得着它吧。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		comparingByKey():static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K,V>> 
+			静态方法，返回一个比较器，该比较器比较Map.Entry在键上的自然顺序。
+		comparingByKey(Comparator<? super K> cmp):static <K, V> Comparator<Map.Entry<K, V>> 
+			静态方法，返回一个比较器，该比较器使用给定的比较器按键比较Map.Entry。
+		comparingByValue():static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K,V>>
+			静态方法，返回一个比较器，该比较器按值的自然顺序比较Map.Entry。
+		comparingByValue(Comparator<? super V> cmp):static <K, V> Comparator<Map.Entry<K, V>>
+			静态方法，返回一个比较器，该比较器使用给定的比较器按值比较Map.Entry。
+		equals(Object o):boolean
+			将指定对象与此条目进行相等性比较。
+		getKey():K 
+			返回与此条目对应的键。
+		getValue():V 
+			返回与此条目对应的值。
+		hashCode():int 
+			返回此映射项的哈希代码值。
+		setValue(V value):V 
+			用指定值替换与此条目对应的值。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	10、SortedMap<K,V>接口：它是一种提供对键进行总排序的Map。映射是根据其键的自然顺序进行排序的，或者在SortedMap创建时提供比较器（Comparator)。
+			在对SortedMap的集合视图(由entrySet、keySet和values方法返回)进行迭代时，会反映这个顺序。插入到SortedMap的所有键必须实现Comparable接口（或者接受指定的比较器）。
+			此外，所有这些键必须是相互可比较的（可以进行下面语句操作）：
+				 k1.compareTo(k2) 	或者   comparator.compare(k1, k2)
+			在SortedMap中不能抛出ClassCastException异常。如果违反此限制将导致在方法或构造函数调用时抛出令人厌恶的ClassCastException异常。
+			
+		父接口：Map<K,V>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		comparator():Comparator<? super K> 
+			返回用于对该映射中的键进行排序的比较器，如果该映射使用其键的自然排序，则返null。		
+		firstKey():K 
+			返回该映射中当前第一个（最低）键。
+		headMap(K toKey):SortedMap<K,V> 
+			返回此映射的键严格小于toKey的部分视图。	
+		lastKey():K 
+			返回此映射中当前最后一个（最高）键。
+		subMap(K fromKey, K toKey):SortedMap<K,V> 
+			返回此映射的键范围从包含fromKey到toKey的部分视图（不包含toKey）。
+		tailMap(K fromKey):SortedMap<K,V> 
+			返回此映射的键大于或等于fromKey的部分视图。	
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	11、NavigableMap<K,V>接口：NavigableMap扩展了 SortedMap，因此它也是一种基于对键进行排序的Map。并且具有了针对给定搜索目标返回最接近匹配项的导航方法。方法 lowerEntry、floorEntry、ceilingEntry
+			和 higherEntry 分别返回与小于、小于等于、大于等于、大于给定键的键关联的 Map.Entry 对象，如果不存在这样的键，则返回 null。
+			类似地，方法 lowerKey、floorKey、ceilingKey 和 higherKey 只返回关联的键。所有这些方法是为查找条目而不是遍历条目而设计的。
+			可以按照键的升序或降序访问和遍历 NavigableMap。descendingMap 方法返回映射的一个视图，该视图表示的所有关系方法和方向方法都是逆向的。
+			升序操作和视图的性能很可能比降序操作和视图的性能要好。subMap、headMap 和 tailMap 方法与名称相似的 SortedMap 方法的不同之处在于：
+			可以接受用于描述是否包括（或不包括）下边界和上边界的附加参数。任何 NavigableMap 的 Submap 必须实现 NavigableMap 接口。
+			此接口还定义了 firstEntry、pollFirstEntry、lastEntry 和 pollLastEntry 方法，它们返回和/或移除最小和最大的映射关系（如果存在），否则返回 null。
+			subMap(K, K)、headMap(K) 和 tailMap(K) 方法被指定为返回 SortedMap，以允许现有 SortedMap 实现能相容地改进为实现 NavigableMap，但鼓励此接口的扩展和实现重写这些方法以返回 NavigableMap。类似地，可以重写 SortedMap.keySet() 以返回 NavigableSet。
+
+		父接口：SortedMap<K,V>,Map<K,V>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		ceilingEntry(K key):Map.Entry<K,V> 
+			返回一个键-值映射关系，它与大于等于给定键的最小键关联；如果不存在这样的键，则返回 null。
+		ceilingKey(K key):K 
+			返回大于等于给定键的最小键；如果不存在这样的键，则返回 null。
+		descendingKeySet():NavigableSet<K> 
+			返回此映射中所包含键的逆序 NavigableSet 视图。
+		descendingMap():NavigableMap<K,V> 
+			返回此映射中所包含映射关系的逆序视图。
+		firstEntry():Map.Entry<K,V> 
+			返回一个与此映射中的最小键关联的键-值映射关系(Entry)；如果映射(Map)为空，则返回 null。
+		floorEntry(K key):Map.Entry<K,V> 
+			返回一个键-值映射关系(Entry)，它与小于等于给定键的最大键关联；如果不存在这样的键，则返回 null。
+		floorKey(K key):K 
+			返回小于等于给定键的最大键；如果不存在这样的键，则返回 null。
+		headMap(K toKey, boolean inclusive):NavigableMap<K,V> 
+			返回此映射的部分视图，其键小于（或等于，如果 inclusive 为 true）toKey。
+		higherEntry(K key):Map.Entry<K,V> 
+			返回一个键-值映射关系，它与严格大于给定键的最小键关联；如果不存在这样的键，则返回 null。	
+		higherKey(K key):K 
+			返回严格大于给定键的最小键；如果不存在这样的键，则返回 null。
+		lastEntry():Map.Entry<K,V> 
+			返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
+		lowerEntry(K key):Map.Entry<K,V> 
+			 返回一个键-值映射关系，它与严格小于给定键的最大键关联；如果不存在这样的键，则返回 null。
+		lowerKey(K key):K 
+			返回严格小于给定键的最大键；如果不存在这样的键，则返回 null。
+		navigableKeySet():NavigableSet<K> 
+			返回此映射中所包含键的 NavigableSet 视图。
+		pollFirstEntry():Map.Entry<K,V> 
+			 移除并返回与此映射中的最小键关联的键-值映射关系(Entry)；如果映射为空，则返回 null。
+		pollLastEntry():Map.Entry<K,V> 
+			移除并返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
+		subMap(K fromKey, boolean fromInclusive,K toKey, boolean toInclusive):NavigableMap<K,V> 
+			 返回此映射的部分视图，其键的范围从 fromKey 到 toKey。（注意：fromInclusive表示是否包含fromKey这个边界；toInclusive表示是否包含toKey这个边界）
+		tailMap(K fromKey, boolean inclusive):NavigableMap<K,V> 
+			返回此映射的部分视图，其键大于（或等于，如果 inclusive 为 true）fromKey。				
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	2、Comparator<T>接口：该接口代表一个比较器，用于排序、分组。javase数组工具类和集合工具类中提供的sort方法sort就是使用Comparator接口来处理排序。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 
