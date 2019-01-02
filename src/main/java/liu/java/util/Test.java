@@ -16,4 +16,5 @@ public class Test {
 	public static void main(String[] args) {
 		Iterable<Integer> iterable2=()->null;
 	}
+	
 }

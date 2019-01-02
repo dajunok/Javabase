@@ -1,4 +1,4 @@
-package liu.proxy.jdkproxy;
+package liu.proxy.jdkProxy;
 
 /**jdk动态代理：
  * 类HelloWorldImpl是HelloWorld接口的实现

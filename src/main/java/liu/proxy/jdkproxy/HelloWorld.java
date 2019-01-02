@@ -1,4 +1,4 @@
-package liu.proxy.jdkproxy;
+package liu.proxy.jdkProxy;
 
 /**jdk动态代理：
  * 定义一个HelloWorld接口
