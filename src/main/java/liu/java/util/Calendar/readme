@@ -11,60 +11,123 @@
 			ALL_FIELDS
 				表示所有字段的掩码值。
 			ALL_STYLES
-				getDisplayNames的样式说明符，指示所有样式中的名称，如“January”和“Jan”。
-			AM
-				AM_PM字段的值，指示一天中从午夜到中午之前的时段。
+				getDisplayNames的样式说明符，指示所有样式中的名称，如“January”和“Jan”。			
+			==============================================================
 			AM_PM
 				get和set的字段编号，指示时间是在中午之前还是之后。
+			AM
+				AM_PM字段的值，指示一天中从午夜到中午之前的时段。
+			PM
+				AM_PM字段的值，指示一天中从中午到午夜之前的时段。
+			==============================================================
+			MONTH
+				get和set的字段号，指示月份。
+			JANUARY
+				MONTH字段的值，指示公历和儒略历中一年中的第一个月。
+			FEBRUARY
+				MONTH字段的值，指示公历和儒略历中一年中的第二个月。
+			MARCH
+				MONTH字段的值，指示公历和儒略历中一年中的第三个月。			
 			APRIL
 				MONTH字段的值，指示公历和儒略历中一年中的第四个月。
-			areFieldsSet
-				如果fields[]与当前设置的时间同步，则为true。
+			MAY
+				MONTH字段的值，指示公历和儒略历中一年中的第五个月。
+			JUNE
+				MONTH字段的值，指示公历和儒略历中一年中的第六个月。	
+			JULY
+				MONTH字段的值，指示公历和儒略历中一年中的第七个月。				
 			AUGUST
-				MONTH字段的值，指示公历和儒略历中一年中的第八个月。
+				MONTH字段的值，指示公历和儒略历中一年中的第八个月。	
+			SEPTEMBER
+				MONTH字段的值，指示公历和儒略历中一年中的第九个月。			
+			OCTOBER
+				MONTH字段的值，指示公历和儒略历中一年中的第十个月。
+			NOVEMBER
+				MONTH字段的值，指示公历和儒略历中一年中的第十一个月。
+			DECEMBER
+				MONTH字段的值，指示公历和儒略历中一年中的第十二个月。
+			UNDECIMBER
+				MONTH字段的值，指示一年中的第十三个月。虽然公历日历不使用这个值，但月历使用这个值。
+			==============================================================
+			DAY_OF_WEEK
+				get和set的字段号，指示一周中的某一天。	
+			MONDAY
+				DAY_OF_WEEK字段的值，表示“星期一”
+			TUESDAY
+				DAY_OF_WEEK字段的值，表示“星期二”			
+			WEDNESDAY
+				DAY_OF_WEEK字段的值，表示“星期三”
+			THURSDAY
+				DAY_OF_WEEK字段的值，表示“星期四”
+			FRIDAY
+				DAY_OF_WEEK字段的值，表示“星期五”
+			SATURDAY
+				DAY_OF_WEEK字段的值，表示“星期六”
+			SUNDAY
+				DAY_OF_WEEK字段的值，表示“星期天”
+			==============================================================	
+			YEAR
+				用于表示年份的get和set的字段编号。
 			DATE
 				get和set的字段编号，指示月份的日期。
 			DAY_OF_MONTH
 				get和set的字段编号，指示月份的日期
-			DAY_OF_WEEK
-				get和set的字段号，指示一周中的某一天。		
-			DAY_OF_WEEK_IN_MONTH
-				get和set的字段号，指示当前月份中星期几的序号。
 			DAY_OF_YEAR
-				get和set的字段编号，指示当前年份中的日期。
-			DECEMBER
-				MONTH字段的值，指示公历和儒略历中一年中的第十二个月。
-			DST_OFFSET
-				get和set的字段号，指示夏令时偏移量（毫秒）。
-			ERA
-				用于GET和SET的字段编号，指示纪元，例如朱利安日历中的AD或BC。
-			FEBRUARY
-				MONTH字段的值，指示公历和儒略历中一年中的第二个月。
-			FIELD_COUNT
-				由get和set识别的不同字段数。
-			fields
-				当前为calenda设置的时间的日历字段值。
-			FRIDAY
-				DAY_OF_WEEK字段的值“星期五”
+				get和set的字段编号，指示当前年份中的日期。	
 			HOUR
 				get和set的字段编号，指示上午或下午的时间（例如18，即下午6点）。			
 			HOUR_OF_DAY
-				get和set的字段编号，指示一天中的小时。
+				get和set的字段编号，指示一天中的小时。			
+			MINUTE
+				get和set的字段号，指示小时内的分钟。			
+			SECOND
+				get和set的字段号，指示分钟内的秒数。
+			MILLISECOND
+				get和set的字段号，指示秒内的毫秒数。
+			WEEK_OF_MONTH
+				get和set的字段号，指示当前月份内的周数。
+			WEEK_OF_YEAR
+				get和set的字段号，指示当前年份中的周数。
+			DAY_OF_WEEK_IN_MONTH
+				get和set的字段号，指示当前月份中星期几的序号。
+			time
+				此日历当前设置的时间，以1970年1月1日之后0:00:00 GMT的毫秒为单位。
+			ZONE_OFFSET
+				get和set的字段号，指示与GMT的原始偏移量（毫秒）。
+			==============================================================						
+			areFieldsSet
+				如果fields[]与当前设置的时间同步，则为true。	
+			DST_OFFSET
+				get和set的字段号，指示夏令时偏移量（毫秒）。
+			ERA
+				用于GET和SET的字段编号，指示纪元，例如朱利安日历中的AD或BC。			
+			FIELD_COUNT
+				由get和set识别的不同字段数。
+			fields
+				当前为calenda设置的时间的日历字段值。			
+			
 			isSet
 				指示是否为calendar设置了指定日历字段的标志。
 			isTimeSet
-				如果时间值有效，则为true。
-			JANUARY
-				MONTH字段的值，指示公历和儒略历中一年中的第一个月。
-			JULY
-				MONTH字段的值，指示公历和儒略历中一年中的第七个月。	
-			JUNE
-				MONTH字段的值，指示公历和儒略历中一年中的第六个月。	
+				如果时间值有效，则为true。			
 			LONG
 				getdisplayname和getdisplayname的样式说明符，相当于LONG_FORMAT。
 			LONG_FORMAT
 				getdisplayname和getdisplayname的样式说明符，指示用于格式的长名称。
-				
+			LONG_STANDALONE
+				getdisplayname和getdisplayname的样式说明符，指示独立使用的long名称，例如月份名称作为日历标题。				
+			NARROW_FORMAT
+				getdisplayname和getdisplayname的样式说明符，指示用于格式的窄名称。
+			NARROW_STANDALONE
+				getdisplayname和getdisplayname的样式说明符，分别指示窄名称。
+			SHORT
+				getdisplayname和getdisplayname的样式说明符，相当于SHORT_FORMAT。
+			SHORT_FORMAT
+				getdisplayname和getdisplayname的样式说明符，指示用于格式的短名称。
+			SHORT_STANDALONE
+				getdisplayname和getdisplayname的样式说明符，指示独立使用的短名称，例如月份缩写作为日历标题。			
+	方法：
+		
 			
 四、涉及接口和类：
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
