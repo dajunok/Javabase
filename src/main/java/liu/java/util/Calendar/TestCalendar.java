@@ -95,5 +95,36 @@ public class TestCalendar {
 
         System.out.println("现在是" + year + "年" + month + "月" + day + "日");
     }
+    
+    //构建器Calendar.Builder的运用
+    @Test
+    public void test5() {
+    	Calendar cal = new Calendar.Builder().setCalendarType("gregory").setWeekDate(2019, 1, Calendar.MONDAY).build();
+    	
+    	// 获取年
+        int year = cal.get(Calendar.YEAR);
+
+        // 获取月，这里需要需要月份的范围为0~11，因此获取月份的时候需要+1才是当前月份值
+        int month = cal.get(Calendar.MONTH) + 1;
+
+        // 获取日
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        // 获取时
+        int hour = cal.get(Calendar.HOUR);
+        // int hour = calendar.get(Calendar.HOUR_OF_DAY); // 24小时表示
+
+        // 获取分
+        int minute = cal.get(Calendar.MINUTE);
+
+        // 获取秒
+        int second = cal.get(Calendar.SECOND);
+
+        // 星期，英语国家星期从星期日开始计算
+        int weekday = cal.get(Calendar.DAY_OF_WEEK);
+
+        System.out.println("现在是" + year + "年" + month + "月" + day + "日" + hour
+                + "时" + minute + "分" + second + "秒" + "星期" + weekday);
+    }
 
 }
