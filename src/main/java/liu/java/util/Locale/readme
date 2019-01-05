@@ -18,7 +18,7 @@
 			国家（地区）字段不区分大小写，但区域设置始终规范为大写。格式良好的国家（地区）字段值的格式为：[a-zA-Z]{2} 或者 [0-9]{3}
 			示例："US" (美国United States), "FR" (法国France), "029" (加拿大Caribbean)
 		● variant：变量
-			用于指示区域设置变量的任意值。如果有两个或多个变量值，每个变量值都表示其自身的语义，则这些值应按重要性排序，最重要的是，首先用下划线（‘’）分隔。变量字段区分大小写。
+			用于指示区域设置变量的任意值。如果有两个或多个变量值，每个变量值都表示其自身的语义，则这些值应按重要性排序，最重要的是，首先用下划线（‘_’）分隔。变量字段区分大小写。
 			注意：IETFBCP47对变量子标记进行了语法限制。此外，BCP47子标记还严格用于表示定义语言或其方言的其他变量，这些变量不包含在任何语言、脚本和区域子标记组合中。您可以在IANA语言子标记注册表中找到有效变量代码的完整列表（搜索“type:variant”）。
 			然而，语言环境中的variant字段在历史上被用于任何类型的变量，而不仅仅是语言变量。例如，在Java SE运行时环境中可用的一些支持的变量指示可选的文化行为，如日历类型或数字脚本。在BCP47中，扩展子包或专用子包支持这种不标识语言的信息。	
 			格式良好的变量值的形式为：SUBTAG(('_'|'-') SUBTAG)*其中SUBTAG = [0-9][0-9a-zA-Z]{3} | [0-9a-zA-Z]{5,8}（注意：BCP-47只使用连字符（“-”）作为分隔符，这更为宽松）。
@@ -27,6 +27,257 @@
 			从单个字符键到字符串值的映射，表示除了语言标识之外的扩展。locale中的扩展实现了bcp 47扩展子包和私用子包的语义和语法。扩展不区分大小写，但区域设置将所有扩展键和值规范化为小写。请注意，扩展不能有空值。
 			格式良好的键是集合中的单个字符：[0-9a-zA-Z]。格式良好的值的形式为：SUBTAG ('-' SUBTAG)* where for the key 'x' SUBTAG = [0-9a-zA-Z]{1,8}和其他键SUBTAG = [0-9a-zA-Z]{2,8} (that is, 'x' allows single-character subtags)
 			示例：key="u"/value="ca-japanese" (Japanese Calendar), key="x"/value="java-1-7"
+		
 		类定义：public final class Locale implements Cloneable, Serializable
 	--------------------------------------------------------------------------------------------------------------------------------------------
+	Locale静态常量：
+		ENGLISH
+		FRENCH
+		GERMAN
+		ITALIAN
+		JAPANESE
+		KOREAN
+		CHINESE
+		SIMPLIFIED_CHINESE
+		TRADITIONAL_CHINESE
+		FRANCE
+		GERMANY
+		ITALY
+		JAPAN
+		KOREA
+		CHINA
+		PRC
+		TAIWAN
+		UK
+		US
+		CANADA
+		CANADA_FRENCH
+	
+	构造器：
+		Locale(String language)
+			从语言代码构造区域设置（Locale）。
+		Locale(String language, String country)
+			从语言和国家构建一个区域设置（Locale）。
+		Locale(String language, String country, String variant) 
+			从语言、国家和变体构建区域设置（Locale）。
+	方法：
+		filter(List<LanguageRange> priorityList,Collection<Locale> locales):static List<Locale> 
+			使用RFC4647中定义的筛选机制返回匹配的区域设置实例的列表。等同于调用：filter(List, Collection, FilteringMode)其中FilteringMode为Locale.FilteringMode.AUTOSELECT_FILTERING
+		filter(List<LanguageRange> priorityList,Collection<Locale> locales,FilteringMode mode):static List<Locale> 
+			使用RFC4647中定义的筛选机制返回匹配的区域设置实例的列表。
+		filterTags(List<LanguageRange> priorityList,Collection<String> tags):static List<String> 
+			使用RFC4647中定义的基本筛选机制返回匹配语言标记的列表。等同于调用：filterTags(List, Collection, FilteringMode)。FilteringMode是Locale.FilteringMode.AUTOSELECT_FILTERING
+		filterTags(List<LanguageRange> priorityList,Collection<String> tags,FilteringMode mode):static List<String>  	
+			使用RFC4647中定义的基本筛选机制返回匹配语言标记的列表。
+		forLanguageTag(String languageTag):static Locale 
+			返回指定的IETF BCP 47语言标记字符串的区域设置。如果指定的语言标记包含任何格式错误的子标记，则忽略第一个子标记和所有后续子标记。在这种情况下 Locale.Builder.setLanguageTag(java.lang.String) 会抛出异常。
+		getAvailableLocales():static Locale[] 
+			返回所有已安装区域设置(locale)的数组。返回数组表示由Java运行时环境和安装的LoalAlServIvIsvor实现所支持的区域设置的联合。它必须至少包含等于Locale.US的区域设置实例。
+		getDefault():static Locale 
+			获取Java虚拟机实例的默认区域设置(locale)的当前值。Java虚拟机基于主机环境在启动期间设置默认区域设置。如果没有显式指定区域设置，许多区分区域设置的方法都会使用它。它可以使用setDefault方法进行更改。
+		getDefault(Locale.Category category):
+			获取Java虚拟机实例的指定类别的默认区域设置的当前值。Java虚拟机基于主机环境在启动期间设置默认区域设置。如果没有显式指定区域设置，许多区分区域设置的方法都会使用它。它可以使用setDefault（locale.category，locale）方法进行更改。
+		getISOCountries():static String[] 
+			返回ISO 3166中定义的所有两个字母的国家代码的列表。可用于创建区域设置(locale)。
+		getISOLanguages():static String[] 
+			返回在ISO 639中定义的所有两个字母的语言代码的列表。可用于创建区域设置(locale)。
+			注意：ISO 639不是一个稳定的标准-有些语言的代码已经改变了。此函数返回的列表包括代码已更改的语言的新代码和旧代码。locale类还支持长度不超过8个字符的语言代码。因此，此方法返回的列表不包含可用于创建区域设置的所有有效代码。
+		lookup(List<LanguageRange> priorityList,Collection<Locale> locales):static Locale 
+			使用RFC4647中定义的查找机制返回最佳匹配语言标记的区域设置(locale)实例。
+		lookupTag(List<LanguageRange> priorityList,Collection<String> tags):static String 
+			使用RFC4647中定义的查找机制返回最佳匹配的语言标记。
+		setDefault(Locale newLocale):static synchronized void 
+			设置Java虚拟机实例的默认区域设置(locale)。这不会影响主机区域设置(locale)。如果存在安全管理器，则在更改默认区域设置之前，使用PropertyPermission("user.language", "write")
+			权限调用其checkPermission方法。Java虚拟机基于主机环境在启动期间设置默认区域设置。如果没有显式指定区域设置，许多区分区域设置的方法都会使用它。由于更改默认区域可能会影响许多不同的功能区域，
+			如果调用方准备重新初始化在同一Java虚拟机中运行的区域敏感(locale-sensitive)代码，则只应使用此方法。
+		clone():Object 
+			覆盖Cloneable接口
+		equals(Object obj):boolean 
+			如果此区域设置等于其他对象，则返回true。一个区域设置被认为等于另一个具有相同语言、脚本、国家、变量和扩展的区域设置(locale)，并且不等于所有其他对象。		
+		getCountry():String 
+			返回此区域设置的国家/地区代码，该代码应为空字符串、大写的ISO 3166 2字母代码或UN M.49 3位代码。
+		getDisplayCountry():final String 
+			返回适合显示给用户的区域设置国家/地区的名称。如果可能，返回的名称将本地化为默认的DISPLAY区域设置。。例如，如果区域设置为fr_FR且默认显示区域设置为en_US，则getDisplayCountry()将返回“France”；如果区域设置为en_US且默认显示区域设置为fr_FR，则getDisplayCountry（）将返回“Etats-Unis”。如果返回的名称不能本地化为默认的显示区域设置（例如，克罗地亚没有日文名称），则此函数将返回英文名称，并使用ISO代码作为最后的手段值。如果区域设置未指定国家，则此函数返回空字符串。
+		getDisplayCountry(Locale inLocale):String 
+			返回适合显示给用户的区域设置国家/地区的名称。如果可能，返回的名称将根据inLocale进行本地化。
+		getDisplayLanguage():final String 
+			返回适合显示给用户的区域设置语言的名称。如果可能，返回的名称将本地化为默认的DISPLAY区域设置。例如，如果区域设置为fr_FR且默认显示区域设置为en_US，则getDisplayLanguage()将返回“French”；如果区域设置为en_US且默认DISPLAY区域设置为fr_FR，则getDisplayLanguage()将返回“anglais”。如果返回的名称不能本地化为默认的显示区域设置（例如，克罗地亚语没有日文名称），则此函数将返回英文名称，并使用ISO代码作为最后的手段值。如果区域设置未指定语言，则此函数返回空字符串。
+		getDisplayLanguage(Locale inLocale):String 
+			返回适合显示给用户的区域设置语言的名称。如果可能，返回的名称将根据inLocale进行本地化。
+		getDisplayName():final String 
+			返回适合显示给用户的区域设置的名称。这将是由getDisplayLanguage()、getDisplayScript()、getDisplayCountry()和getDisplayVariant()组合到单个字符串中返回的值。非空值按顺序使用，第二个和后续的名称在括号中。例如：
+				language (script, country, variant)
+				language (country)
+				language (variant)
+				script (country)
+				country
+			取决于在区域设置中指定的字段。如果language、script、country和variant字段都为空，则此函数返回空字符串。
+		getDisplayName(Locale inLocale):String 
+			返回适合显示给用户的区域设置的名称。这将是由getDisplayLanguage（）、getDisplayScript()、getDisplayCountry()和getDisplayVariant()组合到单个字符串中返回的值。非空值按顺序使用，第二个和后续名称在括号中。例如：
+				language (script, country, variant)
+				language (country)
+				language (variant)
+				script (country)
+				country
+			取决于在区域设置中指定的字段。如果language、script、country和variant字段都为空，则此函数返回空字符串。
+		getDisplayScript():String 
+			返回适合显示给用户的区域设置脚本的名称。如果可能，该名称将针对默认DISPLAY区域设置(locale)进行本地化。如果此区域设置未指定脚本代码，则返回空字符串。
+		getDisplayScript(Locale inLocale):String 
+			返回适合显示给用户的区域设置脚本的名称。如果可能，该名称将针对给定的区域设置进行本地化。如果此区域设置未指定脚本代码，则返回空字符串。
+		getDisplayVariant():final String 
+			返回区域设置的变量代码的名称，该变量代码适合显示给用户。如果可能，该名称将针对默认DISPLAY区域设置进行本地化。如果区域设置未指定变量代码，则此函数返回空字符串。
+		getDisplayVariant(Locale inLocale):String 
+			返回区域设置的变量代码的名称，该变量代码适合显示给用户。如果可能，名称将本地化为inLocale。如果区域设置未指定变量代码，则此函数返回空字符串。
+		getExtension(char key):String 
+			返回与指定键关联的扩展名（或专用）值，如果没有与该键关联的扩展名，则返回空值。要形成良好的格式，键必须是[0-9a-za-z]之一。键不区分大小写，因此例如“z”和“Z”表示相同的扩展名。
+		getExtensionKeys():Set<Character> 
+			返回与此区域设置关联的扩展键集，如果没有扩展名，则返回空集。返回的集合不可修改。键都是小写的。
+		getISO3Country():String  throws MissingResourceException
+			返回此区域设置所在国家/地区的三个字母缩写。如果国家/地区与ISO 3166-1 Alpha-2代码匹配，则返回相应的ISO 3166-1 Alpha-3大写代码。如果区域设置未指定国家，则这将是空字符串。
+		getISO3Language():String  throws MissingResourceException
+			返回此区域设置语言的三个字母缩写。如果语言与ISO 639-1双字母代码匹配，则返回相应的ISO 639-2/T三字母小写代码。可以在线找到ISO 639-2语言代码，见“语言名称表示代码第2部分：字母-3代码”。如果区域设置指定了三个字母的语言，则按原样返回该语言。如果区域设置未指定语言，则返回空字符串。
+		getLanguage():String 
+			返回此区域设置的语言代码。注：ISO 639不是一个稳定的标准，某些语言的代码已更改。区域设置的构造函数为代码已更改的语言识别新代码和旧代码，但此函数始终返回旧代码。如果要检查代码已更改的特定语言，请不要执行此操作。
+		getScript():String 
+			返回此区域设置的脚本，该脚本应为空字符串或ISO 15924 4字母脚本代码。第一个字母为大写，其余字母为小写，例如“Latn”、“Cyrl”。
+		getUnicodeLocaleAttributes():Set<String> 
+			返回与此区域设置关联的Unicode区域设置属性集，或者如果没有属性，则返回空集。返回的集合不可修改。
+		getUnicodeLocaleKeys():Set<String> 
+			返回由此区域设置定义的Unicode区域设置键集，或者如果此区域设置没有，则返回空集。返回的集是不可变的。键都是小写的。
+		getUnicodeLocaleType(String key):String 
+			返回与此区域设置的指定Unicode区域设置键关联的Unicode区域设置类型。返回没有类型定义的键的空字符串。如果未定义键，则返回空值。键不区分大小写。键必须是两个字母数字字符（[0-9a-za-z]），否则将引发IllegalArgumentException。
+		getVariant():String 
+			返回此区域设置的变量代码。
+		hasExtensions():boolean 
+			如果此区域设置有任何扩展名，则返回true。
+		hashCode():int 
+			重写哈希代码。由于区域设置经常在哈希表中使用，所以为加速缓存。
+		stripExtensions():Locale 
+			返回不带扩展名的此区域设置的副本。如果此区域设置没有扩展名，则返回此区域设置。
+		toLanguageTag():String 
+			返回表示此区域设置的格式良好的IETF BCP 47语言标记。
+		toString():final String 
+			返回此区域设置对象的字符串表示形式，由以下语言、国家/地区、变量、脚本和扩展组成：
+				language + "_" + country + "_" + (variant + "_#" | "#") + script + "-" + extensions
+			语言总是小写，国家总是大写，脚本总是标题，扩展总是小写。扩展和私用子标记将按照toLanguageTag()中解释的规范顺序排列。当区域设置既没有脚本也没有扩展名时，结果与Java 6和之前的结果相同。
+			如果同时缺少语言和国家/地区字段，则此函数将返回空字符串，即使存在变量、脚本或扩展字段（您不能只有变量的区域设置，变量必须伴随格式良好的语言或国家/地区代码）。
+			如果存在脚本或扩展名且变量丢失，则在“#”之前不会添加下划线。
+			此行为旨在支持调试，并与ToString以前的用法兼容，后者只使用预期的语言、国家/地区和变量字段。要将区域设置表示为用于交换的字符串，请使用ToLanguageTag()。
+			示例：
+				en
+				de_DE
+				_GB
+				en_US_WIN
+				de__POSIX
+				zh_CN_#Hans
+				zh_TW_#Hant-x-java
+				th_TH_TH_#u-nu-thai	
+		
+	--------------------------------------------------------------------------------------------------------------------------------------------		
+	2、Locale$Builder:构建器类。它是Locale类的一个内部类，用于根据setter配置的值生成区域设置的实例。与区域设置构造函数不同，
+		生成器检查由setter配置的值是否满足区域设置类定义的语法要求。生成器创建的区域设置对象格式良好，可以转换为格式良好的IETF BCP 47语言标记，而不会丢失信息。
+		注意：locale类对variant不提供任何语法限制，而bcp 47要求每个variant子标记为5到8个字母数字，或者单个数字后跟3个字母数字。
+			方法setvariant为不满足此限制的变量引发IllformedLocaleException异常。如果需要支持这种变体，请使用区域设置构造函数。但是，
+			请记住，以这种方式创建的区域设置对象在转换为bcp 47语言标记时可能会丢失变量信息。
+	
+		类定义：public static final class Locale.Builder extends Object	
+	--------------------------------------------------------------------------------------------------------------------------------------------	
+	构造器：
+		Builder()
+			构造空生成器。所有字段、扩展名和专用信息的默认值是空字符串。
+	
+	方法：
+		addUnicodeLocaleAttribute(String attribute):Builder 
+			添加Unicode区域设置(locale)属性（如果尚未存在），否则无效。属性不能为空，并且必须格式正确，否则引发异常。
+		build():Locale 
+			返回在此生成器上设置的字段中创建的区域设置(locale)实例。这适用于在构建Locale时，在 Locale.forLanguageTag(java.lang.String)中列出的转换。（GuangfID标签在 setLanguageTag(java.lang.String)中处理。
+		clear():Builder 
+			将生成器重置为初始的空状态。
+		clearExtensions():Builder 
+			将扩展重置为初始的空状态。语言、脚本、区域和变量不变。
+		removeUnicodeLocaleAttribute(String attribute):Builder 
+			删除Unicode区域设置属性（如果存在），否则无效。属性不能为空，并且必须格式正确或引发异常。用于删除的属性比较不区分大小写。
+		setExtension(char key, String value):Builder 
+			设置给定键的扩展名。如果值为空或空字符串，则会删除扩展名。否则，扩展必须格式正确，否则引发异常。
+		setLanguage(String language):Builder 
+			设置语言。如果language为空字符串或空，则会删除此生成器中的语言。否则，语言必须是格式良好的，否则将引发异常。典型的语言值是ISO639中定义的两个或三个字母的语言代码。
+		setLanguageTag(String languageTag):Builder 
+			重置生成器以匹配提供的IETF BCP 47语言标记。丢弃现有状态。Null和空字符串会导致生成器被重置，相当于clear（）。在处理之前，GuangFAID标签（见Locale.forLanguageTag(java.lang.String)）被转换为规范形式。否则，语言标记必须格式良好（请参见区域设置），否则将引发异常（与Locale.forLanguageTag不同，后者只丢弃格式不正确的标记以及标记后面的部分）。
+		setLocale(Locale locale):Builder 
+			重置生成器以匹配提供的区域设置。已放弃现有状态。区域设置的所有字段必须格式良好，请参阅区域设置。
+		setRegion(String region):Builder 
+			设置区域。如果区域为空或空字符串，则会删除此生成器中的区域。否则，该区域必须格式良好，否则引发异常。典型的区域值是两个字母的ISO 3166代码或三位数的UNM.49区域代码。生成器在区域设置中创建的国家/地区值始终规范化为大写。
+		setUnicodeLocaleKeyword(String key, String type):Builder 
+			为给定的键设置Unicode区域设置关键字类型。如果类型为空，则会删除unicode关键字。否则，键必须为非空，并且键和类型的格式必须正确，或者引发异常。
+		setVariant(String variant):Builder 
+			设置变量。如果variant为空或空字符串，则会删除此生成器中的变量。否则，它必须由一个或多个格式良好的子包组成，否则将引发异常。
+	--------------------------------------------------------------------------------------------------------------------------------------------		
+	3、Locale$LanguageRange:语言范围类。一个内部类。此类表示在RFC4647语言标记匹配中定义的语言范围。语言范围是一个标识符，通过使用区域设置匹配中描述的机制来选择满足特定需求的语言标记。
+		表示用户首选项并由语言范围组成的列表称为语言优先级列表。有两种类型的语言范围：基本语言和扩展语言。在RFC4647中，语言范围的语法用abnf表示如下：
+			basic-language-range    = (1*8ALPHA *("-" 1*8alphanum)) / "*"
+			extended-language-range = (1*8ALPHA / "*")*("-" (1*8alphanum / "*"))
+			alphanum                = ALPHA / DIGIT
+		例如，“en”（English）、“ja-JP”（Japanese, Japan）、“*”（与任何语言标签匹配的特殊语言范围）是基本语言范围，而“*-CH”（任何语言、瑞士）、“es-*”（西班牙语、任何地区）和“zh-Hant-*”（繁体中文、任何地区）是扩展语言范围。
+		
+		
+		类定义：public static final class Locale.LanguageRange extends Object
+	--------------------------------------------------------------------------------------------------------------------------------------------	
+	构造器：
+		LanguageRange(String range)
+			使用给定范围构造LanguageRange。请注意，在构建时没有对IANA语言子标记注册表进行任何验证。
+		LanguageRange(String range, double weight)
+			使用给定的范围和权重构造LanguageRange。请注意，在构建时没有对IANA语言子标记注册表进行任何验证。
+	
+	方法：
+		mapEquivalents(List<LanguageRange>priorityList,Map<String, List<String>> map):static List<LanguageRange> 
+			使用给定的priorityList和map生成新的自定义语言优先级列表。如果给定的映射为空，则此方法返回给定priorityList的副本。在map中，一个键表示一个语言范围，而一个值则是它的等价物列表。 '*'不能在地图中使用。每个等效语言范围的权重值与其原始语言范围相同。
+			一个map示例：
+			  		键 （Key）                           				值(Value)
+		      "zh" (Chinese)                 	"zh",
+		                                     	"zh-Hans"(Simplified Chinese)
+		      "zh-HK" (Chinese, Hong Kong)   	"zh-HK"
+		      "zh-TW" (Chinese, Taiwan)      	"zh-TW"
+			自定义是在修改后使用IANA语言子标记注册表执行的。
+			例如，如果用户的语言优先级列表包含五个语言范围（"zh", "zh-CN", "en", "zh-TW", "zh-HK"），则使用上述映射示例自定义的新生成的语言优先级列表将由"zh", "zh-Hans", "zh-CN", "zh-Hans-CN", "en", "zh-TW","zh-HK"组成。
+			“zh-HK”和“zh-TW”不会转换为 "zh-Hans-HK"或"zh-Hans-TW"，即使它们包含在语言优先列表中。在本例中，映射用于清楚地区分简体中文和繁体中文。
+			如果“zh”-到-“zh”的映射没有包含在映射中，那么将执行一个简单的替换，自定义列表将不包括“zh”和“zh-CN”。
+		parse(String ranges):static List<LanguageRange> 
+			分析给定范围以生成语言优先级列表。
+		parse(String ranges,Map<String, List<String>> map):static List<LanguageRange> 
+			解析给定的范围以生成语言优先级列表，然后使用给定的映射自定义列表。这个方法等价于mapEquivalents(parse(ranges), map)。
+		equals(Object obj):boolean 
+			将此对象与指定的对象进行比较。如果且仅当参数不为空并且是与此对象包含相同范围和权重值的LanguageRange对象，则结果为true。
+		getRange():String 
+			返回LanguageRange的语言范围
+		getWeight():double 
+			返回此语言范围LanguageRange的权重
+		hashCode():int 
+			返回对象的哈希代码值。
+			
+			
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	

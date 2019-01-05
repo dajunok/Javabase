@@ -31,6 +31,10 @@ public class LocaleTest {
     Locale localeCN = Locale.SIMPLIFIED_CHINESE;
     // 创建“英文/美国”的Locale
     Locale localeUS = new Locale("en", "US");
+    
+    System.out.println("语言标记（LanguageTag）："+localeCN.toLanguageTag());
+    System.out.println("语言（Language）："+localeCN.getLanguage());
+    System.out.println("国家（Country）："+localeCN.getCountry());
  
     // 获取“简体中文”对应的date字符串
     String cn = DateFormat.getDateInstance(DateFormat.MEDIUM, localeCN).format(date);
