@@ -563,7 +563,7 @@
 		thenComparing(Function<? super T, ? extends U> keyExtractor,Comparator<? super U> keyComparator):default <U> Comparator<T> 
 			返回一个lexicographic-order比较器，该比较器具有提取要与给定比较器进行比较的键的函数。
 		thenComparingDouble(ToDoubleFunction<? super T> keyExtractor):default Comparator<T> 
-			返回具有提取Double排序键的函数的lexicographic-order顺单词顺序比较器。
+			返回具有提取Double排序键的函数的lexicographic-order单词顺序比较器。
 		thenComparingInt(ToIntFunction<? super T> keyExtractor):default Comparator<T>
 			返回具有提取int排序键的函数的lexicographic-order单词顺序比较器。
 		thenComparingLong(ToLongFunction<? super T> keyExtractor):default Comparator<T> 

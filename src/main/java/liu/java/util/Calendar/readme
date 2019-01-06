@@ -189,15 +189,15 @@
 		getLeastMaximum(int field):abstract int 
 			返回此日历实例的给定日历字段的最小最大值。最小最大值定义为GetActualMaximum（int）为任何可能的时间值返回的最小值。最小最大值取决于实例的日历系统特定参数。例如，公历系统的日历会在“DAY_OF_MONTH ”字段中返回28，因为“28”是该日历中最短月份的最后一天，即同一年中的2月。
 		getMaximum(int field):abstract int 
-			返回此日历实例的给定日历字段的最大值。最大值定义为get方法返回的任何可能时间值的最大值。最大值取决于日历系统实例的特定参数。
+			返回此日历实例的给定日历字段的最大值。最大值定义为get方法返回的任何可能时间值的最大值。最大值取决于日历系统的Instant（瞬间）特定参数。
 		getMinimalDaysInFirstWeek():int 
 			获取一年中第一周所需的最小天数；例如，如果第一周定义为包含一年中第一个月的第一天，则此方法返回1。如果所需的最少天数必须是一周，则此方法返回7。
 		getMinimum(int field):abstract int 
-			返回此日历实例的给定日历字段的最小值。最小值定义为get方法返回的任何可能时间值的最小值。最小值取决于日历系统实例的特定参数。
+			返回此日历实例的给定日历字段的最小值。最小值定义为get方法返回的任何可能时间值的最小值。最小值取决于日历系统的Instant（瞬间）特定参数。
 		getSetStateFields():final int 
 			返回一个字段掩码（位掩码），指示具有外部或内部设置状态的所有日历字段。
 		getTime():final Date 
-			返回表示此日历时间值的日期对象（与纪元epoch的毫秒偏移量）。
+			返回表示此日历时间值的Date对象（与纪元epoch的毫秒偏移量）。
 		getTimeInMillis():long 
 			返回此日历的时间值（毫秒）。
 		getTimeZone():TimeZone 
@@ -213,7 +213,7 @@
 		internalGet(int field):final int 
 			返回给定日历字段的值。此方法不涉及字段值的规范化或验证。
 		internalSet(int field, int value):final void 
-			设置给定日历字段的值。此方法不影响此日历实例中字段的任何设置状态。
+			设置给定日历字段的值。此方法不影响此日历Instant（瞬间）的任何设置状态。
 		isLenient():boolean 
 			说明日期/时间解释是否宽泛。如果此日历的解释模式宽松，则为“true”；否则为“false”。
 		isSet(int field):final boolean 
@@ -246,7 +246,7 @@
 		setMinimalDaysInFirstWeek(int value):void 
 			设置一年中第一周所需的最小天数；例如，如果第一周被定义为包含一年中第一个月的第一天，则使用值1调用此方法。如果必须是整周，请使用值7。
 		setTime(Date date):final void 
-			使用给定日期设置此日历的时间。注意：使用Date（Long.MAX_VALUE）或Date（Long.MIN_VALUE）调用settime（）可能会从get（）生成不正确的字段值。
+			使用给定Date设置此日历的时间。注意：使用Date（Long.MAX_VALUE）或Date（Long.MIN_VALUE）调用setTime()可能会从get()生成不正确的字段值。
 		setTimeInMillis(long millis):void 
 			从给定的long值设置此日历的当前时间。
 		setTimeZone(TimeZone value):void 
