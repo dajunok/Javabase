@@ -1,0 +1,277 @@
+一、案例说明：
+	1、AbstractMap<K,V>类的测试Demo
+二、源代码文件（.java）介绍：
+三、知识点：
+	1、AbstractMap<K,V>：抽象映射类。【Since:1.2】
+		此类提供Map接口的框架实现，以最小化实现此接口所需的工作量。
+		★ 为了实现一个不可修改的映射，程序员只需要扩展这个类并为entryset()方法提供一个实现，该方法返回映射的一个集合视图。通常，返回的集将依次在抽象集上实现。此集合不支持添加或删除方法，其迭代器不支持删除方法。
+		★ 要实现可修改的映射，程序员必须另外重写此类的Put方法（否则将引发UnsupportedOperationException不支持的操作异常），entrySet().iterator()返回的迭代器必须另外实现其Remove方法。
+		根据映射接口规范中的建议，程序员通常应该提供一个空的（没有参数）Map构造函数。
+		此类中每个非抽象方法的文档详细描述了其实现。如果正在实现的Map允许更有效的实现，则可以重写这些方法中的每一个。
+		该类是Java集合框架的成员。
+		
+		类定义：public abstract class AbstractMap<K,V> implements Map<K,V>
+	------------------------------------------------------------------------------------------------------------------------------------------------------
+	构造器：
+		protected AbstractMap()
+			唯一构造器（对于子类构造函数的调用，通常是隐式的）。
+	
+	方法：
+		clear():void 			
+			从该Map中删除所有映射（可选操作）。此调用返回后，映射将为空。此实现调用entrySet().clear()	
+			注意，如果entryset不支持clear操作，则此实现将引发unsupportedOperation异常。（子类需要先覆盖完成entrySet()方法的实现代码）		
+		containsKey(Object key):boolean 
+			如果Map包含指定键的映射，则返回true。更正式地说，如果并且仅当此映射包含键k的映射时返回true（key==null？k==空：key.equals（k））。（最多可以有一个这样的映射。）
+			此实现迭代entryset()以搜索具有指定键的条目。如果找到这样的条目，则返回true。如果迭代终止而没有找到这样的条目，则返回false。请注意，此实现需要映射大小的线性时间；许多实现将重写此方法。
+		containsValue(Object value):boolean
+			如果此映射将一个或多个键映射到指定值，则返回true。更正式地说，如果并且仅当此映射包含到值v的至少一个映射时返回true，这样（value==null ? v==null : value.equals(v)）。对于大多数映射接口实现，此操作可能需要映射大小的时间线性。 
+			此实现迭代entryset()以搜索具有指定值的条目。如果找到这样的条目，则返回true。如果迭代终止而没有找到这样的条目，则返回false。请注意，此实现需要映射大小的线性时间。
+		entrySet():abstract Set<Entry<K,V>>			
+			返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+			★ 抽象方法需在子类实现。
+		equals(Object o):boolean 
+			将指定的对象与此映射进行相等比较。如果给定对象也是map，并且两个map表示相同的映射，则返回true。更正式地说，如果m1.entrySet().equals(m2.entrySet())，则两个映射m1和m2表示相同的映射。这样可以确保equals方法在映射接口的不同实现中正常工作。
+		get(Object key):V 
+			返回指定键映射到的值，如果此映射不包含键的映射，则返回null。更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
+			如果此映射允许空值null，则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+			此实现迭代entryset()以搜索具有指定键的条目。如果找到这样的条目，则返回该条目的值。如果迭代终止而没有找到这样的条目，则返回空值。请注意，此实现需要映射大小的线性时间；许多实现将重写此方法。
+		hashCode():int 
+			返回此映射的哈希代码值。映射的哈希代码被定义为映射的entrySet() 视图中每个条目的哈希代码之和。这确保m1.equals(m2)意味着m1.hashCode()==m2.hashCode()对于任意两个映射m1和m2，这是Object.hashCode()的一般约定所要求的。
+			此实现迭代entrySet()，对集合中的每个元素（条目）调用hashCode()，并添加结果。
+		isEmpty():boolean 
+			如果Map为空（不包含任何key-value映射）返回true。	
+			此实现返回size() == 0。
+		keySet():Set<K> 
+			返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+			此实现返回一个对AbstractSet进行子类化的集。子类的迭代器方法在此map的entrySet()迭代器上返回一个“包装对象”。。size方法委托给此映射的size方法，而contains方法委托给此映射的containsKey方法。
+			第一次调用此方法时创建该集，并响应所有后续调用返回该集。没有执行同步，因此对该方法的多次调用可能不会全部返回同一个集合。
+		put(K key, V value):V			
+			将指定的值与此映射中的指定键相关联（可选操作）。如果映射之前包含键的映射，则旧值将替换为指定的值。（如果且仅当m.containsKey(k)返回true，则称map m包含键k的映射。）
+			★ 注意，此实现总是抛出UnsupportedOperationException异常。因此需要子类覆盖完成具体功能代码的实现。
+		putAll(Map<? extends K, ? extends V> m):void 			
+			将指定映射中的所有映射复制到此映射（可选操作）。对于指定映射中从键k到值v的每个映射，此调用的效果相当于在此映射上调用一次put(k, v)。如果在操作过程中修改了指定的映射，则此操作的行为未定义。	
+			此实现迭代指定映射的entrySet()方法返回的集合，并为迭代返回的每个条目调用此映射的Put操作一次。
+			请注意，如果此映射不支持put操作并且指定的映射不是空的，则此实现将引发UnsupportedOperationException异常。（子类需要先覆盖实现put方法）
+		remove(Object key):V 			 
+			从该映射中删除键的映射（如果存在）（可选操作）。更正式地说，如果这个映射包含从k键到v值的映射，那么(key==null ? k==null : key.equals(k))，该映射将被删除。（该映射最多可包含一个此类映射。）
+			返回此映射以前与该键关联的值，如果该映射不包含该键的映射，则返回空值。
+			如果此map允许空值null，则返回值为空并不一定表示map不包含键的映射；map也可能显式地将键映射为空。一旦调用返回，map将不包含指定键的映射。
+			此实现迭代entrySet()以搜索具有指定键的条目。如果找到这样的条目，则通过getValue操作获取其值，通过迭代器的remove操作从集合（和支持映射）中删除该条目，并返回保存的值。如果迭代终止而没有找到这样的条目，则返回null。请注意，此实现需要映射大小的线性时间；许多实现将重写此方法。
+			注意，如果entrySet()迭代器不支持remove方法，并且此映射包含指定键的映射，则此实现将引发UnsupportedOperationException。（子类需要先覆盖完成entrySet()方法的实现代码）
+		size():int 
+			返回此map中的键值映射数量。如果map包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+			此实现返回entrySet().size()。
+		toString():String 
+			返回此Map的字符串表示形式。字符串表示形式由键值映射列表组成，其顺序由映射的entrySet()视图迭代器返回，用大括号（"{}"）括起来。相邻映射由字符 ", " （逗号和空格）分隔。每个键值映射将呈现为键，后跟等号（“=”）和关联值。键和值按String.valueOf(Object)转换为字符串。
+		values():Collection<V>
+			返回此Map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+			此实现返回一个将AbstractCollection子类化的集合。子类的迭代器方法在此映射的entrySet()迭代器上返回一个“包装对象”。size方法委托给此map的size方法，而contains方法委托给此map的containsValue方法。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	2、AbstractMap$SimpleEntry<K,V>：简单条目类。是AbstractMap类中的一个静态内部类。【Since:1.6】
+		一种保持键和值的项。可以使用setValue方法更改该值。此类简化了构建自定义Map实现的过程。例如，在方法Map.entrySet().toArray中返回simpleEntry实例的数组可能比较方便。
+		
+		
+		类定义：public static class SimpleEntry<K,V> implements Map.Entry<K,V>, java.io.Serializable			
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	构造器：
+		SimpleEntry(Entry<? extends K, ? extends V> entry)
+			创建表示与指定项相同映射的项。
+		SimpleEntry(K key, V value)
+			创建一个条目，表示从指定键到指定值的映射。
+	
+	方法：
+		equals(Object o):boolean 
+			将指定的对象与此项进行比较以确保相等。如果给定对象也是映射项，并且这两个项表示相同的映射，则返回true。更正式地说，两个条目e1和e2表示相同的映射，如果:
+				(e1.getKey()==null ?e2.getKey()==null : e1.getKey().equals(e2.getKey()))
+   				&& 
+   				(e1.getValue()==null ? e2.getValue()==null : e1.getValue().equals(e2.getValue()))
+   			这样可以确保equals方法在map.entry接口的不同实现中正常工作。
+   		getKey():K 
+   			返回与此项对应的键。
+   		getValue():V 
+			返回与此条目对应的值。
+		hashCode():int 
+			返回此映射项的哈希代码值。
+		setValue(V value):V 
+			用指定值替换与此条目对应的值。   
+		toString():String 	
+			返回此映射项的字符串表示形式。此实现返回此项的键的字符串表示形式，后跟等号字符（“=”），后跟此项值的字符串表示形式。	
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	3、AbstractMap$SimpleImmutableEntry<K,V>：简单不可变条目类。【Since:1.6】
+		维护不可变键和值的项。★此类不支持setValue方法。在返回键值映射的线程安全快照的方法中，此类可能很方便。
+
+		类定义：public static class SimpleImmutableEntry<K,V> implements Map.Entry<K,V>, java.io.Serializable		
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	构造器：
+		SimpleImmutableEntry(Entry<? extends K, ? extends V> entry)
+			创建表示与指定项相同映射的项。
+		SimpleImmutableEntry(K key, V value)
+			创建一个条目，表示从指定键到指定值的映射。
+	方法：
+		equals(Object o):boolean 
+			将指定的对象与此项进行比较以确保相等。如果给定对象也是映射项，并且这两个项表示相同的映射，则返回true。更正式地说，两个条目e1和e2表示相同的映射，如果:
+				(e1.getKey()==null ?e2.getKey()==null : e1.getKey().equals(e2.getKey()))
+   				&& 
+   				(e1.getValue()==null ? e2.getValue()==null : e1.getValue().equals(e2.getValue()))
+   			这样可以确保equals方法在map.entry接口的不同实现中正常工作。
+   		getKey():K 
+   			返回与此项对应的键。
+   		getValue():V 
+			返回与此条目对应的值。
+		hashCode():int 
+			返回此映射项的哈希代码值。
+		setValue(V value):V 
+			用指定值替换与此条目对应的值。  
+			★ 这个实现只是抛出UnsupportedOperationException异常，因为这个类实现了一个不可变的映射项。 
+		toString():String 	
+			返回此映射项的字符串表示形式。此实现返回此项的键的字符串表示形式，后跟等号字符（“=”），后跟此项值的字符串表示形式。
+
+四、涉及接口和类：
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	9、Map<K,V>接口：映射。【Since:1.2】
+		将键映射到值的对象。Map不能包含重复的键；每个键最多可以映射到一个值。这个接口代替了Dictionary类，它是一个完全抽象的类，而不是一个接口。
+		
+		接口定义：public interface Map<K,V>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		clear():void 
+			从此Map中删除所有映射（可选操作）。
+		compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+			通过BiFunction类型的函数接口remappingFunction，计算指定key的V值得到新值。如果新值非空则则调用put(key, newValue)保存映射并返回。如果计算结果为空且key存在则调用remove(key)删除该key的映射并返回null。该函数式接口实现需在调用时由调用者实现。
+		computeIfAbsent(K key,Function<? super K, ? extends V> mappingFunction):default V 
+			如果key的映射值为空，则通过函数接口mappingFunction计算指定key的映射值，计算结果非空则保存映射值并返回，如果计算结果为空则返回旧的映射值。该函数式接口实现需在调用时由调用者实现。
+		computeIfPresent(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+			如果key的映射值非空，则通过函数接口mappingFunction计算指定key的映射值，计算结果非空则调用put(key, newValue)保存映射，计算结果为空则调用remove(key)删除此key映射并返回null。该函数式接口实现需在调用时由调用者实现。
+		containsKey(Object key):boolean 
+			如果Map包含指定键的映射，则返回true。
+		containsValue(Object value):boolean 
+			如果Map将一个或多个键映射到指定值，则返回true。
+		entrySet():Set<Map.Entry<K, V>> 
+			返回Map中包含的映射的Set视图。			
+		equals(Object o):boolean 
+			将指定对象与Map进行等同性比较。
+		forEach(BiConsumer<? super K, ? super V> action):default void 
+			对Map中的每个条目执行给定操作(执行函数式接口中的方法)，直到处理完所有条目或该操作引发异常。该函数式接口实现需在调用时由调用者实现。
+		get(Object key):V 
+			返回指定键被映射到的值，如果Map不包含键的映射，则返回null。
+		getOrDefault(Object key, V defaultValue):default V 
+			返回指定键映射到的值，或者如果Map不包含键的映射，则返回默认值defaultValue。
+		hashCode():int 
+			返回此Map的哈希代码值。
+		isEmpty():boolean 
+			如果Map为空（不包含任何key-value映射）返回true。
+		keySet():Set<K> 
+			返回一个包含Map所有key对象的集合。
+		merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):default V 
+			如果指定的键尚未与值相关联或与null相关联，则将其与给定的非null值相关联。（如果key对应的旧值不为空，则将给定的value与旧值传入函数接口方法进行处理得出新值，如果新值非空映射新值，如果新值为空则删除该映射）。
+		put(K key, V value):V 
+			将指定值与Map中指定键关联（即添加映射）。
+		putAll(Map<? extends K, ? extends V> m):void 
+			将指定的映射对象m中的所有key-value映射复制到此Map中。
+		putIfAbsent(K key, V value):default V 
+			如果指定的键尚未与值关联（或映射为null），则将其与给定值关联并返回null，否则返回旧值。
+		remove(Object key):V 
+			如果存在指定键的映射，则从该映射中删除该键的映射。
+		remove(Object key, Object value):default boolean 
+			如果指定key对应的值与value相等，则删除Map中指定的映射，并返回true，否则不删除并返回false。
+		replace(K key, V value):default V 
+			仅当指定键key当前映射到某个值时，才替换该条目。
+		replace(K key, V oldValue, V newValue):default boolean 
+			只有在当前映射到指定值(oldValue)时才替换指定键的条目(newValue)。
+		replaceAll(BiFunction<? super K, ? super V, ? extends V> function):default void 
+			将每个条目的值替换为在该条目上调用给定函数的结果，直到处理完所有条目或函数抛出异常。
+		size():int 
+			返回此映射中的键值映射的数量。
+		values():Collection<V> 
+			返回此Map中包含的所有V值的Collection视图。			
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	10、Map$Entry<K,V>接口：它是Map的一个内部接口。【Since:1.2】
+		Map的entrySet()方法返回一个实现Map.Entry接口的对象集合。集合中每个对象都是底层Map中一个特定的键/值对。通过这个集合的迭代器，您可以获得每一个条目(唯一获取方式)的键或值并对值进行更改。当条目通过迭代器返回后，除非是迭代器自身的remove()方法或者迭代器返回的条目的setValue()方法，其余对源Map外部的修改都会导致此条目集变得无效，同时产生条目行为未定义。因为Map这个类没有继承Iterable接口所以不能直接通过map.iterator来遍历(list，set就是实现了这个接口，所以可以直接这样遍历),所以就只能先转化为set类型，用entrySet()方法，其中set中的每一个元素值就是map中的一个键值对，也就是Map.Entry<K,V>了，然后就可以遍历了。基本上 就是遍历map的时候才用得着它吧。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		comparingByKey():static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K,V>> 
+			静态方法，返回一个比较器，该比较器比较Map.Entry在键上的自然顺序。
+		comparingByKey(Comparator<? super K> cmp):static <K, V> Comparator<Map.Entry<K, V>> 
+			静态方法，返回一个比较器，该比较器使用给定的比较器按键比较Map.Entry。
+		comparingByValue():static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K,V>>
+			静态方法，返回一个比较器，该比较器按值的自然顺序比较Map.Entry。
+		comparingByValue(Comparator<? super V> cmp):static <K, V> Comparator<Map.Entry<K, V>>
+			静态方法，返回一个比较器，该比较器使用给定的比较器按值比较Map.Entry。
+		equals(Object o):boolean
+			将指定对象与此条目进行相等性比较。
+		getKey():K 
+			返回与此条目对应的键。
+		getValue():V 
+			返回与此条目对应的值。
+		hashCode():int 
+			返回此映射项的哈希代码值。
+		setValue(V value):V 
+			用指定值替换与此条目对应的值。
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
