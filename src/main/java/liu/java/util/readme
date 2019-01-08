@@ -1,8 +1,10 @@
 一、案例说明：
 二、源代码文件（.java）介绍：
-三、知识点：
+三、知识点：（注：文档中的△符号表示覆盖重写方法。）
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	1、Iterable<T>接口：可迭代接口。故名思议，实现了这个接口的集合对象支持迭代，是可迭代的。它是一个函数式接口。
+		
+		接口定义：public interface Iterable<T>
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 		forEach(Consumer<? super T> action):default void 
 			对iterable（指的是实现该接口的集合对象）的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。
@@ -12,7 +14,9 @@
 			在这个Iterable描述的元素上创建一个Spliterator迭代器。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	2、Collection<E>接口：容器接口。该接口继承于Iterable<E>，使得java中所有实现Collection<E>的容器类，都能有统一的访问接口。Collection仅仅定义一组保存元素的最基本的操作集合。不包含获取元素和随机访问元素的操作集合，也不包含替换、插入等接口，就连remove、removeAll、retainAll方法都是可选的方法。但是作为持有元素的容器，这体现了接口最小职责的原则，使得大多数具体类型的容器能实现特定操作集合的同时，又能保证容器的通用性。
-		父接口：Iterable<E>
+		
+		接口定义：public interface Collection<E> extends Iterable<E>
+		所有父接口：Iterable<E>
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		add(E element):boolean
 			将元素e添加到此集合中，如果添加成功则返回true,添加失败则返回false
@@ -62,95 +66,462 @@
 		toArray(T[] a):T[]
 			返回包含此 collection 中所有元素的数组；返回数组的运行时类型与指定数组的运行时类型相同，也就是说此方法可以指定返回数组中的对象类型
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	3、List<E>接口：列表
-		父接口：Collection<E>, Iterable<E>		
+	3、List<E>接口：列表 【Since:1.2】
+		有序集合（也称为序列）。这个接口的用户可以精确控制每个元素在列表中的插入位置。用户可以通过其整数索引（列表中的位置）访问元素，并搜索列表中的元素。
+		与集合不同，列表通常允许重复元素。更正式地说，列表通常允许元素e1和e2对，这样e1.equals(e2)，如果它们允许空元素，那么它们通常允许多个空元素。有人可能希望通过在用户尝试插入运行时抛出异常来实现一个禁止重复的列表，这不是不可想象的，但是我们希望这种用法很少出现。
+		列表接口在迭代器的iterator, add, remove, equals 和  hashCode方法上放置了除集合接口中指定的以外的其他规定。为了方便起见，这里还包括其他继承方法的声明。
+		列表接口提供了四种方法来对列表元素进行位置（索引）访问。列表（如Java数组）是零基（下标以0开始）的。注意，对于某些实现（例如LinkedList类），这些操作可以按照与索引值成比例的时间执行。因此，如果调用者不知道实现，那么迭代列表中的元素通常比，索引它（通过索引查找）要好。
+		列表接口提供了一个特殊的迭代器，称为ListIterator迭代器，除了迭代器接口提供的正常操作之外，它还允许元素插入和替换以及双向访问。提供了一种方法来获取从列表中指定位置开始的列表迭代器。
+		列表接口提供两种方法来搜索指定的对象。从性能的角度来看，这些方法应该谨慎使用。在许多实现中，它们将执行高代价的线性搜索（速度更快）。
+		列表接口提供了两种方法，可以在列表中的任意点高效地插入和删除多个元素。
+		注意：虽然允许列表将自己作为元素包含，但建议特别小心：Equals和HashCode方法不再在此类列表中定义良好。
+		有些列表实现对可能包含的元素有限制。例如，一些实现禁止空元素，一些实现对其元素的类型有限制。试图添加不合格元素会引发未选中的异常（ unchecked exception），通常为NullPointerException或ClassCastException。试图查询不合格元素的存在可能会引发异常，或者只是返回false；一些实现将显示前一种行为，而一些实现将显示后一种行为。更一般地说，在不合格元素上尝试操作，如果完成操作不会导致不合格元素插入到列表中，可能会引发异常，或者根据实现的选择，可能会成功。此类异常在该接口的规范中标记为“可选”。
+		此接口是Java集合框架的成员。
+		
+		接口定义：public interface List<E> extends Collection<E>
+		所有父接口：Collection<E>, Iterable<E>		
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		add(E e):boolean 
+			△将指定的元素附加到此列表的末尾（可选操作）。
+			支持此操作的列表可能会限制哪些元素可以添加到此列表中。特别是，一些列表将拒绝添加空元素，而其他列表将对可能添加的元素类型施加限制。列表类应该在它们的文档中明确地指定对可以添加哪些元素的任何限制。
+			【Throws】：
+				● UnsupportedOperationException
+					如果此列表不支持添加操作（一般指没有实现功能代码，需要子类自己实现）
+				● ClassCastException
+					如果指定元素的类阻止将其添加到此列表中
+				● NullPointerException
+					如果指定的元素为空，并且此列表不允许空元素
+				● IllegalArgumentException 
+					如果此元素的某些属性阻止将其添加到此列表中
 		add(int index, E element):void
 			在此列表中的指定位置插入指定元素（可选操作）。将当前位于该位置的元素（如果有的话）和任何后续元素移到右边（向它们的索引中添加一个）。
+			【Throws】：
+				● UnsupportedOperationException	如果此列表不支持add操作（一般指没有实现功能代码，需要子类自己实现）
+				● ClassCastException	如果指定元素的类阻止将其添加到此列表中
+				● NullPointerException	如果指定的元素为null，并且此列表不允许null元素
+				● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此列表中 
+				● IndexOutOfBoundsException	如果索引超出范围(index < 0 || index > size())
 		addAll(int index, Collection<? extends E> c):boolean
-			将指定集合中的所有元素插入到指定位置的列表中（可选操作）。将当前位于该位置的元素（如果有的话）和任何后续元素向右移动（增加它们的索引）。
-			新元素将以指定集合的迭代器返回的顺序出现在此列表中。如果在操作进行中修改指定的集合，则此操作的行为未定义。（注意，如果指定的集合是这个列表，并且它是非空的，则会发生这种情况。）
-			成功插入所有元素后返回true。
+			将指定集合中的所有元素插入到指定位置的列表中（可选操作）。将当前位于该位置的元素（如果有的话）和任何后续元素向右移动（增加它们的索引）。新元素将以指定集合的迭代器返回的顺序出现在此列表中。如果在操作进行中修改指定的集合，则此操作的行为未定义。（注意，如果指定的集合是这个列表，并且它是非空的，则会发生这种情况。）成功插入所有元素后返回true。
+			【Throws】：
+				● UnsupportedOperationException	如果此列表不支持addAll操作（一般指没有实现功能代码，需要子类自己实现）
+				● ClassCastException	如果指定集合的元素的类阻止将其添加到此列表中
+				● NullPointerException	如果指定的集合包含一个或多个null元素，并且此列表不允许null元素，或者指定的集合为null
+				● IllegalArgumentException 如果指定集合的某个元素的某些属性阻止将其添加到此列表中
+				● IndexOutOfBoundsException	如果索引超出范围(index < 0 || index > size())
+		addAll(Collection<? extends E> c):boolean 
+			△按指定集合的迭代器返回元素的顺序（可选操作）将指定集合中的所有元素追加到此列表的末尾。如果在操作进行过程中修改了指定的集合，则此操作的行为未定义。（请注意，如果指定的集合是此列表，并且不是空的，则会发生这种情况。）
+			【Throws】：
+				● UnsupportedOperationException	如果此列表不支持addAll操作（一般指没有实现功能代码，需要子类自己实现）
+				● ClassCastException	如果指定集合的元素的类阻止将其添加到此列表中
+				● NullPointerException	如果指定的集合包含一个或多个null元素，并且此列表不允许null元素，或者指定的集合为null
+				● IllegalArgumentException 如果指定集合的某个元素的某些属性阻止将其添加到此列表中
+		clear():void 
+			△从此列表中删除所有元素（可选操作）。此调用返回后，列表将为空。
+		contains(Object o):boolean 
+			△如果此列表包含指定元素，则返回true。更正式地说，如果并且仅当此列表包含至少一个元素(o==null ? e==null : o.equals(e))。
+			【Throws】：
+				● ClassCastException	如果指定元素的类型与此列表不兼容（可选）
+				● NullPointerException	如果指定的元素为null，并且此列表不允许null元素（可选）
+		containsAll(Collection<?> c):boolean 
+			△如果此列表包含指定集合的所有元素，则返回true。
+			【Throws】：
+				● ClassCastException	如果指定集合中的一个或多个元素的类型与此列表不兼容（可选）
+				● NullPointerException	如果指定的集合包含一个或多个null元素，并且此列表不允许null元素（可选），或者指定的集合为null
+		equals(Object o):boolean 
+			△将指定的对象与此列表比较是否相等。如果且仅当指定的对象也是列表时，两个列表的大小相同，并且两个列表中所有对应的元素对都相等，则返回true。（两个元素e1和e2相等，如果（e1==null ? e2==null : e1.equals(e2))）换句话说，如果两个列表包含的元素顺序相同，则定义为相等。此定义确保equals方法在列表接口的不同实现中正常工作。
 		get(int index):E	
 			返回列表中指定位置的元素。
+			【Throws】：
+				● IndexOutOfBoundsException	如果索引超出范围(index < 0 || index >= size())
+		hashCode():int 
+			△ 返回此列表的哈希代码值。列表的哈希代码定义为以下计算的结果：
+				int hashCode = 1;
+			     for (E e : list)
+			         hashCode = 31*hashCode + (e==null ? 0 : e.hashCode());
+			这样可以确保list1.equals(list2)意味着list1.hashCode()==list2.hashCode()对于任何两个列表list1和list2，都是按照Object.hashCode()的常规约定执行的。
 		indexOf(Object o):int
-			返回此列表中指定元素首次出现的索引位置，如果该列表不包含指定元素，则返回-1。方法的实现机制是从序列(List)的第0个元素开始依次循环，并且调用每个元素的equals()方法和参数对象进行比较，
-			如果某一个元素的equals()方法返回值为true，那么就把当前元素的索引位置作为结果返回。假如序列中有多个重复的元素，只返回这个重复的元素第一次出现时所在的索引位置的值。
+			返回此列表中指定元素的第一个匹配项的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最低的索引i，以便(o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
+			【Throws】：
+				● ClassCastException	如果指定元素的类型与此列表不兼容（可选）
+				● NullPointerException	如果指定的元素为null，并且此列表不允许null元素（可选）
+		isEmpty():boolean 
+			△ 如果此列表不包含元素，则返回true。
+		iterator():Iterator<E> 
+			△ 以正确的顺序返回此列表中元素的迭代器。
 		lastIndexOf(Object o):int
 			返回此列表中指定元素的最后一次出现的索引位置，如果该列表不包含指定元素，则返回-1。也就是它会从序列的队尾向队头进行遍历。
+			【Throws】：
+				● ClassCastException	如果指定元素的类型与此列表不兼容（可选）
+				● NullPointerException	如果指定的元素为null，并且此列表不允许null元素（可选）
 		listIterator():ListIterator<E>
 			返回此列表中的元素的列表迭代器（按适当顺序）。
 		listIterator(int index):ListIterator<E>
 			从列表中的指定位置开始，返回列表中元素的列表迭代器（按适当顺序）。
 		remove(int index):E
 			删除列表中指定位置的元素（可选操作）。向左移动任何后续元素（从其索引中减去一个）。返回从列表中删除的元素。
-		replaceAll(UnaryOperator<E> operator):void
-			对每个元素执行operator指定的操作，并用操作结果来替换原来的元素。其中UnaryOperator是一个函数接口，里面只有一个待实现函数T apply(T t)。
-			例如：假设有一个字符串列表，将其中所有长度大于3的元素转换成大写，其余元素不变。
+			【Throws】：
+				● UnsupportedOperationException 如果此列表不支持删除操作（一般指没有实现功能代码，需要子类自己实现）
+				● IndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size())
+		remove(Object o):boolean 
+			△ 从该列表中删除指定元素的第一个匹配项（如果存在）（可选操作）。如果此列表不包含元素，则它是不变的。更正式地说，删除索引i最低的元素，这样(o==null ? get(i)==null : o.equals(get(i))) (if such an element exists)（如果存在这样的元素）。如果此列表包含指定元素，则返回“true”（如果此列表因调用而更改，则返回“true”）。
+			【Throws】：
+				● ClassCastException	如果指定元素的类型与此列表不兼容（可选）
+				● NullPointerException 如果指定的元素为空，并且此列表不允许空元素（可选）
+				● UnsupportedOperationException 如果此列表不支持remove操作（一般指没有实现功能代码，需要子类自己实现）
+		removeAll(Collection<?> c):boolean 
+			△ 从此列表中删除指定集合中包含的所有元素（可选操作）。如果此列表因调用而更改，则为true
+			【Throws】：
+				● UnsupportedOperationException 如果此列表不支持removeAll操作
+				● ClassCastException	如果此列表的元素的类与指定的集合不兼容（可选）
+				● NullPointerException 如果此列表包含null元素，并且指定的集合不允许null元素（可选），或者指定的集合为null				
+		replaceAll(UnaryOperator<E> operator):default void
+			将此列表中的每个元素替换为将operator应用于该元素的结果。由operator引发的错误或运行时异常将中继（断言）到调用方。
+			对于此列表，默认实现等效于：
+					final ListIterator<E> li = list.listIterator();
+			     	while (li.hasNext()) {li.set(operator.apply(li.next()));}	
+			如果列表的列表迭代器不支持set操作（set方法），则在替换第一个元素时将引发UnsupportedOperationException异常。
+			【Throws】：
+				● UnsupportedOperationException 如果这列表是不可更改的。如果元素不可以被替换，一般指不支持修改，该实现将抛出此异常。
+				● NullPointerException 如果指定的operator为null，或者operator操作结果值为null，并且此列表不允许null元素（可选）				
+		retainAll(Collection<?> c):boolean 
+			△仅保留此列表中包含在指定集合中的元素（可选操作）。换句话说，从该列表中删除不包含在指定集合中的所有元素。如果此列表因调用而更改，则为true
+			【Throws】：
+				● UnsupportedOperationException 如果此列表不支持retainAll操作（一般指没有实现功能代码，需要子类自己实现）
+				● ClassCastException	如果此列表的元素的类与指定的集合不兼容（可选）
+				● NullPointerException 如果此列表包含null元素，并且指定的集合不允许null元素（可选），或者指定的集合为null	
 		set(int index, E element):E
-			用指定的元素替换列表中指定位置的元素（可选操作）。
-		sort(Comparator<? super E> c):void
+			用指定的元素替换列表中指定位置的元素（可选操作）。返回以前位于指定位置的元素（返回旧元素）
+			【Throws】：
+				● UnsupportedOperationException	如果此列表不支持set操作（一般指没有实现功能代码，需要子类自己实现）
+				● ClassCastException	如果指定元素的类阻止将其添加到此列表中
+				● NullPointerException	如果指定的元素为null，并且此列表不允许null元素
+				● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此列表中 
+				● IndexOutOfBoundsException	如果索引超出范围(index < 0 || index >= size())
+		size():int 
+			△ 返回此列表中的元素数量。如果此列表包含的元素超过Integer.MAX_VALUE，则返回Integer.MAX_VALUE。
+		sort(Comparator<? super E> c):default void
 			根据c指定的比较规则（比较器）对容器元素进行排序。
+			此列表中的所有元素都必须使用指定的比较器进行相互比较（即，c.compare(e1, e2)不能对列表中的任何元素e1和e2抛出ClassCastException异常）。
+			如果指定的comparator为空，那么列表中的所有元素都必须实现Comparable接口，并且应该使用元素的自然顺序。
+			此列表必须可修改，但不必调整大小。
+			默认实现获取包含此列表中所有元素的数组，对数组进行排序，并在此列表上迭代，从数组中的相应位置重置每个元素。（这避免了尝试在适当位置对链接列表排序所导致的n2 log(n)性能。）
+			这个实现是一个稳定的、自适应的、迭代的合并排序，当输入数组部分排序时，需要的比较远少于n lg（n），而当输入数组随机排序时，提供传统合并排序的性能。如果输入数组接近排序，则实现需要大约n个比较。临时存储需求从几乎排序的输入数组的小常量到随机排序的输入数组的n/2对象引用不等。
+			该实现在其输入数组中充分利用了升序和降序的同等优势，并且可以利用同一输入数组不同部分的升序和降序。它非常适合合并两个或更多排序的数组：只需连接数组并对结果数组进行排序。
+			【Throws】：
+				● ClassCastException 如果列表包含使用指定的比较器不能相互比较的元素
+				● UnsupportedOperationException 如果列表的列表迭代器不支持set操作（一般指没有实现功能代码，需要子类自己实现）
+				● IllegalArgumentException 如果发现比较器违反比较器契约
+		spliterator():default Spliterator<E> 
+			△ 在此列表中的元素上创建Spliterator。
+			spliterator报告Spliterator.SIZED和Spliterator.ORDERED。实现应该记录额外特征值的报告。
+			默认实现从列表的迭代器创建一个后期绑定spliterator。spliterator继承列表迭代器的 fail-fast属性。
+			创建的Spliterator还报告Spliterator.SUBSIZED。			
 		subList(int fromIndex, int toIndex):List<E>
-			返回list中指定下标范围的元素组成的list新列表,左闭右开(包括fromIndex元素,不包括toIndex)。
+			返回指定的fromIndex（含）和toIndex（含）之间此列表部分的视图。（如果fromindex和toindex相等，则返回的列表为空。）返回的列表由此列表支持，因此返回列表中的非结构更改将反映在此列表中，反之亦然。返回的列表支持此列表支持的所有可选列表操作。
+			这种方法不需要显式的范围操作（数组通常存在的类型）。任何需要列表的操作都可以通过传递子列表视图而不是整个列表来用作范围操作。例如，以下习惯用法从列表中删除一系列元素：
+				list.subList(from, to).clear();
+			可以为indexOf和lastIndexOf构造类似的习语，Collections类中的所有算法都可以应用于子列表。
+			如果支持列表（即此列表）在结构上进行了除通过返回列表以外的任何方式的修改，则此方法返回的列表的语义将变为未定义的。（结构修改是指那些改变列表大小的修改，或者以某种方式干扰列表，使正在进行的迭代可能产生不正确的结果。）
+			【Throws】：
+				● IndexOutOfBoundsException	对于非法的端点索引值(fromIndex < 0 || toIndex > size || fromIndex > toIndex)
+		toArray():Object[] 
+			△ 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素。
+			返回的数组将是“安全的”，因为此列表不维护对它的引用。（换句话说，此方法必须分配一个新数组，即使此列表由数组支持）。因此，调用者可以自由修改返回的数组。
+			此方法充当基于数组和基于集合的API之间的桥梁。
+		toArray(T[] a):<T> T[] 
+			△ 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素；返回的数组的运行时类型是指定数组的运行时类型。如果列表符合指定的数组，则将在其中返回。否则，将为新数组分配指定数组的运行时类型和此列表的大小。
+			如果列表适合具有备用空间的指定数组（即数组中的元素多于列表中的元素），则紧跟列表末尾的数组中的元素将设置为空。（只有当调用者知道列表不包含任何空元素时，这对于确定列表的长度很有用。）
+			与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+			假设x是一个已知仅包含字符串的列表。以下代码可用于将列表转储到新分配的字符串数组中：
+				String[] y = x.toArray(new String[0]);
+			请注意，toArray(new Object[0])功能与toArray()相同
+			【Throws】：
+				● ArrayStoreException 如果指定数组的运行时类型不是此列表中每个元素的运行时类型的父类型
+				● NullPointerException 如果指定的数组为null
+				
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	4、Queue<E>接口：队列，是一种特殊的线性表，它只允许在表的前端（front）进行删除操作，而在表的后端（rear）进行插入操作。进行插入操作的端称为队尾，进行删除操作的端称为队头。
-				       队列中没有元素时，称为空队列。在队列这种数据结构中，按照元素出入顺序，最先插入的元素将是最先被删除的元素；反之最后插入的元素将是最后被删除的元素，
-				       称为“先进先出”（FIFO—first in first out）。 
+	4、Queue<E>接口：队列 【Since:1.5】
+		为在处理前保存元素而设计的集合。除了基本的Collection操作之外，队列还提供额外的插入、提取和检查操作。这些方法有两种形式：一种在操作失败时引发异常，另一种返回特殊值（根据操作的不同，为null或为false）。后一种形式的插入操作专门设计用于容量受限的队列实现；在大多数实现中，插入操作不会失败。
+					抛出异常				返回特殊值
+			插入		add(e)				offer(e)
+			删除		remove()			poll()
+			提取		element()			peek()	
+		Queue通常（但不一定）以先进先出FIFO（first-in-first-out）的方式对元素排序。其中的例外是优先级队列，它根据提供的比较器对元素排序，或元素的自然排序，以及对元素LIFO（后进先出）排序的LIFO队列（或堆栈）。无论使用什么顺序，队列的头部都是通过调用remove()或poll()删除的元素。在FIFO队列中，所有新元素都插入到队列的尾部。其他类型的队列可能使用不同的放置规则。每个队列实现都必须指定其排序属性。
+		如果可能，offer方法插入一个元素，失败返回false。这与Collection.add方法不同，后者只能通过引发未检查的异常（unchecked exception）来添加元素。offer方法设计用于当故障是正常情况而非异常情况时使用，例如，在固定容量（或“限定”）队列中。
+		remove()和poll()方法删除并返回队列的头部。从队列中准确地删除哪个元素是队列排序策略的一个函数，它的实现与实现不同。remove()和poll()方法仅在队列为空时的行为不同：remove()方法引发异常，poll()方法返回null。
+		element()和peek()方法返回但不移除队列的头部。
+		Queue接口没有定义阻塞队列方法，这在并发编程中很常见。这些方法等待元素出现或等待空间可用，在扩展此接口的BlockingQueue（阻塞队列）接口中定义。
+		Queue实现通常不允许插入空元素，尽管某些实现（如LinkedList）不禁止插入null元素。即使在允许它的实现中，也不应将null插入队列，因为poll方法还将null用作特殊的返回值，以指示队列不包含任何元素。
+		队列实现通常不定义方法equals和hashCode的基于元素的版本，而是从类Object继承基于标识的版本，因为对于具有相同元素但顺序属性不同的队列，并不总是定义了基于元素的相等性。
+		此接口是Java集合框架的成员。		
+		
+		接口定义：public interface Queue<E> extends Collection<E>
 		父接口：Collection<E>, Iterable<E>
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		add(E e):boolean 
+			△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。
+			【Throws】：
+				● IllegalStateException 如果由于容量限制，此时无法添加元素
+				● ClassCastException  如果指定元素的类阻止将其添加到此队列中
+				● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+				● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此队列
 		element():E
 			在队列的头部查询并返回元素。如果队列为空时，抛出一个异常。
+			【Throws】：
+				● NoSuchElementException 如果此队列为空
 		offer(E e):boolean
-			在队列头部添加元素，成功返回true，否则返回false。注意与：一些队列有大小限制，因此如果想在一个满的队列中加入一个新项，多出的项就会被拒绝。这时新的 offer 方法就可以起作用了。它不是对调用 add() 方法抛出一个 unchecked 异常，而只是得到由 offer() 返回的 false。 
+			 如果可以在不违反容量限制的情况下立即将指定元素插入此队列。当使用容量受限队列时，此方法通常比add(E)更可取，因为插入元素失败时候add(E)只能抛出异常。
+			【Throws】：
+				● ClassCastException  如果指定元素的类阻止将其添加到此队列中
+				● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+				● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
 		peek():E
 			在队列的头部查询并返回元素。如果队列为空时，返回null。
 		poll():E
-			从队列中删除第一个元素。注意remove() 和 poll() 方法都是从队列中删除第一个元素。remove() 的行为与 Collection 接口的版本相似，但是新的 poll() 方法在用空集合调用时不是抛出异常，只是返回 null。因此新的方法更适合容易出现异常条件的情况。
+			检索但不删除此队列的头；如果此队列为空，则返回空值。
 		remove():E	
-			从队列中删除第一个元素。
+			检索并删除此队列的头。此方法与Poll的不同之处在于，如果此队列为空，它将引发异常。
+			【Throws】：
+				● NoSuchElementException 如果此队列为空
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	5、Deque<E>接口：双端队列，是一个线性collection,支持在两端插入和移除元素。（名称deque是"double ended queue" 双端队列）。接口既支持有容量限制的双端队列，也支持没有固定大小限制的双端队列。
-				      接口定义在双端队列访问元素的方法，提供插入、移除、检查元素的方法。每种方法都存在两种形式：一种形式在操作失败时抛出异常;另一种形式返回一个特殊值（null或false）。
+	5、Deque<E>接口：双端队列。【Since:1.6】
+		支持元素在两端插入和删除的线性集合。deque是"double ended queue"（双端队列）的缩写，通常发音为“deck”。大多数Deque实现，对它们可能包含的元素数量没有固定的限制，但是这个接口支持容量受限的deque以及没有固定大小限制的deque。
+		这个接口定义了访问deque两端元素的方法。提供了插入、移除和检查元素的方法。这些方法有两种形式：一种在操作失败时引发异常，另一种返回特殊值（根据操作的不同，为null或为false）。后一种形式的插入操作是专门为容量受限的deque实现而设计的；在大多数实现中，插入操作不会失败。
+		下表总结了上述12种方法：
+				First Element (Head)			Last Element (Tail)
+					抛出异常			特殊值			抛出异常			特殊值
+			插入	 addFirst(e)	offerFirst(e)	addLast(e)		offerLast(e)
+			移除	 removeFirst()	pollFirst()		removeLast()	pollLast()
+			提取	 getFirst()		peekFirst()		getLast()		peekLast()
+		此接口扩展Queue接口。当DEQUE用作队列时，将产生FIFO（先进先出）行为。元素被添加到deque的末尾，并从开头移除。从队列接口继承的方法与下表所示的Deque方法完全等效：
+			【Queue】方法		等效 【Deque】方法
+			add(e)			addLast(e)
+			offer(e)		offerLast(e)
+			remove()		removeFirst()
+			poll()			pollFirst()
+			element()		getFirst()
+			peek()			peekFirst()		
+		Deques也可以用作后进先出LIFO (Last-In-First-Out)栈。这个接口应该优先使用旧的Stack类。当deque用作栈时，元素从deque开始被推送和弹出。Stack方法与下表所示的Deque方法完全相同：
+			【Stack】方法		等效 【Deque】方法
+			push(e)			addFirst(e)
+			pop()			removeFirst()
+			peek()			peekFirst()	
+		请注意，当deque用作队列或栈时，peek方法也同样有效；在这两种情况下，元素都是从deque开始绘制的。
+		此接口提供两种方法来删除内部元素：removeFirstOccurrence和removeLastOccurrence。
+		与列表接口不同，此接口不支持对元素的索引访问。
+		虽然Deque实现并不严格要求禁止插入null元素，但强烈建议这样做。强烈建议任何允许null元素的Deque实现的用户不要利用插入null元素的能力。这是因为通过各种方法将null值用作特殊返回值，以指示Deque为空。
+		deque实现通常不定义equals和hashCode方法的基于元素的版本，而是从类Object继承基于标识的版本。
+		此接口是Java集合框架的成员。
+	
+		接口定义：public interface Deque<E> extends Queue<E>
 		父接口：Queue<E>,Collection<E>, Iterable<E>
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		add(E e):boolean 
+			△ 如果可以在不违反容量限制的情况下立即执行此操作，则将指定的元素插入此deque表示的队列（换句话说，在该deque的尾部），成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offer。
+			此方法等价于addLast(E)
+			【Throws】：
+				● IllegalStateException 如果由于容量限制，此时无法添加元素
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
 		addFirst(E e):void 
-			将指定元素插入此双端队列的开头。
+			如果可以在不违反容量限制的情况下立即插入指定元素，则在该deque的前面插入该元素；如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offerFirst(E)方法。
+			【Throws】：
+				● IllegalStateException 如果由于容量限制，此时无法添加元素
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
 		addLast(E e):void 
-			将指定元素插入此双端队列的末尾。
-		getFirst():E 
-			获取，但不移除此双端队列的第一个元素。
-		getLast():E 
-			获取，但不移除此双端队列的最后一个元素。
-		offerFirst(E e):boolean
-			将指定的元素插入此双端队列的开头，成功返回true，否则返回false。
-		offerLast(E e):boolean 
-			将指定的元素插入此双端队列的末尾。成功返回true，否则返回false。
-		peekFirst():E 
-			获取，但不移除此双端队列的第一个元素。
-		peekLast():E 
-			获取，但不移除此双端队列的最后一个元素。
-		pollFirst():E 
-			获取并移除此双端队列的第一个元素；如果此双端队列为空，则返回 null
-		pollLast():E 
-			获取并移除此双端队列的最后一个元素；如果此双端队列为空，则返回 null
-		pop():E 
-			从此双端队列所表示的堆栈中弹出一个元素。
-		push(E e):void 
-			将一个元素推入此双端队列所表示的堆栈。
-		removeFirst():E 
-			获取并移除此双端队列第一个元素。			
-		removeLast():E 
-			获取并移除此双端队列的最后一个元素。
-		removeFirstOccurrence(Object o):boolean
-			从此双端队列移除第一次出现的指定元素。
-		removeLastOccurrence(Object o):boolean 
-			从此双端队列移除最后一次出现的指定元素。
+			如果可以在不违反容量限制的情况下立即插入指定元素，则在该deque的结尾插入该元素；如果当前没有可用空间，则引发IllegalStateException。当使用容量受限的deque时，通常最好使用offerLast(E)方法。
+			此方法相当于add(E)
+			【Throws】：
+				● IllegalStateException 如果由于容量限制，此时无法添加元素
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+		contains(Object o):boolean 
+			△ 如果此双端队列包含指定元素，则返回true。更正式地说，如果且仅当此deque包含至少一个元素e（例如(o==null ? e==null : o.equals(e))）时返回true。
+			【Throws】：
+				● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
 		descendingIterator():Iterator<E> 
-			返回以逆向顺序在此双端队列的元素上进行迭代的迭代器。
+			以相反的顺序返回此deque中元素的迭代器（降序迭代器）。元素将按从最后（尾）到第一（头）的顺序返回。
+		element():E 
+			△ 检索但不删除由这个deque表示的队列的头（换句话说，这个deque的第一个元素）。此方法与peek的不同之处在于，如果此deque为null，它将抛出异常。
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空
+		getFirst():E 
+			检索但不删除此deque的第一个元素。此方法与peekFirst的不同之处在于，如果此deque（双端队列）为空，它将引发异常。
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空
+		getLast():E 
+			检索但不删除此deque的最后一个元素。此方法与peekLast的不同之处在于，如果此deque（双端队列）为空，它将引发异常。
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空
+		iterator():Iterator<E> 
+			△ 返回 以正确的顺序迭代此deque中元素的迭代器。元素将按从第一个（头）到最后一个（尾）的顺序返回。
+		offer(E e):boolean 
+			△ 如果可以在不违反容量限制的情况下立即执行此操作，则将指定元素插入此deque表示的队列（换句话说，在该deque（双端队列）的尾部），成功时返回true，如果当前没有可用空间，则返回false。当使用容量受限的deque时，此方法通常优于add(E)方法，后者只能通过引发异常而无法插入元素。		
+			【Throws】：
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+		offerFirst(E e):boolean
+			在这个deque（双端队列）的前面插入指定的元素，除非它违反了容量限制。如果将元素添加到此deque，则为true，否则为false。当使用容量受限的deque时，此方法通常优于addFirst(E)方法，后者只能通过引发异常而无法插入元素。
+			【Throws】：
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+		offerLast(E e):boolean 
+			在这个deque的末尾插入指定的元素，除非它会违反容量限制。如果将元素添加到此deque，则为true，否则为false。当使用容量受限的deque时，此方法通常优于addlast（e）方法，后者只能通过引发异常来插入元素。
+			【Throws】：
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+		peek():E 
+			△ 检索但不删除由此deque表示的队列头（换句话说，此deque的第一个元素），或者如果此deque为null，则返回null。
+			此方法等效于peekFirst()
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空
+		peekFirst():E 
+			检索但不移除此deque的第一个元素，或者如果此deque为空则返回null。
+		peekLast():E 
+			检索但不移除此deque的最后一个元素，或者如果此deque为空则返回null。
+		poll():E 
+			△ 检索并删除由该deque表示的队列的头（换句话说，是该deque的第一个元素），或者如果该deque为空，则返回null。
+			此方法等效于pollFirst()
+		pollFirst():E 
+			检索并删除此deque的第一个元素，如果此deque为空，则返回null。
+		pollLast():E 
+			检索并删除此deque（双端队列）的最后一个元素，如果此deque为空，则返回null。
+		pop():E 
+			从此deque（双端队列）所表示的栈中弹出一个元素。换句话说，删除并返回此deque的第一个元素。
+			此方法等效于removeFirst()。
+		push(E e):void 
+			如果可以在不违反容量限制的情况下立即将元素推送到该deque表示的栈上（换句话说，在该deque的头部），如果当前没有可用空间，则引发IllegalStateException异常。
+			此方法等效于addFirst(E)
+			【Throws】：
+				● IllegalStateException 如果由于容量限制，此时无法添加元素
+				● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+		remove():E 
+			△ 检索并删除由这个deque表示的队列的头（换句话说，这个deque的第一个元素）。此方法与poll的不同之处在于，如果此deque为空，它将引发异常。
+			此方法等效于 removeFirst()
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空
+		remove(Object o):boolean 
+			△从该deque中删除指定元素的第一个匹配项。如果deque不包含元素，则它是不变的。更正式地说，删除第一个元素e像这样 (o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+			此方法等效于removeFirstOccurrence(Object)
+		removeFirst():E 
+			检索并删除此deque的第一个元素。此方法与pollFirst的不同之处在于，如果此deque为空，它将引发异常。
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空		
+		removeLast():E 
+			检索并删除此deque的最后一个元素。此方法与pollLast的不同之处在于，如果此deque为空，它将引发异常。
+			【Throws】：
+				● NoSuchElementException 如果deque（双端队列）为空
+		removeFirstOccurrence(Object o):boolean
+			从该deque中删除指定元素的第一个匹配项。如果deque不包含元素，则它是不变的。更正式地说，删除第一个元素e像这样(o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+			【Throws】：
+				● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+		removeLastOccurrence(Object o):boolean 
+			从该deque中删除指定元素的最后一次出现。如果deque不包含元素，则它是不变的。更正式地说，删除最后一个元素e像这样(o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+			【Throws】：
+				● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+				● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+		size():int 
+			△ 返回此deque（双端队列）中的元素数量。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	6、Set<E>接口：集合，Set是一个不能含有重复元素的collection，更准确的说其不能有重复元素，同时最多只能有一个空的元素。
+	6、Set<E>接口：数学抽象集合，【Since:1.2】
+		不包含重复元素的集合。更正式地说，集合不包含像e1.equals(e2)这样的一对元素e1和e2，并且最多包含一个null元素。正如其名称所暗示的那样，这个接口为数学集抽象建模。
+		除了从Collection接口继承的约定之外，Set接口还对所有构造函数的约定以及add、equals和hashCode方法的约定进行了附加规定。为了方便起见，这里还包括其他继承方法的声明。（这些声明随附的规范是为Set接口定制的，但不包含任何附加规定。）
+		对构造器的附加规定不足为奇，所有构造器必须创建一个不包含重复元素的集合（如上所定义）
+		注意：如果可变对象用作集合元素，则必须非常小心。如果在对象是集合中的元素时，以影响相等比较的方式更改对象的值，则不会指定集合的行为。这种禁止的一个特殊情况是，不允许一个集合作为一个元素来包含它自己。
+		一些集合实现对它们可能包含的元素有限制。例如，一些实现禁止空元素，一些实现对其元素的类型有限制。试图添加不合格元素会引发未选中的异常，通常为NullPointerException或ClassCastException。试图查询不合格元素的存在可能会引发异常，或者只是返回false；一些实现将显示前一种行为，而一些实现将显示后一种行为。更一般地说，在不合格元素上尝试操作，如果完成操作不会导致不合格元素插入到集合中，则可能会引发异常，或者根据实现的选择，可能会成功。此类异常在该接口的规范中标记为“可选”。
+		此接口是Java集合框架的成员。
+		
+		
+		接口定义：public interface Set<E> extends Collection<E>
 		父接口：Collection<E>, Iterable<E>
+	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		add(E e):boolean 
+			△ 如果指定的元素还不存在，则将其添加到此集合中（可选操作）。更正式地说，如果像这样(e==null ? e2==null : e.equals(e2))，集合不包含元素e2，则将指定的元素e添加到此集合中。如果此集合已经包含元素，则调用将使集合保持不变并返回false。结合对构造函数的限制，这可以确保集合从不包含重复的元素。
+			上述规定并不意味着集合必须接受所有元素；集合可以拒绝添加任何特定元素，包括null元素，并抛出异常，如Collection.add规范中所述。单独的集合实现应该清楚地记录对它们可能包含的元素的任何限制。
+			【Throws】：
+				● IllegalStateException 如果此set不支持add操作
+				● ClassCastException 如果指定元素的类阻止将其添加到此set（集合）中
+				● NullPointerException 如果指定的元素为null，并且此set（集合）不允许null元素
+				● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此set（集合）中	
+		addAll(Collection<? extends E> c):boolean 
+			△ 如果指定集合中的所有元素尚不存在，则将它们添加到此集合中（可选操作）。如果指定的c也是一个集合，则addAll操作将有效地修改此集合，使其值为两个集合的并集。如果在操作进行过程中修改了指定的集合，则此操作的行为未定义。
+			【Throws】：
+				● IllegalStateException 如果此set不支持addAll操作
+				● ClassCastException 如果指定集合的元素的类阻止将其添加到此set（集合）中
+				● NullPointerException 如果指定的元素为null，并且此set（集合）不允许null元素
+				● IllegalArgumentException 如果指定的集合包含一个或多个空元素，并且此集合不允许null元素，或者指定的集合为null	
+		clear():void 
+			△从该集合中移除所有元素（可选操作）。此调用返回后，集合将为空。
+		contains(Object o):boolean 
+			△如果此集合包含指定元素，则返回true。更正式地说，如果且仅当此集合包含元素e(o==null ? e==null : o.equals(e))。
+			【Throws】：
+				● ClassCastException 如果指定元素的类型与此集合不兼容（可选）
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素（可选）
+		containsAll(Collection<?> c):boolean 
+			△如果此集合包含指定集合的所有元素，则返回true。如果指定的collection也是集合，则如果该集合是集合的子集，则此方法返回true。		
+			【Throws】：
+				● ClassCastException 如果指定集合中一个或多个元素的类型与此集合不兼容（可选）
+				● NullPointerException 如果指定的集合包含一个或多个null元素，并且此集合不允许null元素（可选），或者指定的集合为null	
+		equals(Object o):boolean 
+			△ 将指定的对象与此集进行相等比较。如果指定的对象也是一个集合，两个集合的大小相同，并且指定集合的每个成员都包含在此集合中（或等效地，此集合的每个成员都包含在指定集合中），则返回true。此定义确保equals方法在Set接口的不同实现中正常工作。
+		hashCode():int 
+			△返回此集的哈希代码值。集合的哈希代码定义为集合中元素的哈希代码之和，其中空元素的哈希代码定义为零。这确保s1.equals(s2)意味着s1.hashCode()==s2.hashCode()对于任意两个集合s1和s2，这是Object.hashCode()的一般约定所要求的。	
+		isEmpty():boolean 
+			△如果此集合不包含元素，则返回true
+		iterator():Iterator<E> 
+			△ 返回此集合中元素的迭代器。元素不会以特定的顺序返回（除非此集合是某个提供保证的类的实例）。
+		remove(Object o):boolean 
+			△ 如果指定元素存在，则从该集合中移除该元素（可选操作）。更正式地说，删除像这样(o==null ? e==null : o.equals(e))的元素e，如果这个集合包含这样一个元素，则返回“真”（如果此集合因调用而更改，则返回等效）。（调用返回后，此集合将不包含此元素。）
+			【Throws】：
+				● UnsupportedOperationException 如果此集合不支持删除操作(一般指未实行功能代码，需子类覆盖实现)
+				● ClassCastException 如果指定元素的类型与此集合不兼容（可选）
+				● NullPointerException 如果指定的元素为null，并且此集合不允许为null元素（可选）				
+		removeAll(Collection<?> c):boolean 
+			△ 从此集合中删除包含在指定集合中的所有元素（可选操作）。如果指定的集合也是集合，则此操作将有效地修改此集合，使其值为两个集合的不对称集合差。
+			【Throws】：
+				● UnsupportedOperationException 如果此集合不支持removeAll操作(一般指未实行功能代码，需子类覆盖实现)
+				● ClassCastException 如果指定元素的类型与此集合不兼容（可选）
+				● NullPointerException 如果此集合包含null元素，并且指定的集合不允许null元素（可选），或者指定的集合为null
+		retainAll(Collection<?> c):boolean 
+			△ 仅保留此集合中包含在指定集合中的元素（可选操作）。换句话说，从该集合中删除指定集合中不包含的所有元素。如果指定的集合也是一个集合，则此操作将有效地修改此集合，使其值为两个集合的交集。
+			【Throws】：
+				● UnsupportedOperationException 如果此集合不支持retainAll操作(一般指未实行功能代码，需子类覆盖实现)
+				● ClassCastException 如果此集合的元素的类与指定集合不兼容（可选）
+				● NullPointerException 如果此集合包含null元素，并且指定的集合不允许null元素（可选），或者指定的集合为null
+		size():int 
+			△ 返回此集合中的元素数量（其基数）。如果此集合包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+		spliterator():default Spliterator<E> 
+			△ 在此集合中的元素上创建Spliterator（拆分器）。
+			Spliterator报告Spliterator.DISTINCT。实现应该记录额外特征值的报告。
+			默认实现从集合的迭代器创建后期绑定Spliterator（拆分器）。Spliterator（拆分器）继承集合迭代器的fail-fast属性。	
+			创建的Spliterator还报告Spliterator.SIZED
+		toArray():Object[] 
+			△ 返回包含此集合中所有元素的数组。如果这个集合对迭代器返回元素的顺序有任何保证，那么这个方法必须以相同的顺序返回元素。
+			返回的数组将是“安全的”，因为此集合不维护对它的引用。（换句话说，此方法必须分配一个新数组，即使此集合由数组支持）。因此，调用者可以自由修改返回的数组
+			此方法充当基于数组和基于集合的API之间的桥梁。
+		toArray(T[] a):<T> T[] 
+			△ 返回包含此集合中所有元素的数组；返回的数组的运行时类型是指定数组的运行时类型。如果集合符合指定的数组，则将在其中返回该集合。否则，将为新数组分配指定数组的运行时类型和该集合的大小。
+			如果此集合适合具有备用空间的指定数组（即，数组中的元素多于此集合），则紧跟集合末尾的数组中的元素将设置为null。（只有当调用者知道该集合不包含任何null元素时，才有助于确定该集合的长度。）
+			如果这个集合对迭代器返回元素的顺序有任何保证，那么这个方法必须以相同的顺序返回元素。
+			与toarray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+			假设x是一个已知仅包含字符串的集合。以下代码可用于将集合转储到新分配的字符串数组中：
+				String[] y = x.toArray(new String[0]);
+			请注意，toArray(new Object[0])，功能与toarray()相同。
+			【Throws】：
+				● ArrayStoreException 如果指定数组的运行时类型不是此集合中每个元素的运行时类型的父类型
+				● NullPointerException 如果指定的数组为null
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	7、SortedSet<E>接口：提供对其元素的进行排序的集合。保证迭代器按照元素递增顺序遍历的集合，可以按照元素的自然顺序（参见 Comparable）进行排序，
 					或者按照创建有序集合时提供的 Comparator进行排序。要采用此排序，还要提供一些其他操作（此接口是 SortedMap 的集合对应物）。 
