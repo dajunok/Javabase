@@ -435,7 +435,7 @@
 		size():int 
 			△ 返回此deque（双端队列）中的元素数量。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	6、Set<E>接口：数学抽象集合，【Since:1.2】
+	6、Set<E>接口：数学集合，【Since:1.2】
 		不包含重复元素的集合。更正式地说，集合不包含像e1.equals(e2)这样的一对元素e1和e2，并且最多包含一个null元素。正如其名称所暗示的那样，这个接口为数学集抽象建模。
 		除了从Collection接口继承的约定之外，Set接口还对所有构造函数的约定以及add、equals和hashCode方法的约定进行了附加规定。为了方便起见，这里还包括其他继承方法的声明。（这些声明随附的规范是为Set接口定制的，但不包含任何附加规定。）
 		对构造器的附加规定不足为奇，所有构造器必须创建一个不包含重复元素的集合（如上所定义）
@@ -523,51 +523,144 @@
 				● ArrayStoreException 如果指定数组的运行时类型不是此集合中每个元素的运行时类型的父类型
 				● NullPointerException 如果指定的数组为null
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	7、SortedSet<E>接口：提供对其元素的进行排序的集合。保证迭代器按照元素递增顺序遍历的集合，可以按照元素的自然顺序（参见 Comparable）进行排序，
-					或者按照创建有序集合时提供的 Comparator进行排序。要采用此排序，还要提供一些其他操作（此接口是 SortedMap 的集合对应物）。 
-					插入有序集合的所有元素都必须实现 Comparable 接口（或者被指定的 Comparator 所接受）。另外，所有这些元素都必须是可相互比较的：
-					e1.compareTo(e2)（或 comparator.compare(e1, e2)）对于有序集合中的任意元素 e1 和 e2 都不能抛出 ClassCastException。
-					试图违反这些限制将导致违反规则的方法或者构造方法调用抛出 ClassCastException。
+	7、SortedSet<E>：排序集接口。【Since:1.2】
+		进一步提供其元素的总排序的Set。这些元素是使用它们的自然顺序来排序的，或者由一个比较器来排序，通常在排序集创建时提供。集合的迭代器将按升序元素顺序遍历集合。为了便于排序，还提供了一些附加操作。（此接口是SortedMap的Set模拟。）
+		插入排序集中的所有元素必须实现Comparable的接口（或被指定的比较器接受）。此外，所有这些元素必须相互比较：e1.compareTo(e2)（或comparator.compare(e1, e2)），不能对排序集中的任何元素e1和e2抛出ClassCastException。违反此限制的尝试将导致有问题的方法或构造函数调用引发ClassCastException异常。
+		注意，如果排序集要正确实现Set接口，那么由排序集维护的排序（无论是否提供显式比较器）必须与equals一致。（有关与equals一致的精确定义，请参见Comparable 接口或Comparator接口。）这是因为Set接口是根据equals操作定义的，但排序集使用其compareTo方法（或compare方法）执行所有元素比较，因此从排序集的角度来看，该方法认为相等的两个元素是相等的。排序集的行为是定义良好的，即使它的排序与equals不一致；它只是不遵守集合接口的一般约定。
+		所有通用排序集实现类都应提供四个“标准”构造函数：1）一个void（无参数）构造函数，它创建一个空的排序集，并根据元素的自然顺序排序。2）具有Comparator类型的单个参数的构造函数，它创建一个根据指定的Comparator排序的空排序集。3）具有类型Collection的单个参数的构造函数，它创建一个新的排序集，该集合的元素与其参数相同，并按照元素的自然顺序排序。4）具有SortedSet类型的单个参数的构造函数，它创建一个与输入排序集具有相同元素和相同顺序的新排序集。无法强制执行此建议，因为接口不能包含构造函数。
+		注意：有几种方法返回范围受限的子集。这样的范围是半开放的，也就是说，它们包括它们的低端点，但不包括它们的高端点（如适用）。如果需要一个闭合范围（包括两个端点），并且元素类型允许计算给定值的后续值，那么只需请求从lowEndpoint到后续值的子范围（highEndpoint）。例如，假设S是一组经过排序的字符串。下面的成语获得了一个包含s中所有字符串的视图，从低到高，包括：
+			SortedSet<String> sub = s.subSet(low, high+"\0");
+		可以使用类似的技术生成一个开放范围（既不包含端点）。下面是获得一个视图的惯用语法，其中包含s中从低到高的所有字符串，不包含端点：
+			SortedSet<String> sub = s.subSet(low+"\0", high);
+		此接口是Java集合框架的成员。
+
+		
+		接口定义：public interface SortedSet<E> extends Set<E>
 		父接口：Set<E>,Collection<E>, Iterable<E>		
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 		comparator():Comparator<? super E>
-			返回用于对集合中的元素进行排序的比较器。
+			返回用于对该集合中的元素排序的比较器，如果该集合使用其元素的自然顺序，则返回null。			
 		first():E 
-			返回该集合中当前第一个（最低）元素。
+			返回当前在此集合中的第一个（最低）元素。
+			【Throws】：
+				● NoSuchElementException 如果此集合为空
 		last():E 
-			返回当前集合中最后一个元素。
+			返回当前在此集合中的最后一个（最高）元素。
+			【Throws】：
+				● NoSuchElementException 如果此集合为空
+		spliterator():default Spliterator<E> 
+			△ 在此排序集中的元素上创建Spliterator（拆分器）。
+			拆分器报告Spliterator.DISTINCT, Spliterator.SORTED 和 Spliterator.ORDERED。实现应该记录额外特征值的报告。
+			默认实现从排序集的迭代器创建后期绑定拆分器（ late-binding spliterator）。spliterator（拆分器）继承集合迭代器的fail-fast属性。拆分器的比较器与排序集的比较器相同。
+			创建的Spliterator还报告Spliterator.SIZED
 		headSet(E toElement):SortedSet<E> 
-			返回从开始到指定元素范围的新集合。		
+			返回此集合中元素严格小于toElement的部分的视图。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。		
+			返回的集合将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			【Throws】：
+				● ClassCastException   如果toElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果toElement没有实现Comparable接口）。如果无法将toElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果toElement为null且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且toElement位于范围的边界之外
 		tailSet(E fromElement):SortedSet<E> 
-			返回从指定元素到最后范围之间的所有元素的新集合。
+			返回此集合中元素大于或等于fromElement的部分的视图。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			返回的集合将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			【Throws】：
+				● ClassCastException   如果fromElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果fromElement没有实现Comparable接口）。如果无法将fromElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常
+				● NullPointerException 如果fromElement为null且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且fromElement位于范围的边界之外
 		subSet(E fromElement, E toElement):SortedSet<E> 
-			返回从指定fromElement到toElement范围之间所有元素的新集合（不包含toElement元素）。	
+			返回此集合中元素范围从fromElement（含）到toElement（不含）的部分的视图。（如果fromElement和toElement相等，则返回的集合为null。）返回的集合由该集合支持，因此返回集合中的更改反映在该集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			返回的集合将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			【Throws】：
+				● ClassCastException   如果无法使用此集合的比较器对fromElement和toElement相互比较（或者，如果集合没有比较器，则使用自然顺序）。如果无法将fromElement或toElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果fromElement或toElement为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果fromElement大于toElement；或者如果此集合本身具有限制的范围，并且fromElement或toElement位于范围之外
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	8、NavigableSet<E>接口：导航集合。该接口扩展了 SortedSet，具有了为给定搜索目标报告最接近匹配项的导航方法。方法 lower、floor、ceiling 和 higher 分别返回小于、小于等于、大于等于、大于给定元素的元素，如果不存在这样的元素，则返回 null。
+	8、NavigableSet<E>接口：导航集合。【Since:1.6】
+		使用导航方法扩展的SortedSet，报告给定搜索目标的最近（最靠近）匹配项。lower, floor, ceiling 和 higher方法分别返回小于、小于或等于、大于或等于以及大于给定元素的元素，如果没有此类元素，则返回空值。可以按升序或降序访问和遍历NavigableSet。descendingSet方法返回集合的视图，所有关系和方向方法的意义都颠倒了。
+		升序操作和视图的性能可能比降序操作和视图的性能更快。此接口还定义了pollFirst和pollLast方法，这些方法返回并删除最低和最高的元素（如果存在），否则返回null。subSet, headSet 和 tailSet方法不同于类似的命名SortedSet方法，它接受描述下限和上限是包含还是排除的附加参数。任何NavigableSet的子集必须实现NavigableSet接口。
+		导航方法的返回值在允许空元素的实现中可能不明确。但是，即使在这种情况下，也可以通过检查contains(null)消除结果的歧义。为了避免此类问题，鼓励此接口的实现不允许插入null元素。（请注意，可比较排序集元素本质上不允许为null。）
+		方法subSet(E, E), headSet(E) 和 tailSet(E)被指定为返回SortedSet，以允许对SortedSet的现有实现进行兼容地改装以实现NavigableSet，但鼓励扩展和实现此接口以重写这些方法以返回NavigableSet。
+		此接口是Java集合框架的成员。		
+		
+		接口定义：public interface NavigableSet<E> extends SortedSet<E>
 		父接口：SortedSet<E>,Set<E>,Collection<E>, Iterable<E>
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 		ceiling(E e):E
 			返回此 集合中大于等于给定元素的最小元素；如果不存在这样的元素，则返回 null。
+			【Throws】：
+				● ClassCastException 如果无法将指定的元素与集合中当前的元素进行比较
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
 		descendingIterator():Iterator<E> 
-			 以降序返回在此集合的元素上进行迭代的迭代器。
+			 按降序返回此集合中元素的迭代器。等效于descendingSet().iterator()			 
 		descendingSet():NavigableSet<E> 
-			返回此 集合中所包含元素的逆序元素视图。
+			返回包含在此集合中的元素的逆序视图。降序集由该集合支持，因此对该集合的更改反映在降序集中，反之亦然。如果在对任一集合进行迭代的过程中修改了任一集合（通过迭代器自己的remove操作除外），则迭代的结果不确定。
+			返回的集具有与Collections.reverseOrder(comparator())等效的顺序。表达式s.descendingSet().descendingSet()返回的s视图实质上等同于s。
 		floor(E e):E 
-			 返回此集合中小于等于给定元素的最大元素；如果不存在这样的元素，则返回 null。
+			 返回此集合中小于或等于给定元素的最大元素，如果没有此类元素，则返回null。
+			 【Throws】：
+				● ClassCastException 如果无法将指定的元素与集合中当前的元素进行比较
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
+		headSet(E toElement):SortedSet<E> 
+			 △返回此集合中元素严格小于toElement的部分的视图。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			返回的集将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			相当于headSet(toElement, false)
+			【Throws】：
+				● ClassCastException 如果toElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果toElement没有实现Comparable接口）。如果无法将toElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且toElement位于范围的边界之外
 		headSet(E toElement, boolean inclusive):NavigableSet<E> 
-			 返回此集合的部分元素视图，其元素小于（或等于，如果 inclusive 为 true）toElement。
+			返回此集合中元素小于（或等于，如果inclusive为true）toElement的部分的视图。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			返回的集将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			【Throws】：
+				● ClassCastException 如果toElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果toElement没有实现Comparable接口）。如果无法将toElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且toElement位于范围的边界之外
 		higher(E e):E 
 			返回此集合中严格大于给定元素的最小元素；如果不存在这样的元素，则返回 null。
+			【Throws】：
+				● ClassCastException 如果无法将指定的元素与集合中当前的元素进行比较
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
+		iterator():Iterator<E> 
+			△ 按升序返回此集合中元素的迭代器。		
 		lower(E e):E 
-			返回此集合中严格小于给定元素的最大元素；如果不存在这样的元素，则返回 null。
+			返回此集合中严格小于给定元素的最大的元素；如果没有此类元素，则返回空值。
+			【Throws】：
+				● ClassCastException 如果无法将指定的元素与集合中当前的元素进行比较
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
 		pollFirst():E 
-			获取并移除第一个（最低）元素；如果此集合为空，则返回 null。
+			检索并删除第一个（最低）元素，或者如果该集合为空，则返回null。
 		pollLast():E 
-			获取并移除最后一个（最高）元素；如果此 集合为空，则返回 null。
+			检索并删除最后一个（最高）元素，或者如果该集为空，则返回null。
 		subSet(E fromElement, boolean fromInclusive,E toElement,  boolean toInclusive):NavigableSet<E> 
-			返回此集合的部分元素视图，其元素范围从 fromElement 到 toElement。注意，布尔值表示是否包含边界元素。
+			返回此集合中元素范围从fromElement（fromInclusive为true则包含fromElement）到toElement（toInclusive为true则包含toElement）的部分的视图。如果fromElement和toElement相等，则返回的集为空。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			【Throws】：
+				● ClassCastException 如果fromElement和toElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果fromElement和toElement没有实现Comparable接口）。如果无法将fromElement和toElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果fromElement和toElement元素为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且fromElement和toElement位于范围的边界之外
+		subSet(E fromElement, E toElement):SortedSet<E> 
+			△ 返回此集合中元素范围从fromElement（含fromElement）到toElement（不含toElement）的部分的视图。（如果fromElement和toElement相等，则返回的集合为空。）返回的集合由该集合支持，因此返回集合中的更改反映在该集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			返回的集将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			相当于subSet(fromElement, true, toElement, false)
+			【Throws】：
+				● ClassCastException 如果fromElement和toElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果fromElement和toElement没有实现Comparable接口）。如果无法将fromElement和toElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果fromElement和toElement元素为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且fromElement和toElement位于范围的边界之外
+		tailSet(E fromElement):SortedSet<E> 
+			△ 返回此集合中元素大于或等于fromElement的部分的视图。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。
+			返回的集将在尝试插入超出其范围的元素时引发IllegalArgumentException。
+			相当于tailSet(fromElement, true)
+			【Throws】：
+				● ClassCastException 如果fromElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果fromElement没有实现Comparable接口）。如果无法将fromElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且fromElement位于范围的边界之外			
 		tailSet(E fromElement, boolean inclusive):NavigableSet<E> 		
-			 返回此 set 的部分元素视图，其元素大于（或等于，如果 inclusive 为 true）fromElement。				
+			返回此集合中元素大于（或等于，如果inclusive为true）fromElement的部分的视图。这个集合支持返回的集合，因此返回的集合中的更改反映在这个集合中，反之亦然。返回的集合支持此集合支持的所有可选集合操作。				
+			返回的集将在尝试插入超出其范围的元素时引发IllegalArgumentException异常。
+			【Throws】：
+				● ClassCastException 如果fromElement与这个集合的比较器不兼容（或者如果集合没有比较器，如果fromElement没有实现Comparable接口）。如果无法将fromElement与集合中当前的元素进行比较，则实现可能（但不必）引发此异常。
+				● NullPointerException 如果指定的元素为null，并且此集合不允许null元素
+				● IllegalArgumentException 如果此集合本身具有限制的范围，并且fromElement位于范围的边界之外
+			
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	9、Map<K,V>接口：映射。将键映射到值的对象。Map不能包含重复的键；每个键最多可以映射到一个值。这个接口代替了Dictionary类，它是一个完全抽象的类，而不是一个接口。
 	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
