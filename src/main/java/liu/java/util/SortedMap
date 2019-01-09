@@ -1,0 +1,61 @@
+SortedMap<K,V>接口：此接口是SortedSet的map模拟 【Since:1.2】
+	进一步提供键的总排序的Map（按键排序的Map）。Map是根据其键的自然顺序来排序的，或者通过一个比较器来排序的，比较器通常在SortedMap创建时提供。迭代SortedMap的集合视图（由 entrySet, keySet 和 values方法返回）时，会反映出这个顺序。为了利于排序，还提供了一些附加操作。（此接口是SortedSet的map模拟。）
+	插入SortedMap的所有键必须实现Comparable接口（或被指定的比较器接受）。此外，所有这些键必须相互比较： k1.compareTo(k2)（或comparator.compare(k1, k2)）不能对SortedMap中的任何键k1和k2抛出ClassCastException异常。违反此限制的尝试将导致offending方法或构造器调用引发ClassCastException。	
+	注意，如果SortedMap要正确实现Map接口，那么由SortedMap维护的顺序（无论是否提供比较器）必须与equals一致。（有关与equals一致的精确定义，请参见Comparable接口或Comparator接口。）这是因为Map接口是根据equals操作定义的，但SortedMap使用其compareTo（或compare）方法执行所有键比较，因此从这个方法的角度来看，被认为相等的两个键是排序后的映射，等于。TreeMap的行为是定义良好的，即使它的顺序与等号不一致；它只是不遵守Map接口的一般约定。
+	所有SortedMap实现类都应该提供四个“标准”构造器。虽然接口不能指定所需的构造器，但不可能强制执行此建议。所有SortedMap实现的预期“标准”构造器为：
+		● 一个void（无参数）构造器，它创建一个空的按键的自然顺序排序的SortedMap。
+		● 带有Comparator类型的单个参数的构造器，它创建一个根据指定的Comparator排序的空SortedMap。
+		● 具有类型map的单个参数的构造器，它创建一个新map，该map的键值映射与其参数相同，并根据键的自然顺序排序。
+		● 具有SortedMap类型的单个参数的构造器，它创建一个新的SortedMap，该map具有与输入SortedMap参数相同的键值映射和顺序。
+	注意：有几种方法返回键范围受限的子级。这样的范围是半开放的，也就是说，它们包括它们的低端点，但不包括它们的高端点（如适用）。如果您需要一个闭合范围（包括两个端点），并且key类型允许计算给定key的后续映射项（entry），那么只需请求从lowendpoint到后续映射项（highendpoint）的子范围。例如，假设m是一个键为字符串的映射。下面的习惯用法获得一个视图，其中包含m中的所有键值映射，这些映射的键值介于低和高之间，包括：
+		SortedMap<String, V> sub = m.subMap(low, high+"\0");
+	可以使用类似的技术生成一个开放范围（既不包含端点）。以下习惯用法获得一个视图，其中包含m中的所有键值映射，其键介于低和高之间，不包括：
+		 SortedMap<String, V> sub = m.subMap(low+"\0", high);
+	此接口是Java集合框架的成员。
+	
+	
+	接口定义：public interface SortedMap<K,V> extends Map<K,V>	
+	父接口：Map<K,V>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	comparator():Comparator<? super K> 
+		返回用于排序此映射中键的比较器，如果此映射使用其键的自然顺序，则返回null。		
+	entrySet():Set<Map.Entry<K, V>> 
+		△ 返回此map中包含所有映射的Set视图。Set的迭代器按升序键顺序返回映射条目。Set由Map支持，因此对map的更改反映在Set中，反之亦然。如果在对Set进行迭代时修改Map（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果不确定。Set支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll 和 clear操作从Map中移除相应的映射。它不支持add或addAll操作。
+	firstKey():K 
+		返回该Map中当前第一个（最低）键。
+		【Throws】：
+			● NoSuchElementException 如果此map为空
+	headMap(K toKey):SortedMap<K,V> 
+		返回此map中键严格小于toKey的部分的视图。返回的map由该Map支持，因此返回的map中的更改反映在该map映射中，反之亦然。返回的map支持此map映射支持的所有可选映射操作。
+		返回的map将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果Tokey与map的比较器不兼容（或者，如果map没有比较器，如果tokey没有比较器）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果tokey为null，且此map不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	keySet():Set<K> 
+		△ 返回此Map中包含的键的Set视图。Set的迭代器按升序返回键。Set由Map支持，因此对map的更改反映在Set集合中，反之亦然。如果在对Set进行迭代时修改map（通过迭代器自己的remove操作除外），则迭代的结果不确定。Set支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和 clear 操作从map中移除相应的映射。它不支持add或addAll操作。
+	lastKey():K 
+		返回此映射中当前的最后一个（最高）键。
+		【Throws】：
+			● NoSuchElementException 如果此map为空
+	subMap(K fromKey, K toKey):SortedMap<K,V> 
+		返回此SortedMap的一部分映射的视图，其键的范围从fromKey（包含fromKey）到toKey（不包含toKey）。（如果fromKey和toKey相等，则返回的map为空。）返回的map由该SortedMap支持，因此返回map中的更改反映在该SortedMap中，反之亦然。返回的映射支持此SortedMap支持的所有可选映射操作。
+		返回的map将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果不能使用这个Map的比较器将fromKey和toKey相互比较（或者，如果Map没有比较器，则使用自然顺序）。如果无法将tromKey或tokey与Map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null且此Map不允许null键
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此Map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	tailMap(K fromKey):SortedMap<K,V> 
+		返回此Map中键大于或等于fromKey的部分的视图。返回的map由该SortedMap支持，因此返回的map中的更改反映在该SortedMap中，反之亦然。返回的映射支持此SortedMap支持的所有可选映射操作
+		返回的map将在尝试插入超出其范围的键时引发IllegalArgumentException。
+		【Throws】：
+			● ClassCastException 如果fromKey与这个map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与映射中当前的键进行比较，则实现可能（但不是必需）引发此异常。
+			● NullPointerException 如果fromKey为null且此Map不允许null键
+			● IllegalArgumentException 如果此map本身的范围受限制，并且fromKey位于范围的边界之外
+	values():Collection<V> 
+		△ 返回此Map中包含的值的Set视图。Set的迭代器按相应键的升序返回值。Set由map支持，因此对map的更改反映在Set中，反之亦然。如果在对Set进行迭代时修改Map（通过迭代器自己的remove操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove、Collection.remove、removeAll、retainAll和clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	2、文档中的低端点、高端点通常指的是范围值的左右边界。

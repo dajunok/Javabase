@@ -1,0 +1,77 @@
+Collection<E>接口：容器接口。
+	该接口继承于Iterable<E>，使得java中所有实现Collection<E>的容器类，都能有统一的访问接口。Collection仅仅定义一组保存元素的最基本的操作集合。不包含获取元素和随机访问元素的操作集合，也不包含替换、插入等接口，就连remove、removeAll、retainAll方法都是可选的方法。但是作为持有元素的容器，这体现了接口最小职责的原则，使得大多数具体类型的容器能实现特定操作集合的同时，又能保证容器的通用性。
+	
+	接口定义：public interface Collection<E> extends Iterable<E>
+	所有父接口：Iterable<E>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	add(E element):boolean
+		将元素e添加到此集合中，如果添加成功则返回true,添加失败则返回false
+	addAll(Collection<? extends E> c):boolean
+		将指定 collection 中的所有元素都添加到此 collection 中.
+	clear():void
+		移除此 collection 中的所有元素。
+	contains(Object o):boolean
+		如果此 collection 包含指定的元素，则返回 true。更确切地讲，当且仅当此 collection 至少包含一个满足 (o==null ? e==null : o.equals(e)) 的元素 e 时，返回 true。
+	containsAll(Collection<?> c):boolean
+		如果此 collection 包含指定 collection 中的所有元素，则返回 true。
+	equals(Object o):boolean
+		比较此 collection 与指定对象是否相等
+	hashCode():int
+			返回此 collection 的哈希码值
+	isEmpty():boolean
+		如果此 collection 不包含元素，则返回 true,否则返回false
+	iterator():Iterator<E>
+		返回在此 collection 的元素上进行迭代的迭代器。关于元素返回的顺序没有任何保证（除非此 collection 是某个能提供保证顺序的类实例）。
+	parallelStream():Stream<E>
+		获取该集合的并行的流。
+	remove(Object o):boolean
+		从此 collection 中移除指定元素Object的单个实例,如果操作成功则返回true,操作失败则返回false
+	removeAll(Collection<?> c):boolean
+		移除此 collection 中那些也包含在指定 collection 中的所有元素。
+	removeIf(Predicate<? super E> filter):boolean
+		删除集合中符合条件的成员，empty集合也可以，但是null就炸啦。通过指定的过滤器来删除元素。
+	retainAll(Collection<?> c):boolean
+		仅保留此 collection 中那些也包含在指定 c中的元素。
+	size():int   
+		返回此 collection 中的元素数量。如果此 collection 包含的元素大于 Integer.MAX_VALUE，则返回 Integer.MAX_VALUE。
+	spliterator():Spliterator<E>
+		主要支持java8中的流式操作，如排序，过滤等，提供类似jquery的语法。
+		Spliterator接口是1.8新加的接口，字面意思可分割的迭代器，不同以往的iterator需要顺序迭代，
+		Spliterator可以分割为若干个小的迭代器进行并行操作，既可以实现多线程操作提高效率，又可以避免普通迭代器的fail-fast机制所带来的异常。
+		Spliterator可以配合1.8新加的Stream进行并行流的实现，大大提高处理效率。
+	stream():Stream<E>
+		获取该集合的非并行的流。
+		Stream 作为 Java 8 的一大亮点，它与 java.io 包里的 InputStream 和 OutputStream 是完全不同的概念。它也不同于 StAX 对 XML 解析的 Stream，
+		也不是 Amazon Kinesis 对大数据实时处理的 Stream。Java 8 中的 Stream 是对集合（Collection）对象功能的增强，它专注于对集合对象进行各种非常便利、
+		高效的聚合操作（aggregate operation），或者大批量数据操作 (bulk data operation)。Stream API 借助于同样新出现的 Lambda 表达式，
+		极大的提高编程效率和程序可读性。同时它提供串行和并行两种模式进行汇聚操作，并发模式能够充分利用多核处理器的优势，使用 fork/join 并行方式来拆分任务和加速处理过程。
+		通常编写并行代码很难而且容易出错, 但使用 Stream API 无需编写一行多线程的代码，就可以很方便地写出高性能的并发程序。
+		所以说，Java 8 中首次出现的 java.util.stream 是一个函数式语言+多核时代综合影响的产物。
+	toArray():Object[]
+		返回包含此 collection 中所有元素的数组。如果 collection 对其迭代器返回的元素顺序做出了某些保证，那么此方法必须以相同的顺序返回这些元素。
+	toArray(T[] a):T[]
+		返回包含此 collection 中所有元素的数组；返回数组的运行时类型与指定数组的运行时类型相同，也就是说此方法可以指定返回数组中的对象类型
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

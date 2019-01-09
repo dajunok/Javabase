@@ -1,0 +1,159 @@
+Deque<E>接口：双端队列。【Since:1.6】
+	支持元素在两端插入和删除的线性集合。deque是"double ended queue"（双端队列）的缩写，通常发音为“deck”。大多数Deque实现，对它们可能包含的元素数量没有固定的限制，但是这个接口支持容量受限的deque以及没有固定大小限制的deque。
+	这个接口定义了访问deque两端元素的方法。提供了插入、移除和检查元素的方法。这些方法有两种形式：一种在操作失败时引发异常，另一种返回特殊值（根据操作的不同，为null或为false）。后一种形式的插入操作是专门为容量受限的deque实现而设计的；在大多数实现中，插入操作不会失败。
+	下表总结了上述12种方法：
+			First Element (Head)			Last Element (Tail)
+				抛出异常			特殊值			抛出异常			特殊值
+		插入	 addFirst(e)	offerFirst(e)	addLast(e)		offerLast(e)
+		移除	 removeFirst()	pollFirst()		removeLast()	pollLast()
+		提取	 getFirst()		peekFirst()		getLast()		peekLast()
+	此接口扩展Queue接口。当DEQUE用作队列时，将产生FIFO（先进先出）行为。元素被添加到deque的末尾，并从开头移除。从队列接口继承的方法与下表所示的Deque方法完全等效：
+		【Queue】方法		等效 【Deque】方法
+		add(e)			addLast(e)
+		offer(e)		offerLast(e)
+		remove()		removeFirst()
+		poll()			pollFirst()
+		element()		getFirst()
+		peek()			peekFirst()		
+	Deques也可以用作后进先出LIFO (Last-In-First-Out)栈。这个接口应该优先使用旧的Stack类。当deque用作栈时，元素从deque开始被推送和弹出。Stack方法与下表所示的Deque方法完全相同：
+		【Stack】方法		等效 【Deque】方法
+		push(e)			addFirst(e)
+		pop()			removeFirst()
+		peek()			peekFirst()	
+	请注意，当deque用作队列或栈时，peek方法也同样有效；在这两种情况下，元素都是从deque开始绘制的。
+	此接口提供两种方法来删除内部元素：removeFirstOccurrence和removeLastOccurrence。
+	与列表接口不同，此接口不支持对元素的索引访问。
+	虽然Deque实现并不严格要求禁止插入null元素，但强烈建议这样做。强烈建议任何允许null元素的Deque实现的用户不要利用插入null元素的能力。这是因为通过各种方法将null值用作特殊返回值，以指示Deque为空。
+	deque实现通常不定义equals和hashCode方法的基于元素的版本，而是从类Object继承基于标识的版本。
+	此接口是Java集合框架的成员。
+
+	接口定义：public interface Deque<E> extends Queue<E>
+	父接口：Queue<E>,Collection<E>, Iterable<E>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	add(E e):boolean 
+		△ 如果可以在不违反容量限制的情况下立即执行此操作，则将指定的元素插入此deque表示的队列（换句话说，在该deque的尾部），成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offer。
+		此方法等价于addLast(E)
+		【Throws】：
+			● IllegalStateException 如果由于容量限制，此时无法添加元素
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	addFirst(E e):void 
+		如果可以在不违反容量限制的情况下立即插入指定元素，则在该deque的前面插入该元素；如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offerFirst(E)方法。
+		【Throws】：
+			● IllegalStateException 如果由于容量限制，此时无法添加元素
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	addLast(E e):void 
+		如果可以在不违反容量限制的情况下立即插入指定元素，则在该deque的结尾插入该元素；如果当前没有可用空间，则引发IllegalStateException。当使用容量受限的deque时，通常最好使用offerLast(E)方法。
+		此方法相当于add(E)
+		【Throws】：
+			● IllegalStateException 如果由于容量限制，此时无法添加元素
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	contains(Object o):boolean 
+		△ 如果此双端队列包含指定元素，则返回true。更正式地说，如果且仅当此deque包含至少一个元素e（例如(o==null ? e==null : o.equals(e))）时返回true。
+		【Throws】：
+			● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+	descendingIterator():Iterator<E> 
+		以相反的顺序返回此deque中元素的迭代器（降序迭代器）。元素将按从最后（尾）到第一（头）的顺序返回。
+	element():E 
+		△ 检索但不删除由这个deque表示的队列的头（换句话说，这个deque的第一个元素）。此方法与peek的不同之处在于，如果此deque为null，它将抛出异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	getFirst():E 
+		检索但不删除此deque的第一个元素。此方法与peekFirst的不同之处在于，如果此deque（双端队列）为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	getLast():E 
+		检索但不删除此deque的最后一个元素。此方法与peekLast的不同之处在于，如果此deque（双端队列）为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	iterator():Iterator<E> 
+		△ 返回 以正确的顺序迭代此deque中元素的迭代器。元素将按从第一个（头）到最后一个（尾）的顺序返回。
+	offer(E e):boolean 
+		△ 如果可以在不违反容量限制的情况下立即执行此操作，则将指定元素插入此deque表示的队列（换句话说，在该deque（双端队列）的尾部），成功时返回true，如果当前没有可用空间，则返回false。当使用容量受限的deque时，此方法通常优于add(E)方法，后者只能通过引发异常而无法插入元素。		
+		【Throws】：
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	offerFirst(E e):boolean
+		在这个deque（双端队列）的前面插入指定的元素，除非它违反了容量限制。如果将元素添加到此deque，则为true，否则为false。当使用容量受限的deque时，此方法通常优于addFirst(E)方法，后者只能通过引发异常而无法插入元素。
+		【Throws】：
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	offerLast(E e):boolean 
+		在这个deque的末尾插入指定的元素，除非它会违反容量限制。如果将元素添加到此deque，则为true，否则为false。当使用容量受限的deque时，此方法通常优于addlast（e）方法，后者只能通过引发异常来插入元素。
+		【Throws】：
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	peek():E 
+		△ 检索但不删除由此deque表示的队列头（换句话说，此deque的第一个元素），或者如果此deque为null，则返回null。
+		此方法等效于peekFirst()
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	peekFirst():E 
+		检索但不移除此deque的第一个元素，或者如果此deque为空则返回null。
+	peekLast():E 
+		检索但不移除此deque的最后一个元素，或者如果此deque为空则返回null。
+	poll():E 
+		△ 检索并删除由该deque表示的队列的头（换句话说，是该deque的第一个元素），或者如果该deque为空，则返回null。
+		此方法等效于pollFirst()
+	pollFirst():E 
+		检索并删除此deque的第一个元素，如果此deque为空，则返回null。
+	pollLast():E 
+		检索并删除此deque（双端队列）的最后一个元素，如果此deque为空，则返回null。
+	pop():E 
+		从此deque（双端队列）所表示的栈中弹出一个元素。换句话说，删除并返回此deque的第一个元素。
+		此方法等效于removeFirst()。
+	push(E e):void 
+		如果可以在不违反容量限制的情况下立即将元素推送到该deque表示的栈上（换句话说，在该deque的头部），如果当前没有可用空间，则引发IllegalStateException异常。
+		此方法等效于addFirst(E)
+		【Throws】：
+			● IllegalStateException 如果由于容量限制，此时无法添加元素
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	remove():E 
+		△ 检索并删除由这个deque表示的队列的头（换句话说，这个deque的第一个元素）。此方法与poll的不同之处在于，如果此deque为空，它将引发异常。
+		此方法等效于 removeFirst()
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	remove(Object o):boolean 
+		△从该deque中删除指定元素的第一个匹配项。如果deque不包含元素，则它是不变的。更正式地说，删除第一个元素e像这样 (o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+		此方法等效于removeFirstOccurrence(Object)
+	removeFirst():E 
+		检索并删除此deque的第一个元素。此方法与pollFirst的不同之处在于，如果此deque为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空		
+	removeLast():E 
+		检索并删除此deque的最后一个元素。此方法与pollLast的不同之处在于，如果此deque为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	removeFirstOccurrence(Object o):boolean
+		从该deque中删除指定元素的第一个匹配项。如果deque不包含元素，则它是不变的。更正式地说，删除第一个元素e像这样(o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+		【Throws】：
+			● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+	removeLastOccurrence(Object o):boolean 
+		从该deque中删除指定元素的最后一次出现。如果deque不包含元素，则它是不变的。更正式地说，删除最后一个元素e像这样(o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+		【Throws】：
+			● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+	size():int 
+		△ 返回此deque（双端队列）中的元素数量。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	

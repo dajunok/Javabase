@@ -1,0 +1,237 @@
+Map<K,V>：映射。【Since:1.2】
+	将键映射到值的对象。映射不能包含重复的键；每个键最多可以映射到一个值。
+	这个接口取代了Dictionary类，它是一个完全抽象的类，而不是一个接口。
+	Map接口提供三个集合视图，允许将Map的内容视为一组键集合、一组值集合或一组键值映射集合。Map的顺序定义为映射集合视图上的迭代器返回元素的顺序。一些Map实现，如TreeMap类，对它们的顺序做出特定的保证；其他的，如HashMap类，则不这样做。
+	注意：如果可变对象用作映射键，则必须非常小心。如果对象的值以影响相等比较的方式更改，而对象是映射中的键，则不指定映射的行为。这种禁止的一个特殊情况是，不允许Map将自己作为一个键来包含。虽然允许Map映射将其自身包含为值，但建议特别小心：equals和hashCode方法在此类映射上不再得到很好的定义。
+	所有通用映射实现类都应提供两个“标准”构造函数：一个创建空映射的void（无参数）构造函数和一个具有类型map的单个参数的构造函数，该参数创建的新映射与其参数具有相同的键值映射。实际上，后一个构造函数允许用户复制任何映射，从而生成所需类的等效映射。无法强制执行此建议（因为接口不能包含构造函数），但JDK中的所有通用映射实现都符合。
+	此接口中包含的“破坏性”方法（即修改map操作的方法）被指定为如果此Map映射不支持该操作，则将引发UnsupportedOperationException。如果是这种情况，那么如果调用对映射没有影响，那么这些方法可能（但不是必需的）抛出一个UnsupportedOperationException异常。例如，在不可修改的映射上调用 putAll(Map)方法，如果要“叠加”其映射的Map为空，则可能（但不必）引发异常。
+	一些映射实现对它们可能包含的键和值有限制。例如，有些实现禁止null键和null值，有些实现对键的类型有限制。尝试插入不合格的键或值会引发未选中的异常，通常为NullPointerException或ClassCastException。试图查询不合格的键或值是否存在可能会引发异常，或者它可能只是返回false；一些实现将显示前一种行为，而一些实现将显示后一种行为。更一般地说，如果尝试对不合格的键或值执行操作，而该键或值的完成不会导致不合格元素插入到映射中，则可能会引发异常，或者根据实现的选择，可能会成功。此类异常在该接口的规范中标记为“可选”。
+	集合框架接口中的许多方法都是用equals方法定义的。例如，Key(Object key)方法的规范说：“如果并且仅当此映射包含像这样(key==null ? k==null : key.equals(k))的键k的映射时返回true，本规范不应被解释为暗示使用非空参数键调用Map.containsKey，将导致为任何键k调用key.equals（k）。实现可以自由实现优化，从而避免equals调用，例如，首先比较两个键的哈希代码。（Object.hashCode()规范保证具有不相等哈希代码的两个对象不能相等。）更一般地说，各种集合框架接口的实现可以自由地利用底层对象方法的指定行为，只要实现者认为合适。
+	执行映射递归遍历的某些映射操作可能会失败，但自引用实例除外，其中Map（映射）直接或间接包含自身。这包括clone(), equals(), hashCode() 和toString()方法。实现可以有选择地处理自引用场景，但是大多数当前的实现没有这样做。
+	此接口是Java集合框架的成员。
+	
+	
+	接口定义：public interface Map<K,V>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	clear():void 
+		从该Map（映射）中删除所有映射（可选操作）。此调用返回后，映射将为空。
+		【Throws】：
+			● UnsupportedOperationException 如果此map不支持clear操作(一般指未实行功能代码，需子类覆盖实现)
+	compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+		尝试计算Map的指定键及其当前映射值（如果没有当前映射，则为null）。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
+			map.compute(key, (k, v) -> (v == null) ? msg : v.concat(msg))
+		（方法merge()通常更容易用于此目的。）
+		如果函数返回null，则删除映射（如果最初不存在，则保持不存在）。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。
+		默认实现相当于为此map（映射）执行以下步骤，然后返回当前值，如果不存在则返回null：
+			 V oldValue = map.get(key);
+			 V newValue = remappingFunction.apply(key, oldValue);
+			 if (oldValue != null ) {
+				if (newValue != null)
+				   map.put(key, newValue);
+				else
+				   map.remove(key);
+			 } else {
+				if (newValue != null)
+				   map.put(key, newValue);
+				else
+				   return null;
+			 }	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况执行一次原子性操作。		
+		【Throws】：
+			● NullPointerException 如果指定的键为null，并且此映射不支持null键，或者mappingFunction结果为null
+			● UnsupportedOperationException 如果此映射不支持put操作（可选）
+			● ClassCastException  如果指定键或值的类阻止它存储在此map（映射）中（可选）			
+	computeIfAbsent(K key,Function<? super K, ? extends V> mappingFunction):default V 
+		如果指定的键尚未与某个值关联（或映射为null），则尝试使用给定的mappingFunction计算其值，并将其输入此映射，除非为null。
+		如果函数返回null，则不记录任何映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且不会记录任何映射。最常见的用法是构造一个新对象，作为初始映射值或旧结果，如：
+			map.computeIfAbsent(key, k -> new Value(f(k)));
+		或者要实现多值映射，Map<K,Collection<V>>，支持每个键的多个值：
+			 map.computeIfAbsent(key, k -> new HashSet<V>()).add(v);
+		默认实现相当于此映射的以下步骤，然后返回当前值，如果不存在，则返回null：
+			if (map.get(key) == null) {
+				 V newValue = mappingFunction.apply(key);
+				 if (newValue != null)
+					 map.put(key, newValue);
+			 }	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况下执行一次原子性操作。	
+		【Throws】：
+			● NullPointerException 如果指定的键为null，并且此映射不支持null键，或者mappingFunction结果为null
+			● UnsupportedOperationException 如果此映射不支持put操作（可选）
+			● ClassCastException  如果指定键或值的类阻止它存储在此map（映射）中（可选）
+	computeIfPresent(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+		如果指定键的值存在且不为null，则尝试在给定键及其当前映射值的情况下计算新映射。
+		如果函数返回null，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。
+		默认实现相当于为此映射执行以下步骤，然后返回当前值，如果现在不存在，则返回null：
+		 if (map.get(key) != null) {
+			 V oldValue = map.get(key);
+			 V newValue = remappingFunction.apply(key, oldValue);
+			 if (newValue != null)
+				 map.put(key, newValue);
+			 else
+				 map.remove(key);
+		 }				
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况下执行一次原子性操作。
+		【Throws】：
+			● NullPointerException 如果指定的键为null，并且此映射不支持null键，或者mappingFunction结果为null
+			● UnsupportedOperationException 如果此映射不支持put操作（可选）
+			● ClassCastException  如果指定键或值的类阻止它存储在此map（映射）中（可选）		
+	containsKey(Object key):boolean 
+		如果此映射包含指定键的映射，则返回true。更正式地说，如果并且仅当此映射包含键k的映射时返回true(key==null ? k==null : key.equals(k))。（最多可以有一个这样的映射。）
+		【Throws】：
+			● ClassCastException  如果key类型不适合此映射（可选）	
+			● NullPointerException 如果指定的key为null，并且此映射不允许null键（可选）	
+	containsValue(Object value):boolean 
+		如果此映射将一个或多个键映射到指定值，则返回true。更正式地说，如果并且仅当此映射包含到value的至少一个映射时返回true，像这样(value==null ? v==null : value.equals(v))。对于大多数映射接口实现，此操作可能需要映射大小的时间线性。
+		【Throws】：
+			● ClassCastException  如果value类型不适合此映射（可选）	
+			● NullPointerException 如果指定的key为null，并且此映射不允许null键（可选）
+	entrySet():Set<Map.Entry<K, V>> 
+		返回此Map映射中包含的映射（映射条目）的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义（不确定）。集合支持元素移除，它通过迭Iterator.remove, Set.remove, removeAll, retainAll 和 clear操作从映射中移除相应的映射。它不支持add或addAll操作。			
+	equals(Object o):boolean 
+		将指定的对象与此映射进行相等比较。如果给定对象也是映射，并且两个映射表示相同的映射，则返回true。更正式地说，如果m1.entrySet().equals(m2.entrySet())，则两个映射m1和m2表示相同的映射。这样可以确保equals方法在Map接口的不同实现中正常工作。
+	forEach(BiConsumer<? super K, ? super V> action):default void 
+		对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+	get(Object key):V 
+		返回指定键映射到的值，如果此映射不包含键的映射，则返回null。更正式地说，如果这个映射包含从键k到值v的映射(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）
+		如果此映射允许null，则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+		【Throws】：
+			● ClassCastException  如果key类型不适合此映射（可选）	
+			● NullPointerException 如果指定的key为null，并且此映射不允许null键（可选）
+	getOrDefault(Object key, V defaultValue):default V 
+		返回指定键key映射到的值，如果此映射不包含键的映射，则返回默认值。
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。
+	hashCode():int 
+		返回此映射的哈希代码值。映射的哈希代码被定义为Map的entrySet()视图中每个条目的哈希代码之和。这确保m1.equals(m2)意味着m1.hashCode()==m2.hashCode()对于任意两个映射m1和m2，这是Object.hashCode()的一般约定所要求的。
+	isEmpty():boolean 
+		如果此映射不包含键值映射，则返回true
+	keySet():Set<K> 
+		返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作除外），则迭代的结果未定义（不确定）。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll和 clear 操作从映射中移除相应的映射。它不支持add或addAll操作。
+	merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):default V 
+		如果指定的键尚未与值关联或与null关联，请将其与给定的非空值关联。否则，将关联值替换为给定remappingFunction的结果，或者如果结果为空，则移除该值。当键拥有多个映射值时，可以使用此方法。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
+			map.merge(key, msg, String::concat)
+		如果函数返回空值，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。	
+		默认实现相当于为此映射执行以下步骤，然后返回当前值，如果不存在则返回null：
+			 V oldValue = map.get(key);
+			 V newValue = (oldValue == null) ? value :
+						  remappingFunction.apply(oldValue, value);
+			 if (newValue == null)
+				 map.remove(key);
+			 else
+				 map.put(key, newValue);
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况下执行一次原子性操作。
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作（可选）
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）	
+			● NullPointerException 如果指定的key为null，并且此映射不支持null键，或者null值，或remappingFunction结果为null。
+	put(K key, V value):V 
+		将指定的值与此映射中的指定键相关联（可选操作）。如果Map映射之前包含键的映射，则将旧值替换为指定的值。（如果且仅当m.containsKey(k)返回true，则称map包含键k的映射。）
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持put操作
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中
+			● NullPointerException 如果指定的键或值为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中
+	putAll(Map<? extends K, ? extends V> m):void 
+		将指定映射中的所有映射复制到此映射（可选操作）。对于指定映射中从键k到值v的每个映射，此调用的效果相当于在此映射上调用一次put(k, v)。如果在操作过程中修改了指定的映射，则此操作的行为未定义（不确定）。
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持putAll操作
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中
+			● NullPointerException 如果指定的键或值为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中
+	putIfAbsent(K key, V value):default V 
+		如果指定的键尚未与某个值关联（或映射到空值），则将其与给定值关联并返回空值，否则返回当前值（旧值）。
+		对于此映射，默认实现等效于：
+			 V v = map.get(key);
+			 if (v == null)
+				 v = map.put(key, value);				
+			 return v;
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。	
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持put操作
+			● ClassCastException  如果key或value的类型不适合此映射（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中（可选）		
+	remove(Object key):V 
+		从该映射中删除键的映射（如果存在）（可选操作）。更正式地说，如果这个映射包含从k键到v值的映射，那么(key==null ? k==null : key.equals(k))，该映射将被删除。（该映射最多可包含一个此类映射。）
+		返回此映射以前与该键关联的值，如果该映射不包含该键的映射，则返回空值。
+		如果此映射允许null值，则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。
+		一旦调用返回，map将不包含指定键的映射。
+		【Throws】：
+			● UnsupportedOperationException 如果此Map不支持remove操作
+			● ClassCastException  如果key或value的类型不适合此映射（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值
+	remove(Object key, Object value):default boolean 
+		仅当指定键当前映射到指定值时才删除该项（即指定值与旧值相同）。成功删除返回true。
+		对于此映射，默认实现等效于：
+		 if (map.containsKey(key) && Objects.equals(map.get(key), value)) {
+			 map.remove(key);
+			 return true;
+		 } else
+			 return false;	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。	
+		【Throws】：
+			● UnsupportedOperationException 如果此Map不支持remove操作（可选）
+			● ClassCastException  如果key或value的类型不适合此映射（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值（可选）	
+	replace(K key, V value):default V 
+		仅当指定键当前映射到某个值时才替换该项。
+		返回与指定键关联的上一个值，如果没有键的映射，则为空。（如果实现支持空值，则空返回还可以指示先前与键关联的映射空值。）
+		对于此映射，默认实现等效于：
+		 if (map.containsKey(key)) {
+			 return map.put(key, value);
+			} else
+			return null;	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。	
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中（可选）
+	replace(K key, V oldValue, V newValue):default boolean 
+		只有在当前key映射到指定值(oldValue)时才替换指定键的条目(newValue)。如果值被替换，返回true。
+		对于此映射，默认实现等效于：
+			 if (map.containsKey(key) && Objects.equals(map.get(key), value)) {
+				 map.put(key, newValue);
+				 return true;
+			 } else
+				 return false;
+		如果oldValue为空，则默认实现不会为不支持null值的映射抛出NullPointerException异常，除非newValue也为null。						
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）
+			● NullPointerException 如果指定的key或newValue为null，并且此映射不允许null键或null值
+			● NullPointerException 如果oldValue为null，并且此映射不允许null值（可选）
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中（可选）
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):default void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+		对于此映射，默认实现等效于：
+			 for (Map.Entry<K, V> entry : map.entrySet())
+				 entry.setValue(function.apply(entry.getKey(), entry.getValue()));	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。	
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作
+			● ClassCastException  如果替换值的类阻止它存储在此映射中
+			● NullPointerException 如果指定的function为null，或者指定的替换值为null，并且此映射不允许null值
+			● ClassCastException  如果替换值的类型不适合此映射（可选）
+			● NullPointerException 如果function或替换值为null，并且此映射不允许null键或null值（可选）
+			● IllegalArgumentException 如果替换值的某些属性阻止它存储在此映射中（可选）	
+			● ConcurrentModificationException 如果在迭代过程中发现一个条目被删除
+	size():int 
+		返回此映射中的键值映射数量。如果映射包含超过Integer.MAX_VALUE，则返回Integer.MAX_VALUE。
+	values():Collection<V> 
+		返回此映射中包含的值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作除外），则迭代的结果未定义（不确定）。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll 和clear操作从映射中移除相应的映射。它不支持add或addAll操作。			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
