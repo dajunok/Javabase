@@ -1,65 +1,7 @@
 一、案例说明：
 二、源代码文件（.java）介绍：
 三、知识点：（注：文档中的△符号表示覆盖重写方法。）
-	12、NavigableMap<K,V>接口：NavigableMap扩展了 SortedMap，因此它也是一种基于对键进行排序的Map。并且具有了针对给定搜索目标返回最接近匹配项的导航方法。方法 lowerEntry、floorEntry、ceilingEntry
-			和 higherEntry 分别返回与小于、小于等于、大于等于、大于给定键的键关联的 Map.Entry 对象，如果不存在这样的键，则返回 null。
-			类似地，方法 lowerKey、floorKey、ceilingKey 和 higherKey 只返回关联的键。所有这些方法是为查找条目而不是遍历条目而设计的。
-			可以按照键的升序或降序访问和遍历 NavigableMap。descendingMap 方法返回映射的一个视图，该视图表示的所有关系方法和方向方法都是逆向的。
-			升序操作和视图的性能很可能比降序操作和视图的性能要好。subMap、headMap 和 tailMap 方法与名称相似的 SortedMap 方法的不同之处在于：
-			可以接受用于描述是否包括（或不包括）下边界和上边界的附加参数。任何 NavigableMap 的 Submap 必须实现 NavigableMap 接口。
-			此接口还定义了 firstEntry、pollFirstEntry、lastEntry 和 pollLastEntry 方法，它们返回和/或移除最小和最大的映射关系（如果存在），否则返回 null。
-			subMap(K, K)、headMap(K) 和 tailMap(K) 方法被指定为返回 SortedMap，以允许现有 SortedMap 实现能相容地改进为实现 NavigableMap，但鼓励此接口的扩展和实现重写这些方法以返回 NavigableMap。类似地，可以重写 SortedMap.keySet() 以返回 NavigableSet。
-
-		父接口：SortedMap<K,V>,Map<K,V>
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-		ceilingEntry(K key):Map.Entry<K,V> 
-			返回一个键-值映射关系，它与大于等于给定键的最小键关联；如果不存在这样的键，则返回 null。
-		ceilingKey(K key):K 
-			返回大于等于给定键的最小键；如果不存在这样的键，则返回 null。
-		descendingKeySet():NavigableSet<K> 
-			返回此映射中所包含键的逆序 NavigableSet 视图。
-		descendingMap():NavigableMap<K,V> 
-			返回此映射中所包含映射关系的逆序视图。
-		firstEntry():Map.Entry<K,V> 
-			返回一个与此映射中的最小键关联的键-值映射关系(Entry)；如果映射(Map)为空，则返回 null。
-		floorEntry(K key):Map.Entry<K,V> 
-			返回一个键-值映射关系(Entry)，它与小于等于给定键的最大键关联；如果不存在这样的键，则返回 null。
-		floorKey(K key):K 
-			返回小于等于给定键的最大键；如果不存在这样的键，则返回 null。
-		headMap(K toKey, boolean inclusive):NavigableMap<K,V> 
-			返回此映射的部分视图，其键小于（或等于，如果 inclusive 为 true）toKey。
-		higherEntry(K key):Map.Entry<K,V> 
-			返回一个键-值映射关系，它与严格大于给定键的最小键关联；如果不存在这样的键，则返回 null。	
-		higherKey(K key):K 
-			返回严格大于给定键的最小键；如果不存在这样的键，则返回 null。
-		lastEntry():Map.Entry<K,V> 
-			返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
-		lowerEntry(K key):Map.Entry<K,V> 
-			 返回一个键-值映射关系，它与严格小于给定键的最大键关联；如果不存在这样的键，则返回 null。
-		lowerKey(K key):K 
-			返回严格小于给定键的最大键；如果不存在这样的键，则返回 null。
-		navigableKeySet():NavigableSet<K> 
-			返回此映射中所包含键的 NavigableSet 视图。
-		pollFirstEntry():Map.Entry<K,V> 
-			 移除并返回与此映射中的最小键关联的键-值映射关系(Entry)；如果映射为空，则返回 null。
-		pollLastEntry():Map.Entry<K,V> 
-			移除并返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
-		subMap(K fromKey, boolean fromInclusive,K toKey, boolean toInclusive):NavigableMap<K,V> 
-			 返回此映射的部分视图，其键的范围从 fromKey 到 toKey。（注意：fromInclusive表示是否包含fromKey这个边界；toInclusive表示是否包含toKey这个边界）
-		tailMap(K fromKey, boolean inclusive):NavigableMap<K,V> 
-			返回此映射的部分视图，其键大于（或等于，如果 inclusive 为 true）fromKey。				
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	13、Iterator<E>接口：迭代器。用来迭代collection容器中元素的迭代器。	
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
-		forEachRemaining(Consumer<? super E> action):default void 
-			对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。
-		hasNext():boolean 
-			如果迭代器包含更多元素，则返回true。
-		next():E 
-			返回迭代器中的下一个元素。
-		remove():default void 
-			从集合中移除此迭代器返回的最后一个元素（即将迭代器最新返回的元素删除并继续迭代）。使用迭代器 的 remove() 方法后，迭代器删除了当前读取的元素 “b”，并且继续往下遍历元素，达到了在删除元素时不破坏遍历的目的。
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+		
 	14、ListIterator<E>接口：列表迭代器。它允许程序员沿任一方向遍历列表，在迭代期间修改列表，并获取迭代器在列表中的当前位置。ListIterator没有当前元素；
 			其光标位置始终位于调用previous（）将返回的元素和将返回的元素之间。
 					

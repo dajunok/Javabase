@@ -1,0 +1,126 @@
+NavigableMap<K,V>：导航映射。【Since:1.6】
+	使用导航方法扩展的SortedMap，返回给定搜索目标的最近（最接近）匹配项。方法lowerEntry, floorEntry, ceilingEntry,和  higherEntry返回分别与小于、小于或等于、大于或等于，以及大于给定键关联的Map.Entry对象，如果没有此类键，则返回null。同样，方法lowerKey, floorKey, ceilingKey, 和higherkey只返回相关的键。所有这些方法都是为定位而不是遍历条目而设计的。
+	可以按升序或降序访问和遍历NavigableMap。DescendingMap方法返回Map的视图，所有关系方法和方向方法的意义都颠倒了。升序操作和视图的性能可能比降序操作和视图的性能更快。方法subMap, headMap, 和 tailMap与类似的SortedMap方法在接受描述下限和上限是包含还是排除的附加参数方面有所不同。任何NavigableMap的子节点都必须实现NavigableMap接口。
+	此接口还定义了方法firstEntry, pollFirstEntry, lastEntry, 和 pollLastEntry返回或删除最小和最大映射（如果存在），否则返回null。
+	entry-returning方法的实现将返回Map-Entry键值对，这些Map-Entry键值对表示生成map时，map的快照，因此通常不支持可选的Entry.setValue方法。但是请注意，可以使用方法put更改关联map中的映射。
+	方法subMap(K, K), headMap(K), 和 tailMap(K)被指定用来返回SortedMap，以允许对SortedMap的现有实现进行兼容地改造以实现NavigableMap，但鼓励扩展和实现此接口，重写这些方法以返回NavigableMap。同样，SortedMap.keySet()可以被重写用来返回NavigableMap。
+	此接口是Java集合框架的成员。
+	
+	
+	接口定义：public interface NavigableMap<K,V> extends SortedMap<K,V>
+	父接口：SortedMap<K,V>,Map<K,V>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	ceilingEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系，它与大于等于给定键的最小键关联；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	ceilingKey(K key):K 
+		返回大于或等于给定键的最小键，如果没有该键，则返回null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	descendingKeySet():NavigableSet<K> 
+		返回此映射中包含的键的反向NavigableSet视图。集合的迭代器按降序返回键。集合由map支持，因此对map的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改map（通过迭代器自己的remove操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和  clear 操作从map中移除相应的映射。它不支持add或addAll操作。
+	descendingMap():NavigableMap<K,V> 
+		返回此map中所包含映射关系的逆序视图。降序映射由此map支持，因此对map的更改反映在降序映射中，反之亦然。如果在对任一映射的集合视图进行迭代的过程中修改了其中一个映射（通过迭代器自己的remove操作除外），则迭代的结果不确定。
+		返回的映射与Collections.reverseOrder(comparator())具有相同的顺序。表达式m.descendingMap().descendingMap()返回实质上等同于m的视图。
+	firstEntry():Map.Entry<K,V> 
+		返回一个与此映射中的最小键关联的键-值映射关系(Entry)；如果映射(Map)为空，则返回 null。
+	floorEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系(Entry)，它与小于等于给定键的最大键关联；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	floorKey(K key):K 
+		返回小于等于给定键的最大键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	headMap(K toKey):SortedMap<K,V> 
+		△返回此地图中键严格小于toKey的部分视图。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		相当于调用headMap(toKey, false)。
+		【Throws】：
+			● ClassCastException 如果toKey与map的比较器不兼容（或者，如果map没有比较器，如果toKey没有实现Comparable接口）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	headMap(K toKey, boolean inclusive):NavigableMap<K,V> 
+		返回此映射的部分视图，其键小于（或等于，如果 inclusive 为 true）toKey。
+		【Throws】：
+			● ClassCastException 如果toKey与map的比较器不兼容（或者，如果map没有比较器，如果toKey没有实现Comparable接口）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	higherEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系，它与严格大于给定键的最小键关联；如果不存在这样的键，则返回 null。	
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	higherKey(K key):K 
+		返回严格大于给定键的最小键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	lastEntry():Map.Entry<K,V> 
+		返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
+	lowerEntry(K key):Map.Entry<K,V> 
+		 返回一个键-值映射关系，它与严格小于给定键的最大键关联；如果不存在这样的键，则返回 null。
+		 【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	lowerKey(K key):K 
+		返回严格小于给定键的最大键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	navigableKeySet():NavigableSet<K> 
+		返回此映射中包含的键的NavigableSet视图。集合的迭代器按升序返回键。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和 clear 操作从映射中移除相应的映射。它不支持add或addAll操作。
+	pollFirstEntry():Map.Entry<K,V> 
+		 移除并返回与此映射中的最小键关联的键-值映射关系(Entry)；如果映射为空，则返回 null。
+	pollLastEntry():Map.Entry<K,V> 
+		移除并返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
+	subMap(K fromKey, boolean fromInclusive,K toKey, boolean toInclusive):NavigableMap<K,V> 
+		返回此映射的部分视图，其键的范围从 fromKey 到 toKey。如果fromkey和tokey相等，则返回的映射为null，除非fromInclusive和toInclusive都为true。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键，或构造其端点位于其范围之外的子映射时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果不能使用这个map的比较器将fromKey和toKey相互比较（或者，如果map没有比较器，则使用自然顺序）。如果无法将fromKey或toKey与map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null且此映射不允许null键
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	subMap(K fromKey, K toKey):SortedMap<K,V> 
+		△返回此映射的部分视图，其键的范围从fromKey（包含fromKey）到toKey（不包含toKey）。（如果fromKey和toKey相等，则返回的映射为null。）返回的映射由该映射支持，因此返回映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果不能使用这个map的比较器将fromKey和toKey相互比较（或者，如果map没有比较器，则使用自然顺序）。如果无法将fromKey或toKey与map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null且此映射不允许null键
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	tailMap(K fromKey):SortedMap<K,V> 
+		△ 返回此映射中键大于或等于fromKey的部分视图。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果fromKey与map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而fromKey在范围之外
+	tailMap(K fromKey, boolean inclusive):NavigableMap<K,V> 
+		返回此映射的部分视图，其键大于（或等于，如果 inclusive 为 true）fromKey。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果fromKey与map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而fromKey在范围之外
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	2、文档中的低端点、高端点通常指的是范围值的左右边界。
+
+
+
+
+
+
+
+
+
+
+
+
+
