@@ -1,0 +1,98 @@
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ListIterator<E>接口：列表迭代器。【Since:1.2】
+	列表迭代器允许程序员沿任一方向遍历列表，在迭代期间修改列表，并获取迭代器在列表中的当前位置。ListIterator没有当前元素；其光标位置始终位于调用previous()将返回的元素和调用next()将返回的元素之间。长度n列表的迭代器具有n+1个可能的光标位置，如下面的插入符号（^）所示：
+		 	 Element(0)   Element(1)   Element(2)   ... Element(n-1)
+	 光标位置：  ^            ^            ^            ^                  ^
+	注意，remove()和set(object)方法不是根据光标位置定义的；它们被定义为对调用next()或previous()返回的最后一个元素进行操作。
+					
+	接口定义：public interface ListIterator<E> extends Iterator<E>
+	父接口：Iterator<E>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	add(E e):void 
+		将指定的元素插入列表（可选操作）。元素被插入到将由next()返回的元素之前（如果有），以及将由previous()返回的元素之后（如果有）。（如果列表中没有元素，则新元素将成为列表中唯一的元素。）新元素将插入隐式光标之前：对下一个元素的后续调用将不受影响，对上一个元素的后续调用将返回新元素。（此调用将通过调用nextIndex或previousIndex返回的值增加一个。）
+		【Throws】：
+			● UnsupportedOperationException 如果此列表迭代器不支持add方法（一般指没有实现功能代码，或者内部调用了没有实现代码功能的方法）
+			● ClassCastException 如果指定元素的类阻止将其添加到此列表中
+			● IllegalArgumentException 如果此元素的某些方面阻止将其添加到此列表中
+	hasNext():boolean 
+		△ 如果此列表迭代器在向前遍历列表时包含更多元素，则返回true。（换句话说，如果next()返回元素而不是引发异常，则返回true。）
+		【Throws】：
+			● NoSuchElementException 如果迭代没有更多元素
+	hasPrevious():boolean 		
+		如果此列表迭代器在反向遍历列表时包含更多元素，则返回true。（换句话说，如果previous()返回元素而不是引发异常，则返回true。）
+	next():E 
+		△ 返回列表中的下一个元素前的光标位置。可以重复调用此方法来遍历列表，或者与对previous()的调用混合使用来回调用。（请注意，交替调用next和previous将重复返回同一元素。）
+		【Throws】：
+			● NoSuchElementException 如果迭代没有next元素
+	nextIndex():int 
+		返回将由后续调用next()返回的元素的索引。（如果列表迭代器在列表末尾，则返回列表大小。）
+	previous():E 
+		返回列表中的上一个元素，并向后移动光标位置。可以重复调用此方法以向后遍历列表，或者与对next()的调用混合使用以来回遍历。（请注意，交替调用next和previous将重复返回同一元素。）
+		【Throws】：
+			● NoSuchElementException 如果迭代没有previous元素
+	previousIndex():int 
+		返回元素的索引，该索引将由对Previous()的后续调用返回。（如果列表迭代器在列表的开头，则返回-1。）
+	remove():void 
+		△ 从列表中删除next()或previous()返回的上一个元素（可选操作）。对于next或previous的调用，此调用只能进行一次。只有在上一次调用Next或Previous之后未调用add(E)时，才能进行此操作。
+		【Throws】：
+			● UnsupportedOperationException 如果列表迭代器不支持remove操作（一般指没有实现功能代码，或者内部调用了没有实现功能代码的方法）
+			● IllegalArgumentException 如果此元素的某些方面阻止将其添加到此列表中
+	set(E e):void 
+		将next()或previous()返回的上一个元素替换为指定的元素（可选操作）。只有在上次调用next或previous之后既没有调用remove()也没有调用add(E)时，才能进行此调用。
+	【Throws】：
+			● UnsupportedOperationException 如果此列表迭代器不支持set操作（一般指没有实现功能代码，或者内部调用了没有实现代码功能的方法）
+			● ClassCastException 如果指定元素的类阻止将其添加到此列表中
+			● IllegalArgumentException 如果指定元素的某些方面阻止将其添加到此列表中
+			● IllegalArgumentException 如果未调用next或previous，或者在上次调用next或previous之后调用了remove或add
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	2、文档中的低端点、高端点通常指的是范围值的左右边界。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

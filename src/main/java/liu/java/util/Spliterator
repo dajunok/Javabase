@@ -1,0 +1,109 @@
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Spliterator<T>：拆分迭代器（简称拆分器）。【Since:1.8】
+	用于遍历和划分源元素的对象。拆分器覆盖的元素源可以是数组、集合、IO通道或生成器函数（generator function）。
+	Spliterator可以单独（tryAdvance()）或批量（forEachRemaining）按顺序遍历元素。
+	Spliterator也可以将它的一些元素（使用trySplit()）作为另一个Spliterator进行分区，以便在可能的并行操作中使用。Spliterator不能拆分，或者以高度不平衡或效率低下的方式拆分，不太可能从并行性能中获益。遍历和彻底拆分元素；每个Spliterator仅对单个批量计算有用。
+	Spliterator还能从ORDERED（有序）, DISTINCT（差异）, SORTED（已排序）, SIZED（大小）, NONNULL（非空）, IMMUTABLE（不可变）, CONCURRENT（并发）,和SUBSIZED（子集大小）属性中报告其结构、源和元素的一组characteristics()返回的特性。这些可以被Spliterator客户端用来控制、专用化或简化计算。例如，Collection的拆分器将报告SIZED，Set的拆分器将报告DISTINCT，SortedSet的拆分器也将报告SORTED。特性报告是一个简单的联合位集。一些特性还约束了方法的行为；例如，如果是ORDERED，遍历方法必须符合其记录的顺序。未来可能会定义新的特性，因此实现者不应为未列出的值赋予含义。
+	Spliterator不报告IMMUTABLE或CONCURRENT是具有归档化策略的：当拆分器绑定到元素源时；以及检测绑定后检测到的元素源的结构干扰。后期绑定拆分器在第一次遍历、第一次拆分或第一次查询时绑定到元素源以获取估计大小，而不是在创建拆分器时。未进行后期绑定的拆分器在任何方法的构造点或第一次调用点绑定到元素源。在绑定之前对源所做的修改会在遍历拆分器时反映出来。在绑定拆分器之后，如果检测到结构干扰，则应尽最大努力抛出ConcurrentModificationException异常。执行此操作的拆分器称为fail-fast（快速报错）。拆分器的批量遍历方法（forEachRemaining()）可以在遍历所有元素之后优化遍历并检查结构干扰，而不是检查每个元素并立即报错。
+	Spliterator可以通过estimateSize()方法提供对剩余元素数量的估计。理想情况下，正如特性SIZED所反映的那样，该值正好对应于成功遍历中将遇到的元素数量。但是，即使不完全知道，估计值对于在源上执行的操作仍然有用，例如帮助确定进一步拆分，还是按顺序遍历其余元素哪个更可取。
+	尽管Spliterator在并行算法中具有明显的实用性，但它们不应是线程安全的；相反，使用拆分器实现并行算法应确保拆分器一次只能由一个线程使用。这通常很容易通过串行线程限制实现，而串行线程限制通常是通过递归分解工作的典型并行算法的自然结果。调用TtrySplit()的线程可以将返回的拆分器移交给另一个线程，而该线程又可以遍历或进一步拆分该Spliterator。如果两个或多个线程在同一个拆分器上同时操作，则拆分和遍历的行为不确定。如果原始线程将一个拆分器交给另一个线程进行处理，那么最好是在使用任何元素之前使用tryAdvance()进行该切换，因为某些保证（例如，SIZED特性拆分器的EstimateSize()方法的准确性）仅在遍历开始之前有效。
+	Spliterator为原始子类型int, long, 和 double值提供了专业化拆分器。tryAdvance(java.util.function.Consumer)和forEachRemaining(java.util.function.Consumer)装箱原始值的子类型默认实现到相应包装类的实例。这种装箱可能会破坏使用原始专用拆分器所获得的任何性能优势。为了避免装箱，应该使用基于原语的对应方法。例如，Spliterator.OfInt.tryAdvance(java.util.function.IntConsumer)和Spliterator.OfInt.forEachRemaining(java.util.function.IntConsumer)应该优先于使用Spliterator.OfInt.tryAdvance(java.util.function.Consumer)和Spliterator.OfInt.forEachRemaining(java.util.function.Consumer)。 使用基于装箱的方法tryadvance()和foreachremaining()遍历原始类型值不会影响值转换为装箱值的顺序。  
+	Spliterator和迭代器一样，用于遍历源的元素。Spliterator API除了支持顺序遍历外，还支持拆分、以及单元素迭代，从而支持高效的并行遍历。此外，通过拆分器访问元素的协议被设计为比迭代器施加更小的每个元素开销，并避单独使用hasNext()和next()方法时,所涉及的固有争用。
+	对于可变元素源，如果元素源在Spliterator绑定到其数据源期间和遍历结束之前受到结构上的干扰（添加、替换或删除元素），则可能会发生随意和不确定性。例如，当使用java.util.stream框架时，这种干扰将产生随意的、不确定性的结果。
+	元素源的结构上干扰可通过以下方式进行管理（近似地按降低期望值的顺序）：
+		● 源不能在结构上受到干扰。例如，CopyOnWriteArrayList的实例是一个不可变的源。在这个源上创建Spliterator时，报告一个IMMUTABLE（不可变）特性。
+		● 源管理并发修改。例如，ConcurrentHashMap的键集是并发源。在这个源上创建Spliterator时报告一个CONCURRENT（并发）特性。
+		● 可变源提供了一个后期绑定和快速失败机制的Spliterator。后期绑定缩小了干扰影响计算的窗口；fail-fast机制尽最大努力检测在遍历开始后发生的结构干扰，并抛出ConcurrentModificationException。例如，ArrayList和JDK中的许多其他非并发集合类提供了一个后期绑定的fail-fast机制的spliterator。
+		● 可变源提供了一个非后期绑定，但是一个fail-fast机制的Spliterator。由于潜在干扰的窗口更大，源增加了抛出ConcurrentModificationException的可能性。
+		● 可变源提供了一个后期绑定和non-fail-fast机制的Spliterator。由于没有检测到干扰，在遍历之后，源存在随意的、不确定的行为风险。
+		● 可变源提供了一个非后期绑定（non-late-binding）和非快速失败机制（non-fail-fast）的Spliterator。由于在创建之后可能会发生未检测到的干扰，因此源会增加随意、非确定性行为的风险。
+	如果布尔系统属性org.openjdk.java.util.stream.tripwire设置为true，那么如果在对基元子类型专门化进行操作时发生基元值装箱，则会报告诊断警告	
+	
+	
+	接口定义：public interface Spliterator<T>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+共享静态属性：通过characteristics（）方法返回的值，用来标识实现类所具有的的特性
+	CONCURRENT= 0x00001000
+		特征值，表示元素源可以由多个线程同时修改并且是安全地（允许添加、替换和删除），而无需外部同步。如果是这样，那么Spliterator应该有一个文档化的策略，说明遍历期间修改的影响。
+		顶级拆分器不应同时报告CONCURRENT和SIZED，因为限定大小（如果已知）可能会在遍历过程中更改源。这样的拆分器是不一致的，并且不能保证使用该拆分器进行任何计算。如果子拆分器大小已知，并且遍历时不反映对源的添加或删除，则子拆分器可能报告大小。
+		大多数并发集合都保持一致性策略，以确保在拆分器创建时存在的元素的准确性，但可能不反映随后的添加或删除
+	DISTINCT= 0x00000001	
+		特征值表示，对于遇到的每对元素x, y, !x.equals(y)，（即源不存在重复元素）。例如，这适用于基于集合的拆分器。
+	IMMUTABLE= 0x00000400
+		特征值，表示元素源不能在结构上修改；即元素不能被添加、替换或移除，因此在遍历期间不能发生此类更改。不报告IMMUTABLE或CONCURRENT的拆分器应该有一个文档化的策略（例如抛出ConcurrentModificationException异常），该策略与遍历期间检测到的结构干扰有关。
+	NONNULL= 0x00000100	
+		特征值，表示源保证遇到的元素不会为null。（例如，这适用于大多数并发集合、队列和map映射。）	
+	ORDERED= 0x00000010
+		特征值，表示为元素定义了顺序（已排序）。如果是这样，此拆分器保证方法trysplit（）拆分元素的严格前缀，方法tryAdvance(java.util.function.Consumer<? super T>)按前缀顺序被一个元素拆分，forEachRemaining(java.util.function.Consumer<? super T>)按相遇顺序执行操作。
+		如果相应的Collection.iterator()记录了一个顺序，则集合具有一个相遇顺序。如果是这样，相遇顺序与记录的顺序相同。否则，集合没有相遇顺序。
+		相遇顺序保证为任何列表的升序索引顺序。但对于基于哈希的集合（如HashSet），不能保证顺序。在非交换并行计算中，报告ORDERED的拆分器的客户端应该保留排序约束。
+	SIZED= 0x00000040
+		特征值，表示在遍历或拆分之前从estimateSize()返回的值表示限制的大小值，在没有结构源修改的情况下，它表示完全遍历将遇到的元素数量的精确计数。	
+		大多数覆盖集合所有元素的Collections的拆分器都报告此特性。子拆分器，，例如用于HashSet的拆分器，它覆盖一个子集的所有元素，并近似于它们报告的大小。
+	SORTED = 0x00000004
+		特征值，表示相遇顺序遵循定义的排序顺序。如果是这样，getComparator()方法将返回相关的Comparator（比较器），如果所有元素都是可比较的，并且按它们的自然顺序排序，则返回空值。
+		报告SORTED的拆分器也必须报告ORDERED。
+	SUBSIZED 	= 0x00004000
+		特征值，表示由trySplit()生成的所有拆分器都将具有SIZED和SUBSIZED特征值。（这意味着所有子拆分器（无论是直接拆分还是间接拆分）都具有SIZED特征。）
+		不按SUBSIZED要求报告SIZED的拆分器是不一致的，不能保证使用该拆分器进行任何计算。
+		一些拆分器，例如用于近似平衡二叉树的顶级拆分器，将报告SIZED而不是SUBSIZED，因为通常知道整个树的大小，但不知道子树的确切大小。
+方法：
+	characteristics():int 
+		返回Spliterator对象的一组特征值(指的是上面的属性值)。一般实现类中的属性就是几个属性进行或（||）操作之后的结果。
+	estimateSize():long 
+		返回一个预估的值，等于执行forEachRemaining方法时调用tryAdvance的次数。	如果这个值过大，或者需要太复杂的计算过程，那么直接回返回long型的最大值
+	forEachRemaining(Consumer<? super T> action):default void 
+		对Spliterator的每一个对象执行tryAdvance操作
+	getComparator():default Comparator<? super T> 
+		如果Spliterator的具体实现具有SORTED属性，那么此方法会返回一个相应的比较器，否则会返回null
+	getExactSizeIfKnown():default long 
+		返回Spliterator对象确切的大小，如果存在SIZED属性，则返回estimateSize()方法的返回值，否则返回-1
+	hasCharacteristics(int characteristics):default boolean 
+		根据characteristics()与参数相与的结果看Spliterator对象是否包含参数指定的属性
+	tryAdvance(Consumer<? super T> action):boolean 
+		如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有ORDERED属性，那么tryAdvance也会按照相应的顺序去执行。
+	trySplit():Spliterator<T> 
+		如果这个Spliterator是可以被分割的，那么这个方法会返回一个Spliterator，与原来的Spliterator平分其中的元素，如果原Spliterator的元素个数单数，
+		两个Spliterator的元素个数相差1，基本是相同的。如果Spliterator不能再分割，那么会返回null	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+
+
+
+
+
+
+
+
+
+
+
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	2、文档中的低端点、高端点通常指的是范围值的左右边界。
+	3、Java装箱（Boxing）和拆箱（unboxing）
+		自动装箱和拆箱从Java 1.5开始引入，目的是将原始类型值转自动地转换成对应的对象。自动装箱与拆箱的机制可以让我们在Java的变量赋值或者是方法调用等情况下使用原始类型或者对象类型更加简单直接。
+		如果你在Java1.5下进行过编程的话，你一定不会陌生这一点，你不能直接地向集合(Collections)中放入原始类型值，因为集合只接收对象。通常这种情况下你的做法是，将这些原始类型的值转换成对象，然后将这些转换的对象放入集合中。使用Integer,Double,Boolean等这些类我们可以将原始类型值转换成对应的对象，但是从某些程度可能使得代码不是那么简洁精炼。为了让代码简练，Java 1.5引入了具有在原始类型和对象类型自动转换的装箱和拆箱机制。但是自动装箱和拆箱并非完美，在使用时需要有一些注意事项，如果没有搞明白自动装箱和拆箱，可能会引起难以察觉的bug。
+		【自动装箱和拆箱】：
+			自动装箱就是Java自动将原始类型值转换成对应的对象，比如将int的变量转换成Integer对象，这个过程叫做装箱，反之将Integer对象转换成int类型值，这个过程叫做拆箱。因为这里的装箱和拆箱是自动进行的非人为转换，所以就称作为自动装箱和拆箱。原始类型byte,short,char,int,long,float,double和boolean对应的封装类为Byte,Short,Character,Integer,Long,Float,Double,Boolean。
+		【自动装箱拆箱要点】：
+			● 自动装箱时编译器调用valueOf将原始类型值转换成对象，同时自动拆箱时，编译器通过调用类似intValue(),doubleValue()这类的方法将对象转换成原始类型值。
+			● 自动装箱是将boolean值转换成Boolean对象，byte值转换成Byte对象，char转换成Character对象，float值转换成Float对象，int转换成Integer，long转换成Long，short转换成Short，自动拆箱则是相反的操作。
+		【案例】：
+			ArrayList<Integer> intList = new ArrayList<Integer>();
+			intList.add(1); //autoboxing - primitive to object
+			intList.add(2); //autoboxing			 
+			ThreadLocal<Integer> intLocal = new ThreadLocal<Integer>();
+			intLocal.set(4); //autoboxing			 
+			int number = intList.get(0); // unboxing
+			int local = intLocal.get(); // unboxing in Java
+	4、primitive-based：原语，即基于原始类型的语法语义
+	5、结构上的干扰：对于集合来说一般指在遍历的同时存在添加、插入、删除这几种操作。
+	6、fail-fast：快速失败（报错）机制：是java集合(Collection)中的一种错误检测机制。当在迭代集合的过程中该集合在结构上发生改变的时候，就有可能会发生fail-fast，即抛出ConcurrentModificationException异常。fail-fast机制并不保证在不同步的修改下一定会抛出异常，它只是尽最大努力去抛出，所以这种机制一般仅用于检测bug。
+	7、late-binding：后期绑定。它缩小了干扰影响计算的窗口
+	8、documents：记录、归档
+	
+	
+	
+	
+	
+	

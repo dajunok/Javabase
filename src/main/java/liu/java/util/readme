@@ -2,56 +2,7 @@
 二、源代码文件（.java）介绍：
 三、知识点：（注：文档中的△符号表示覆盖重写方法。）
 		
-	14、ListIterator<E>接口：列表迭代器。它允许程序员沿任一方向遍历列表，在迭代期间修改列表，并获取迭代器在列表中的当前位置。ListIterator没有当前元素；
-			其光标位置始终位于调用previous（）将返回的元素和将返回的元素之间。
-					
-		父接口：Iterator<E>
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		add(E e):void 
-			将指定的元素插入列表。
-		hasPrevious():boolean 
-			如果列表迭代器在反向遍历列表时包含更多元素，则返回true。
-		nextIndex():int 
-			返回列表中ListIterator所在位置后面元素的索引
-		previous():E 
-			返回列表中的前一个元素，并向后移动光标位置。
-		previousIndex():int 
-			返回列表中ListIterator所在位置的前一个元素索引，该索引将由对Previous（）的后续调用返回。
-		set(E e):void 
-			将next（）或previous（）返回的最后一个元素替换为指定的元素。
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	15、Spliterator<T>接口：可分割迭代器。不同以往的iterator需要顺序迭代，Spliterator可以分割为若干个小的迭代器进行并行操作，
-			既可以实现多线程操作提高效率，又可以避免普通迭代器的fail-fast机制所带来的异常。Spliterator可以配合1.8新加的Stream进行并行流的实现，大大提高处理效率。。
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	属性：通过characteristics（）方法返回的值，用来标识实现类所具有的的特征
-		public static final int ORDERED    = 0x00000010;//表示元素是有序的（每一次遍历结果相同）
-		public static final int DISTINCT   = 0x00000001;//表示元素不重复
-		public static final int SORTED     = 0x00000004;//表示元素是按一定规律进行排列（有指定比较器）
-		public static final int SIZED      = 0x00000040;//是否确定大小
-		public static final int NONNULL    = 0x00000100;//表示迭代器中没有null元素
-		public static final int IMMUTABLE  = 0x00000400;//表示元素不可变
-		public static final int CONCURRENT = 0x00001000;//表示迭代器可以多线程操作
-		public static final int SUBSIZED   = 0x00004000;//表示子Spliterators都具有SIZED特性
-	方法：
-		characteristics():int 
-			返回Spliterator对象的一组特征值(指的是上面的属性值)。一般实现类中的属性就是几个属性进行或（||）操作之后的结果。
-		estimateSize():long 
-			返回一个预估的值，等于执行forEachRemaining方法时调用tryAdvance的次数。	如果这个值过大，或者需要太复杂的计算过程，那么直接回返回long型的最大值
-		forEachRemaining(Consumer<? super T> action):default void 
-			对Spliterator的每一个对象执行tryAdvance操作
-		getComparator():default Comparator<? super T> 
-			如果Spliterator的具体实现具有SORTED属性，那么此方法会返回一个相应的比较器，否则会返回null
-		getExactSizeIfKnown():default long 
-			返回Spliterator对象确切的大小，如果存在SIZED属性，则返回estimateSize()方法的返回值，否则返回-1
-		hasCharacteristics(int characteristics):default boolean 
-			根据characteristics()与参数相与的结果看Spliterator对象是否包含参数指定的属性
-		tryAdvance(Consumer<? super T> action):boolean 
-			如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有ORDERED属性，那么tryAdvance也会按照相应的顺序去执行。
-		trySplit():Spliterator<T> 
-			如果这个Spliterator是可以被分割的，那么这个方法会返回一个Spliterator，与原来的Spliterator平分其中的元素，如果原Spliterator的元素个数单数，
-			两个Spliterator的元素个数相差1，基本是相同的。如果Spliterator不能再分割，那么会返回null	
-	-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-	16、OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>接口：
+16、OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>接口：
 			它是Spliterator<T>接口的一个内部接口，并且扩展于Spliterator<T>接口。与Spliterator几乎无差别，只是将trySplit，tryAdvance，forEachRemaining三个方法中的参数类型做了一点小小的变化，更加适合基本参数类型。
 		泛型参数说明：
 			
