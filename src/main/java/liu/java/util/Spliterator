@@ -1,4 +1,4 @@
------------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+-----------------------------------------------Spliterator<T>------------------------------------------------------------------------------------------------------------------------		
 Spliterator<T>：拆分迭代器（简称拆分器）。【Since:1.8】
 	用于遍历和划分源元素的对象。拆分器覆盖的元素源可以是数组、集合、IO通道或生成器函数（generator function）。
 	Spliterator可以单独（tryAdvance()）或批量（forEachRemaining）按顺序遍历元素。
@@ -22,7 +22,7 @@ Spliterator<T>：拆分迭代器（简称拆分器）。【Since:1.8】
 	
 	接口定义：public interface Spliterator<T>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-共享静态属性：通过characteristics（）方法返回的值，用来标识实现类所具有的的特性
+拆分器特征属性：通过characteristics（）方法返回的值，用来标识实现类所具有的的特性
 	CONCURRENT= 0x00001000
 		特征值，表示元素源可以由多个线程同时修改并且是安全地（允许添加、替换和删除），而无需外部同步。如果是这样，那么Spliterator应该有一个文档化的策略，说明遍历期间修改的影响。
 		顶级拆分器不应同时报告CONCURRENT和SIZED，因为限定大小（如果已知）可能会在遍历过程中更改源。这样的拆分器是不一致的，并且不能保证使用该拆分器进行任何计算。如果子拆分器大小已知，并且遍历时不反映对源的添加或删除，则子拆分器可能报告大小。
@@ -49,34 +49,151 @@ Spliterator<T>：拆分迭代器（简称拆分器）。【Since:1.8】
 		一些拆分器，例如用于近似平衡二叉树的顶级拆分器，将报告SIZED而不是SUBSIZED，因为通常知道整个树的大小，但不知道子树的确切大小。
 方法：
 	characteristics():int 
-		返回Spliterator对象的一组特征值(指的是上面的属性值)。一般实现类中的属性就是几个属性进行或（||）操作之后的结果。
+		返回结果表示为ORDERED, DISTINCT, SORTED, SIZED, NONNULL, IMMUTABLE, CONCURRENT, SUBSIZED中的进行过按位或运算后的int值。在调用trySplit之前或两次调用之间，对给定的拆分器重复调用characteristics()应始终返回相同的结果。
+		如果拆分器报告了一组不一致的特征（从单个调用或跨多个调用返回的特征），则无法保证使用此拆分器进行的任何计算。
+		给定Spliterator在拆分前的特性可能与拆分后的特性不同。有关具体示例，请参见特征值SIZED, SUBSIZED 和CONCURRENT。
 	estimateSize():long 
 		返回一个预估的值，等于执行forEachRemaining方法时调用tryAdvance的次数。	如果这个值过大，或者需要太复杂的计算过程，那么直接回返回long型的最大值
+		返回forEachRemaining(java.util.function.Consumer<? super T>)遍历时将遇到的元素数量的估计值，如果无限、未知或计算代价过高，则返回Long.MAX_VALUE。	
+		如果此拆分器是SIZED且尚未部分遍历或拆分，或者此拆分器是SUBSIZED且尚未部分遍历，则此估计必须是完整遍历将遇到的元素的准确计数。否则，此估计值可能是任意不准确的，但必须按照在调用trySplit()时的规定减小。
 	forEachRemaining(Consumer<? super T> action):default void 
-		对Spliterator的每一个对象执行tryAdvance操作
+		对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+		默认实现反复调用tryAdvance(java.util.function.Consumer<? super T>)，直到返回false。它应该尽可能被覆盖。
+		【Throws】：
+			● NullPointerException 如果指定的操作为null
 	getComparator():default Comparator<? super T> 
 		如果Spliterator的具体实现具有SORTED属性，那么此方法会返回一个相应的比较器，否则会返回null
+		如果这个拆分器的源是一个Comparator的SORTED，则返回该比较器。如果源是自然顺序的，则返回null。否则，如果源不是SORTED，则引发IllegalStateException异常。
+		默认实现始终引发IllegalStateException异常（没有实现具体功能代码）。
+		【Throws】：
+			● IllegalStateException 如果拆分器没有报告SORTED的特征
 	getExactSizeIfKnown():default long 
-		返回Spliterator对象确切的大小，如果存在SIZED属性，则返回estimateSize()方法的返回值，否则返回-1
+		如果拆分器报告SIZED的特征，则默认实现返回estimateSize()的结果，否则返回-1。
 	hasCharacteristics(int characteristics):default boolean 
-		根据characteristics()与参数相与的结果看Spliterator对象是否包含参数指定的属性
+		如果此拆分器的characteristics()包含所有给定的特征，则返回true。
+		如果设置了给定特征的对应位，则默认实现返回true。
 	tryAdvance(Consumer<? super T> action):boolean 
 		如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有ORDERED属性，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
 	trySplit():Spliterator<T> 
-		如果这个Spliterator是可以被分割的，那么这个方法会返回一个Spliterator，与原来的Spliterator平分其中的元素，如果原Spliterator的元素个数单数，
-		两个Spliterator的元素个数相差1，基本是相同的。如果Spliterator不能再分割，那么会返回null	
+		如果可以对该Spliterator进行分割，则返回一个包含元素的拆分器，该方法返回时，该拆分器将不覆盖此Spliterator。
+		如果拆分器具有ORDERED特征，则返回的拆分器必须包含元素的严格前缀。
+		除非此Spliterator包含无限多的元素，否则对trySplit()的重复调用最终必须返回null。非空返回时：
+			● 拆分前为EstimateSize()报告的值，在拆分后必须大于或等于此值与返回的拆分器EstimateSize()结果；以及
+			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
+			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Spliterator$OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>:原始拆分器
+	专门针对原始类型值的Spliterator。【Since:1.8】
+	<T>	    	Spliterator返回的元素类型。类型必须是基元类型的包装类型，例如Integer是基元int类型的包装类型。
+	<T_CONS>	原始类型的Consumer（操作函数接口）。类型必须是专门针对T的原始类型Consumer，例如Integer类型的IntConsumer。
+	<T_SPLITR>	原始拆分器的类型。类型必须是专门针对T的原始类型spliterator，例如，专门针对Integer类型的Spliterator.OfInt。
+	
+	接口定义：public interface OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>> extends Spliterator<T>
+	父接口：Spliterator<T>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	forEachRemaining(T_CONS action):default void 
+		对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+		默认实现反复调用tryAdvance(T_CONS)，直到返回false。它应该尽可能被覆盖。
+		【Throws】：
+			● NullPointerException 如果指定的操作为null
+	tryAdvance(T_CONS action):boolean 
+		如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	trySplit():T_SPLITR 
+		△如果可以对该Spliterator进行分割，则返回一个包含元素的拆分器，该方法返回时，该拆分器将不覆盖此Spliterator。
+		如果拆分器具有ORDERED特征，则返回的拆分器必须包含元素的严格前缀。
+		除非此Spliterator包含无限多的元素，否则对trySplit()的重复调用最终必须返回null。非空返回时：
+			● 拆分前为EstimateSize()报告的值，在拆分后必须大于或等于此值与返回的拆分器EstimateSize()结果；以及
+			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
 
-
-
-
-
-
-
-
-
-
-
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Spliterator$OfDouble：Double拆分器	【Since:1.8】
+	专门用于Double类型的的Spliterator。
+	
+	接口定义：public interface OfDouble extends OfPrimitive<Double, DoubleConsumer, OfDouble>
+	父接口：Spliterator.OfPrimitive<Double,DoubleConsumer,Spliterator.OfDouble>, Spliterator<Double>		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	forEachRemaining(Consumer<? super Double> action):default void 
+		△对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是DoubleConsumer的实例，则将其强制转换为DoubleConsumer并传递给forEachRemaining(java.util.function.DoubleConsumer)；否则，通过将DoubleConsumer的参数装箱，将该操作调整为DoubleConsumer的实例，然后传递给forEachRemaining(java.util.function.DoubleConsumer)。
+	forEachRemaining(DoubleConsumer action):default void 
+		△对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+	tryAdvance(Consumer<? super Double> action):default boolean 
+		△如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	tryAdvance(DoubleConsumer action):boolean 
+		△如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	trySplit():OfDouble
+		△如果可以对该Spliterator进行分割，则返回一个包含元素的拆分器，该方法返回时，该拆分器将不覆盖此Spliterator。
+		如果拆分器具有ORDERED特征，则返回的拆分器必须包含元素的严格前缀。
+		除非此Spliterator包含无限多的元素，否则对trySplit()的重复调用最终必须返回null。非空返回时：
+			● 拆分前为EstimateSize()报告的值，在拆分后必须大于或等于此值与返回的拆分器EstimateSize()结果；以及
+			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Spliterator$OfInt接口：Int拆分器	【Since:1.8】
+	专门用于int装箱类型的Spliterator。
+	
+	接口定义：public interface OfInt extends OfPrimitive<Integer, IntConsumer, OfInt>
+	父接口：Spliterator.OfPrimitive<Integer,IntConsumer,Spliterator.OfInt>, Spliterator<Integer>	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	forEachRemaining(Consumer<? super Integer> action):default void 
+		△对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是IntConsumer的实例，则将其强制转换为IntConsumer并传递给forEachRemaining(java.util.function.IntConsumer)；否则，通过将IntConsumer的参数装箱，将该操作调整为IntConsumer的实例，然后传递给forEachRemaining(java.util.function.IntConsumer)。
+	forEachRemaining(IntConsumer action):default void 
+		△对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+	tryAdvance(Consumer<? super Integer> action):default boolean 
+		△如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	tryAdvance(IntConsumer action):boolean 
+		△如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	trySplit():OfInt 
+		△如果可以对该Spliterator进行分割，则返回一个包含元素的拆分器，该方法返回时，该拆分器将不覆盖此Spliterator。
+		如果拆分器具有ORDERED特征，则返回的拆分器必须包含元素的严格前缀。
+		除非此Spliterator包含无限多的元素，否则对trySplit()的重复调用最终必须返回null。非空返回时：
+			● 拆分前为EstimateSize()报告的值，在拆分后必须大于或等于此值与返回的拆分器EstimateSize()结果；以及
+			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+Spliterator$OfLong：Long类型拆分器
+	专门用于long装箱类型的Spliterator。
+	
+	接口定义：public interface OfLong extends OfPrimitive<Long, LongConsumer, OfLong>		
+	父接口：Spliterator.OfPrimitive<Long,LongConsumer,Spliterator.OfLong>,Spliterator<Long>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	forEachRemaining(Consumer<? super Long> action):default void 
+		△对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是LongConsumer的实例，则将其强制转换为LongConsumer并传递给forEachRemaining(java.util.function.LongConsumer)；否则，通过将LongConsumer的参数装箱，将该操作调整为LongConsumer的实例，然后传递给forEachRemaining(java.util.function.LongConsumer)。
+	forEachRemaining(LongConsumer action):default void 
+		△对剩余的每个元素执行给定的操作，在当前线程中按顺序执行，直到处理完所有元素或操作引发异常为止。如果此拆分器是ORDERED，则按遇到顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是LongConsumer的实例，则将其强制转换为LongConsumer并传递给forEachRemaining(java.util.function.LongConsumer)；否则，通过将LongConsumer的参数装箱，将该操作调整为LongConsumer的实例，然后传递给forEachRemaining(java.util.function.LongConsumer)。
+	tryAdvance(Consumer<? super Long> action):default boolean 
+		△如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	tryAdvance(LongConsumer action):boolean 
+		△如果有剩余的元素存在，执行参数给定的操作，并返回true，否则就返回false。 如果Spliterator对象具有Spliterator.ORDERED特征，那么tryAdvance也会按照相应的顺序去执行。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+	trySplit():OfLong 
+		△如果可以对该Spliterator进行分割，则返回一个包含元素的拆分器，该方法返回时，该拆分器将不覆盖此Spliterator。
+		如果拆分器具有ORDERED特征，则返回的拆分器必须包含元素的严格前缀。
+		除非此Spliterator包含无限多的元素，否则对trySplit()的重复调用最终必须返回null。非空返回时：
+			● 拆分前为EstimateSize()报告的值，在拆分后必须大于或等于此值与返回的拆分器EstimateSize()结果；以及
+			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 附录：
 	1、注：文档中的△符号表示覆盖重写方法。
 	2、文档中的低端点、高端点通常指的是范围值的左右边界。
