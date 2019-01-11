@@ -1,0 +1,101 @@
+PrimitiveIterator<T, T_CONS>接口：原始迭代器。
+	专门为int、long和double值提供了子类型。	
+	Iterator.next()和Iterator.forEachRemaining(java.util.function.Consumer)的默认实现装箱原始专用子类型到其相应包装类的实例。这种装箱可以抵消使用原始专门类型所获得的任何优势。为了避免装箱，应该使用相应的基于原语的方法。例如，PrimitiveIterator.OfInt.nextInt()和PrimitiveIterator.OfInt.forEachRemaining(java.util.function.IntConsumer)应该优先被使用，而应该舍弃 使用PrimitiveIterator.OfInt.next()和PrimitiveIterator.OfInt.forEachRemaining(java.util.function.Consumer)。
+	使用基于装箱的方法next()和forEachRemaining()迭代原始类型值时不会影响转换为装箱值的顺序。
+
+	<T>			PrimitiveIterator迭代器返回的元素类型。类型必须是原始类型的包装类型，例如，int的包装类型是Integer。
+	<T_CONS> 	原始consumer类型。类型必须是针对T的原始类型Consumer，例如IntConsumer对应Integer类型。
+	
+	接口定义：public interface PrimitiveIterator<T, T_CONS> extends Iterator<T>		
+	父接口：Iterator<T>	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	forEachRemaining(T_CONS action):void 
+		对剩余的每个元素执行给定的操作，按元素在迭代时发生的顺序执行，直到所有元素都被处理或操作引发异常为止。操作引发的错误或运行时异常将中继到调用方。
+		【Throws】：
+			● NullPointerException 如果指定操作为null
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+21、PrimitiveIterator$OfDouble：原始Double迭代器		【Since:1.8】
+	专门针对Double类型的迭代器
+	
+	
+	接口定义：public static interface OfDouble extends PrimitiveIterator<Double, DoubleConsumer>	
+	父接口：PrimitiveIterator<Double,DoubleConsumer>,Iterator<Double>		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	forEachRemaining(Consumer<? super Double> action):default void 
+		△对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。如果指定了迭代顺序，则按迭代顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是DoubleConsumer的实例，则将其强制转换为DoubleConsumer并传递给forEachRemaining(java.util.function.DoubleConsumer)；否则，通过将DoubleConsumer的参数装箱，将该操作调整为DoubleConsumer的实例，然后传递给forEachRemaining(java.util.function.DoubleConsumer)。
+	forEachRemaining(DoubleConsumer action):default void 
+		△对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。如果指定了迭代顺序，则按迭代顺序执行操作。操作引发的异常将中继到调用方。
+		默认实现的行为类似于：
+			while (hasNext())
+         		action.accept(nextDouble());
+	        【Throws】：
+				● NullPointerException 如果指定操作为null
+	next():default Double 
+		△返回迭代中的下一个元素。
+		默认实现将对调用nextdouble()的结果装箱，并返回装箱的结果。
+	nextDouble():double 
+		返回迭代中的下一个double元素。
+		【Throws】：
+				● NoSuchElementException 如果迭代没有更多元素
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+22、PrimitiveIterator$OfInt接口：原始Integer迭代器
+	专门针对int类型的迭代器
+		
+	接口定义：public static interface OfInt extends PrimitiveIterator<Integer, IntConsumer>
+	父接口：PrimitiveIterator<Integer,IntConsumer>,Iterator<Integer>		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	forEachRemaining(Consumer<? super Integer> action):default void 
+		△对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。如果指定了迭代顺序，则按迭代顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是IntConsumer的实例，则将其强制转换为IntConsumer并传递给forEachRemaining(java.util.function.IntConsumer)；否则，通过将IntConsumer的参数装箱，将该操作调整为IntConsumer的实例，然后传递给forEachRemaining(java.util.function.IntConsumer)。
+	forEachRemaining(IntConsumer action):default void 
+		△对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。如果指定了迭代顺序，则按迭代顺序执行操作。操作引发的异常将中继到调用方。
+	next():default Integer 
+		△返回迭代中的下一个元素。
+		默认实现将对调用nextInt()的结果装箱，并返回装箱的结果。
+	nextInt():int
+		返回迭代中的下一个int元素。
+		【Throws】：
+				● NoSuchElementException 如果迭代没有更多元素
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+23、PrimitiveIterator$OfLong接口：专门针对long类型的迭代器
+		
+	父接口：PrimitiveIterator<Long,LongConsumer>,Iterator<Long>	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+	forEachRemaining(Consumer<? super Long> action):default void 
+		△对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。如果指定了迭代顺序，则按迭代顺序执行操作。操作引发的异常将中继到调用方。
+		如果操作是LongConsumer的实例，则将其强制转换为LongConsumer并传递给forEachRemaining(java.util.function.LongConsumer)；否则，通过将LongConsumer的参数装箱，将该操作调整为LongConsumer的实例，然后传递给forEachRemaining(java.util.function.LongConsumer)。
+	forEachRemaining(LongConsumer action):default void 
+		△对剩余的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。如果指定了迭代顺序，则按迭代顺序执行操作。操作引发的异常将中继到调用方。
+	next():default Long 
+		△返回迭代中的下一个元素。
+	nextLong():long
+		返回迭代中的下一个long元素。
+		【Throws】：
+				● NoSuchElementException 如果迭代没有更多元素
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	2、文档中的低端点、高端点通常指的是范围值的左右边界。
+	3、Java装箱（Boxing）和拆箱（unboxing）
+		自动装箱和拆箱从Java 1.5开始引入，目的是将原始类型值转自动地转换成对应的对象。自动装箱与拆箱的机制可以让我们在Java的变量赋值或者是方法调用等情况下使用原始类型或者对象类型更加简单直接。
+		如果你在Java1.5下进行过编程的话，你一定不会陌生这一点，你不能直接地向集合(Collections)中放入原始类型值，因为集合只接收对象。通常这种情况下你的做法是，将这些原始类型的值转换成对象，然后将这些转换的对象放入集合中。使用Integer,Double,Boolean等这些类我们可以将原始类型值转换成对应的对象，但是从某些程度可能使得代码不是那么简洁精炼。为了让代码简练，Java 1.5引入了具有在原始类型和对象类型自动转换的装箱和拆箱机制。但是自动装箱和拆箱并非完美，在使用时需要有一些注意事项，如果没有搞明白自动装箱和拆箱，可能会引起难以察觉的bug。
+		【自动装箱和拆箱】：
+			自动装箱就是Java自动将原始类型值转换成对应的对象，比如将int的变量转换成Integer对象，这个过程叫做装箱，反之将Integer对象转换成int类型值，这个过程叫做拆箱。因为这里的装箱和拆箱是自动进行的非人为转换，所以就称作为自动装箱和拆箱。原始类型byte,short,char,int,long,float,double和boolean对应的封装类为Byte,Short,Character,Integer,Long,Float,Double,Boolean。
+		【自动装箱拆箱要点】：
+			● 自动装箱时编译器调用valueOf将原始类型值转换成对象，同时自动拆箱时，编译器通过调用类似intValue(),doubleValue()这类的方法将对象转换成原始类型值。
+			● 自动装箱是将boolean值转换成Boolean对象，byte值转换成Byte对象，char转换成Character对象，float值转换成Float对象，int转换成Integer，long转换成Long，short转换成Short，自动拆箱则是相反的操作。
+		【案例】：
+			ArrayList<Integer> intList = new ArrayList<Integer>();
+			intList.add(1); //autoboxing - primitive to object
+			intList.add(2); //autoboxing			 
+			ThreadLocal<Integer> intLocal = new ThreadLocal<Integer>();
+			intLocal.set(4); //autoboxing			 
+			int number = intList.get(0); // unboxing
+			int local = intLocal.get(); // unboxing in Java
+	4、primitive-based：原语，即基于原始类型的语法语义
+	5、结构上的干扰：对于集合来说一般指在遍历的同时存在添加、插入、删除这几种操作。
+	6、fail-fast：快速失败（报错）机制：是java集合(Collection)中的一种错误检测机制。当在迭代集合的过程中该集合在结构上发生改变的时候，就有可能会发生fail-fast，即抛出ConcurrentModificationException异常。fail-fast机制并不保证在不同步的修改下一定会抛出异常，它只是尽最大努力去抛出，所以这种机制一般仅用于检测bug。
+	7、late-binding：后期绑定。它缩小了干扰影响计算的窗口
+	8、documents：记录、归档

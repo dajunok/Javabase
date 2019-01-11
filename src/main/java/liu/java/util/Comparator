@@ -1,0 +1,137 @@
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+Comparator<T>：比较器（比较函数）。【Since:1.2】
+	函数式接口。	
+	一种比较函数，它对一些对象集合施加一个总的顺序。比较器可以传递给排序方法（如Collections.sort或Arrays.sort），以允许对排序顺序进行精确控制。比较器还可以用来控制某些数据结构（如SortedSet或SortedMap）的顺序，或者为没有自然顺序的集合对象提供顺序。
+	比较器C对一组元素S施加的排序，如果且仅当c.compare(e1, e2)==0的布尔值与S中每e1和e2的e1.equals(e2)相同时，才被认为与等号一致。
+	当使用一个比较器时应该小心，这个比较器能够强制一个与等号不一致的顺序来排序一个SortedSet（或SortedMap）。
+	假设一个带有显式比较器C的SortedSet（或SortedMap）与从集合S中提取的元素（或键）一起使用。如果C对S施加的排序与等号不一致，则SortedSet（或SortedMap）的行为是“奇怪”的。特别是SortedSet（或SortedMap）违反集合（或映射）的一般约定，而集合（或映射）定义为用等号表示
+	例如，假设添加了两个元素a和b，这样 (a.equals(b) && c.compare(a, b) != 0)对于使用比较器c的空TreeSet。第二个add操作将返回true（并且TreeSet的大小将增加），因为从TreeSet的角度来看，a和b不是相等的，即使这与Set.add方法的规范相反。
+	注意：比较器通常也可以实现java.io.Serializable，因为它们可以用作可序列化数据结构（如TreeSet、TreeMap）中的排序方法。为了使数据结构成功序列化，比较器（如果提供）必须实现Serializable接口。
+	此接口是Java集合框架的成员。
+	
+	接口定义：@FunctionalInterface	public interface Comparator<T>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	comparing(Function<? super T, ? extends U> keyExtractor):static <T, U extends Comparable<? super U>> Comparator<T> 
+		接受一个函数，该函数从类型T中提取一个可比较的排序键，并返回一个通过该排序键进行比较的比较器。
+		如果指定的函数也是可序列化的，则返回的比较器是可序列化的。
+		例如，要获得一个比较器，该比较器通过人名对人对象进行比较：
+			Comparator<Person> byLastName = Comparator.comparing(Person::getLastName);
+		【Throws】：
+			● NullPointerException	如果参数为null
+	comparing(Function<? super T, ? extends U> keyExtractor,Comparator<? super U> keyComparator):static <T, U> Comparator<T>
+		<T>	可比较的元素类型
+		<U> 排序键类型
+		接受从类型T中提取排序键的函数，并返回使用指定的比较器与该排序键进行比较的比较器。 
+		如果指定的函数也是可序列化的，则返回的比较器是可序列化的。
+		例如，要获得一个比较器，该比较器通过人名比较对象，忽略大小写差异：
+			Comparator<Person> cmp = Comparator.comparing(Person::getLastName,String.CASE_INSENSITIVE_ORDER);
+		【Throws】：
+			● NullPointerException	如果参数为null		
+	comparingDouble(ToDoubleFunction<? super T> keyExtractor):static<T> Comparator<T> 
+		<T>	可比较的元素类型
+		接受一个函数，该函数从类型T中提取一个Double排序键，并返回一个比较器，该比较器通过该排序键进行比较。
+		如果指定的函数也是可序列化的，则返回的比较器是可序列化的。
+		【Throws】：
+			● NullPointerException	如果参数为null	
+	comparingInt(ToIntFunction<? super T> keyExtractor):static <T> Comparator<T> 
+		<T>	可比较的元素类型
+		接受一个函数，该函数从类型T中提取int排序键，并返回一个比较器，该比较器通过该排序键进行比较。
+		如果指定的函数也是可序列化的，则返回的比较器是可序列化的。
+		【Throws】：
+			● NullPointerException	如果参数为null
+	comparingLong(ToLongFunction<? super T> keyExtractor):static <T> Comparator<T> 
+		<T>	可比较的元素类型
+		接受一个函数，该函数从类型T中提取一个long排序键，并返回一个比较器，该比较器通过该排序键进行比较。
+		如果指定的函数也是可序列化的，则返回的比较器是可序列化的。
+		【Throws】：
+			● NullPointerException	如果参数为null
+	naturalOrder():static <T extends Comparable<? super T>> Comparator<T> 
+		<T>	可比较的元素类型
+		返回可比较对象的比较器，这个比较器按自然顺序比较。
+		返回的Comparator是可序列化的，在比较null时引发NullPointerException。		
+	nullsFirst(Comparator<? super T> comparator):static <T> Comparator<T> 
+		<T>	可比较的元素类型
+		返回一个空友好比较器，该比较器将null视为小于non-null。当两者都为null时，它们被认为是相等的。如果两者都不为null，则使用指定的比较器确定顺序。如果指定的比较器为null，则返回的比较器将所有非空值视为相等。
+		如果指定的比较器是可序列化的，则返回的比较器是可序列化的。
+	nullsLast(Comparator<? super T> comparator):static <T> Comparator<T> 
+		<T>	可比较的元素类型
+		返回一个空友好比较器，该比较器认为null大于non-null。当两者都为null时，它们被认为是相等的。如果两者都不为null，则使用指定的比较器确定顺序。如果指定的比较器为null，则返回的比较器将所有非空值视为相等。
+		如果指定的比较器是可序列化的，则返回的比较器是可序列化的。
+	reverseOrder():static <T extends Comparable<? super T>> Comparator<T> 
+		<T>	可比较的元素类型
+		返回一个与自然顺序相反的比较器。
+		返回的Comparator是可序列化的，在比较null时引发NullPointerException异常。
+	compare(T o1, T o2):int 
+		<T>	可比较的元素类型
+		比较两个参数的顺序。返回负整数、零或正整数，如果第一个参数小于、等于或大于第二个参数。
+		在前面的描述中，符号sgn（expression）指定数学符号函数，根据表达式的值是否为n，该函数被定义为返回-1、0或1中的一个。
+		实现者必须确保所有x和y都是sgn(compare(x, y)) == -sgn(compare(y, x))（这意味着，当且仅当compare(x, y)抛出异常时，compare(y, x)必须抛出异常。）
+		实现者还必须确保关系是可传递的： ((compare(x, y)>0) && (compare(y, z)>0)) implies compare(x, z)>0			
+		最后，实现者必须确保所有z都是compare(x, y)==0意味着sgn(compare(x, z))==sgn(compare(y, z))。
+		一般情况下，但不严格要求(compare(x, y)==0) == (x.equals(y))。一般来说，任何违反这个条件的比较器都应该清楚地表明这个事实。建议使用的语言是“注意：这个比较器执行的顺序与等号不一致。”
+		【Throws】：
+			● NullPointerException 如果参数为null，并且此比较器不允许null参数
+			● ClassCastException 如果参数的类型阻止了这个比较器对它们进行比较。
+	equals(Object obj):boolean 
+		指示其他对象是否“等于”此比较器。此方法必须遵守Object.equals(Object)的一般约定。此外，只有当指定的对象也是比较器并且其顺序与此比较器相同时，此方法才能返回true。因此，comp1.equals(comp2)意味着sgn(comp1.compare(o1, o2))==sgn(comp2.compare(o1, o2)) 对于每个对象引用O1和O2。
+		请注意，不覆盖重写Object.equals(Object)始终是安全的。但是，在某些情况下，为了提高性能，可能重写此方法允许程序确定两个不同的比较器使用相同的顺序。
+	reversed():default Comparator<T> 
+		返回一个比较器，该比较器强制执行此比较器的反向顺序。
+	thenComparing(Comparator<? super T> other):default Comparator<T> 
+		返回具有另一个比较器的词典顺序比较器。如果这个比较器认为两个元素相等，即compare(a, b) == 0，则使用other比较器来确定顺序。
+		如果指定的比较器也是可序列化的，则返回的比较器是可序列化的。
+		例如，要根据长度对字符串集合进行排序，然后根据不区分大小写的自然排序，可以使用以下代码组成比较器：
+			Comparator<String> cmp = Comparator.comparingInt(String::length).thenComparing(String.CASE_INSENSITIVE_ORDER);
+		【Throws】：
+			● NullPointerException 如果参数为null
+	thenComparing(Function<? super T, ? extends U> keyExtractor):default <U extends Comparable<? super U>> Comparator<T> 
+		<U>	可比较排序键的类型
+		返回具有提取可比较排序键的函数的字典序比较器。
+		这个默认实现的操作就相当调用thenComparing(comparing(keyExtractor))。
+		【Throws】：
+			● NullPointerException 如果参数为null
+	thenComparing(Function<? super T, ? extends U> keyExtractor,Comparator<? super U> keyComparator):default <U> Comparator<T> 
+		<U>	可比较排序键的类型
+		返回字典序比较器，该比较器具有提取要与给定比较器进行比较的键的函数。
+		这个默认实现的操作就相当调用thenComparing(comparing(keyExtractor, cmp))。
+		【Throws】：
+			● NullPointerException 如果参数为null
+	thenComparingDouble(ToDoubleFunction<? super T> keyExtractor):default Comparator<T> 
+		返回具有提取Double排序键的函数的lexicographic-order词典顺序比较器。
+		这个默认实现的操作就相当调用thenComparing(comparingDouble(keyExtractor))。
+		【Throws】：
+			● NullPointerException 如果参数为null
+	thenComparingInt(ToIntFunction<? super T> keyExtractor):default Comparator<T>
+		返回具有提取int排序键的函数的lexicographic-order词典顺序比较器。
+		这个默认实现的操作就相当调用thenComparing(comparingInt(keyExtractor))
+		【Throws】：
+			● NullPointerException 如果参数为null
+	thenComparingLong(ToLongFunction<? super T> keyExtractor):default Comparator<T> 
+		返回具有提取Long排序键的函数的lexicographic-order单词顺序比较器。	
+		这个默认实现的操作就相当调用thenComparing(comparingLong(keyExtractor))
+		【Throws】：
+			● NullPointerException 如果参数为null	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
