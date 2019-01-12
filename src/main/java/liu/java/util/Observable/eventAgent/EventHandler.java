@@ -1,4 +1,4 @@
-package liu.java.util.Observer.eventAgent;
+package liu.java.util.Observable.eventAgent;
 
 import java.util.ArrayList;
 import java.util.List;

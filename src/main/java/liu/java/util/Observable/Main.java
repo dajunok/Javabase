@@ -1,4 +1,4 @@
-package liu.java.util.Observer;
+package liu.java.util.Observable;
 
 /**
  * Publish:通知者，父类是Observable。

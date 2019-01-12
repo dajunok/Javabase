@@ -1,4 +1,4 @@
-package liu.java.util.Observer;
+package liu.java.util.Observable;
 
 import java.util.Observable;
 import java.util.Observer;

@@ -1,0 +1,162 @@
+-----------------------------------------BitSet---------------------------------------------------------------------------------------------------
+BitSet：位集（或位集合）	【Since:JDK1.0】
+	这个类实现了一个位向量，它可以根据需要增长。位集的每个组件都有一个布尔值。位集的位由非负整数索引。可以检查、设置或清除单个索引位。一个位集可用于通过逻辑与、逻辑包含或、逻辑排除或操作修改另一个位集的内容。
+	默认情况下，集合中的所有位最初的值都为false。
+	每个位集都有一个当前大小，即位集当前使用的空间位数。请注意，大小与位集的实现有关，因此它可能随实现而更改。位集的长度与位集的逻辑长度有关，并且是独立于实现定义的。
+	除非另有说明，否则将null参数传递给位集中的任何方法都将导致NullPointerException。
+	如果没有外部同步，多线程使用位集是不安全的。
+	
+	类定义：public class BitSet implements Cloneable, java.io.Serializable
+--------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	BitSet()
+		创建新的位集。所有位最初都是false。
+	BitSet(int nbits)
+		创建一个位集，该位集的初始大小足以显式表示索引在0到nbits-1范围内的位。所有位最初都是false。
+		【Throws】：
+			NegativeArraySizeException 如果指定的初始大小为负数
+--------------------------------------------------------------------------------------------------------------------------------------------
+方法：
+	valueOf(byte[] bytes):static BitSet 
+		返回包含给定字节数组中所有位的新位集。更确切地说：
+		BitSet.valueOf(bytes).get(n) == ((bytes[n/8] & (1<<(n%8))) != 0)  	对于所有  n < 8 * bytes.length.
+		此方法相当于：
+			BitSet.valueOf(ByteBuffer.wrap(bytes))
+	valueOf(ByteBuffer bb):static BitSet 
+		返回一个新的位集，该位集包含给定字节缓冲区中位于其位置和限制之间的所有位。更确切地说：
+		BitSet.valueOf(bb).get(n) == ((bb.get(bb.position()+n/8) & (1<<(n%8))) != 0) 	对于所有 n < 8 * bb.remaining().
+		该方法不修改字节缓冲区，位集不保留对缓冲区的引用。
+	valueOf(LongBuffer lb):static BitSet 
+		返回一个新的位集，该位集包含给定长缓冲区中位于其位置和限制之间的所有位。更确切地说：
+		BitSet.valueOf(lb).get(n) == ((lb.get(lb.position()+n/64) & (1L<<(n%64))) != 0) 	 对于所有n < 64 * lb.remaining()
+	valueOf(long[] longs):static BitSet 
+		返回包含给定长数组中所有位的新位集。更确切地说：
+		BitSet.valueOf(longs).get(n) == ((longs[n/64] & (1L<<(n%64))) != 0)  对于所有 n < 64 * longs.length
+		此方法相当于：
+			BitSet.valueOf(LongBuffer.wrap(longs))
+	and(BitSet set):void 
+		使用参数位集和此位集执行逻辑与操作。修改该位集，使其中的每个位都具有值true，前提是且仅当两个位的初始值都为true时，并且位集参数中的相应位也具有值true。
+	andNot(BitSet set):void 
+		清除此位集中对应位设置在指定位集中的所有位。
+	cardinality():int 	
+		返回此 BitSet中设置为 true的位数量。
+	clear():void 
+		将该位集中的所有位设置为false。
+	clear(int bitIndex):void 
+		将索引指定的位设置为false。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	clear(int fromIndex, int toIndex):void 
+		将从指定的fromindex（包含）到指定的toindex（不包含）的位设置为false。
+		【Throws】：
+			IndexOutOfBoundsException 如果fromIndex为负，或toindex为负，或fromIndex大于toindex
+	clone():Object 
+		△克隆此位集将生成一个与其相等的新位集。位集的克隆是另一个位集，与该位集具有完全相同的位设置为ture。
+	equals(Object obj):boolean 
+		△将此对象与指定的对象进行比较。`如果且仅当参数不为空并且是与该位集具有完全相同的位集设置为真的位集对象，则结果为真。也就是说，对于每个非负的int索引k，
+			((BitSet)obj).get(k) == this.get(k)
+		一定是ture。不比较两个位集的当前大小。
+	flip(int bitIndex):void 
+		将指定索引处的位设置为其当前值的补码。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	flip(int fromIndex, int toIndex):void 
+		将指定的 fromIndex（包括）到指定的 toIndex（不包括）范围内的每个位设置为其当前值的补码。
+		【Throws】：
+			IndexOutOfBoundsException 如果fromIndex为负，或toindex为负，或fromIndex大于toindex
+	get(int bitIndex):boolean 
+		返回具有指定索引的位值。如果在BitSet中设置了指定索引当前位，则该值为true；否则，结果为false。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	get(int fromIndex, int toIndex):BitSet 
+		返回一个新的 BitSet，它由此 BitSet 中从 fromIndex（包括）到 toIndex（不包括）范围内的位组成。
+		【Throws】：
+			IndexOutOfBoundsException 如果fromIndex为负，或toindex为负，或fromIndex大于toindex
+	hashCode():int 
+		△返回此位集的哈希代码值。哈希代码只取决于在这个位集中设置了哪些位。哈希代码定义为以下计算的结果：
+		public int hashCode() {
+		     long h = 1234;
+		     long[] words = toLongArray();
+		     for (int i = words.length; --i >= 0; )
+		         h ^= words[i] * (i + 1);
+		     return (int)((h >> 32) ^ h);
+		 }
+		 注意，如果改变了位集，散列码就会改变。
+	intersects(BitSet set):boolean 
+		如果指定的 BitSet中有设置为 true 的位，并且在此 BitSet中也将其设置为 true，如果存在的话则返回 true。
+	isEmpty():boolean 
+		如果此 BitSet 中没有包含任何设置为 true的位，则返回 true。	
+	length():int 
+		返回此 BitSet 的"逻辑大小"：BitSet中最高设置位的索引加 1。
+	nextClearBit(int fromIndex):int 
+		返回在指定的起始索引上或之后出现的设置为false的第一个索引。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	nextSetBit(int fromIndex):int 
+		返回第一个设置为 true 的位的索引，这发生在指定的起始索引或之后的索引上。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	or(BitSet set):void 
+		使用位集参数执行此位集的逻辑或。修改该位集，使其中的某个位的值为true（如果且仅当该位集的值为true）或该位集参数中的相应位的值为真时才为true。
+	previousClearBit(int fromIndex):int
+		返回在指定的起始索引上或之前发生的、设置为false的最近位的索引。如果不存在这样的位，或者如果将-1作为起始索引，则返回-1。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引小于-1
+	previousSetBit(int fromIndex):int 
+		返回在指定的起始索引上或之前设置为true的最近位的索引。
+		要循环访问位集中的true位，请使用以下循环：
+		for (int i = bs.length(); (i = bs.previousSetBit(i-1)) >= 0; ) { // operate on index i here }
+     	【Throws】：
+			IndexOutOfBoundsException 如果指定的索引小于-1
+	set(int bitIndex):void 
+		将指定索引处的位设置为 true。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	set(int bitIndex, boolean value):void 
+		将指定索引处的位设置为指定的值。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	set(int fromIndex, int toIndex):void 
+		将指定的 fromIndex（包括）到指定的 toIndex（不包括）范围内的位设置为 true。
+		【Throws】：
+			IndexOutOfBoundsException 如果fromIndex为负，或toindex为负，或fromIndex大于toindex
+	set(int fromIndex, int toIndex, boolean value):void 
+		将指定的 fromIndex（包括）到指定的 toIndex（不包括）范围内的位设置为指定的值。
+		【Throws】：
+			IndexOutOfBoundsException 如果fromIndex为负，或toindex为负，或fromIndex大于toindex
+	size():int 
+		返回此 BitSet表示位值时实际使用空间的位数。集合中的最大元素是size-1st元素。
+	stream():IntStream 
+		返回一个索引流，该索引流的位集包含处于设置状态的位。索引按顺序返回，从低到高。流的大小是处于设置状态的位数，等于cardinality（）方法返回的值。
+		在执行终端流操作期间，位集必须保持不变。否则，终端流操作的结果未定义。	
+	toByteArray():byte[] 
+		返回包含此位集中所有位的新字节数组。更准确地说，如果:
+			byte[] bytes = s.toByteArray(); 
+			bytes.length == (s.length()+7)/8  
+			s.get(n) == ((bytes[n/8] & (1<<(n%8))) != 0)  对于所有 n < 8 * bytes.length.
+	toLongArray():long[] 
+		返回包含此位集中所有位的新长数组。更准确地说，如果:
+			long[] longs = s.toLongArray(); 
+			longs.length == (s.length()+63)/64 
+			s.get(n) == ((longs[n/64] & (1L<<(n%64))) != 0)    对于所有 n < 64 * longs.length.
+	toString():String 
+		△返回此位集的字符串表示形式。对于此位集包含处于设置状态的位的每个索引，该索引的十进制表示形式都包含在结果中（返回所有值为true的位的索引号）。这些索引按从低到高的顺序列出，用“，”（逗号和空格）分隔，并用大括号括起来，这样就形成了一组整数的常用数学符号。
+	xor(BitSet set):void
+		使用位集参数执行此位集的逻辑异或（XOR）。修改该位集，设置位的值为true（如果且仅当以下语句之一保持不变时）：
+			● 位的初始值为true，参数中相应的位的值为false。
+			● 位的初始值为false，参数中相应的位的值为true。
+		其他情况则设置位置为false。
+--------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+	

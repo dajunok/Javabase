@@ -1,4 +1,4 @@
-package liu.java.util.Observer.eventAgent;
+package liu.java.util.Observable.eventAgent;
 
 /**
  *	 具体通知者
