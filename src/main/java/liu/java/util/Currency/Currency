@@ -1,0 +1,72 @@
+-------------------------------------------Currency------------------------------------------------------------------------------------------------------
+Currency类：货币类。货币由其ISO 4217货币代码标识。类的设计方式是，对于任何给定的货币，都不存在多个货币实例。因此，没有公共构造函数。使用getInstance方法获取货币实例。
+	用户可以通过系统属性java.util.currency.data替代Java运行时货币数据。如果定义了此系统属性，则其值是属性文件的位置，其内容分别是ISO 3166国家代码的键/值对和ISO 4217货币数据。
+	值部分由一种货币的三个ISO 4217值组成，即字母代码、数字代码和次要单位。这三个ISO 4217值用逗号分隔。以'#'开头的行被视为注释行。如果用户需要指定指示新数据生效时间的转换日期，
+	则可以为每个货币条目指定可选的UTC时间戳。时间戳附加到货币属性的末尾，并使用逗号作为分隔符。如果存在UTC日期戳并且该日期戳有效，则JRE将仅在当前UTC日期晚于类加载时指定的日期时使用新的货币属性。
+	时间戳的格式必须为ISO 8601格式：'yyyy-MM-dd'T'HH:mm:ss'。例如，
+		#Sample currency properties
+		JP=JPZ,999,0
+		
+		#Sample currency properties with cutover date
+		JP=JPZ,999,0,2014-01-01T00:00:00
+	如果在2014年1月1日00:00:00 GMT之后加载货币类，将取代日本的货币数据。
+	如果遇到语法错误的条目，则忽略该条目，并处理文件中其余条目。对于存在重复国家/地区代码条目的情况，该货币的货币信息行为未定义，文件中的其余条目将被处理。
+
+	类定义：public final class Currency extends Object implements Serializable
+-------------------------------------------------------------------------------------------------------------------------------------------------
+	getAvailableCurrencies():static Set<Currency> 
+		获取一组可用的货币代码。返回的货币集包含所有可用货币，其中可能包括表示过时的ISO 4217代码的货币。可以在不影响运行时可用货币的情况下修改集合。	
+	getInstance(String currencyCode):static Currency 
+		返回给定货币代码（指定的是货币的ISO 4217代码）的货币实例。
+		【Throws】：
+			NullPointerException 如果currencyCode为null
+			IllegalArgumentException 如果currencyCode不是受支持的ISO 4217代码。
+	getInstance(Locale locale):static Currency 
+		返回给定locale的country的货币实例。忽略locale的language和variant组件。随着各国货币的变化，结果可能会随着时间的推移而变化。例如，对于欧洲货币联盟的原始成员国，该方法返回2001年12月31日之前的旧国家货币，以及2002年1月1日（各自国家的当地时间）之后的欧元。
+		【Throws】：
+			NullPointerException 如果locale（区域设置）或其国家/地区代码为null
+			IllegalArgumentException 如果给定区域设置的国家/地区不是受支持的ISO 3166国家/地区代码。
+	getCurrencyCode():String 
+		获取此货币的ISO 4217货币代码。
+	getDefaultFractionDigits():int 
+		获取与此货币一起使用的小数位数的默认值。例如，欧元的小数位数默认为2，而日元的小数位数默认为0。如果是虚拟货币，如国际货币基金组织特别提款权，则返回-1。
+	getDisplayName():String 
+		获取适合在默认DISPLAY locale(区域设置)中显示此货币的名称。如果没有为默认locae找到合适的显示名称，则返回ISO 4217货币代码。	
+	getDisplayName(Locale locale):String 
+		获取适用于为指定区域设置显示此货币的名称。如果没有为指定区域设置找到合适的显示名称，则返回ISO 4217货币代码。
+		【Throws】：
+			NullPointerException 如果locale为null。
+	getNumericCode():int 
+		返回此货币的ISO 4217数字代码。
+	getSymbol():String 
+		获取此货币的默认显示区域设置符号。例如，对于美元，如果默认区域设置为美国，则符号为“$”，而对于其他区域设置，则符号可能为“US$”。如果无法确定符号，则返回ISO 4217货币代码。	
+	getSymbol(Locale locale):String 
+		获取指定区域设置的此货币的符号。例如，对于美元，如果指定的区域设置为美国，则符号为“$”，而对于其他区域设置，则符号可能为“US$”。如果无法确定符号，则返回ISO 4217货币代码。
+		【Throws】：
+			NullPointerException 如果locale为null。
+	toString():String 
+		△返回此货币的ISO 4217货币代码。
+-------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+1、注：文档中的△符号表示覆盖重写方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
