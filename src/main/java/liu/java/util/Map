@@ -1,3 +1,4 @@
+-----------------------------------------------Map<K,V>------------------------------------------------------------------------------------------------------------------------
 Map<K,V>：映射。【Since:1.2】
 	将键映射到值的对象。映射不能包含重复的键；每个键最多可以映射到一个值。
 	这个接口取代了Dictionary类，它是一个完全抽象的类，而不是一个接口。
@@ -12,6 +13,7 @@ Map<K,V>：映射。【Since:1.2】
 	
 	
 	接口定义：public interface Map<K,V>
+	内部接口：Map.Entry<K,V>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	clear():void 
 		从该Map（映射）中删除所有映射（可选操作）。此调用返回后，映射将为空。
@@ -219,6 +221,52 @@ Map<K,V>：映射。【Since:1.2】
 		返回此映射中的键值映射数量。如果映射包含超过Integer.MAX_VALUE，则返回Integer.MAX_VALUE。
 	values():Collection<V> 
 		返回此映射中包含的值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作除外），则迭代的结果未定义（不确定）。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll 和clear操作从映射中移除相应的映射。它不支持add或addAll操作。			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Map$Entry<K,V>：映射项（或映射条目） 它是Map接口的一个内部接口。【Since:1.2】
+	映射项（键值对）。Map.entrySet方法返回映射的集合视图，其元素属于此类。获取对映射项的引用的唯一方法是从此集合视图的迭代器中获取。这些Map.Entry对象仅在迭代期间有效；更正式地说，如果在迭代器返回entry（映射项）之后修改了Map映射，则映射项的行为是未定义的（不确定的），除非通过映射项上的setvalue操作。
+
+	接口定义：public static interface Map.Entry<K,V>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	comparingByKey():static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K,V>> 
+		返回按键的自然顺序比较Map.Entry的比较器。
+		返回的Comparator是可序列化的，在比较具有null键的条目时引发NullPointerException异常。
+	comparingByKey(Comparator<? super K> cmp):static <K, V> Comparator<Map.Entry<K, V>> 
+		返回使用给定比较器逐键比较 Map.Entry的比较器。
+		如果指定的比较器也是可序列化的，则返回的比较器是可序列化的。
+	comparingByValue():static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K,V>>
+		返回按值的自然顺序比较Map.entry的比较器。
+		返回的Comparator是可序列化的，在比较具有null值的条目时引发NullPointerException异常。
+	comparingByValue(Comparator<? super V> cmp):static <K, V> Comparator<Map.Entry<K, V>>
+		返回使用给定比较器按值比较Map.entry的比较器。
+		如果指定的比较器也是可序列化的，则返回的比较器是可序列化的。						
+	equals(Object o):boolean
+		将指定的对象与此项进行比较以确保相等。如果给定对象也是映射项，并且这两个项表示相同的映射，则返回true。更正式地说，两个条目e1和e2表示相同的映射，如果：
+		     (e1.getKey()==null ?
+		      e2.getKey()==null : e1.getKey().equals(e2.getKey()))  &&
+		     (e1.getValue()==null ?
+		      e2.getValue()==null : e1.getValue().equals(e2.getValue()))
+		这样可以确保equals方法在Map.entry接口的不同实现中正常工作。
+	getKey():K 
+		返回与此映射项对应的键。
+		【Throws】：
+			● IllegalStateException 如果映射条目已从Map映射中移除，则实现可能（但不需要）抛出此异常。
+	getValue():V 
+		返回与此映射项对应的值。如果映射已从Map映射中删除（通过迭代器的remove操作），则此调用的结果未定义（不确定）。
+		【Throws】：
+			● IllegalStateException 如果映射条目已从Map映射中移除，则实现可能（但不需要）抛出此异常。
+	hashCode():int 
+		返回此映射项的哈希代码值。映射项e的哈希代码定义为：
+			(e.getKey()==null   ? 0 : e.getKey().hashCode()) ^ (e.getValue()==null ? 0 : e.getValue().hashCode())
+		这确保e1.equals(e2)意味着e1.hashCode()==e2.hashCode()对于任何两个条目e1和e2，都是按照Object.hashCode的一般约定所要求的。
+	setValue(V value):V 
+		用指定的值（可选操作）替换与此项对应的值。（写入Map映射。）如果Map映射已从映射中移除（通过迭代器的remove操作），则此调用的行为未定义（不确定）。
+		【Throws】：
+			● UnsupportedOperationException 如果对应的map映射不支持set操作
+			● ClassCastException  如果指定值的类阻止它存储在对应的map映射中
+			● NullPointerException 如果对应的map映射不允许null值，并且指定的值为null
+			● IllegalArgumentException  如果此值的某些属性阻止它存储在对应映射中
+			● IllegalStateException 如果映射条目已从支持映射中移除，则实现可能（但不需要）抛出此异常。
+			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法。

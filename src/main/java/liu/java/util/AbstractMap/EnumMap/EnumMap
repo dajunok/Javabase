@@ -1,0 +1,93 @@
+------------------------------------------EnumMap<K extends Enum<K>, V>------------------------------------------------------------------------------------------------------------
+EnumMap<K extends Enum<K>, V>：枚举映射。【since 1.5】
+	用于枚举类型键的专用map实现类。枚举映射中的所有键必须来自创建映射时显式或隐式指定的单个枚举类型。EnumMap在内部表示为数组。这种表示非常紧凑和有效。
+	枚举映射按其键的自然顺序（枚举常量声明的顺序）进行维护。这反映在集合视图（keySet()、entrySet()和values()）返回的迭代器中。
+	集合视图返回弱一致性的迭代器：它们不会抛出ConcurrentModificationException异常，并且可能会显示或可能不会显示在迭代过程中对映射所做的任何修改的效果。
+	不允许使用null键。尝试插入null键将引发NullPointerException异常。但是，尝试测试是否存在null键或删除null键将正常工作。允许null值。
+	像大多数集合实现一样，Enummap不支持同步（即不支持并发操作）。如果多个线程同时访问一个枚举映射，并且至少有一个线程修改了该映射，那么它应该在外部进行同步。这通常是通过在自然封装枚举映射的某个对象上进行同步来完成的。如果不存在这样的对象，则应该使用集合。这最好在创建时完成，以防止意外的非同步访问：
+		Map<EnumKey, V> m = Collections.synchronizedMap(new EnumMap<EnumKey, V>(...));
+	实现说明：所有基本操作都是在固定时间内执行的。它们很可能（虽然不能保证）比它们的HashMap对应对象更快。
+	该类是Java集合框架的成员。
+
+
+
+
+	类定义：public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements java.io.Serializable, Cloneable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public EnumMap(Class<K> keyType)
+		使用指定的键类型创建空的枚举映射。
+		【Throws】：
+			NullPointerException 如果keyType为null。
+	public EnumMap(EnumMap<K, ? extends V> m)
+		创建与指定枚举映射具有相同键类型的枚举映射，最初包含相同的映射（如果有）。
+		【Throws】：
+			NullPointerException 如果m为null。
+	public EnumMap(Map<K, ? extends V> m)
+		创建从指定映射初始化的枚举映射。如果指定的映射是EnumMap实例，则此构造函数的行为与EnumMap（EnumMap）相同。否则，指定的映射必须至少包含一个映射（以便确定新枚举映射的键类型）。
+		【Throws】：
+			IllegalArgumentException 如果m不是EnumMap实例并且不包含映射。
+			NullPointerException 如果m为null。
+方法（覆盖）：
+	clear():void 
+		△从该映射中删除所有映射。
+	clone():EnumMap<K, V> 
+		△返回此枚举映射的浅副本。（不克隆值本身）。
+	containsKey(Object key):boolean 
+		△如果此may包含指定键的映射，则返回true。
+	containsValue(Object value):boolean 
+		△如果此映射将一个或多个键映射到指定值，则返回true。
+	entrySet():Set<Map.Entry<K,V>> 
+		△ 返回此映射中包含的映射的集合视图。返回的集合遵守Map.keySet()中概述的一般约定。集合的迭代器将按其键在映射中出现的顺序返回映射，这是它们的自然顺序（枚举常量声明的顺序）。
+	equals(Object o):boolean 
+		△ 将指定的对象与此映射进行相等比较。如果给定的对象也是一个映射，并且两个映射表示在Map.equals(Object)协定中指定的相同映射，则返回true。
+	get(Object key):V 
+		△ 返回指定键映射到的值，如果此映射不包含键的映射，则返回空值。
+		更正式地说，如果这个映射包含一个从键k到值v的映射(key == k)，那么这个方法返回v；否则返回null值。（最多可以有一个这样的映射。）
+		返回值为空并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。	
+	hashCode():int 
+		△ 返回此映射的哈希代码值。映射的哈希代码被定义为映射中每个条目的哈希代码之和。
+	keySet():Set<K> 
+		△ 返回此映射中包含的键的集合视图。返回的集合遵守Map.keySet()中概述的一般约定。集合的迭代器将按其自然顺序（枚举常量的声明顺序）返回键。
+	put(K key, V value):V 
+		△ 将指定的值与此映射中的指定键关联。如果map之前包含此键的映射，则将替换旧值。
+		返回与指定键关联的上一个值，如果没有键的映射，则为null。（null返回还可以指示先前与指定键关联的映射为null。）
+		【Throws】：
+			NullPointerException 如果指定的key为空
+	putAll(Map<? extends K, ? extends V> m):void 
+		△ 将指定map中的所有映射复制到此map。这些映射将替换此map对指定map中当前任何键的任何映射。
+	remove(Object key):V 
+		△ 从map中删除此键的映射（如果存在）。
+		返回与指定键关联的上一个值，如果没有键的条目，则为null。（null返回还可以指示先前与指定键关联的映射为null。）
+	size():int 
+		△ 返回map中的键值映射数量。
+	values():Collection<V> 
+		△ 返回此映射中包含的值的集合视图。返回的集合遵循Map.values()中概述的常规约定。集合的迭代器将按其对应键在map中出现的顺序返回值，这是它们的自然顺序（枚举常量声明的顺序）
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
