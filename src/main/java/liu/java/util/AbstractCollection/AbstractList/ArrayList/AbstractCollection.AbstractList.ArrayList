@@ -1,0 +1,160 @@
+-----------------------ArrayList<E>-----------------------------------------------------------------------------------------------------------------------------------
+ArrayList<E>：。【since 1.2 】
+	List接口的可调整大小的数组实现。实现所有可选的列表操作，并允许所有元素，包括null元素。除了实现列表接口之外，这个类还提供了一些方法来操作内部用于存储列表的数组的大小。（这个类大致相当于Vector，只是它不同步。）
+	size、isEmpty、get、set、iterator和listIterator操作在恒定时间内运行。add操作在摊余的固定时间内运行，即添加n个元素需要O（n）时间。所有其他的操作都在线性时间内运行（大致来说）。与LinkedList实现相比，常量因子较低。
+	每个ArrayList实例都有一个容量。容量是用于存储列表中元素的数组大小。它总是至少和列表大小一样大。当元素添加到数组列表中时，其容量将自动增长。除了增加一个元素具有固定的摊余时间成本之外，增长策略的细节没有被指定。
+	应用程序可以在使用ensureCapacity操作添加大量元素之前增加ArrayList实例的容量。这可能会减少增量重新分配的数量。
+	注意，这个实现是不同步的。如果多个线程同时访问一个ArrayList实例，并且至少有一个线程在结构上修改列表，则必须在外部同步该列表。（结构修改是添加或删除一个或多个元素，或显式调整支持数组的大小的任何操作；仅设置元素的值不是结构修改。）这通常是通过在自然封装列表的某些对象上进行同步来完成的。如果不存在此类对象，则应使用Collections.synchronizedList方法“包装”列表。这最好在创建时完成，以防止意外地不同步访问列表：
+		List list = Collections.synchronizedList(new ArrayList(...));
+	此类的迭代器和listIterator方法返回的迭代器采用fail-fast机制：如果在创建迭代器之后的任何时候以任何方式修改了列表，除了通过迭代器自己的remove或add方法，迭代器将抛出ConcurrentModificationException异常。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,List<E>, RandomAccess, Cloneable, java.io.Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public ArrayList()
+		构造初始容量为10的空列表。
+	public ArrayList(int initialCapacity)
+		构造具有指定初始容量的空列表。
+		【Throws】：
+			IllegalArgumentException 如果规定的初始容量为负
+	public ArrayList(Collection<? extends E> c)
+		按照集合迭代器返回元素的顺序构造包含指定集合的元素的列表。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+
+方法：
+	add(E e):boolean 
+		将指定的元素追加到此列表的结尾。
+	add(int index, E element):void 
+		△ 在此列表中的指定位置插入指定的元素。将当前位于该位置的元素（如果有）和任何后续元素右移（在其索引中添加一个元素）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围(index < 0 || index > size())。
+	addAll(int index, Collection<? extends E> c):boolean 
+		△ 将指定集合中的所有元素从指定位置开始插入此列表。将当前位于该位置的元素（如果有）和任何后续元素右移（增加其索引）。新元素将按指定集合的迭代器返回它们的顺序出现在列表中。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+			NullPointerException 如果指定的集合为null
+	addAll(Collection<? extends E> c):boolean 
+		△ 按指定集合的迭代器返回元素的顺序，将指定集合中的所有元素追加到此列表的末尾。如果在操作进行过程中修改了指定的集合，则此操作的行为不确定。（这意味着，如果指定的集合是此列表，而此列表不是空的，则此调用的行为是不确定的。）
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+	clear():void 
+		△ 删除此列表中的所有元素。此调用返回后，列表将为空。
+	clone():Object 
+		△ 返回此ArrayList实例的浅副本。（不复制元素本身。）
+	contains(Object o):boolean 
+		△ 如果此列表包含指定元素，则返回true。更正式地说，如果并且仅当此列表包含至少一个元素e(o==null ? e==null : o.equals(e))。
+	ensureCapacity(int minCapacity):void 
+		如果需要，请增加此ArrayList实例的容量，以确保它至少可以容纳由最小容量参数minCapacity指定的元素数。
+	forEach(Consumer<? super E> action):void 
+		△ 对Iterable的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。除非实现类另有指定，否则将按迭代顺序执行操作（如果指定了迭代顺序）。操作引发的异常将中继到调用方。
+	get(int index):E 
+		△ 返回此列表中指定位置的元素。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	indexOf(Object o):int 
+		△ 返回此列表中指定元素的第一个匹配项的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最低的索引i(o==null ? get(i)==null : o.equals(get(i)))	如果没有此类索引，则为-1。	
+	isEmpty():boolean 
+		△ 如果此列表不包含元素，则返回true。
+	iterator():Iterator<E> 
+		△ 以正确的顺序返回此列表中元素的迭代器(fail-fast机制)。
+	lastIndexOf(Object o):int 
+		△ 返回此列表中指定元素最后一次出现的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最高的索引i(o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
+	listIterator():ListIterator<E> 
+		△ 返回此列表中元素的列表迭代器（按正确的顺序）。返回fail-fast机制的列表迭代器。
+	listIterator(int index):ListIterator<E> 
+		△  返回此列表中元素的列表迭代器（按正确的顺序），从列表中的指定位置开始。指定的索引指示将通过对next的初始调用返回的第一个元素。对previous的初始调用将返回具有指定索引减去1的元素。
+		返回fail-fast机制的列表迭代器。
+	remove(int index):E 
+		△ 删除此列表中指定位置的元素。将任何后续元素向左移动（从其索引中减去一个）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	remove(Object o):boolean 
+		△ 从该列表中删除指定元素的第一个匹配项（如果存在）。如果列表不包含元素，则该元素不变。更正式地说，删除索引i最低的元素，（如果存在这样的元素(o==null ? get(i)==null : o.equals(get(i))) (if such an element exists)）。如果此列表包含指定元素，则返回“true”（如果此列表因调用而更改，则也返回true）。
+	removeAll(Collection<?> c):boolean 
+		△ 从此列表中删除指定集合中包含的所有元素。
+		【Throws】：
+			ClassCastException 如果此列表的元素的类与指定的集合不兼容（可选）
+			NullPointerException 如果此列表包含空元素，并且指定的集合不允许null元素（可选），或者指定的集合为null
+	removeIf(Predicate<? super E> filter):boolean 
+		△ 删除此集合中满足给定过滤器的所有元素。迭代期间或过滤器引发的错误或运行时异常将中继到调用方。
+	removeRange(int fromIndex, int toIndex):protected void 
+		△ 从此列表中删除其索引介于fromIndex（含）和toIndex（含）之间的所有元素。将任何后续元素向左移动（减少其索引）。此调用通过（toIndex-fromIndex）元素缩短列表。（如果toIndex==fromIndex，则此操作无效。）
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (fromIndex < 0 || fromIndex >= size() || toIndex > size() || toIndex < fromIndex)
+	replaceAll(UnaryOperator<E> operator):void 
+		△ 将此列表中的每个元素替换为将运算符应用于该元素的结果。由运算符引发的错误或运行时异常将中继到调用方。
+	retainAll(Collection<?> c):boolean 
+		△ 仅保留此列表中包含在指定集合中的元素。换句话说，从该列表中删除不包含在指定集合中的所有元素。
+	set(int index, E element):E 
+		△ 用指定的元素替换此列表中指定位置的元素。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	size():int 
+		△ 返回此列表中的元素数量。
+	sort(Comparator<? super E> c):void 
+		△ 根据指定比较器诱导的顺序对该列表进行排序。
+		此列表中的所有元素都必须使用指定的比较器进行相互比较（即，c.compare(e1, e2)不能对列表中的任何元素e1和e2抛出ClassCastException ）。
+		如果指定的comparator为空，那么列表中的所有元素都必须实现Comparable的接口，并且应该使用元素的自然顺序。
+		此列表必须可修改，但不必调整大小。
+	spliterator():Spliterator<E> 
+		△ 创建后期绑定并在此列表中的元素上fail-fast拆分器。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED 和 Spliterator.ORDERED特征。重写实现应该记录额外特征值的报告。
+	subList(int fromIndex, int toIndex):List<E> 
+		△ 返回指定的fromIndex（含）和toIndex（含）之间此列表部分的视图。（如果fromIndex和toIndex相等，则返回的列表为null。）返回的列表由此列表支持，因此返回列表中的非结构更改将反映在此列表中，反之亦然。返回的列表支持所有可选的列表操作。
+		这种方法不需要显式的范围操作（数组通常存在的类型）。任何需要列表的操作都可以通过传递子列表视图而不是整个列表来用作范围操作。例如，以下习惯用法从列表中删除一系列元素：
+			list.subList(from, to).clear();
+		可以为indexOf(Object)和lastIndexOf(Object)构造类似的习惯用法，Collections类中的所有算法都可以应用于subList。
+		如果支持列表（即此列表）在结构上进行了除通过返回列表以外的任何方式的修改，则此方法返回的列表的语义将变为不确定。（结构修改是指那些改变列表大小的修改，或者以某种方式干扰列表，使正在进行的迭代可能产生不正确的结果。）
+		【Throws】：			
+			IndexOutOfBoundsException 如果端点索引值超出范围(fromIndex < 0 || toIndex > size)。
+			IllegalArgumentException 如果端点索引不正常(fromIndex > toIndex)
+	toArray():Object[] 
+		△ 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素；返回的数组的运行时类型是指定数组的运行时类型。如果列表符合指定的数组，则将在其中返回。否则，将为新数组分配指定数组的运行时类型和此列表的大小
+		如果列表适合具有备用空间的指定数组（即数组中的元素多于列表），则集合结束后数组中的元素将设置为null。（只有当调用者知道列表不包含任何空元素时，这对于确定列表的长度很有用。）
+		【Throws】：			
+			ArrayStoreException 如果指定数组的运行时类型不是此列表中每个元素的运行时类型的父类型
+			NullPointerException 如果指定的数组为null
+	toArray(T[] a):<T> T[] 
+		<T> 要包含集合的数组的运行时类型
+		△ 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素；返回的数组的运行时类型是指定数组的运行时类型。如果列表符合指定的数组，则将在其中返回。否则，将为新数组分配指定数组的运行时类型和此列表的大小。
+		如果列表适合具有备用空间的指定数组（即数组中的元素多于列表），则集合结束后数组中的元素将设置为null。（只有当调用者知道列表不包含任何null元素时，这对于确定列表的长度很有用。）
+		【Throws】：			
+			ArrayStoreException 如果指定数组的运行时类型不是此列表中每个元素的运行时类型的父类型
+			NullPointerException 如果指定的数组为null
+	trimToSize():void 
+		将此ArrayList实例的容量调整为列表的当前大小。应用程序可以使用此操作最小化ArrayList实例的存储。
+		
+		
+		
+		
+		
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、amortized：摊余固定时间。添加n个元素需要O(n)时间。
+	4、fail-fast：快速失败机制
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
