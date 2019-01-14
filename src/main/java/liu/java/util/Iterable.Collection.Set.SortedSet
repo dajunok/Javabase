@@ -10,8 +10,8 @@ SortedSet<E>：排序集接口。【Since:1.2】
 	此接口是Java集合框架的成员。
 
 	
-	接口定义：public interface SortedSet<E> extends Set<E>
-	父接口：Set<E>,Collection<E>, Iterable<E>		
+	接口定义	：public interface SortedSet<E> extends Set<E>
+	父接口	：Iterable<E>,Collection<E>,Set<E>	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	comparator():Comparator<? super E>
 		返回用于对该集合中的元素排序的比较器，如果该集合使用其元素的自然顺序，则返回null。			

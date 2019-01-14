@@ -13,8 +13,8 @@ Queue<E>接口：队列 【Since:1.5】
 	队列实现通常不定义方法equals和hashCode的基于元素的版本，而是从类Object继承基于标识的版本，因为对于具有相同元素但顺序属性不同的队列，并不总是定义了基于元素的相等性。
 	此接口是Java集合框架的成员。		
 	
-	接口定义：public interface Queue<E> extends Collection<E>
-	父接口：Collection<E>, Iterable<E>
+	接口定义	：public interface Queue<E> extends Collection<E>
+	父接口	：Iterable<E>,Collection<E>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	add(E e):boolean 
 		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。

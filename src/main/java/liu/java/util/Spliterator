@@ -21,6 +21,7 @@ Spliterator<T>：拆分迭代器（简称拆分器）。【Since:1.8】
 	
 	
 	接口定义：public interface Spliterator<T>
+	内部接口：OfPrimitive,OfDouble,OfInt,OfLong
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 拆分器特征属性：通过characteristics（）方法返回的值，用来标识实现类所具有的的特性
 	CONCURRENT= 0x00001000
@@ -85,7 +86,7 @@ Spliterator<T>：拆分迭代器（简称拆分器）。【Since:1.8】
 		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-Spliterator$OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>:原始拆分器
+1、Spliterator$OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T_CONS, T_SPLITR>>:原始拆分器
 	专门针对原始类型值的Spliterator。【Since:1.8】
 	<T>	    	Spliterator返回的元素类型。类型必须是基元类型的包装类型，例如Integer是基元int类型的包装类型。
 	<T_CONS>	原始类型的Consumer（操作函数接口）。类型必须是专门针对T的原始类型Consumer，例如Integer类型的IntConsumer。
@@ -112,7 +113,7 @@ Spliterator$OfPrimitive<T, T_CONS, T_SPLITR extends Spliterator.OfPrimitive<T, T
 		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Spliterator$OfDouble：Double拆分器	【Since:1.8】
+2、Spliterator$OfDouble：Double拆分器	【Since:1.8】
 	专门用于Double类型的的Spliterator。
 	
 	接口定义：public interface OfDouble extends OfPrimitive<Double, DoubleConsumer, OfDouble>
@@ -139,7 +140,7 @@ Spliterator$OfDouble：Double拆分器	【Since:1.8】
 			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
 		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Spliterator$OfInt接口：Int拆分器	【Since:1.8】
+3、Spliterator$OfInt接口：Int拆分器	【Since:1.8】
 	专门用于int装箱类型的Spliterator。
 	
 	接口定义：public interface OfInt extends OfPrimitive<Integer, IntConsumer, OfInt>
@@ -166,7 +167,7 @@ Spliterator$OfInt接口：Int拆分器	【Since:1.8】
 			● 如果此拆分器具有SUBSIZED特征，则拆分前Spliterator的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
 		此方法可能因任何原因返回null，包括为空、遍历开始后无法拆分、数据结构干扰并且影响性能。
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
-Spliterator$OfLong：Long类型拆分器
+4、Spliterator$OfLong：Long类型拆分器
 	专门用于long装箱类型的Spliterator。
 	
 	接口定义：public interface OfLong extends OfPrimitive<Long, LongConsumer, OfLong>		

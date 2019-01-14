@@ -1,0 +1,159 @@
+-----------------------------------------ArrayDeque<E>-------------------------------------------------------------------------------------------------------------
+ArrayDeque<E>：数组双端队列。【since 1.6 】
+	Deque接口的可调整大小的数组实现。数组双端队列没有容量限制；它们根据需要增长以支持使用。它们不是线程安全的；在没有外部同步的情况下，它们不支持多个线程并发访问。禁止使用null元素。当用作栈时，此类可能比Stack快，而当用作队列时，此类可能比LinkedList快。	
+	大多数ArrayDeque操作在amortized固定时间内运行。异常包括remove、removeFirstOccurrence、removeLastOccurrence、contains、iterator.remove()和大容量操作，所有这些操作都在线性时间内运行。
+	这个类的迭代器方法返回的迭代器是fail-fast机制：如果在迭代器创建后的任何时候修改了双端队列，那么除了通过迭代器自己的remove方法之外，迭代器通常都会抛出ConcurrentModificationException。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	这个类以及其迭代器实现Collection和Iterator接口的所有可选方法。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class ArrayDeque<E> extends AbstractCollection<E> implements Deque<E>, Cloneable, Serializable
+	实现接口	：Iterable<E>,Collection<E>,Queue<E>,Deque<E>, Cloneable, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public ArrayDeque()
+		构造一个初始容量足以容纳16个元素的空数组双端队列。
+	public ArrayDeque(int numElements)
+		构造一个空数组双端队列，其初始容量足以容纳指定数量的元素。
+	public ArrayDeque(Collection<? extends E> c)
+		按照集合迭代器返回元素的顺序构造包含指定集合的元素的双端队列。（集合迭代器返回的第一个元素成为第一个元素或双端队列的前面。）
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+
+方法：
+	add(E e):boolean 
+		△ 在该Deque（双端队列）的末尾插入指定的元素。此方法等价于addLast(E)。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	addFirst(E e):void 
+		△ 在该Deque（双端队列）的前面插入指定的元素。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	addLast(E e):void 
+		△ 在该Deque（双端队列）的末尾插入指定的元素。此方法等价于add(E)。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	clear():void 
+		△ 删除此Deque（双端队列）中的所有元素。此调用返回后，双端队列将为空。
+	clone():ArrayDeque<E> 
+		△ 返回此Deque（双端队列）的副本。
+	contains(Object o):boolean 
+		△ 如果此Deque（双端队列）包含指定元素，则返回true。更正式地说，如果且仅当此双端队列包含至少一个元素e（o.equals(e)），则返回true。
+	descendingIterator():Iterator<E> 
+		△ 以相反的顺序返回此Deque（双端队列）中元素的迭代器。元素将按从最后（尾）到第一（头）的顺序返回。
+	element():E 
+		△  检索但不删除由此Deque（双端队列）表示的队列头。此方法与peek的不同之处在于，如果此双端队列为null，它将抛出异常。
+		【Throws】：
+			NoSuchElementException 如果双端队列为null
+	getFirst():E 
+		△ 检索但不删除此Deque（双端队列）的第一个元素。此方法与peekFirst的不同之处在于，如果此双端队列为null，它将引发异常。
+		【Throws】：
+			NoSuchElementException 如果双端队列为null
+	getLast():E 
+		△ 检索但不删除此Deque（双端队列）的最后一个元素。此方法与peekLast的不同之处在于，如果此双端队列为null，它将引发异常。
+		【Throws】：
+			NoSuchElementException 如果双端队列为null
+	isEmpty():boolean 
+		△ 如果此Deque（双端队列）不包含元素，则返回true。
+	iterator():Iterator<E> 
+		△ 返回此Deque（双端队列）中元素的迭代器。元素将从第一个（头）到最后一个（尾）。这与元素出列的顺序相同（通过连续调用remove()或弹出（通过连续调用pop()）。	
+	offer(E e):boolean 
+		△ 在该Deque（双端队列）的末尾插入指定的元素。此方法等价于offerLast(E)。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	offerFirst(E e):boolean 
+		△ 在该Deque（双端队列）的前面插入指定的元素。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	offerLast(E e):boolean 
+		△ 在该Deque（双端队列）的末尾插入指定的元素。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	peek():E 
+		△ 检索但不删除此Deque（双端队列）表示的队列头，或者如果此双端队列为null则返回空值。
+		此方法等效于peekFirst()
+	peekFirst():E 
+		△ 检索但不移除此Deque（双端队列）的第一个元素，或者如果此双端队列为null则返回空值。
+	peekLast():E 
+		△ 检索但不移除此Deque（双端队列）的最后一个元素，或者如果此双端队列为null则返回空值。
+	poll():E 
+		△ 检索并删除由该Deque（双端队列）表示的队列的头（换句话说，是该双端队列的第一个元素），或者如果该双端队列为null，则返回null值。
+		此方法等价于 pollFirst()
+	pollFirst():E 
+		检索并删除此Deque（双端队列）的第一个元素，如果此双端队列为null，则返回null值。
+	pollLast():E 
+		检索并删除此Deque（双端队列）的最后一个元素，如果此双端队列为null，则返回null值。
+	pop():E 
+		检索并删除由该Deque（双端队列）表示的队列的头（换句话说，是该双端队列的第一个元素），或者如果此双端队列为null，则返回null值。
+		此方法等价于pollFirst()。
+	push(E e):void 
+		将元素推送到这个Deque（双端队列）表示的堆栈上。换句话说，在这个双端队列的前面插入元素。
+		此方法等价于 addFirst(E)。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	remove():E 
+		检索并删除由此Deque（双端队列）表示的队列头。此方法与poll的不同之处在于，如果此Deque（双端队列）为null，它将引发异常。
+		此方法等价于removeFirst()。
+		【Throws】：
+			NullPointerException 如果指定的双端队列为null。
+	remove(Object o):boolean 
+		从此Deque（双端队列）中删除指定元素的单个实例。如果Deque（双端队列）不包含元素，则它是不变的。更正式地说，删除第一个元素e（o.equals(e)），（如果存在这样的元素）。如果此Deque包含指定元素（或等效地，如果此Deque由于调用而更改），则返回true。
+		【Throws】：
+			NullPointerException 如果指定的双端队列为null。
+	removeFirst():E 
+		检索并删除此Deque（双端队列）的第一个元素。此方法与pollFirst的不同之处在于，如果此Deque（双端队列）为null，它将引发异常。
+		【Throws】：
+			NullPointerException 如果指定的双端队列为null。
+	removeFirstOccurrence(Object o):boolean 
+		删除此Deque（双端队列）中指定元素的最后一次出现（从头部到尾部遍历Deque（双端队列）时）。如果Deque（双端队列）不包含元素，则它是不变的。更正式地说，删除最后一个元素e，（如果存在这样的元素（o.equals(e)）。如果此Deque包含指定元素（或等效地，如果此Deque由于调用而更改），则返回true。
+	removeLast():E 
+		检索并删除此Deque（双端队列）的最后一个元素。此方法与pollLast的不同之处在于，如果此Deque（双端队列）为null，它将引发异常。
+		【Throws】：
+			NullPointerException 如果指定的双端队列为null。
+	removeLastOccurrence(Object o):boolean 
+		删除此Deque（双端队列）中指定元素的最后一次出现（从头部到尾部遍历Deque（双端队列）时）。如果Deque（双端队列）不包含元素，则它是不变的。更正式地说，删除最后一个元素e，（如果存在这样的元素o.equals(e)）。如果此Deque（双端队列）包含指定元素（或等效地，如果此Deque（双端队列）由于调用而更改），则返回true。
+	size():int 
+		返回此Deque（双端队列）中的元素数量。
+	spliterator():Spliterator<E> 
+		创建后期绑定，并在此Deque（双端队列）中的元素上采用fail-fast机制拆分器。
+		Spliterator报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED、Spliterator.NONNULL特征。覆盖重写实现应该记录额外特征值的报告。
+	toArray():Object[] 
+		返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此Deque中的所有元素。
+		返回的数组将是“安全的”，因为此Deque不维护对它的引用。（换句话说，此方法必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T[] a):<T> T[] 
+		<T> 要包含集合的数组的运行时类型
+		返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此Deque中的所有元素；返回的数组的运行时类型是指定数组的运行时类型。如果Deque符合指定的数组，则返回该数组。否则，将为新数组分配指定数组的运行时类型和此Deque的大小。	
+		如果此Deque适合具有备用空间的指定数组（即数组中的元素多于此Deque），则在Deque结束后立即将数组中的元素设置为null。
+		与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		假设x是已知仅包含字符串的Deque。以下代码可用于将Deque转储到新分配的字符串数组中：
+			String[] y = x.toArray(new String[0]);
+		请注意，toArray(new Object[0]) 与toArray()功能相同。
+		【Throws】：
+			ArrayStoreException 如果指定数组的运行时类型不是此Deque中每个元素的运行时类型的父类型。
+			NullPointerException 如果指定数组为null			
+			
+			
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、amortized：摊余。
+	4、fail-fast：快速失败机制
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

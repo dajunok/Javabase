@@ -1,0 +1,85 @@
+-----------------------------------------AbstractQueue<E>-------------------------------------------------------------------------------------------------------------
+AbstractQueue<E>：抽象队列。【since 1.5 】
+	此类提供一些队列操作的框架实现。当基本实现不允许null元素时，此类中的实现是适当的。方法add、remove和element分别基于offer、poll和peek，但抛出异常而不是通过false或null返回来指示失败。
+	扩展此类的队列实现必须至少定义方法Queue.offer(E)，它不允许插入空元素，以及方法 Queue.peek()、Queue.poll()、Collection.size()和Collection.iterator()。通常，其他方法也会被重写。如果无法满足这些要求，请考虑对AbstractCollection进行子类化。	
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public abstract class AbstractQueue<E> extends AbstractCollection<E> implements Queue<E>
+	实现接口	：Iterable<E>,Collection<E>,Queue<E>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	protected AbstractQueue()
+		子类使用的构造函数。
+
+方法：
+	add(E e):boolean 
+		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalStateException异常。
+		如果内部offer操作成功返回true，则此实现返回true，否则将引发IllegalstateException。
+		【Throws】：
+			IllegalStateException 如果由于容量限制，此时无法添加元素
+			ClassCastException 如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此队列
+	addAll(Collection<? extends E> c):boolean 
+		△ 将指定集合中的所有元素添加到此队列。尝试添加队列自身所有元素会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		此实现迭代指定的集合，并将迭代器返回的每个元素依次添加到此队列中。尝试添加元素（尤其包括null元素）时遇到运行时异常可能导致在引发关联异常时仅成功添加了部分元素。
+		【Throws】：
+			ClassCastException 如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合包含null元素，并且此队列不允许null元素，或者指定的集合为null
+			IllegalArgumentException 如果指定集合的某个元素的某些属性阻止将其添加到此队列，或者如果指定的集合是此队列自身
+			IllegalArgumentException 如果不是，由于插入限制，此时可以添加所有元素。（内部add方法调用）
+	clear():void 
+		△ 删除此队列中的所有元素。此调用返回后，队列将为空。
+		此实现反复调用poll，直到返回空值。
+	element():E 
+		△ 检索但不删除此队列的头。此方法与peek的不同之处在于，如果此队列为null，它将引发异常。
+		除非队列为空，否则此实现将返回peek的结果。
+		【Throws】：
+			NoSuchElementException 如果队列为空
+	remove():E 
+		△ 检索并删除此队列的头。此方法与poll的不同之处在于，如果此队列为空，它将引发异常。
+		除非队列为null，否则此实现将返回poll结果。
+		【Throws】：
+			NoSuchElementException 如果队列为空
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

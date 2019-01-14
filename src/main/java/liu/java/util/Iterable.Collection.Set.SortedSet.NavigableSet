@@ -5,8 +5,8 @@ NavigableSet<E>接口：导航集合。【Since:1.6】
 	方法subSet(E, E), headSet(E) 和 tailSet(E)被指定为返回SortedSet，以允许对SortedSet的现有实现进行兼容地改装以实现NavigableSet，但鼓励扩展和实现此接口以重写这些方法以返回NavigableSet。
 	此接口是Java集合框架的成员。		
 	
-	接口定义：public interface NavigableSet<E> extends SortedSet<E>
-	父接口：SortedSet<E>,Set<E>,Collection<E>, Iterable<E>
+	接口定义	：public interface NavigableSet<E> extends SortedSet<E>
+	父接口	：Iterable<E>,Collection<E>,Set<E>,SortedSet<E>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	ceiling(E e):E
 		返回此 集合中大于等于给定元素的最小元素；如果不存在这样的元素，则返回 null。

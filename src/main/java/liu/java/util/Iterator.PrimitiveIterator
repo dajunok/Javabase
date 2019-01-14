@@ -6,15 +6,18 @@ PrimitiveIterator<T, T_CONS>接口：原始迭代器。
 	<T>			PrimitiveIterator迭代器返回的元素类型。类型必须是原始类型的包装类型，例如，int的包装类型是Integer。
 	<T_CONS> 	原始consumer类型。类型必须是针对T的原始类型Consumer，例如IntConsumer对应Integer类型。
 	
+	
 	接口定义：public interface PrimitiveIterator<T, T_CONS> extends Iterator<T>		
-	父接口：Iterator<T>	
+	父接口：Iterator<T>
+	内部接口：OfDouble,OfInt,OfLong
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 	forEachRemaining(T_CONS action):void 
 		对剩余的每个元素执行给定的操作，按元素在迭代时发生的顺序执行，直到所有元素都被处理或操作引发异常为止。操作引发的错误或运行时异常将中继到调用方。
 		【Throws】：
 			● NullPointerException 如果指定操作为null
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
-21、PrimitiveIterator$OfDouble：原始Double迭代器		【Since:1.8】
+1、PrimitiveIterator$OfDouble：原始Double迭代器		【Since:1.8】
 	专门针对Double类型的迭代器
 	
 	
@@ -39,7 +42,7 @@ PrimitiveIterator<T, T_CONS>接口：原始迭代器。
 		【Throws】：
 				● NoSuchElementException 如果迭代没有更多元素
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-22、PrimitiveIterator$OfInt接口：原始Integer迭代器
+2、PrimitiveIterator$OfInt接口：原始Integer迭代器
 	专门针对int类型的迭代器
 		
 	接口定义：public static interface OfInt extends PrimitiveIterator<Integer, IntConsumer>
@@ -58,7 +61,7 @@ PrimitiveIterator<T, T_CONS>接口：原始迭代器。
 		【Throws】：
 				● NoSuchElementException 如果迭代没有更多元素
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-23、PrimitiveIterator$OfLong接口：专门针对long类型的迭代器
+3、PrimitiveIterator$OfLong接口：专门针对long类型的迭代器
 		
 	父接口：PrimitiveIterator<Long,LongConsumer>,Iterator<Long>	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------	

@@ -13,6 +13,7 @@ EnumMap<K extends Enum<K>, V>：枚举映射。【since 1.5】
 
 
 	类定义：public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V> implements java.io.Serializable, Cloneable
+	实现接口	：Map<K,V>,java.io.Serializable, Cloneable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 构造器：
 	public EnumMap(Class<K> keyType)

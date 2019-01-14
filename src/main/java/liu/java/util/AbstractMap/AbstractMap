@@ -9,8 +9,9 @@ AbstractMap<K,V>：抽象映射类。【Since:1.2】
 	此类中每个非抽象方法的文档详细描述了其实现。如果正在实现的Map允许更有效的实现，则可以重写这些方法中的每一个。
 	该类是Java集合框架的成员。
 	
-	类定义：public abstract class AbstractMap<K,V> implements Map<K,V>
-	内部类：AbstractMap.SimpleEntry<K,V>,SimpleImmutableEntry<K,V>
+	类定义	：public abstract class AbstractMap<K,V> implements Map<K,V>
+	内部类	：SimpleEntry<K,V>,SimpleImmutableEntry<K,V>
+	实现接口	：Map<K,V>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 构造器：
 	protected AbstractMap()

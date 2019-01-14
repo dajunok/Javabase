@@ -7,8 +7,8 @@ NavigableMap<K,V>：导航映射。【Since:1.6】
 	此接口是Java集合框架的成员。
 	
 	
-	接口定义：public interface NavigableMap<K,V> extends SortedMap<K,V>
-	父接口：SortedMap<K,V>,Map<K,V>
+	接口定义	：public interface NavigableMap<K,V> extends SortedMap<K,V>
+	父接口	：Map<K,V>,SortedMap<K,V>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	ceilingEntry(K key):Map.Entry<K,V> 
 		返回一个键-值映射关系，它与大于等于给定键的最小键关联；如果不存在这样的键，则返回 null。

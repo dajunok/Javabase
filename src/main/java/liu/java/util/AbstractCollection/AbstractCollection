@@ -7,7 +7,8 @@ AbstractCollection<E>：抽象集合类。【since 1.2】
 	此类中每个非抽象方法的文档详细描述了其实现。如果正在实现的集合允许更有效的实现，则可以重写这些方法中的每一个。
 	该类是Java集合框架的成员。
 		
-	类定义：public abstract class AbstractCollection<E> implements Collection<E>
+	类定义	：public abstract class AbstractCollection<E> implements Collection<E>
+	实现接口	：Iterable<E>,Collection<E>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 构造器：
 	protected AbstractCollection()

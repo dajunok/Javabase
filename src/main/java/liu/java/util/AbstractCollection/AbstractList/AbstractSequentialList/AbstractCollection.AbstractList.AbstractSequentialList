@@ -1,0 +1,94 @@
+--------------------------------AbstractSequentialList<E>----------------------------------------------------------------------------------------------------------------------
+AbstractSequentialList<E>：抽象顺序访问列表。【since 1.2 】
+	此类提供了列表接口的框架实现，以最小化实现由“顺序访问”数据存储（如链接列表）支持的接口所需的工作量。对于随机访问数据（如数组），应该优先使用AbstractList。	
+	这个类与AbstractList类相反，因为它实现了顶级列表迭代器的“随机访问”方法(get(int index), set(int index, E element), add(int index, E element) 和remove(int index))，而不是相反的方法。
+	为了实现一个列表，程序员只需要扩展这个类，并为listirator和size方法提供实现。对于不可修改的列表，程序员只需要实现列表迭代器的hasNext、next、hasPrevious、previous和index方法。
+	对于可修改的列表，程序员应该另外实现列表迭代器的set方法。对于可变大小的列表，程序员应该另外实现列表迭代器的remove和add方法。
+	程序员通常应根据Collection接口规范中的建议提供一个void（无参数）和集合构造函数。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public abstract class AbstractSequentialList<E> extends AbstractList<E>
+	实现接口	：Iterable<E>,Collection<E>,List<E>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	protected AbstractSequentialList()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+------------------------------------------------------------------------------------------------------------------------------------------------------
+方法：
+	add(int index, E element):void 
+		△  在此列表中的指定位置插入指定的元素（可选操作）。将当前位于该位置的元素（如果有）和任何后续元素右移（在其索引中添加一个元素）。
+		此实现首先获取指向索引元素的列表迭代器（使用List迭代器（index））。然后，它用ListIterator.add插入指定的元素。
+		请注意，如果列表迭代器不实现add操作，则此实现将引发UnsupportedOperationException。
+		【Throws】：
+			UnsupportedOperationException 如果此列表不支持add操作
+			ClassCastException  如果指定元素的类阻止将其添加到此列表中
+			NullPointerException 如果指定的元素为null，并且此列表不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此列表中
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	addAll(int index, Collection<? extends E> c):boolean 
+		△ 在指定位置将指定集合中的所有元素插入此列表（可选操作）。将当前位于该位置的元素（如果有）和任何后续元素右移（增加其索引）。新元素将按指定集合的迭代器返回它们的顺序出现在此列表中。如果在操作进行过程中修改了指定的集合，则此操作的行为不确定。（请注意，如果指定的集合是此列表本身，并且不是空的，则会发生这种情况。）
+		此实现获取指定集合上的迭代器和指向索引元素（使用listIterator(index)）的列表上的列表迭代器。然后，它迭代指定的集合，将从迭代器获得的元素插入此列表中，一次一个，使用ListIterator.add后跟ListIterator.next（跳过添加的元素）。
+		请注意，如果listIterator方法返回的列表迭代器未实现add操作，则此实现将引发UnsupportedOperationException异常。
+		【Throws】：
+			UnsupportedOperationException 如果此列表不支持addAll操作
+			ClassCastException  如果指定元素的类阻止将其添加到此列表中
+			NullPointerException 如果指定的集合包含一个或多个null元素，并且此列表不允许null元素，或者指定的集合为null
+			IllegalArgumentException 如果指定集合的某个元素的某些属性阻止将其添加到此列表中
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	get(int index):E 
+		△ 返回此列表中指定位置的元素。
+		此实现首先获取指向索引元素的列表迭代器（使用listIterator(index)）。然后，它使用ListIterator.next获取元素并返回它。	
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	iterator():Iterator<E> 
+		△ 返回此列表中元素的迭代器（按正确的顺序）。
+		此实现只返回此列表上的列表迭代器（内部调用listIterator方法）。
+	listIterator(int index):ListIterator<E> 
+		★ △ 返回此列表中元素的列表迭代器（按正确的顺序）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	remove(int index):E 
+		△ 删除此列表中指定位置的元素（可选操作）。将任何后续元素向左移动（从其索引中减去一个）。返回从列表中删除的元素。
+		此实现首先获取指向索引元素的列表迭代器（使用listIterator(index)）。然后，它用ListIterator.remove删除元素。	
+		【Throws】：
+			UnsupportedOperationException 如果此列表不支持remove操作
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	set(int index, E element):E 
+		△ 将此列表中指定位置的元素替换为指定的元素（可选操作）。
+		此实现首先获取指向索引元素的列表迭代器（使用listIterator(index)）。然后，它使用ListIterator.next获取当前元素，并将其替换为ListIterator.set。
+		【Throws】：
+			UnsupportedOperationException 如果此列表不支持set操作
+			ClassCastException  如果指定元素的类阻止将其添加到此列表中
+			NullPointerException 如果指定的元素为null，并且此列表不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此列表中
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

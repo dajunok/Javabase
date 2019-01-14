@@ -11,8 +11,8 @@ Collection<E>：容器接口。
 	此接口是Java集合框架的成员。
 	
 	
-	接口定义：public interface Collection<E> extends Iterable<E>
-	所有父接口：Iterable<E>
+	接口定义	：public interface Collection<E> extends Iterable<E>
+	父接口	：Iterable<E>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	add(E element):boolean
 		确保此集合包含指定的元素（可选操作）。如果此集合因调用而更改，则返回true。（如果此集合不允许重复，并且已包含指定元素，则返回false。）
@@ -55,7 +55,7 @@ Collection<E>：容器接口。
 		如果此 collection 不包含元素，则返回 true,否则返回false
 	iterator():Iterator<E>
 		△返回在此 collection 的元素上进行迭代的迭代器。关于元素返回的顺序没有任何保证（除非此 collection 是某个能提供保证顺序的类实例）。
-	parallelStream():Stream<E>
+	parallelStream():default Stream<E>
 		返回一个可能与此集合作为其源的并行流。允许此方法返回顺序流。
 		当spliterator()方法无法返回IMMUTABLE、CONCURRENT或后期绑定的拆分器（spliterator）时，应重写此方法。（详见spliterator()）
 	remove(Object o):boolean
@@ -69,7 +69,7 @@ Collection<E>：容器接口。
 		【Throws】：
 			ClassCastException 如果此集合不支持removeall方法
 			NullPointerException 如果此集合包含一个或多个null元素，并且指定的集合不支持null元素（可选），或者指定的集合为null
-	removeIf(Predicate<? super E> filter):boolean
+	removeIf(Predicate<? super E> filter):default boolean
 		默认实现使用集合的iterator()遍历集合的所有元素。使用Iterator.remove()移除每个匹配元素。如果集合的迭代器不支持移除，那么将在第一个匹配元素上抛出UnsupportedOperationException。
 		【Throws】：
 			NullPointerException 如果指定的筛选器为null
@@ -82,7 +82,7 @@ Collection<E>：容器接口。
 			NullPointerException 如果此集合包含一个或多个null元素，并且指定的集合不允许空元素（可选），或者指定的集合为null。
 	size():int   
 		返回此集合中的元素数量。如果此集合包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
-	spliterator():Spliterator<E>
+	spliterator():default Spliterator<E>
 		△在此集合中的元素上创建Spliterator。实现应该记录拆分器报告的特征值。如果拆分器报告Spliterator.SIZED并且此集合不包含元素，则不需要报告此类特征值。
 		默认的实现应该被能够返回更有效的拆分器的子类重写。为了保持stream()和parallelStream()方法的预期惰性行为，拆分器要么具有IMMUTABLE或CONCURRENT的特性，要么具有后期绑定。如果这些都不可行，重写类应该描述拆分器的文档化绑定和结构干扰策略，并且应该重写stream()和parallelStream()方法，以便使用拆分器的Supplier创建流，如：
 			Stream<E> s = StreamSupport.stream(() -> spliterator(), spliteratorCharacteristics)
@@ -90,7 +90,7 @@ Collection<E>：容器接口。
 		默认实现从集合的迭代器创建后期绑定Spliterator。Spliterator继承集合迭代器的fail-fast属性。创建的Spliterator报告Spliterator.SIZED特性。
 		创建的Spliterator还报告Spliterator.SUBSIZED特性。
 		如果Spliterator不包含任何元素，那么报告SIZED和SUBSIZED之外的其他特征值不会帮助客户控制、专门化或简化计算。但是，这确实允许对null集合共享使用不可变的空拆分器实例（请参见Spliterators.emptySpliterator()），并允许客户端确定这样的Spliterator（拆分器）是否不包含任何元素。
-	stream():Stream<E>
+	stream():default Stream<E>
 		返回将此集合作为其源的序列流。
 		当spliterator()方法无法返回IMMUTABLE、CONCURRENT或后期绑定的拆分器时，应重写此方法。（详见spliterator()
 		默认实现从集合的Spliterator创建顺序流。

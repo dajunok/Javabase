@@ -27,8 +27,8 @@ Deque<E>接口：双端队列。【Since:1.6】
 	deque实现通常不定义equals和hashCode方法的基于元素的版本，而是从类Object继承基于标识的版本。
 	此接口是Java集合框架的成员。
 
-	接口定义：public interface Deque<E> extends Queue<E>
-	父接口：Queue<E>,Collection<E>, Iterable<E>
+	接口定义	：public interface Deque<E> extends Queue<E>
+	父接口	：Iterable<E>,Collection<E>,Queue<E>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	add(E e):boolean 
 		△ 如果可以在不违反容量限制的情况下立即执行此操作，则将指定的元素插入此deque表示的队列（换句话说，在该deque的尾部），成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offer。

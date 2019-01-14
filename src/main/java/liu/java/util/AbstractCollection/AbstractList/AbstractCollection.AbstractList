@@ -1,4 +1,4 @@
-AbstractList<E>：抽象列表类。【since 1.2】
+AbstractList<E>：抽象列表类。【since 1.2 】
 	这个类提供列表接口的框架实现，以最小化实现这个由“随机访问”数据存储（如数组）支持的接口所需的工作量。对于顺序访问数据（如链接列表），应优先使用AbstractSequentialList。
 	★ 为了实现一个不可修改的列表，程序员只需要扩展这个类并提供 get(int)和size()方法的实现。
 	★ 要实现一个可修改的列表，程序员必须另外重写set(int, E)方法（否则将引发UnsupportedOperationException异常）。如果列表的大小是可变的，程序员必须另外重写add(int, E)和remove(int)方法。
@@ -7,10 +7,11 @@ AbstractList<E>：抽象列表类。【since 1.2】
 	此类中每个非抽象方法的文档详细描述了其实现。如果正在实现的集合允许更有效的实现，则可以重写这些方法中的每一个。
 	该类是Java集合框架的成员。		
 	
-	类定义：public abstract class AbstractList<E> extends AbstractCollection<E> implements List<E>
+	类定义	：public abstract class AbstractList<E> extends AbstractCollection<E> implements List<E>
+	实现接口	：Iterable<E>,Collection<E>,List<E>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 属性：
-	protected transient int modCount = 0
+	modCount = 0:protected transient int 
 		此列表在结构上被修改的次数。结构修改是那些改变列表大小的修改，或者以这样一种方式干扰列表，正在进行的迭代可能会产生不正确的结果。
 		迭代器和列表迭代器方法返回的迭代器和列表迭代器实现，使用此字段。如果此字段的值意外更改，迭代器（或列表迭代器）将引发ConcurrentModificationException异常，以响应next, remove, previous, set 或 add 操作。这提供了快速失败的行为，而不是在迭代过程中面对并发修改时的非确定性行为。
 		子类使用此字段是可选的。如果子类希望提供fail-fast迭代器（和list迭代器），那么它只需要在其add(int, E)和remove(int)方法中增加该字段（以及它重写的导致对列表进行结构修改的任何其他方法）。对add(int, E)或remove(int)的单个调用必须在此字段中添加不超过一个，否则迭代器（和列表迭代器）将引发虚假的ConcurrentModificationExceptions。如果实现不希望提供fail-fast迭代器，则可以忽略此字段。
@@ -79,3 +80,23 @@ AbstractList<E>：抽象列表类。【since 1.2】
 		所有方法首先检查支持列表的实际modcount是否等于其预期值，如果不是，则抛出ConcurrentModificationException异常。
 		
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
