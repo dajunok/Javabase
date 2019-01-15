@@ -400,7 +400,14 @@ Arrays：数组对象。【Since:1.2】
 			IllegalArgumentException 如果  fromIndex > toIndex
 			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
 	parallelSort(char[] a):static void 
+		将指定的数组按升序排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。		
 	parallelSort(char[] a, int fromIndex, int toIndex):static void 
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
 	parallelSort(double[] a):static void 
 		将指定的数组按升序排序。
 		"<"关系不提供所有double精度值的总顺序：-0.0d==0.0d为true，Double.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Double.compareTo(java.lang.Double)施加的总顺序：将-0.0d视为小于0.0d，将Double.NaN视为大于任何其他值，并且将所有Double.NaN值视为相等。
@@ -549,14 +556,24 @@ Arrays：数组对象。【Since:1.2】
 			IllegalArgumentException 如果  fromIndex > toIndex
 			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length 
 	sort(Object[] a):static void 
-		将指定的数组按升序排序。
-		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		根据元素的自然顺序，将指定的对象数组按升序排序。数组中的所有元素都必须实现可比较的接口。此外，数组中的所有元素必须相互比较（也就是说，e1.compareTo(e2)不能对数组中的任何元素e1和e2抛出ClassCastException）。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		实现说明：此实现是一个稳定的、自适应的、迭代的合并排序，当输入数组部分排序时，需要的远远少于nlg（n），而当输入数组随机排序时，提供传统合并排序的性能。如果输入数组接近已排序，则实现需要大约n个比较。临时存储需求从几乎排序的输入数组的小常量到随机排序的输入数组的n/2对象引用不等。
+		该实现在其输入数组中充分利用了升序和降序的同等优势，并且可以利用同一输入数组不同部分的升序和降序。它非常适合合并两个或更多排序的数组：只需连接数组并对结果数组进行排序。
+		该实现是从TimPeters的列表排序（Timsort）中改编而来的。它使用了Peter McIlroy的“乐观排序和信息理论复杂性”中的技术，在第四届ACM-SIAM离散算法研讨会论文集，第467-474页，1993年1月。
+	【Throws】：
+			ClassCastException 如果数组包含不可相互比较的元素（例如字符串和整数）
+			IllegalArgumentException （可选）如果发现数组元素的自然顺序违反了可比较的约定
 	sort(Object[] a, int fromIndex, int toIndex):static void 
-		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
-		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		根据元素的自然顺序，将指定的对象数组按升序排序。数组中的所有元素都必须实现Comparable接口。此外，数组中的所有元素必须相互比较（也就是说，e1.compareTo(e2)不能对数组中的任何元素e1和e2抛出ClassCastException）。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		实现说明：此实现是一个稳定的、自适应的、迭代的合并排序，当输入数组部分排序时，需要的远远少于nlg（n），而当输入数组随机排序时，提供传统合并排序的性能。如果输入数组接近已排序，则实现需要大约n个比较。临时存储需求从几乎排序的输入数组的小常量到随机排序的输入数组的n/2对象引用不等。
+		该实现在其输入数组中充分利用了升序和降序的同等优势，并且可以利用同一输入数组不同部分的升序和降序。它非常适合合并两个或更多排序的数组：只需连接数组并对结果数组进行排序。
+		该实现是从TimPeters的列表排序（Timsort）中改编而来的。它使用了Peter McIlroy的“乐观排序和信息理论复杂性”中的技术，在第四届ACM-SIAM离散算法研讨会论文集，第467-474页，1993年1月。
 		【Throws】：
-			IllegalArgumentException 如果  fromIndex > toIndex
+			IllegalArgumentException 如果fromIndex > toIndex或（可选），如果发现数组元素的自然顺序违反了可比较的约定
 			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+			ClassCastException 如果数组包含不可相互比较的元素（例如字符串和整数）。
 	sort(long[] a):static void 
 		将指定的数组按升序排序。
 		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
@@ -590,53 +607,76 @@ Arrays：数组对象。【Since:1.2】
 		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
 		【Throws】：
 			IllegalArgumentException 如果  fromIndex > toIndex
-			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
-	
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length	
 	spliterator(double[] array):static Spliterator.OfDouble 
+		返回包含所有指定数组的Spliterator.OfDouble。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性。
 	spliterator(double[] array, int startInclusive, int endExclusive):static Spliterator.OfDouble 
+		返回覆盖指定数组的指定范围的Spliterator.OfDouble。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性。	
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果startInclusive为负，则endExclusive小于startInclusive，或者endExclusive大于数组大小。
 	spliterator(int[] array):static Spliterator.OfInt 
+		返回包含所有指定数组的Spliterator.OfInt。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性。
 	spliterator(int[] array, int startInclusive, int endExclusive):static Spliterator.OfInt 
+		返回覆盖指定数组的指定范围的Spliterator.OfInt。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性。	
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果startInclusive为负，则endExclusive小于startInclusive，或者endExclusive大于数组大小。
 	spliterator(long[] array):static Spliterator.OfLong 
+		返回包含所有指定数组的Spliterator.OfLong。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性
 	spliterator(long[] array, int startInclusive, int endExclusive):static Spliterator.OfLong 
+		返回覆盖指定数组的指定范围的Spliterator.OfLong。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性。	
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果startInclusive为负，则endExclusive小于startInclusive，或者endExclusive大于数组大小。	
 	spliterator(T[] array):static <T> Spliterator<T> 
+		返回包含所有指定数组的Spliterator。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性
 	spliterator(T[] array, int startInclusive, int endExclusive):static <T> Spliterator<T> 
-	
+		返回覆盖指定数组的指定范围的Spliterator。
+		拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED、Spliterator.ORDERED 和  Spliterator.IMMUTABLE特性。	
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果startInclusive为负，则endExclusive小于startInclusive，或者endExclusive大于数组大小。	
 	stream(double[] array):static DoubleStream 
-	stream(double[] array):static DoubleStream 
+		返回以指定数组为源的顺序DoubleStream流。
+	stream(double[] array, int startInclusive, int endExclusive):static DoubleStream 
+		返回以指定数组的指定范围作为其源的连续DoubleStream。
 	stream(int[] array):static IntStream 
+		返回以指定数组为源的顺序IntStream流。
 	stream(int[] array, int startInclusive, int endExclusive):static IntStream 
+		返回以指定数组的指定范围作为其源的连续IntStream。
 	stream(long[] array):static LongStream 
+		返回以指定数组为源的顺序LongStream流。
 	stream(long[] array, int startInclusive, int endExclusive):static LongStream 
+		返回以指定数组的指定范围作为其源的连续LongStream。
 	stream(T[] array):static <T> Stream<T> 
+		返回以指定数组为源的顺序Stream。
 	stream(T[] array, int startInclusive, int endExclusive):static <T> Stream<T> 
-	
+		返回以指定数组的指定范围作为其源的连续Stream。
 	toString(boolean[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(boolean)转换为字符串。如果a为null，则返回“null”。
 	toString(byte[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(byte)转换为字符串。如果a为null，则返回“null”。
 	toString(char[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(char)转换为字符串。如果a为null，则返回“null”。
 	toString(double[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(double)转换为字符串。如果a为null，则返回“null”。
 	toString(float[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(float)转换为字符串。如果a为null，则返回“null”。
 	toString(int[] a):static String 
-	toString(Object[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(int)转换为字符串。如果a为null，则返回“null”。
+	toString(Object[] a):static String
+		返回指定数组内容的字符串表示形式。如果数组包含其他数组作为元素，则由从对象继承的Object.toString()方法将它们转换为字符串，该方法描述了它们的标识，而不是它们的内容。 
+		此方法返回的值等于Arrays.asList(a).toString()将返回的值，除非a为空，在这种情况下返回“null”。
 	toString(long[] a):static String 
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(long)转换为字符串。如果a为null，则返回“null”。
 	toString(short[] a):static String 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		返回指定数组内容的字符串表示形式。字符串表示法由数组元素的列表组成，用方括号（"[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(short)转换为字符串。如果a为null，则返回“null”。
 
-
-
-
-
---------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
 附录：
 	1、注：文档中的△符号表示覆盖重写方法。	
 	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。

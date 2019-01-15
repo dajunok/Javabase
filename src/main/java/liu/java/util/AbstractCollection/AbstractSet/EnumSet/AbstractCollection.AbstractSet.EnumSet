@@ -1,0 +1,98 @@
+----------------------------------------EnumSet<E extends Enum<E>>--------------------------------------------------------------------------------------------------------------
+EnumSet<E extends Enum<E>>：枚举集合（或：枚举集）。【Since:1.5】
+	用于枚举类型的专用Set实现。枚举集合中的所有元素都必须来自创建该集合时显式或隐式指定的单个枚举类型。枚举集合在内部表示为位向量。这种表示非常紧凑和有效。此类的空间和时间性能应该足够好，以允许将其用作基于传统int的“位标志”的高质量、类型安全的替代方法。即使批量操作（如containsAll和retainAll）也应该非常快速地运行，如果它们的参数也是枚举集合。
+	iterator方法返回的迭代器按其自然顺序（枚举常量声明的顺序）遍历元素。返回的迭代器是弱一致性：它不会抛出ConcurrentModificationException异常，并且可能会显示或可能不会显示在迭代过程中对集合所做的任何修改的效果。
+	不允许使用null元素。尝试插入null元素将引发NullPointerException。但是，尝试测试是否存在null元素或删除一个null元素将正常工作。
+	与大多数集合实现一样，EnumSet不同步。如果多个线程同时访问一个枚举集，并且至少有一个线程修改了该枚举集，则应在外部同步该枚举集。这通常是通过在自然封装枚举集的某个对象上进行同步来完成的。如果不存在这样的对象，则应使用Collections.synchronizedSet(java.util.Set<T>)方法“包装”集合。这最好在创建时完成，以防止意外的非同步访问：
+		Set<MyEnum> s = Collections.synchronizedSet(EnumSet.noneOf(MyEnum.class));
+	实现说明：所有基本操作都是在固定时间内执行的。它们很可能（虽然不能保证）比HashSet的对应对象快得多。如果批量操作的参数也是枚举集，则即使批量操作也会在恒定时间内执行。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E> implements Cloneable, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Set<E>,Cloneable, java.io.Serializable
+	子类		：ConcurrentSkipListSet, CopyOnWriteArraySet, EnumSet, HashSet, TreeSet
+------------------------------------------------------------------------------------------------------------------------------------------------------
+方法：
+	allOf(Class<E> elementType):static <E extends Enum<E>> EnumSet<E> 
+		<E> 集合中元素的类型
+		创建包含指定元素类型中所有元素的枚举集合。
+		【Throws】：
+			NullPointerException 如果elementType为空
+	complementOf(EnumSet<E> s):static <E extends Enum<E>> EnumSet<E> 
+		创建一个枚举集，该枚举集的元素类型与指定的枚举集相同，最初包含指定集合中不包含的此类型的所有元素。
+		【Throws】：
+			NullPointerException 如果s为空
+	copyOf(Collection<E> c):static <E extends Enum<E>> EnumSet<E>
+		<E> 集合中元素的类型
+		 创建从指定集合初始化的枚举集。如果指定的集合是EnumSet实例，则此静态工厂方法的行为与copyOf(EnumSet)相同。否则，指定的集合必须至少包含一个元素（以便确定新枚举集的元素类型）。
+		【Throws】：
+			IllegalArgumentException 如果c不是EnumSet实例并且不包含任何元素
+			NullPointerException 如果c为空
+	copyOf(EnumSet<E> s):static <E extends Enum<E>> EnumSet<E> 
+		<E> 集合中元素的类型
+		创建与指定枚举集具有相同元素类型的枚举集，最初包含相同的元素（如果有）。
+		【Throws】：
+			NullPointerException 如果s为空
+	noneOf(Class<E> elementType):static <E extends Enum<E>> EnumSet<E> 
+		<E> 集合中元素的类型
+		创建具有指定元素类型的空枚举集。
+		【Throws】：
+			NullPointerException 如果elementType为空
+	of(E e):static <E extends Enum<E>> EnumSet<E> 
+		<E> 集合中元素的类型
+		创建最初包含指定元素的枚举集。存在此方法的重载以使用一到五个元素初始化枚举集。提供了使用可变参数（varargs）功能的第六个重载。此重载可用于创建最初包含任意数量元素的枚举集，但运行速度可能比不使用varargs的重载慢。
+		【Throws】：
+			NullPointerException 如果e为空
+	of(E e1, E e2):static <E extends Enum<E>> EnumSet<E> 
+		<E> 集合中元素的类型
+		创建最初包含指定元素的枚举集。存在此方法的重载以使用一到五个元素初始化枚举集。提供了使用可变参数（varargs）功能的第六个重载。此重载可用于创建最初包含任意数量元素的枚举集，但运行速度可能比不使用varargs的重载慢。
+		【Throws】：
+			NullPointerException 如果e为空
+	of(E e1, E e2, E e3, E e4):static <E extends Enum<E>> EnumSet<E>
+		<E> 集合中元素的类型
+		创建最初包含指定元素的枚举集。存在此方法的重载以使用一到五个元素初始化枚举集。提供了使用可变参数（varargs）功能的第六个重载。此重载可用于创建最初包含任意数量元素的枚举集，但运行速度可能比不使用varargs的重载慢。
+		【Throws】：
+			NullPointerException 如果e为空 
+	of(E e1, E e2, E e3, E e4,E e5):static <E extends Enum<E>> EnumSet<E> 
+		<E> 集合中元素的类型
+		创建最初包含指定元素的枚举集。存在此方法的重载以使用一到五个元素初始化枚举集。提供了使用可变参数（varargs）功能的第六个重载。此重载可用于创建最初包含任意数量元素的枚举集，但运行速度可能比不使用varargs的重载慢。
+		【Throws】：
+			NullPointerException 如果e为空
+	of(E first, E... rest):static <E extends Enum<E>> EnumSet<E> 
+		创建最初包含指定元素的枚举集。此工厂的参数列表使用varargs功能，可以用于创建最初包含任意数量元素的枚举集，但它可能比不使用varargs的重载运行得慢。
+		【Throws】：
+			NullPointerException 如果指定的任何元素为null，或者rest为null
+	range(E from, E to):static <E extends Enum<E>> EnumSet<E> 
+		创建一个枚举集，该枚举集最初包含由两个指定端点定义的范围内的所有元素。返回的集将包含终结点本身，这些终结点可能相同，但不能无序。
+		【Throws】：
+			NullPointerException 如果from为或to为null
+			IllegalArgumentException 如果from.compareTo(to) > 0
+	clone():EnumSet<E> 
+		△ 返回此集合的副本。
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、varargs：可变参数
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
