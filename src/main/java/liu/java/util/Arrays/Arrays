@@ -1,0 +1,669 @@
+----------------------------------------------Arrays----------------------------------------------------------------------------------------------
+Arrays：数组对象。【Since:1.2】
+	此类包含用于操作数组的各种方法（如排序和搜索）。此类还包含一个静态工厂，该工厂允许将数组作为列表查看。
+	如果指定的数组引用为null，则此类中的所有方法都将引发NullPointerException，除非另有说明。
+	此类中包含的方法文档包括实现的简要描述。此类描述应视为实施说明，而不是规范的一部分。只要遵从规范本身，实现人员就可以自由地替换其他算法。（例如，sort(Object[])）使用的算法不必是合并排序，但必须是稳定的。）
+	该类是Java集合框架的成员。
+	
+	
+	类定义：public class Arrays
+--------------------------------------------------------------------------------------------------------------------------------------------
+方法：
+	asList(T... a):static <T> List<T> 
+		<T> 数组中对象的类
+		返回由指定数组支持的固定大小列表。（对返回列表“write-through”的更改）此方法与Collection.toArray()结合使用，充当基于数组和基于集合的API之间的桥梁。返回的列表是可序列化的，并实现了RandomAccess。	
+		此方法还提供了创建一个初始化为包含多个元素的固定大小列表的方便方法：
+			List<String> stooges = Arrays.asList("Larry", "Moe", "Curly");
+	binarySearch(byte[] a, byte key):static int 
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(byte[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+	binarySearch(byte[] a, int fromIndex, int toIndex,byte key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(byte[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(char[] a, char key):static int
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(char[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。 
+	binarySearch(char[] a, int fromIndex, int toIndex,char key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(char[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(double[] a, double key):static int
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(double[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。  
+	binarySearch(double[] a, int fromIndex, int toIndex,double key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(double[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(float[] a, float key):static int
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(float[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。 
+	binarySearch(float[] a, int fromIndex, int toIndex,float key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(float[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(int[] a, int key):static int 
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(int[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。 
+	binarySearch(int[] a, int fromIndex, int toIndex,int key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(int[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(Object[] a, int fromIndex, int toIndex,Object key):static int 
+		使用二进制搜索算法在指定数组的范围内搜索指定对象。在进行此调用之前，必须根据其元素的自然顺序（如sort(Object[], int, int)方法）将范围排序为升序。如果不排序，则结果不确定。（如果范围包含不可相互比较的元素（例如字符串和整数），则无法根据元素的自然顺序对其进行排序，因此结果不确定。）如果范围包含多个等于指定对象的元素，则无法保证将找到哪个元素。	
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			ClassCastException 如果搜索键与指定范围内的数组元素不可比较。
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(Object[] a, Object key):static int 
+		使用二进制搜索算法在指定的数组中搜索指定的对象。在进行此调用之前，必须根据数组元素的自然顺序（如sort(Object[])方法）将数组排序为升序。如果不排序，则结果不确定。（如果数组包含不可相互比较的元素（例如字符串和整数），则无法根据元素的自然顺序对其进行排序，因此结果不确定。）如果数组包含多个等于指定对象的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			ClassCastException 如果搜索key与数组元素不可比较。
+	binarySearch(long[] a, int fromIndex, int toIndex,long key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(long[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(long[] a, long key):static int 
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(long[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。 
+	binarySearch(short[] a, int fromIndex, int toIndex,short key):static int 
+		使用二进制搜索算法在指定的字节数组范围内搜索指定值。在进行此调用之前，必须对范围进行排序（按sort(short[], int, int)方法）。如果不排序，则结果不确定。如果范围包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(short[] a, short key):static int 
+		使用二进制搜索算法在指定的字节数组中搜索指定的值。在进行此调用之前，必须对数组进行排序（按sort(short[])方法）。如果不排序，则结果不确定。如果数组包含多个具有指定值的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。 
+	binarySearch(T[] a, int fromIndex, int toIndex,T key, Comparator<? super T> c):static <T> int 
+		<T> 数组中对象的类型
+		使用二进制搜索算法在指定数组的范围内搜索指定对象。在进行此调用之前，必须根据指定的比较器（如sort(T[], int, int, Comparator)方法）将范围按升序排序。如果不排序，则结果不确定。如果范围包含多个等于指定对象的元素，则无法保证将找到哪个元素。
+		返回搜索键的索引（如果它包含在指定范围内的数组中）；否则，（-（插入点）-1）。插入点定义为将key插入数组的点：范围中第一个元素的索引大于key，或者范围中所有元素小于指定key时为索引。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			ClassCastException 如果范围包含使用指定比较器不能相互比较的元素，或者搜索key与使用此比较器的范围中的元素不可比较。
+			IllegalArgumentException 如果fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 或者 toIndex > a.length
+	binarySearch(T[] a, T key, Comparator<? super T> c):static <T> int 
+		<T> 数组中对象的类型
+		使用二进制搜索算法在指定的数组中搜索指定的对象。在进行此调用之前，必须根据指定的比较器（如sort(T[], Comparator)方法）将数组排序为升序。如果不排序，则结果不确定。如果数组包含多个等于指定对象的元素，则无法保证将找到哪个元素。
+		返回搜索key的索引（如果它包含在数组中）；否则，（-（插入点）-1）。插入点被定义为将key插入数组的点：第一个元素的索引大于key，或者如果数组中的所有元素都小于指定key，则为a.Length。请注意，这保证了如果并且仅当找到key时，返回值将大于等于0。
+		【Throws】：
+			ClassCastException 如果范围包含使用指定比较器不能相互比较的元素，或者搜索key与使用此比较器的范围中的元素不可比较。
+	copyOf(boolean[] original, int newLength):static boolean[] 
+		复制指定的数组，截断或填充为false（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含false。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null			
+	copyOf(byte[] original, int newLength):static byte[]
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null 
+	copyOf(char[] original, int newLength):static char[] 
+		复制指定的数组，截断或填充为null（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含'\\u000'。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(double[] original, int newLength):static double[] 
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0d。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(float[] original, int newLength):static float[] 
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0f。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(int[] original, int newLength):static int[] 
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(long[] original, int newLength):static long[] 
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0L。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(short[] original, int newLength):static short[] 
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0。只有当指定的长度大于原始数组的长度时，才会存在此类索引。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(T[] original, int newLength):static <T> T[] 	
+		复制指定的数组，截断或填充为null（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含null。只有当指定的长度大于原始数组的长度时，才会存在此类索引。结果数组与原始数组的类完全相同。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+	copyOf(U[] original, int newLength, Class<? extends T[]> newType):static <T,U> T[] 
+		复制指定的数组，截断或填充为0（如果需要），使副本具有指定的长度。对于在原始数组和副本中都有效的所有索引，这两个数组将包含相同的值。对于副本中有效但不是原始索引的任何索引，副本将包含0。只有当指定的长度大于原始数组的长度时，才会存在此类索引。生成的数组属于newType类型。
+		【Throws】：
+			NegativeArraySizeException 如果newLength为负数。
+			NullPointerException 如果original为null
+			ArrayStoreException 如果从original复制的元素不是可以存储在newtype类数组中的运行时类型。	
+	copyOfRange(boolean[] original, int from, int to):static boolean[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置false。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(byte[] original, int from, int to):static byte[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置0。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(char[] original, int from, int to):static char[]
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置'\\u000'。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null 
+	copyOfRange(double[] original, int from, int to):static double[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置0d。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(float[] original, int from, int to):static float[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置0f。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(int[] original, int from, int to):static int[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置0。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(long[] original, int from, int to):static long[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置0L。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(short[] original, int from, int to):static short[] 
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置0。返回的数组的长度将为to-from。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(T[] original, int from, int to):static <T> T[] 
+		<T> 返回数组中对象的类型
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置null。返回的数组的长度将为to-from。
+		结果数组与原始数组的类完全相同。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	copyOfRange(U[] original, int from, int to, Class<? extends T[]> newType):static <T,U> T[] 
+		<U> 原始数组中对象的类型
+		<T> 返回数组中对象的类型
+		将指定数组的指定范围复制到新数组中。范围（from）的初始索引必须介于0和original.length之间（包括0和original.length）。original[from]处的值放入副本的初始元素中（除非from == original.length 或 from == to）。原始数组中后续元素的值将放置到副本中的后续元素中。范围（to）的最后一个索引必须大于或等于from，可以大于original.length，在这种情况下，在索引大于或等于original.length-from的副本的所有元素中都将放置null。返回的数组的长度将为to-from。
+		生成的数组属于NewType类。
+		【Throws】:
+			ArrayIndexOutOfBoundsException 如果from<0 或from > original.length。
+			IllegalArgumentException 如果 from > to
+			IllegalArgumentException 如果original为null
+	deepEquals(Object[] a1, Object[] a2):static boolean 
+		如果两个指定的数组彼此深度相等，则返回true。与equals(Object[],Object[])方法不同，此方法适用于任意深度的嵌套数组。
+		如果两个数组引用都为null，或者它们引用的数组包含相同数量的元素，并且两个数组中所有对应的元素对都完全相等，则认为两个数组引用完全相等。
+		如果满足以下任一条件，则两个可能为空的元素e1和e2非常相等：
+			● e1和e2都是对象引用类型的数组，Arrays.deepEquals(e1, e2)将返回true
+			● e1和e2是相同基元类型的数组，Arrays.equals(e1, e2)将返回true。
+			● e1 == e2
+			● e1.equals(e2)返回true
+		注意，这个定义允许在任何深度使用null元素。
+		如果指定的数组中的任何一个直接或间接通过一个或多个级别的数组将自身包含为元素，则此方法的行为是不确定的。
+	deepHashCode(Object a[]):static int 
+		返回基于指定数组的“深层内容”的哈希代码。如果数组包含其他数组作为元素，则散列代码基于它们的内容等，无限大。因此，不能通过一个或多个层次的数组直接或间接地对包含自身作为元素的数组调用此方法。这种调用的行为是不确定的。
+		对于任意两个数组a和b，如果Arrays.deepEquals(a, b)，则Arrays.deepEquals(a, b)==Arrays.deepEquals(a, b)也是如此。
+		此方法返回的值的计算与List.hashCode()在包含与a相同元素的列表中以相同顺序返回的值的计算类似，但有一点不同：如果a的元素e本身是数组，则其哈希代码不是通过调用e.hashCode()计算的，而是通过调用Arrays.hashCode(e)适当的数组重载来计算的。如果e是基元类型的数组，或者如果e是引用类型的数组，则递归调用Arrays.deepHashCode(e)。如果a为空，则此方法返回0。
+	deepToString(Object[] a):static String 
+		返回指定数组的“深层内容”的字符串表示形式。如果数组包含其他数组作为元素，则字符串表示形式包含它们的内容等。此方法用于将多维数组转换为字符串。
+		字符串表示法由数组元素的列表组成，用方括号（("[]"）括起来。相邻元素由字符“，”分隔（逗号后跟空格）。元素按String.valueOf(Object)转换为字符串，除非它们本身是数组。
+		如果元素e是基元类型的数组，则通过调用Arrays.toString(e)的适当重载来将其转换为字符串。如果元素e是引用类型的数组，则通过递归调用此方法将其转换为字符串。
+		为避免无限递归，如果指定的数组将自身包含为元素，或包含通过一个或多个数组级别对自身的间接引用，则将自引用转换为字符串"[...]"。例如，仅包含对自身引用的数组将呈现为"[[...]]"。
+		如果指定的数组为null，则此方法返回“null”。
+	equals(boolean[] a, boolean[] a2):static boolean 
+		如果两个指定的布尔数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+	equals(byte[] a, byte[] a2):static boolean
+		如果两个指定的字节数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。 
+	equals(char[] a, char[] a2):static boolean 
+		如果两个指定的字符数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+	equals(double[] a, double[] a2):static boolean 
+		如果两个指定的双精度数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+		两个双精度d1和d2被认为是相等的，如果：
+			new Double(d1).equals(new Double(d2))
+		（与"=="运算符不同，此方法认为NaN等于自身，0.0d不等于-0.0d。）
+	equals(float[] a, float[] a2):static boolean 
+		如果两个指定的浮点数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+		如果满足以下条件，则认为两个浮点数f1和f2相等：
+			new Float(f1).equals(new Float(f2))
+		（与"=="运算符不同，此方法认为NaN等于自身，0.0f不等于-0.0f。）
+	equals(int[] a, int[] a2):static boolean 
+		如果两个指定的int数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+	equals(Object[] a, Object[] a2):static boolean 
+		如果两个指定的对象数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为这两个数组相等。如果(e1==null ? e2==null : e1.equals(e2))，则认为e1和e2是相等的。换句话说，如果两个数组包含的元素顺序相同，则它们是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+	equals(long[] a, long[] a2):static boolean 
+		如果指定的两个long数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+	equals(short[] a, short a2[]):static boolean 
+		如果两个指定的short数组彼此相等，则返回true。如果两个数组包含相同数量的元素，并且两个数组中所有对应的元素对都相等，则认为两个数组相等。换句话说，如果两个数组包含的元素顺序相同，则两个数组是相等的。另外，如果两个数组引用都为null，则认为它们相等。
+	fill(boolean[] a, boolean val):static void 
+		将指定的布尔值赋给指定布尔数组的每个元素。
+	fill(boolean[] a, int fromIndex, int toIndex,boolean val):static void 
+		将指定的布尔值赋给指定布尔数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(byte[] a, byte val):static void 
+		将指定的字节值赋给指定字节数组的每个元素。
+	fill(byte[] a, int fromIndex, int toIndex, byte val):static void 
+		将指定的字节值赋给指定字节数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(char[] a, char val):static void 
+		将指定的char值赋给指定char数组的每个元素。
+	fill(char[] a, int fromIndex, int toIndex, char val):static void 
+		将指定的char值赋给指定char数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(double[] a, double val):static void 
+		将指定的double值赋给指定double数组的每个元素。
+	fill(double[] a, int fromIndex, int toIndex,double val):static void 
+		将指定的double值赋给指定double数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(float[] a, float val):static void 
+		将指定的浮点数值赋给指定浮点数数组的每个元素。
+	fill(float[] a, int fromIndex, int toIndex, float val):static void 
+		将指定的浮点数值赋给指定浮点数数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(int[] a, int val):static void 
+		将指定的整数值赋给指定整数数组的每个元素。
+	fill(int[] a, int fromIndex, int toIndex, int val):static void 
+		将指定的整数值赋给指定整数数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(Object[] a, Object val):static void 
+		将指定的对象引用赋给指定对象数组的每个元素。
+	fill(Object[] a, int fromIndex, int toIndex, Object val):static void 
+		将指定的对象引用赋给指定对象数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(long[] a, long val):static void 
+		将指定的long值赋给指定long数组的每个元素。
+	fill(long[] a, int fromIndex, int toIndex, long val):static void 
+		将指定的long值赋给指定long数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	fill(short[] a, short val):static void 
+		将指定的short值赋给指定short数组的每个元素。
+	fill(short[] a, int fromIndex, int toIndex, short val):static void 
+		将指定的short值赋给指定short数组的指定范围内的每个元素。要填充的范围从索引fromIndex（含）扩展到索引toIndex（不含）。（如果fromIndex==toIndex，则填充的范围为空。）
+	hashCode(boolean a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个布尔数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用List上的hashCode方法获得的值相同，该列表包含一系列以相同顺序表示的元素的Boolean实例。如果a为null，则此方法返回0。
+	hashCode(byte a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个字节数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过在包含以相同顺序表示的元素的Byte实例序列的列表上调用hashCode方法获得的值相同。如果a为空，则此方法返回0。
+	hashCode(char a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个char数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用列表上的hashCode方法获得的值相同，该列表包含一系列以相同顺序表示的元素的Character实例。如果a为空，则此方法返回0。
+	hashCode(double a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个double数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用列表上的hashCode方法获得的值相同，该列表包含一系列以相同顺序表示的元素的Double实例。如果a为空，则此方法返回0。
+	hashCode(float a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个浮点数数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用列表上的hashCode方法获得的值相同，该列表包含一系列以相同顺序表示的元素的Float实例。如果a为空，则此方法返回0。
+	hashCode(int a[]):static int 
+		基于指定数组的内容返回哈希代码。对于任何两个非空的int数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用列表上的hashCode方法获得的值相同，该列表包含一系列Integer实例，这些实例以相同的顺序表示的元素。如果a为空，则此方法返回0。
+	hashCode(Object a[]):static int 
+		基于指定数组的内容返回哈希代码。如果数组包含其他数组作为元素，则哈希代码基于它们的标识，而不是它们的内容。因此，可以通过一个或多个层次的数组直接或间接地对包含自身作为元素的数组调用此方法。
+		对于array.equals（a，b）的任意两个数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值等于Arrays.asList(a).hashCode()返回的值，除非a为null，在这种情况下返回0。
+	hashCode(long a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个long数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用列表上的hashCode方法获得的值相同，该列表包含一系列以相同顺序表示的元素的Long实例。如果a为空，则此方法返回0。
+	hashCode(short a[]):static int 
+		基于指定数组的内容返回哈希代码。对于Arrays.equals(a, b)这样的任意两个short数组a和b，Arrays.hashCode(a) == Arrays.hashCode(b)也是如此。
+		此方法返回的值与通过调用列表上的hashCode方法获得的值相同，该列表包含一系列以相同顺序表示的元素的Short实例。如果a为空，则此方法返回0。
+	parallelPrefix(double[] array, int fromIndex,int toIndex, DoubleBinaryOperator op):static void 
+		对数组的给定子范围执行parallelPrefix(double[], DoubleBinaryOperator)。
+		【Throws】：
+			IllegalArgumentException 如果 fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 or toIndex > array.length
+			NullPointerException 如果指定的数组或函数为null
+	parallelPrefix(double[] array, DoubleBinaryOperator op):static void
+		使用提供的函数，并行地累积给定数组的每个元素。例如，如果数组最初持有[2.0、1.0、0.0、3.0]并执行加法运算，则返回时数组持有[2.0、3.0、3.0、6.0]。对于大型阵列，并行前缀计算通常比顺序循环更有效。
+		因为浮点运算可能不具有严格的关联性，所以返回的结果可能与如果按顺序执行该运算将获得的值不同。	
+		【Throws】：
+			NullPointerException 如果指定的数组或函数为null	
+	parallelPrefix(int[] array, int fromIndex,int toIndex, IntBinaryOperator op):static void 
+		对数组的给定子范围执行parallelPrefix(int[] array, IntBinaryOperator op)。
+		【Throws】：
+			IllegalArgumentException 如果 fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 or toIndex > array.length
+			NullPointerException 如果指定的数组或函数为null
+	parallelPrefix(int[] array, IntBinaryOperator op):static void
+		使用提供的函数，并行地累积给定数组的每个元素。例如，如果数组最初持有[2，1，0，3]并且操作执行加法，则返回时数组持有[2，3，3，6]。对于大型阵列，并行前缀计算通常比顺序循环更有效。
+		【Throws】：
+			NullPointerException 如果指定的数组或函数为null	
+	parallelPrefix(long[] array, int fromIndex,int toIndex, LongBinaryOperator op):static void 
+		对数组的给定子范围执行parallelPrefix(long[] array, LongBinaryOperator op)。
+		【Throws】：
+			IllegalArgumentException 如果 fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 or toIndex > array.length
+			NullPointerException 如果指定的数组或函数为null
+	parallelPrefix(long[] array, LongBinaryOperator op):static void
+		使用提供的函数，并行地累积给定数组的每个元素。例如，如果数组最初持有[2，1，0，3]并且操作执行加法，则返回时数组持有[2，3，3，6]。对于大型阵列，并行前缀计算通常比顺序循环更有效。
+		【Throws】：
+			NullPointerException 如果指定的数组或函数为null	
+	parallelPrefix(T[] array, int fromIndex,int toIndex, BinaryOperator op):static void 
+		<T> 数组中对象的类
+		对数组的给定子范围执行parallelPrefix(T[] array, BinaryOperator op)。
+		【Throws】：
+			IllegalArgumentException 如果 fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果fromIndex < 0 or toIndex > array.length
+			NullPointerException 如果指定的数组或函数为null
+	parallelPrefix(T[] array, BinaryOperator op):static void
+		<T> 数组中对象的类
+		使用提供的函数，并行地累积给定数组的每个元素。例如，如果数组最初持有[2，1，0，3]并且操作执行加法，则返回时数组持有[2，3，3，6]。对于大型阵列，并行前缀计算通常比顺序循环更有效。
+		【Throws】：
+			NullPointerException 如果指定的数组或函数为null		
+	parallelSetAll(double[] array, IntToDoubleFunction generator):static void 
+		使用提供的生成器函数并行设置指定数组的所有元素以计算每个元素。
+		如果生成器函数引发异常，则会从parallelSetAll引发未选中的异常，并且数组将保持不确定状态。
+		【Throws】：
+			NullPointerException 如果指定的generator为null	
+	parallelSetAll(int[] array, IntUnaryOperator generator):static void 
+		使用提供的生成器函数并行设置指定数组的所有元素以计算每个元素。
+		如果生成器函数引发异常，则会从parallelSetAll引发未选中的异常，并且数组将保持不确定状态。
+		【Throws】：
+			NullPointerException 如果指定的generator为null
+	parallelSetAll(long[] array, IntToLongFunction generator):static void 
+		使用提供的生成器函数并行设置指定数组的所有元素以计算每个元素。
+		如果生成器函数引发异常，则会从parallelSetAll引发未选中的异常，并且数组将保持不确定状态。
+		【Throws】：
+			NullPointerException 如果指定的generator为null
+	parallelSetAll(T[] array, IntFunction<? extends T> generator):static <T> void 
+		使用提供的生成器函数并行设置指定数组的所有元素以计算每个元素。
+		如果生成器函数引发异常，则会从parallelSetAll引发未选中的异常，并且数组将保持不确定状态。
+		【Throws】：
+			NullPointerException 如果指定的generator为null	
+	parallelSort(byte[] a):static void 
+		将指定的数组按升序排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(byte[] a, int fromIndex, int toIndex):static void 
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	parallelSort(char[] a):static void 
+	parallelSort(char[] a, int fromIndex, int toIndex):static void 
+	parallelSort(double[] a):static void 
+		将指定的数组按升序排序。
+		"<"关系不提供所有double精度值的总顺序：-0.0d==0.0d为true，Double.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Double.compareTo(java.lang.Double)施加的总顺序：将-0.0d视为小于0.0d，将Double.NaN视为大于任何其他值，并且将所有Double.NaN值视为相等。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(double[] a, int fromIndex, int toIndex):static void 
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		"<"关系不提供所有double精度值的总顺序：-0.0d==0.0d为true，Double.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Double.compareTo(java.lang.Double)施加的总顺序：将-0.0d视为小于0.0d，将Double.NaN视为大于任何其他值，并且将所有Double.NaN值视为相等。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	parallelSort(float[] a):static void 
+		将指定的数组按升序排序。
+		"<"关系不提供所有float精度值的总顺序：-0.0f==0.0f为true，Float.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Float.compareTo(java.lang.Float)施加的总顺序：将-0.0f视为小于0.0f，将Float.NaN视为大于任何其他值，并且将所有Float.NaN值视为相等。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(float[] a, int fromIndex, int toIndex):static void
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		"<"关系不提供所有float精度值的总顺序：-0.0f==0.0f为true，Float.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Float.compareTo(java.lang.Float)施加的总顺序：将-0.0f视为小于0.0f，将Float.NaN视为大于任何其他值，并且将所有Float.NaN值视为相等。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length		 
+	parallelSort(int[] a):static void 
+		将指定的数组按升序排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(int[] a, int fromIndex, int toIndex):static void 
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length	
+	parallelSort(long[] a):static void 
+		将指定的数组按升序排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(long[] a, int fromIndex, int toIndex):static void 
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	parallelSort(short[] a):static void 
+		将指定的数组按升序排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(short[] a, int fromIndex, int toIndex):static void 
+		将数组的指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	parallelSort(T[] a):static <T extends Comparable<? super T>> void
+		<T> 已排序对象类
+		根据元素的自然顺序，将指定的对象数组按升序排序。数组中的所有元素都必须实现Comparable的接口。此外，数组中的所有元素必须相互比较（e1.compareTo(e2)）不能对数组中的任何元素e1和e2抛出ClassCastException异常。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+	parallelSort(T[] a, int fromIndex, int toIndex):static <T extends Comparable<? super T>> void
+		根据指定对象数组元素的自然顺序，将指定范围按升序排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。范围中的所有元素都必须实现Comparable的接口。此外，范围中的所有元素必须相互比较（e1.compareTo(e2)）不能对数组中的任何元素e1和e2抛出ClassCastException异常。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+			ClassCastException 如果数组包含不可相互比较的元素（例如字符串和整数）。
+	parallelSort(T[] a, int fromIndex, int toIndex,Comparator<? super T> cmp):static <T> void 
+		<T> 已排序对象类
+		根据指定比较器诱导的顺序对指定对象数组的指定范围进行排序。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。范围中的所有元素都必须实现Comparable的接口。此外，范围中的所有元素必须相互比较（e1.compareTo(e2)）不能对范围中的任何元素e1和e2抛出ClassCastException异常。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+			ClassCastException 如果数组包含不可相互比较的元素（例如字符串和整数）。
+	parallelSort(T[] a, Comparator<? super T> cmp):static <T> void
+		 根据指定比较器诱导的顺序对指定的对象数组进行排序。数组中的所有元素都必须实现Comparable的接口。此外，数组中的所有元素必须相互比较（e1.compareTo(e2)）不能对数组中的任何元素e1和e2抛出ClassCastException异常。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		排序算法是一种并行排序合并，它将数组拆分为子数组，这些子数组本身被排序然后合并。当子数组长度达到最小粒度时，将使用适当的Arrays.sort方法对子数组进行排序。如果指定数组的长度小于最小粒度，则使用适当的Arrays.sort方法对其进行排序。算法要求的工作空间不大于原始数组的大小。ForkJoin公共池用于执行任何并行任务。
+		【Throws】：
+			ClassCastException 如果数组包含使用指定的比较器不能相互比较的元素
+			IllegalArgumentException 如果发现比较器违反比较器约定	（可选）
+	setAll(double[] array, IntToDoubleFunction generator):static void 
+		使用提供的生成器函数计算每个元素，设置指定数组的所有元素。
+		如果生成器函数引发异常，它将被中继到调用方，并且数组将处于不确定状态。
+		【Throws】：
+			NullPointerException 如果generator为null
+	setAll(int[] array, IntUnaryOperator generator):static void 
+		使用提供的生成器函数计算每个元素，设置指定数组的所有元素。
+		如果生成器函数引发异常，它将被中继到调用方，并且数组将处于不确定状态。
+		【Throws】：
+			NullPointerException 如果generator为null
+	setAll(long[] array, IntToLongFunction generator):static void 
+		使用提供的生成器函数计算每个元素，设置指定数组的所有元素。
+		如果生成器函数引发异常，它将被中继到调用方，并且数组将处于不确定状态。
+		【Throws】：
+			NullPointerException 如果generator为null
+	setAll(T[] array, IntFunction<? extends T> generator):static <T> void 
+		使用提供的生成器函数计算每个元素，设置指定数组的所有元素。
+		如果生成器函数引发异常，它将被中继到调用方，并且数组将处于不确定状态。
+		【Throws】：
+			NullPointerException 如果generator为null
+	sort(byte[] a):static void 
+		将指定的数组按升序排序。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(byte[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(char[] a):static void 
+		将指定的数组按升序排序。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(char[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(double[] a):static void 
+		将指定的数组按升序排序。
+		"<"关系不提供所有double精度值的总顺序：-0.0d==0.0d为true，Double.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Double.compareTo(java.lang.Double)施加的总顺序：将-0.0d视为小于0.0d，将Double.NaN视为大于任何其他值，并且将所有Double.NaN值视为相等。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(double[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		"<"关系不提供所有double精度值的总顺序：-0.0d==0.0d为true，Double.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Double.compareTo(java.lang.Double)施加的总顺序：将-0.0d视为小于0.0d，将Double.NaN视为大于任何其他值，并且将所有Double.NaN值视为相等。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(float[] a):static void 
+		将指定的数组按升序排序。
+		"<"关系不提供所有float精度值的总顺序：-0.0f==0.0f为true，Float.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Float.compareTo(java.lang.Float)施加的总顺序：将-0.0f视为小于0.0f，将Float.NaN视为大于任何其他值，并且将所有Float.NaN值视为相等。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(float[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		"<"关系不提供所有float精度值的总顺序：-0.0f==0.0f为true，Float.NaN值不小于、大于或等于任何值，甚至其本身。此方法使用方法Float.compareTo(java.lang.Float)施加的总顺序：将-0.0f视为小于0.0f，将Float.NaN视为大于任何其他值，并且将所有Float.NaN值视为相等。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(int[] a):static void 
+		将指定的数组按升序排序。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(int[] a, int fromIndex, int toIndex):static void
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length 
+	sort(Object[] a):static void 
+		将指定的数组按升序排序。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(Object[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(long[] a):static void 
+		将指定的数组按升序排序。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(long[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(short[] a):static void 
+		将指定的数组按升序排序。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+	sort(short[] a, int fromIndex, int toIndex):static void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	sort(T[] a, Comparator<? super T> c):static <T> void 
+		<T> 已排序对象类
+		根据指定比较器诱导的顺序对指定的对象数组进行排序。数组中的所有元素必须通过指定的比较器相互比较（即， c.compare(e1, e2)不能对数组中的任何元素e1和e2抛出ClassCastException异常）。
+		这种排序保证是稳定的：相同的元素不会因为排序而被重新排序。
+		实现说明：此实现是一个稳定的、自适应的、迭代的合并排序，当输入数组部分排序时，需要的远远少于nlg（n），而当输入数组随机排序时，提供传统合并排序的性能。如果输入数组接近已排序，则实现需要大约n个比较。临时存储需求从几乎排序的输入数组的小常量到随机排序的输入数组的n/2对象引用不等。
+		该实现在其输入数组中充分利用了升序和降序的同等优势，并且可以利用同一输入数组不同部分的升序和降序。它非常适合合并两个或更多排序的数组：只需连接数组并对结果数组进行排序。
+		该实现是从TimPeters的列表排序（Timsort）中改编而来的。它使用了Peter McIlroy的“乐观排序和信息理论复杂性”中的技术，在第四届ACM-SIAM离散算法研讨会论文集，第467-474页，1993年1月。
+		【Throws】：
+			ClassCastException 如果数组包含使用指定的比较器不能相互比较的元素
+			IllegalArgumentException 如果发现比较器违反比较器约定（可选）			
+	sort(T[] a, int fromIndex, int toIndex,Comparator<? super T> c):static <T> void 
+		按升序排列数组的指定范围。要排序的范围从索引fromIndex（含）扩展到索引toIndex（不含）。如果fromIndex == toIndex，则要排序的范围为空。
+		实现说明：Vladimir Yaroslavskiy、Joshua Bloch和Jon Bentley创建的Dual-Pivot Quicksort排序算法。此算法在许多数据集上提供O(n log(n))性能，这些数据集会导致其他流降低到二次性能，并且通常比传统（单轴）快速排序实现更快。
+		【Throws】：
+			IllegalArgumentException 如果  fromIndex > toIndex
+			ArrayIndexOutOfBoundsException 如果 fromIndex < 0 or toIndex > a.length
+	
+	spliterator(double[] array):static Spliterator.OfDouble 
+	spliterator(double[] array, int startInclusive, int endExclusive):static Spliterator.OfDouble 
+	spliterator(int[] array):static Spliterator.OfInt 
+	spliterator(int[] array, int startInclusive, int endExclusive):static Spliterator.OfInt 
+	spliterator(long[] array):static Spliterator.OfLong 
+	spliterator(long[] array, int startInclusive, int endExclusive):static Spliterator.OfLong 
+	spliterator(T[] array):static <T> Spliterator<T> 
+	spliterator(T[] array, int startInclusive, int endExclusive):static <T> Spliterator<T> 
+	
+	stream(double[] array):static DoubleStream 
+	stream(double[] array):static DoubleStream 
+	stream(int[] array):static IntStream 
+	stream(int[] array, int startInclusive, int endExclusive):static IntStream 
+	stream(long[] array):static LongStream 
+	stream(long[] array, int startInclusive, int endExclusive):static LongStream 
+	stream(T[] array):static <T> Stream<T> 
+	stream(T[] array, int startInclusive, int endExclusive):static <T> Stream<T> 
+	
+	toString(boolean[] a):static String 
+	toString(byte[] a):static String 
+	toString(char[] a):static String 
+	toString(double[] a):static String 
+	toString(float[] a):static String 
+	toString(int[] a):static String 
+	toString(Object[] a):static String 
+	toString(long[] a):static String 
+	toString(short[] a):static String 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、amortized：摊余固定时间。添加n个元素需要O(n)时间。
+	4、fail-fast：快速失败机制
+	5、MergeSort：合并排序
+	6、ForkJoin：是Java7提供的原生多线程并行处理框架，其基本思想是将大任务分割成小任务，最后将小任务聚合起来得到结果。fork是分解的意思, join是收集的意思. 它非常类似于HADOOP提供的MapReduce框架，只是MapReduce的任务可以针对集群内的所有计算节点，可以充分利用集群的能力完成计算任务。ForkJoin更加类似于单机版的MapReduce。
+	7、Dual-Pivot Quicksort算法：是JDK1.7开始的采用的快速排序算法。一般的快速排序采用一个枢轴来把一个数组划分成两半，然后递归之。大量经验数据表面，采用两个枢轴来划分成3份的算法更高效，这就是DualPivotQuicksort。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
