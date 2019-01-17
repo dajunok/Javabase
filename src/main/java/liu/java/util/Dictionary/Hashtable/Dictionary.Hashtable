@@ -34,9 +34,9 @@ Hashtable<K,V>：哈希表。【since JDK1.0】
 
 方法：
 	clear():synchronized void  			
-		△ 从该Map中删除所有映射（可选操作）。此调用返回后，映射将为空。		
+		△ 清除此哈希表，使其不包含键。	
 	clone():synchronized Object 
-		△ 返回此HashMap实例的浅副本：键和值本身没有克隆。
+		△ 创建此哈希表的浅副本。将复制哈希表本身的所有结构，但不会克隆键和值。这是一个相对昂贵的操作。
 	compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):synchronized V 
 		△ 尝试计算Map的指定键及其当前映射值（如果没有当前映射，则为null）。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
 			map.compute(key, (k, v) -> (v == null) ? msg : v.concat(msg))
@@ -52,26 +52,40 @@ Hashtable<K,V>：哈希表。【since JDK1.0】
 		△ 如果指定键的值存在且不为null，则尝试在给定键及其当前映射值的情况下计算新映射。
 		如果函数返回null，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。
 	contains(Object value):synchronized boolean 
+		测试某些键是否映射到此哈希表中的指定值。此操作比containsKey方法代价更高
+		请注意，此方法的功能与containsValue（集合框架中映射接口的一部分）相同。
+		【Throws】：
+			NullPointerException 如果value为null。
 	containsKey(Object key):synchronized boolean 
-		△ 如果Map包含指定键的映射，则返回true。
+		△测试指定的对象是否是此哈希表中的键。
+		【Throws】：
+			NullPointerException 如果key为null。
 	containsValue(Object value):synchronized boolean 
-		△ 如果此映射将一个或多个键映射到指定值，则返回true。
+		△ 如果此哈希表将一个或多个键映射到此值，则返回true。
+		注意，这个方法在功能上与contains相同（它早于map接口）。
+		【Throws】：
+			NullPointerException 如果value为null。
 	elements():synchronized Enumeration<V> 	
+		返回此哈希表中值的枚举。对返回的对象使用枚举方法按顺序提取元素。
 	entrySet():synchronized  Set<Entry<K,V>>			
-		△ 返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+		△ 返回map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
 	equals(Object o):synchronized boolean 
+		△ 根据映射接口中的定义，将指定的对象与此映射进行相等比较。
 	forEach(BiConsumer<? super K, ? super V> action):synchronized void 
 		△ 对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
 	get(Object key):synchronized V 
 		△ 返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
 		更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
-		则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+		【Throws】：
+			NullPointerException 如果key为null。
 	getOrDefault(Object key, V defaultValue):synchronized V 
 		△ 返回指定键key映射到的值，如果此映射不包含键的映射，则返回默认值。
 	hashCode():synchronized int 
+		△ 根据映射接口中的定义返回此映射的哈希代码值。
 	isEmpty():synchronized boolean 
-		△ 如果Map为空（不包含任何key-value映射）返回true。	
+		△ 如果哈希表为空（不包含任何key-value映射）返回true。
 	keys():synchronized Enumeration<K> 
+		返回此哈希表中键的枚举。
 	keySet():synchronized Set<K> 
 		△ 返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持add或addAll操作。
 	merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):synchronized V 
@@ -79,29 +93,33 @@ Hashtable<K,V>：哈希表。【since JDK1.0】
 			map.merge(key, msg, String::concat)
 		如果函数返回空值，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。	
 	put(K key, V value):synchronized V			
-		△ 将指定的值与此映射中的指定键相关联（可选操作）。如果映射之前包含键的映射，则旧值将替换为指定的值。
+		△ 将指定的键映射到此哈希表中的指定值。键和值都不能为空。可以通过使用等于原始键的键调用get方法来检索该值。如果映射之前包含键的映射，则旧值将替换为指定的值。
+		【Throws】：
+			NullPointerException 如果key为null。
 	putAll(Map<? extends K, ? extends V> m):synchronized void 			
-		△将指定映射中的所有映射复制到此映射（可选操作）。对于指定映射中从键k到值v的每个映射，此调用的效果相当于在此映射上调用一次put(k, v)。如果在操作过程中修改了指定的映射，则此操作的行为未定义。	
+		△将指定映射中的所有映射复制到此哈希表。这些映射将替换此哈希表对指定映射中当前任何键的任何映射。	
 		【Throws】：
 			NullPointerException 如果指定的映射为空
 	putIfAbsent(K key, V value):synchronized V 
-		如果指定的键尚未与某个值关联（或映射到空值），则将其与给定值关联并返回空值，否则返回当前值（旧值）。
+		△如果指定的键尚未与某个值关联（或映射到空值），则将其与给定值关联并返回空值，否则返回当前值（旧值）。
 	remove(Object key):synchronized V 			 
-		从该映射中删除键的映射（如果存在）。
+		△从此哈希表中删除键（及其相应的值）。如果键不在哈希表中，则此方法不执行任何操作。
+		返回该键在此哈希表中映射到的值，如果该键没有映射，则为null。
 	remove(Object key, Object value):synchronized boolean 
-		仅当指定键当前映射到指定值时才删除该项（即指定值与旧值相同）。成功删除返回true。
+		△仅当指定键当前映射到指定值时才删除该项（即指定值与旧值相同）。成功删除返回true。
 	replace(K key, V value):synchronized V 
-		仅当指定键当前映射到某个值时才替换该项。
+		△仅当指定键当前映射到某个值时才替换该项。
 		返回与指定键关联的上一个值，如果没有键的映射，则为空。（如果实现支持空值，则空返回还可以指示先前与键关联的映射空值。）
 	replace(K key, V oldValue, V newValue):synchronized boolean 
-		只有在当前key映射到指定值(oldValue)时才替换指定键的条目(newValue)。如果值被替换，返回true。
+		△只有在当前key映射到指定值(oldValue)时才替换指定键的条目(newValue)。如果值被替换，返回true。
 	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):synchronized void 
-		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+		△将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
 	size():synchronized int 
-		△ 返回此map中的键值映射数量。如果map包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+		△ 返回此哈希表中的键数。
 	toString():synchronized String 
+		△ 以一组条目的形式返回此哈希表对象的字符串表示形式，用大括号括起来，并用ASCII字符", "（逗号和空格）分隔。每个条目都被呈现为键、等号=和关联元素，其中toString方法用于将键和元素转换为字符串。
 	values():synchronized Collection<V>
-		△ 返回此Map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+		△ 返回此map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：

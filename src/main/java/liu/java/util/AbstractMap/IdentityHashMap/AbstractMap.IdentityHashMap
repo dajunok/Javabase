@@ -1,0 +1,78 @@
+----------------------------------------IdentityHashMap<K,V>--------------------------------------------------------------------------------------------------------------
+IdentityHashMap<K,V>：标识散列映射。【Since:1.4】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型
+	此类使用哈希表实现Map接口，在比较键（和值）时使用reference-equality相等代替object-equality相等。换句话说，在IdentityHashMap中，只有当（k1==k2）时，两个键k1和k2才被视为相等。（在正常的映射实现（如HashMap）中，如果且仅当(k1==null ? k2==null : k1.equals(k2))，则认为两个键k1和k2相等。）
+	此类不是通用的Map实现！尽管此类实现了Map接口，但它故意违反了Map的一般约定，即在比较对象时强制使用equals方法。此类仅在需要引用相等语义的少数情况下使用。
+	此类的一个典型用途是拓扑保护对象图转换，例如序列化或深度复制。要执行这种转换，程序必须维护一个“节点表”，以跟踪所有已处理的对象引用。节点表不能等同不同的对象，即使它们恰好相等。此类的另一个典型用途是维护代理对象。例如，调试工具可能希望为正在调试的程序中的每个对象维护一个代理对象。
+	此类提供所有可选的映射操作，并允许null值和null键。此类不保证map的顺序；特别是，它不保证顺序将随时间保持不变。
+	此类为基本操作（get和put）提供恒定的时间性能，假定系统标识哈希函数（System.identityHashCode(Object)）在存储bucket中正确地分散元素。
+	此类有一个优化参数（它影响性能，但不影响语义）：预期的最大大小。此参数是该映射应保存的最大键值映射数。在内部，此参数用于确定最初包含哈希表的存储bucket数。预期的最大大小和存储bucket数量之间的精确关系未指定。
+	如果映射的大小（键值映射的数目）足够超过预期的最大大小，则存储bucket的数目将增加。增加存储bucket的数量（“重新刷新”）可能代价相当高，因此创建具有足够大的预期最大大小的标识散列映射是值得的。另一方面，集合视图上的迭代需要与哈希表中的存储bucket数成比例的时间，因此，如果您特别关注迭代性能或内存使用情况，那么不要将预期的最大大小设置得太高。
+	注意，这个实现是不同步的。如果多个线程同时访问一个标识哈希映射，并且至少有一个线程在结构上修改了该映射，则必须在外部同步该映射。（结构修改是添加或删除一个或多个映射的任何操作；仅更改与实例已包含的键关联的值不是结构修改。）这通常通过在自然封装映射的某个对象上进行同步来完成。如果不存在此类对象，则应使用Collections.synchronizedMap方法“包装”map。这最好在创建时完成，以防止意外地不同步地访问map：
+		Map m = Collections.synchronizedMap(new IdentityHashMap(...));
+	由该类的所有“集合视图方法”返回的集合的迭代器方法返回的迭代器fail-fast机制：如果在迭代器创建后的任何时候对映射进行了结构修改，则除了通过迭代器自己的remove方法，迭代器将抛出ConcurrentModificationException。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	实现说明：这是一个简单的线性探针哈希表，如Sedgewick和Knuth在文本中所述。数组交替保存键和值。（对于大型表，这比使用单独的数组具有更好的位置。）对于许多JRE实现和操作混合，此类将产生比哈希映射（使用链接而不是线性探测）更好的性能。
+	该类是Java集合框架的成员。	
+	
+	
+	类定义	：class IdentityHashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, java.io.Serializable, Cloneable
+	实现接口	：Map<K,V>, java.io.Serializable, Cloneable
+	内部类	：AbstractMap.SimpleEntry<K,V>,AbstractMap.SimpleImmutableEntry<K,V>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public IdentityHashMap()
+	public IdentityHashMap(int expectedMaxSize)
+	public IdentityHashMap(Map<? extends K, ? extends V> m)
+
+方法：
+	clear():void 			
+		从该Map中删除所有映射（可选操作）。此调用返回后，映射将为空。	
+	clone():Object
+		返回此标识哈希映射的浅副本：键和值本身没有克隆。 
+	containsKey(Object key):boolean 
+		如果标识散列映射包含指定键的映射，则返回true。
+	containsValue(Object value):boolean
+		测试指定的对象引用是否是此标识哈希映射中的值。如果此映射将一个或多个键映射到指定值，则返回true。 
+	entrySet():Set<Entry<K,V>>			
+		返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+	equals(Object o):boolean 
+		将指定的对象与此映射进行相等比较。如果给定对象也是map，并且两个map表示相同的映射，则返回true。更正式地说，如果m1.entrySet().equals(m2.entrySet())，则两个映射m1和m2表示相同的映射。这样可以确保equals方法在映射接口的不同实现中正常工作。
+		由于该映射基于引用等式的语义，如果将该映射与普通映射进行比较，则可能会违反Object.equals约定的对称性和传递性要求。但是，Object.equals协定保证在IdentityHashMap实例之间保持不变。
+	forEach(BiConsumer<? super K, ? super V> action):void 
+		将指定的对象与此映射进行相等比较。如果给定对象也是映射，并且两个映射表示相同的映射，则返回true。更正式地说，如果m1.entrySet().equals(m2.entrySet())，则两个映射m1和m2表示相同的映射。这样可以确保equals方法在Map接口的不同实现中正常工作。
+	get(Object key):V 
+		返回指定键映射到的值，如果此映射不包含键的映射，则返回null。更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
+		如果此映射允许空值null，则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+	hashCode():int 
+		返回此映射的哈希代码值。映射的哈希代码被定义为映射的entrySet() 视图中每个条目的哈希代码之和。这确保m1.equals(m2)意味着m1.hashCode()==m2.hashCode()对于任意两个映射m1和m2，这是Object.hashCode()的一般约定所要求的。
+		由于此映射的entrySet方法返回的集合中的Map.Entry实例基于引用相等的语义，如果正在比较的两个对象中的一个是IdentityHashMap实例，而另一个是普通映射，则可能会违反上一段中提到的Object.hashCode的规定要求。
+	isEmpty():boolean 
+		如果Map为空（不包含任何key-value映射）返回true。
+	keySet():Set<K> 
+		返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+		当这个方法返回的对象实现了Set接口时，它不遵守Set的一般约定。与支持映射一样，此方法返回的集合将元素相等定义为引用相等，而不是对象相等。这会影响其contains、remove、containsAll、equals和hashCode方法的行为。
+		返回集合的hashCode方法返回集合中元素的标识哈希代码之和，而不是其哈希代码之和。这是通过改变equals方法的语义来强制执行的，以便在该方法返回的集合之间强制执行Object.hashCode方法的常规约定。
+	put(K key, V value):V			
+		将指定的值与此映射中的指定键相关联（可选操作）。如果映射之前包含键的映射，则旧值将替换为指定的值。（如果且仅当m.containsKey(k)返回true，则称map m包含键k的映射。）
+	putAll(Map<? extends K, ? extends V> m):void 			
+		将指定映射m中的所有映射复制到此映射。这些映射将替换此映射对指定映射m中当前任何键的任何映射。	
+	remove(Object key):V 			 
+		从该映射中删除指定键的映射（如果存在）。返回此映射以前与该键关联的值，如果该映射不包含该键的映射，则返回空值。
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	size():int 
+		返回此map中的键值映射数量。
+	values():Collection<V>
+		返回此map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+		当这个方法返回的对象实现了Set接口时，它不遵守Set的一般约定。与支持映射一样，此方法返回的集合将元素相等定义为引用相等，而不是对象相等。这会影响其contains、remove、containsAll方法的行为。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+		
+		
+		
+
