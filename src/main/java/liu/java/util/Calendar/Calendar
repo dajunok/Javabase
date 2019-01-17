@@ -47,8 +47,9 @@ Calendar：日历类。【Since:JDK1.1】
 		使用模型。要激活add()和roll()操作，请考虑一个用户界面组件，其中包含月份、日期和年份的递增和递减按钮，以及一个基础的公历日历。	如果界面显示1999年1月31日，用户按月份递增按钮，应该显示什么？如果底层实现使用set（），它可能会在1999年3月3日读取。一个更好的结果是1999年2月28日。此外，如果用户再次按下月份递增按钮，则应为1999年3月31日，而不是1999年3月28日。通过保存原始日期并使用add（）或roll（），根据是否应影响较大的字段，用户界面可以像大多数用户直观预期的那样工作。		
 			
 			
-	类定义：public abstract class Calendar extends Object implements Serializable, Cloneable, Comparable<Calendar>
-	子类：GregorianCalendar
+	类定义	：public abstract class Calendar extends Object implements Serializable, Cloneable, Comparable<Calendar>
+	子类		：GregorianCalendar
+	内部类	：Builder
 --------------------------------------------------------------------------------------------------------------------------------------------
 日历属性字段（Field）：
 		ALL_FIELDS

@@ -1,0 +1,166 @@
+-------------------------------EventObject-----------------------------------------------------------------------------------------------------------------------
+GregorianCalendar：公历。【Since:JDK1.1】
+	公历是日历的一个具体的子类，它提供了世界上大多数人使用的标准日历系统。
+	公历日历是一种混合日历，支持儒略历和公历系统，并支持一个单一的不连续性，默认对应于公历制定时的公历日期（1582年10月15日在某些国家，后来在其他国家）。调用方可以通过调用setGregorianChange()更改转换日期。
+	历史上，在那些首先采用公历的国家，1582年10月4日（朱利安），随后是1582年10月15日（公历）。此日历对此进行了正确建模。在公历割接之前，公历日历执行儒略历。公历和儒略历的唯一区别是闰年规则。儒略历每四年规定一次闰年，而公历则省略了不能被400整除的世纪年。
+	公历日历执行公历和儒略历。也就是说，日期是通过无限期地向后和向前推导出当前规则来计算的。因此，公历可用于所有年份，以产生有意义和一致的结果。然而，使用公历日历获得的日期在历史上是准确的，只有从公元3月1日，4日起，现代儒略历规则被采用。在这个日期之前，闰年规则被不规则地应用，在公元前45年之前，儒略历甚至不存在。
+	在公历制定之前，元旦是3月25日。为了避免混淆，此日历总是使用1月1日。如果需要，可以手动调整公历转换前的日期，并在1月1日至3月24日之间。
+	
+	【Week Of Year】 和【Week Year】：
+	WEEK_OF_YEAR字段的计算值在1到53之间。日历年的第一周是从getFirstDayOfWeek()开始的最早七天期间，该期间至少包含从该年开始的getMinimalDaysInFirstWeek()天。因此，它取决于getMinimalDaysInFirstWeek()、getFirstDayOfWeek()和1月1日的星期几的值。从一年的第1周到下一年的第1周（不包括）之间的周按顺序编号，从2到52或53（朱利安-格里高利过渡期涉及的年份除外）。
+	在构造公历日历时，使用与区域设置相关的资源初始化getFirstDayOfWeek()和getMinimalDaysInFirstWeek()值。当getFirstDayOfWeek()为星期一且getMinimalDaysInFirstWeek()为4时，周确定与ISO 8601标准兼容，这些值在首选标准的区域设置中使用。可以通过调用setFirstDayOfWeek()和setMinimalDaysInFirstWeek()显式设置这些值。
+	周-年与WEEK_OF_YEAR周期同步。第一周和最后一周（含）之间的所有周都具有相同的周-年值。因此，一周中的第一天和最后一天可能具有不同的日历年值。
+	例如，1998年1月1日是星期四。如果getFirstDayOfWeek()是星期一，getMinimalDaysInFirstWeek()是4（ISO 8601标准兼容设置），则1998年第1周从1997年12月29日开始，到1998年1月4日结束。1997日历年的最后三天是1998年。但是，如果getFirstDayOfWeek()是星期日，则1998年第1周从1998年1月4日开始，到1998年1月10日结束；1998年的前三天是1997年第53周的一部分，其周年是1997年。
+	
+	【Week Of Month】：
+	WEEK_OF_MONTH字段的计算值范围为0到6。每月的第1周（WEEK_OF_MONTH=1的天数）是该月中最早的至少getMinimalDaysInFirstWeek()连续天的集合，结束于getFirstDayOfWeek()的前一天。与一年中的第1周不同，一个月的第1周可能短于7天，不需要从getFirstDayOfWeek()开始，并且不包括上个月的天数。第1周前一个月的天数的WEEK_OF_MONTH为0。
+	例如，如果getFirstDayOfWeek()是星期日，而getMinimalDaysInFirstWeek()是4，那么1998年1月的第一周是星期日，1月4日到1月10日星期六。这几天有一个星期一个月。星期四，1月1日到星期六，1月3日有一个星期，即0月。如果getMinimalDaysInFirstWeek()更改为3，则1月1日到1月3日的星期数为1。
+	
+	【Default Fields Values】：
+	clear方法将日历字段设置为未定义。如果每个日历字段的值未定义，则该日历字段使用以下默认值。
+	-----------------------------------------------------------------------------------------
+	Field												Default Value
+	ERA														AD
+	YEAR													1970
+	MONTH													JANUARY
+	DAY_OF_MONTH											1
+	DAY_OF_WEEK												the first day of week
+	WEEK_OF_MONTH											0
+	DAY_OF_WEEK_IN_MONTH									1
+	AM_PM													AM
+	HOUR, HOUR_OF_DAY, MINUTE, SECOND, MILLISECOND			0
+	-----------------------------------------------------------------------------------------
+	默认值不适用于上面未列出的字段。
+	
+	
+		
+	类定义：public class GregorianCalendar extends Calendar
+	内部类：Calendar.Builder
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Fields(属性字段)：
+	AD = 1:static final int 
+		纪元字段的值表示共同纪元（anno domini），也称为CE。从公元前到公元前过渡时期的年顺序是…，公元前2年(2 BC)，公元前1年(1 BC)，公元1年(1 AD)，公元2年(2 AD)，…	
+	BC = 0:static final int 
+		纪元字段的值表示共同纪元（基督之前）之前的时期，也称为BCE。从公元前到公元前过渡时期的年顺序是…，公元前2年(2 BC)，公元前1年(1 BC)，公元1年(1 AD)，公元2年(2 AD)，…	
+
+Constructors（构造器）：
+	public GregorianCalendar()
+		使用默认时区中的当前时间和默认格式区域设置构造默认的公历日历。
+	public GregorianCalendar(int year, int month, int dayOfMonth)
+		使用默认区域设置的默认时区中的给定日期构造一个公历日历。
+	public GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay,int minute)
+		使用默认区域设置为默认时区的给定日期和时间来构造公历日历。
+	public GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay,int minute, int second)
+		使用默认区域设置为默认时区的给定日期和时间来构造公历日历。
+	public GregorianCalendar(Locale aLocale)
+		根据给定时区中具有给定区域设置的当前时间构造公历日历。
+	public GregorianCalendar(TimeZone zone)
+		使用默认格式区域设置，基于给定时区中的当前时间构造公历。
+	public GregorianCalendar(TimeZone zone, Locale aLocale)
+		根据给定时区中具有给定区域设置的当前时间构造公历日历。
+
+
+Method Summary（方法概要）：
+	from(ZonedDateTime zdt):static GregorianCalendar 
+		从ZonedDateTime对象获取具有默认区域设置的GregorianCalendar实例。
+		由于ZonedDateTime不支持儒略公历的截止日期，并且使用ISO日历系统，因此返回公历日历是纯公历日历，周定义使用ISO 8601标准，其中MONDAY(星期一)为一周的第一天，4作为MinimalDaysInFirstWeek的值。
+		ZoneDateTime可以在时间线上存储点，在未来和过去都比公历更远。在此方案中，此方法将引发IllegalArgumentException异常。
+		【Throws】：
+			NullPointerException 如果zdt为null
+			IllegalArgumentException 如果分区日期时间太大，无法表示为GregorianCalendar（公历日历）
+	add(int field, int amount):void 
+		△ 根据日历的规则，将指定的（签名的）时间量添加到给定的日历字段中。
+		添加规则1。调用后字段的值减去调用前字段的值为amount，减去字段中发生的任何溢出。当字段值超出其范围时会发生溢出，因此，下一个较大的字段将递增或递减，字段值将调整回其范围。
+		添加规则2。如果一个较小的字段被认为是不变的，但由于字段更改后其最小值或最大值的变化，它不可能等于其先前值，则将其值调整为尽可能接近其预期值。较小的字段表示较小的时间单位。HOUR是一个小于DAY_OF_MONTH的字段。不会对不希望保持不变的较小字段进行任何调整。日历系统确定哪些字段应该是不变的。
+		【Throws】：
+			IllegalArgumentException 如果字段是ZONE_OFFSET、DST_OFFSET或未知，或者如果任何日历字段在非宽松模式下的值超出范围。
+	clone():Object 
+		△ 创建并返回此对象的副本。
+	equals(Object obj):boolean 
+		△ 将此公历日历与指定的对象进行比较。如果且仅当参数是一个公历日历对象，它表示与此对象在同一日历参数和公历更改日期下的相同时间值（与纪元的毫秒偏移量），则结果为true。
+	getActualMaximum(int field):int 
+		返回此日历字段可能具有的最大值，同时考虑给定的时间值和getFirstDayOfWeek、getMinimalDaysInFirstWeek、getGregorianChange和getTimeZone方法的当前值。例如，如果此实例的日期为2004年2月1日，则DAY_OF_MONTH字段的实际最大值为29，因为2004年是闰年，如果此实例的日期为2005年2月1日，则为28。
+		此方法基于YEAR（日历年）值而不是周年计算WEEK_OF_YEAR的最大值。调用getWeeksInWeekYear()获取此公历日历的周年中的最大值WEEK_OF_YEAR。
+	getActualMinimum(int field):int 
+		△ 返回此日历字段可能具有的最小值。同时考虑给定的时间值和getFirstDayOfWeek、getMinimaDaySinFirstWeek、getGregorianChange和getTimeZone方法的当前值。
+		例如，如果公历更改日期为1970年1月10日，而此公历日历的日期为1970年1月20日，则DAY_OF_MONTH字段的实际最小值为10，因为1970年1月10日的前一个日期是1996年12月27日（在儒略历中）。因此，1969年12月28日至1970年1月9日不存在。
+	getCalendarType():String 
+		△ 回“gregory”作为日历类型。
+	getGreatestMinimum(int field):int
+		△ 返回此公历日历实例的给定日历字段的最大最小值。最大最小值定义为getActualMinimum(int)为任何可能的时间值返回的最大值，考虑到GetFirstDayOfWeek、getMinimalDaysInFirstWeek、getGregorianChange和GetTimeZone方法的当前值。 
+	getGregorianChange():final Date 
+		△ 获取公历更改日期。这是从儒略日期转换到公历日期的时间点。默认值为1582年10月15日（公历）。在此之前，日期将在儒略历中。
+	getLeastMaximum(int field):int 
+		△ 返回此公历日历实例的给定日历字段的最小最大值。最低最大值定义为GetActualMaximum（int）为任何可能的时间值返回的最小值，考虑到GetFirstDayOfWeek、getMinimalDaysInFirstWeek、getGregorianChange和GetTimeZone方法的当前值。 
+	getMaximum(int field):int 
+		△ 返回此公历日历实例的给定日历字段的最大值。最大值定义为get方法为任何可能的时间值返回的最大值，考虑到GetFirstDayOfWeek、getMinimalDaysInFirstWeek、getGregorianChange和GetTimeZone方法的当前值。
+	getMinimum(int field):int 
+		△ 返回此公历日历实例的给定日历字段的最小值。最小值定义为get方法针对任何可能的时间值返回的最小值，考虑到GetFirstDayOfWeek、getMinimalDaysInFirstWeek、getGregorianChange和GetTimeZone方法的当前值。
+	getTimeZone():TimeZone 
+		△ 获取时区。
+	getWeeksInWeekYear():int 
+		△ 返回此公历日历表示的周-年中的周数（即一年中的第XX周）。
+		例如，如果此公历的日期是2008年12月31日，并且具有ISO 8601兼容设置，则此方法将在2008年12月29日至2010年1月3日期间返回53，而GetActualMaxum（WEEK_OF_YEAR）将在2007年12月31日至2008年12月28日期间返回52。
+	getWeekYear():int 
+		△ 返回此公历日历表示的周-年。周中介于1和周年最大周数之间的日期具有相同的周-年值，可以是年（日历年）值之前或之后的一年。
+		此方法在计算周-年之前调用Calendar.complete()。
+	hashCode():int 
+		△ 生成此公历日历对象的哈希代码。
+	isLeapYear(int year):boolean 
+		确定给定年份是否为闰年。如果给定年份是闰年，则返回true。要指定BC年份号，必须提供1年的编号。例如，BC 4年被指定为-3。
+	roll(int field, boolean up):void
+		△ 在给定的时间字段上加上或减去（up/down）单个时间单位，而不更改较大的字段。 
+		示例：考虑最初设置为1999年12月31日的公历日历。调用roll(Calendar.MONTH, true)将日历设置为1999年1月31日。YEAR字段不变，因为它比MONTH大。
+		【Throws】：
+			IllegalArgumentException 如果字段为ZONE_OFFSET、DST_OFFSET或未知，或者任何日历字段在非宽松模式下的值超出范围。
+	roll(int field, int amount):void 
+		△ 将已签名的amount添加到指定的日历字段，而不更改较大的字段。负滚动量意味着在不改变较大字段的情况下从字段中减去。如果指定的数量为0，则此方法不执行任何操作。此方法在添加amount之前调用Calendar.complete()，以便所有日历字段都正常化。如果有任何日历字段在非宽松模式下具有超出范围的值，则会引发IllegalArgumentException。
+		例如：假设公历最初设置为1999年8月31日。调用roll(Calendar.MONTH, 8)将日历设置为1999年4月30日。使用公历日历，DAY_OF_MONTH字段在4月不能为31。DAY_OF_MONTH设置为最接近的可能值30。YEAR字段保持1999年的值，因为它比MONTH字段大。
+		例如：假设一个公历日历最初设置为1999年6月6日星期日。调用roll(Calendar.WEEK_OF_MONTH, -1)将日历设置为1999年6月1日星期二，而调用add(Calendar.WEEK_OF_MONTH, -1)将日历设置为1999年5月30日星期日。这是因为滚动规则施加了一个额外的约束：当WEEK_OF_MONTH滚动时，MONTH不能改变。加上第1条规则，结果日期必须在6月1日星期二至6月5日星期六之间。根据添加规则2，DAY_OF_WEEK（更改WEEK_OF_MONTH时的不变量）设置为星期二，这是最接近星期日的可能值（其中星期日是一周的第一天）。
+	setGregorianChange(Date date):void 
+		设置公历日历更改日期。这是从儒略日期转换到公历日期的时间点。默认值为1582年10月15日（公历）。在此之前，日期将在儒略历中。
+		要获得纯儒略历，请将更改日期设置为Date(Long.MAX_VALUE)。要获得纯公历，请将更改日期设置为Date(Long.MIN_VALUE)。
+	setTimeZone(TimeZone zone):void 
+		△ 用给定的时区值设置时区。
+	setWeekDate(int weekYear, int weekOfYear, int dayOfWeek):void 
+		△ 将此公历日历设置为日期说明符指定的日期-WeekYear、WeekOfYear和DayOfWeek。年份的WeekOfYear遵循WEEK_OF_YEAR编号。dayOfWeek值必须是DAY_OF_WEEK值之一：SUNDAY（星期日）到SATURDAY（星期六）。
+		请注意，数字星期表示法不同于ISO 8601标准，并且当getFirstDayOfWeek()为MONDAY（星期一），getMinimalDaysInFirstWeek()为4时，WeekOfYear编号规则与标准兼容。
+		如果WeekOfYear在WeekYear中超出了有效的一周范围，则在宽松模式下调整WeekYear和WeekOfYear值，或者在非宽松模式下引发IllegalArgumentException异常。
+	toZonedDateTime():ZonedDateTime 
+		将此对象转换为表示时间线上与此公历日历相同点的ZonedDateTime。
+		由于此对象支持Julian-Gregorian割接日期，而ZonedDateTime不支持，因此结果的年、月和日可能具有不同的值。结果将代表ISO日历系统中的正确日期，对于修改后的儒略日，该日期也将是相同的值。
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

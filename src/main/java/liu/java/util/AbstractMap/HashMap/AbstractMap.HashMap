@@ -1,0 +1,99 @@
+----------------------------------------HashMap<K,V>--------------------------------------------------------------------------------------------------------------
+HashMap<K,V>：哈希映射。【Since:1.2】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型	
+	基于哈希表的Map接口的实现。此实现提供所有可选的映射操作，并允许null值和null键。（HashMap类大致等同于Hashtable，只是它不同步并且允许空值。）这个类不保证映射的顺序；特别是，它不保证顺序会随着时间的推移而保持不变。
+	此实现为基本操作（get和put）提供恒定的时间性能，前提是散列函数将元素适当地分散在bucket中。在集合视图上迭代需要的时间与HashMap实例的“容量”（存储bucket数）加上其大小（键值映射数量）成比例。因此，如果迭代性能很重要，那么不要将初始容量设置得太高（或者负载系数设置得太低）
+	HashMap的一个实例有两个影响其性能的参数：初始容量和负载系数。容量是哈希表中的存储bucket数，初始容量只是创建哈希表时的容量。加载因子是一个度量散列表在自动增加其容量之前被允许达到的完整性的度量。当散列表中的条目数超过加载因子和当前容量的乘积时，散列表将被重新刷新（即重建内部数据结构），以便散列表的存储bucket数大约是存bucket数的两倍。
+	作为一般规则，默认的负载系数（.75）在时间和空间成本之间提供了一个很好的权衡。更高的值减少了空间开销，但增加了查找成本（反映在HashMap类的大多数操作中，包括get和put）。在设置初始容量时，应考虑到Map中预期的条目数量及其负载系数，以尽量减少重新刷新操作的次数。如果初始容量大于最大条目数除以负载系数，则不会发生再刷新操作。
+	如果要在一个HashMap实例中存储许多映射，那么使用足够大的容量创建它将使映射的存储效率高于允许它根据需要执行自动重新刷新以增加表的效率。请注意，使用具有相同hashCode()的多个键是降低任何哈希表性能的一种可靠方法。为了改善影响，当键具有可比性时，此类可以使用键之间的比较顺序来帮助断开关系。
+	注意，这个实现是不同步的。如果多个线程同时访问哈希映射，并且至少有一个线程在结构上修改了该映射，则必须在外部对其进行同步。（结构修改是添加或删除一个或多个映射的任何操作；仅更改与实例已包含的键关联的值不是结构修改。）这通常通过在自然封装映射的某个对象上进行同步来完成。如果不存在此类对象，则应使用Collections.synchronizedMap方法“包装”map。这最好在创建时完成，以防止意外地不同步地访问map：
+		Map m = Collections.synchronizedMap(new HashMap(...));
+	这个类的所有“集合视图方法”返回的迭代器都是fail-fast机制：如果在迭代器创建后的任何时候对映射进行了结构修改，那么除了通过迭代器自己的remove方法之外，迭代器将以任何方式引发ConcurrentModificationException异常。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	该类是Java集合框架的成员。
+	
+	
+	
+	类定义	：public class HashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>, Cloneable, Serializable
+	实现接口	：Map<K,V>, Cloneable, Serializable
+	内部类	：AbstractMap.SimpleEntry<K,V>, AbstractMap.SimpleImmutableEntry<K,V>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public HashMap()
+	public HashMap(int initialCapacity)
+	public HashMap(int initialCapacity, float loadFactor)
+	public HashMap(Map<? extends K, ? extends V> m)
+
+方法：
+	clear():void 			
+		△ 从该Map中删除所有映射（可选操作）。此调用返回后，映射将为空。		
+	clone():Object 
+		△ 返回此HashMap实例的浅副本：键和值本身没有克隆。
+	compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):V 
+		△ 尝试计算Map的指定键及其当前映射值（如果没有当前映射，则为null）。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
+			map.compute(key, (k, v) -> (v == null) ? msg : v.concat(msg))
+		（方法merge()通常更容易用于此目的。）
+		如果函数返回null，则删除映射（如果最初不存在，则保持不存在）。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。
+	computeIfAbsent(K key,Function<? super K, ? extends V> mappingFunction):V 
+		△ 如果指定的键尚未与某个值关联（或映射为null），则尝试使用给定的mappingFunction计算其值，并将其输入此映射，除非为null。
+		如果函数返回null，则不记录任何映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且不会记录任何映射。最常见的用法是构造一个新对象，作为初始映射值或旧结果，如：
+			map.computeIfAbsent(key, k -> new Value(f(k)));
+		或者要实现多值映射，Map<K,Collection<V>>，支持每个键的多个值：
+			 map.computeIfAbsent(key, k -> new HashSet<V>()).add(v);
+	computeIfPresent(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):V 
+		△ 如果指定键的值存在且不为null，则尝试在给定键及其当前映射值的情况下计算新映射。
+		如果函数返回null，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。
+	containsKey(Object key):boolean 
+		△ 如果Map包含指定键的映射，则返回true。
+	containsValue(Object value):boolean
+		△ 如果此映射将一个或多个键映射到指定值，则返回true。
+	entrySet():Set<Entry<K,V>>			
+		△ 返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+	forEach(BiConsumer<? super K, ? super V> action):void 
+		△ 对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+	get(Object key):V 
+		△ 返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
+		更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
+		则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+	getOrDefault(Object key, V defaultValue):V 
+		△ 返回指定键key映射到的值，如果此映射不包含键的映射，则返回默认值。
+	isEmpty():boolean 
+		△ 如果Map为空（不包含任何key-value映射）返回true。	
+	keySet():Set<K> 
+		△ 返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+	merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):V 
+		△ 如果指定的键尚未与值关联或与null关联，请将其与给定的非空值关联。否则，将关联值替换为给定remappingFunction的结果，或者如果结果为空，则移除该值。当键拥有多个映射值时，可以使用此方法。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
+			map.merge(key, msg, String::concat)
+		如果函数返回空值，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。	
+	put(K key, V value):V			
+		△ 将指定的值与此映射中的指定键相关联（可选操作）。如果映射之前包含键的映射，则旧值将替换为指定的值。
+	putAll(Map<? extends K, ? extends V> m):void 			
+		△将指定映射中的所有映射复制到此映射（可选操作）。对于指定映射中从键k到值v的每个映射，此调用的效果相当于在此映射上调用一次put(k, v)。如果在操作过程中修改了指定的映射，则此操作的行为未定义。	
+		【Throws】：
+			NullPointerException 如果指定的映射为空
+	putIfAbsent(K key, V value):V 
+		如果指定的键尚未与某个值关联（或映射到空值），则将其与给定值关联并返回空值，否则返回当前值（旧值）。
+	remove(Object key):V 			 
+		从该映射中删除键的映射（如果存在）。
+	remove(Object key, Object value):boolean 
+		仅当指定键当前映射到指定值时才删除该项（即指定值与旧值相同）。成功删除返回true。
+	replace(K key, V value):V 
+		仅当指定键当前映射到某个值时才替换该项。
+		返回与指定键关联的上一个值，如果没有键的映射，则为空。（如果实现支持空值，则空返回还可以指示先前与键关联的映射空值。）
+	replace(K key, V oldValue, V newValue):boolean 
+		只有在当前key映射到指定值(oldValue)时才替换指定键的条目(newValue)。如果值被替换，返回true。
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	size():int 
+		△ 返回此map中的键值映射数量。如果map包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+	values():Collection<V>
+		△ 返回此Map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+		
+		
+		
+
