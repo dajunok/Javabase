@@ -2,6 +2,8 @@ package liu.java.util.AbstractCollection.AbstractSet.EnumSet;
 
 import java.util.EnumSet;
 
+
+
 public class TestEnumSet {
 	 
 	    public static void main(String[] args) {
@@ -21,6 +23,15 @@ public class TestEnumSet {
 	        //4. 以指定枚举值创建EnumSet集合
 	        EnumSet<Session> e3 = EnumSet.of(Session.SPRING,Session.FAIL);
 	        System.out.println(e3);//[SPRING, FAIL]
+	        
+	        EnumSet<Color> e7=EnumSet.noneOf(Color.class);
+	        e7.add(Color.BLUE);	        
+	        System.out.println("E7："+e7);//E7：[BLUE]
+	        
+	        System.out.println("E2："+e2);//[SPRING, SUMMER]
+	        //含指定集合中不包含的此类型的所有元素。
+	        EnumSet<Session> e8=e7.complementOf(e2);
+	        System.out.println("E8："+e8);//E8：[FAIL, WINTER]
 	 
 	        //5.创建一个包含从from枚举值到to枚举值范围内所有枚举值的EnumSet集合。
 	        EnumSet<Session> e4 = EnumSet.range(Session.SPRING,Session.FAIL);
@@ -30,6 +41,10 @@ public class TestEnumSet {
 	        //  新EnumSet集合包含原EnumSet集合所不包含的枚举值
 	        EnumSet<Session> e5 = EnumSet.complementOf(e4);
 	        System.out.println(e5);//[WINTER]
+	        
+	        //Enum<E>与enum关键字的关系
+	        Enum<Color> enum1=Color.BLUE;
+	        System.out.println("enum1："+enum1);//[WINTER]
 	    }
 
 	 
@@ -39,7 +54,15 @@ public class TestEnumSet {
 		    SUMMER,
 		    FAIL,
 		    WINTER
-	}
+		}
+		
+		enum Color{
+		    	RED,
+		    	WHITE,
+		    	GREEN,
+		    	BLUE
+		}
+	
 
 
 }

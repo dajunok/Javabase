@@ -1,0 +1,31 @@
+----------------------------------------EventListenerProxy<T extends EventListener>--------------------------------------------------------------------------------------------------------------
+EventListenerProxy<T extends EventListener>：事件监听器代理。【Since:1.4】
+	事件侦听器类的抽象包装类，它将一组附加参数与侦听器关联。子类必须为附加参数或参数提供存储和访问方法。
+	例如，支持命名属性的bean将具有用于为属性添加PropertyChangeListener的双参数方法签名：
+		public void addPropertyChangeListener(String propertyName,PropertyChangeListener listener)
+	如果bean还实现了获取监听器的零参数方法：
+		public PropertyChangeListener[] getPropertyChangeListeners()
+	另外，数组可能包含内部的PropertyChangeListeners，它们也是PropertyChangeListenerProxy对象。
+	如果调用方法对检索命名属性感兴趣，那么它必须测试元素，以查看它是否是代理类。
+	
+	类定义	：public abstract class EventListenerProxy<T extends EventListener> implements EventListener
+	实现接口	：EventListener
+	子类		：AWTEventListenerProxy, PropertyChangeListenerProxy, VetoableChangeListenerProxy
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public EventListenerProxy(T listener)
+		为指定的侦听器创建代理。
+
+方法：
+	getListener()：T 
+		返回与代理关联的侦听器。
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、varargs：可变参数
+	4、<E extends Enum<E>>泛型说明：这是一个泛型，使用E作为类型参数。其次，对于E有上界限制，即E必须是Enum<E>的子类。E被识别为Enum的子类，这个情况相当于把一个子类或者自己当成参数，传入到自身，引起一些特别的语法效果。
+	5、enum关键字：创建枚举类型要使用enum关键字，隐含了所创建的类型都是java.lang.Enum类的子类（java.lang.Enum是一个抽象类）。枚举类型符合通用模式（class Enum<E extends Enum<E>>）,而E表示枚举类型的名称。
+	
+	

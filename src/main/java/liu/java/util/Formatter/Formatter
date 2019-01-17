@@ -1,0 +1,165 @@
+-------------------------------Formatter-----------------------------------------------------------------------------------------------------------------------
+Formatter：格式字符串解释器。【since 1.5】
+	用于printf-style格式字符串的解释器。此类支持数字、字符串和日期/时间数据的通用格式以及特定于区域设置的布局对齐和对齐输出。支持常见的Java类型，如字节、BigDecimal和日历。通过Formattable接口为任意用户类型提供有限的格式自定义。
+	格式化程序不一定对多线程访问安全。线程安全是可选的，并且是此类中方法的用户的责任。
+	Java语言的格式化打印受到C的PrTrF的极大启发。虽然格式字符串类似于C，但已经进行了一些定制以适应Java语言并利用其一些特性。此外，Java格式化比C更严格；例如，如果转换与标志不兼容，将抛出异常。在C语言中，不适用的标志将被静默忽略。因此，格式字符串的目的是使C程序员能够识别，但不一定与C中的字符串完全兼容。
+	预期用途示例：
+		StringBuilder sb = new StringBuilder();	  
+		Formatter formatter = new Formatter(sb, Locale.US); //将所有输出发送到可附加对象sb
+		formatter.format("%4$2s %3$2s %2$2s %1$2s", "a", "b", "c", "d") //显式参数索引可用于重新排序输出。
+		// -> " d  c  b  a"
+		
+		//作为第一个参数的可选区域设置可用于获取特定于区域设置的数字格式。精度和宽度可用于圆整和对齐值。
+		formatter.format(Locale.FRANCE, "e = %+10.4f", Math.E); // -> "e =    +2,7183"
+		
+		//“（”数字标志可用于用括号而不是负号格式化负数。组分隔符将自动插入。
+		formatter.format("Amount gained or lost since last statement: $ %(,.2f",balanceDelta); // -> "Amount gained or lost since last statement: $ (6,217.58)"
+	常见格式化请求的方便方法如下所示：
+		//将格式化字符串写入System.out。
+		System.out.format("Local time: %tT", Calendar.getInstance()); // -> "Local time: 13:34:18"
+		
+		//将格式化输出写入System.err。
+		System.err.printf("Unable to open file '%1$s': %2$s",fileName, exception.getMessage());	// -> "Unable to open file 'food': No such file or directory"
+		
+	与C语言的sprintf(3)类似，可以使用静态方法String.format格式化字符串：：
+		//格式化包含日期的字符串。
+		import java.util.Calendar;
+		import java.util.GregorianCalendar;
+		import static java.util.Calendar.*;
+		
+		Calendar c = new GregorianCalendar(1995, MAY, 23);
+		String s = String.format("Duke's Birthday: %1$tb %1$te, %1$tY", c);  // -> s == "Duke's Birthday: May 23, 1995"
+	
+	组织机构(Organization)	
+		本规范分为两部分。第一部分概要介绍了基本的格式化概念。本节适用于希望快速入门并熟悉其他编程语言的格式化打印的用户。第二部分详细介绍了具体的实现细节。它适用于希望更精确地规范格式化行为的用户。
+	概要(Summary)	
+		本节旨在简要概述格式化概念。有关操作的详细信息，请参阅详细信息部分。
+	1、格式字符串语法：
+		生成格式化输出的每个方法都需要一个格式字符串和参数列表。格式字符串是一个包含固定文本和一个或多个嵌入格式说明符的字符串。请考虑以下示例：
+			Calendar c = ...;
+			String s = String.format("Duke's Birthday: %1$tm %1$te,%1$tY", c);
+		此格式字符串是格式方法的第一个参数。它包含三个格式说明符“%1$tm”、“%1$te”和“%1$ty”，指示应如何处理参数以及应将它们插入文本的位置。格式字符串的其余部分是固定文本，包括“Dukes Birthday：”和任何其他空格或标点。参数列表由格式字符串之后传递给方法的所有参数组成。在上面的示例中，参数列表的大小为1，由Calendar(日历)对象c组成。
+		● 普通、字符和数字类型的格式说明符具有以下语法：
+			%[argument_index$][flags][width][.precision]conversion
+		  [argument_index$] 参数索引（可选）。是一个十进制整数，指示参数在参数列表中的位置。第一个参数由“1$”引用，第二个参数由“2$”引用，等等。
+		  [flags] 			修改标记（可选）。是一组修改输出格式的字符。有效标志集取决于转换。
+		  [width]			宽度（可选）。是一个正十进制整数，指示要写入输出的最小字符数。
+		  [.precision]		字符数量限制可选）。（是一个非负的十进制整数，通常用于限制字符数。具体行为取决于转换。
+		  conversion		转换格式（必须）。指示参数格式的字符。给定参数的有效转换集取决于参数的数据类型。
+		● 用于表示日期和时间的类型的格式说明符具有以下语法：
+			%[argument_index$][flags][width]conversion
+		  [argument_index$]、[flags]和[width]这3个格式说明符与上面定义相同。
+		  conversion		转换格式（必须）。是两个字符的序列。第一个字符是“t”或“T”。第二个字符表示要使用的格式。这些字符与GNU date和POSIX strftime(3c)定义的字符相似，但不完全相同。	
+		● 与参数不对应的格式说明符具有以下语法：
+			%[flags][width]conversion
+		  [flags]和[width]两个格式说明符与上面定义相同。
+		  conversion		转换格式（必须）。表示要插入到输出中的内容的字符。
+	2、转换（Conversions）
+		转换分为以下类别：
+		<1>、General -可应用于任何参数类型
+		<2>、Character - 可以应用于表示Unicode字符的基本类型：char, Character, byte, Byte, short, 和 Short。当Character.isValidCodePoint(int)返回true时，此转换也可以应用于int和integer类型。
+		<3>、Numeric
+			1、Integral - 可以应用于Java整数类型：byte, Byte, short, Short, int and Integer, long, Long, 和 BigInteger（但不是char或者Character）。
+			2、Floating Point -可以应用于Java浮点类型： float, Float, double, Double, 和 BigDecimal。
+		<4>、Date/Time - 可以应用于能够对日期或时间编码的Java类型：long, Long, Calendar, Date 和 TemporalAccessor。
+		<5>、Percent - 生成文本“%”（'\u0025'）
+		<6>、Line Separator -生成特定于平台的行分隔符 	
+		下表总结了所有支持的转换。由大写字符（即 'B', 'H', 'S', 'C', 'X', 'E', 'G', 'A', and 'T'）表示的转换与相应小写转换字符的转换相同，但结果根据当前区域设置的规则转换为大写。结果等效于以下对String.toUpperCase()的调用  
+			out.toUpperCase() 
+		========================================================================================  
+		转换字符（Conversion）	参数类别（Argument Category）		使用描述（Description）
+		'b', 'B'			general							如果参数arg为null，则结果为“false”。如果arg是boolean或Boolean，则结果是String.valueOf(arg)返回的字符串。否则，结果为“true”。
+		'h', 'H'			general							如果参数arg为null，则结果为“null”。否则，通过调用Integer.toHexString(arg.hashCode())获得结果。
+		's', 'S'			general							如果参数arg为null，则结果为“null”。如果arg实现了Formattable接口，那么将调用arg.formatTo。否则，通过调用arg.toString()获得结果。
+		'c', 'C'			character						结果是一个Unicode字符
+		'd'					integral						结果被格式化为十进制整数。
+		'o'					integral						结果被格式化为八进制整数。
+		'x', 'X'			integral						结果的格式为十六进制整数。
+		'e', 'E'			floating point					结果在计算机科学记数法中被格式化为十进制数。
+		'f'					floating point					结果被格式化为十进制数字。
+		'g', 'G'			floating point					根据精度和舍入后的值，结果采用计算机科学记数法或十进制格式格式化。
+		'a', 'A'			floating point					结果被格式化为十六进制浮点数，带有有效位和指数。BigDecimal类型不支持此转换，尽管后者属于浮点参数类别。
+		't', 'T'			date/time						日期和时间转换字符的前缀。请参见日期/时间转换。
+		'%'					percent							结果是文本“%”（'\u0025'）
+		'n'					line separator					结果是特定于平台的行分隔符	
+		===============================================================================================	
+		未显式定义为转换的任何字符都是非法的，并保留用于将来的扩展。
+		
+
+	3、Date/Time	转换
+		以下日期和时间转换后缀字符是为“t”和“T”转换定义的。这些类型与GNU日期和POSIX strftime（3c）定义的类型相似，但不完全相同。提供额外的转换类型以访问Java特定功能（例如，'L'表示秒内的毫秒数）。	
+		
+		以下转换字符用于格式化时间：
+		===================================================================================================
+		'H'	24小时制时钟的一天中的一个小时，格式为两位数，必要时带前导零，即00-23。
+		'I'	12小时制时钟的小时，格式为两位数字，必要时带前导零，即01-12。
+		'k'	24小时制，即0-23。
+		'l'	12小时制，即1-12小时制。
+		'M'	小时内的分钟，格式为两位数，必要时以零开头，即00-59。
+		'S'	分钟内的秒数，根据需要格式化为两位数字，前导零，即00-60（“60”是支持闰秒所需的特殊值）。
+		'L'	秒内的毫秒，格式为三位数字，必要时带前导零，即000-999。
+		'N'	纳秒在秒内，格式为9位数字，必要时带前导零，即000000000-999999999。
+		'p'	小写的特定于区域的上午或下午标记，例如“am”或“pm”。使用转换前缀“t”将此输出强制为大写。
+		'z'	RFC 822样式的数值时区与GMT(格林尼治标准时间)的偏移量，例如-0800。此值将根据夏令时的需要进行调整。对于long、Long和Date，使用的时区是Java虚拟机实例的默认时区。
+		'Z'	表示时区缩写的字符串。此值将根据夏令时的需要进行调整。对于long、Long和Date，使用的时区是Java虚拟机实例的默认时区。格式化程序的区域设置将取代参数的区域设置（如果有）。
+		's'	从1970年1月1日00:00:00 UTC开始的新纪元开始的秒数，即Long.MIN_VALUE/1000 到 Long.MAX_VALUE/1000。
+		'Q'	从1970年1月1日00:00:00 UTC开始的时间（即从Long.MIN_VALUE 到 Long.MAX_VALUE）开始的毫秒数。	
+		
+		以下转换字符用于设置日期格式：
+		===================================================================================================
+		'B'	特定于区域设置的完整月份名称，例如"January"（一月）, "February"（二月）
+		'b'	特定于区域设置的缩写月份名称，例如"Jan", "Feb"。
+		'h'	和'b'一样。
+		'A'	特定于区域的一周中某一天的全名，例如"Sunday"（星期日）, "Monday"（星期一）
+		'a'	特定于区域设置的一周中某一天的短名称，例如"Sun"（星期日）, "Mon"（星期一）。
+		'C'	四位数年份除以100，格式为两位数，必要时前导零，即00-99
+		'Y'	年份，格式至少为四位数字，必要时带前导零，例如，对于公历，0092等于92 CE。
+		'y'	年份的最后两位，根据需要用前导零格式化，即00-99。
+		'j'	一年中的某一天，格式为三位数字，必要时带前导零，例如，公历为001-366。
+		'm'	月，格式为两位数，必要时带前导零，即01-13。
+		'd'	每月的某一天，格式为两位数，必要时带前导零，即01-31
+		'e'	每月的某一天，格式为两位数，即1-31。	
+		
+		以下转换字符用于格式化常用的日期/时间组合：
+		===================================================================================================
+		'R'	24小时制时钟的时间格式为"%tH:%tM"
+		'T'	24小时时钟的时间格式为"%tH:%tM:%tS"
+		'r'	12小时时钟的时间格式为"%tI:%tM:%tS %Tp"。上午或下午标记（'%Tp'）的位置可能取决于区域设置。
+		'D'	日期格式为"%tm/%td/%ty"。
+		'F'	ISO 8601完成日期格式为"%tY-%tm-%td"
+		'c'	日期和时间格式为"%ta %tb %td %tT %tZ %tY"，例如"Sun Jul 20 16:17:00 EDT 1969"。		
+		
+		未明确定义为日期/时间转换后缀的任何字符都是非法的，并保留用于将来的扩展。
+	4、标记（Flags）		
+		下表总结了支持的所有标志。y表示所示参数类型支持该标志。
+		======================================================================================================
+		Flag	General		Character	Integral	Floating Point	Date/Time	Description
+		'-'		y			y			y			y				y			The result will be left-justified.
+		'#'		y1			-			y3			y				-			The result should use a conversion-dependent alternate form
+		'+'		-			-			y4			y				-			The result will always include a sign
+		'  '	-			-			y4			y				-			The result will include a leading space for positive values
+		'0'		-			-			y			y				-			The result will be zero-padded
+		','		-			-			y2			y5				-			The result will include locale-specific grouping separators
+		'('		-			-			y4			y5				-			The result will enclose negative numbers in parentheses
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	类定义	：public final class Formatter implements Closeable, Flushable
+	实现接口	：Closeable, Flushable
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
