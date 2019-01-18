@@ -1,0 +1,62 @@
+-------------------------------Observable-----------------------------------------------------------------------------------------------------------------------
+Observable：可观察对象（或称发布者、通知者）。【since JDK1.0】
+	此类表示模型视图范式中的可观察对象或“数据”。它可以被子类化以表示应用程序希望观察到的对象。
+	一个可观察的物体可以有一个或多个观察者。一个可观察的物体可以有一个或多个观察者。观察者可以是实现接口Observer的任何对象。在可观察的实例更改之后，调用Observable的notifyObservers方法的应用程序会通过调用其update方法来通知所有的观察程序更改。
+	通知的传递顺序未指定。Observable类中提供的默认实现将按其注册的顺序通知观察者，但子类可以更改此顺序、不保证其顺序、在单独线程上传递通知，或者可以保证其子类按照其选择的顺序遵循此顺序。
+	注意，这个通知机制与线程无关，它完全独立于类对象的等待和通知机制。
+	当新创建一个Observable时，它的观察者集（set）是空的。只有当equals方法为其返回true时，才认为两个观察者相同。
+
+	
+
+	类定义	：public class Observable
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructors（构造器）：
+	public Observable()
+		构造一个没有观察者的Observable。
+
+Method Summary（方法概要）：
+	addObserver(Observer o):synchronized void 
+		为这个对象的观察者集合添加一个观察者，前提是它与集合中已有的一些观察者不同。未指定将通知传递给多个观察员的顺序。请参见类注释。
+		【Throws】：
+			NullPointerException 如果参数o为null。
+	clearChanged():protected synchronized void 
+		指示此对象不再更改，或者它已通知所有观察者其最近的更改，以便hasChanged方法现在返回false。此方法由notifyobservers方法自动调用。
+	countObservers():synchronized int 
+		返回此可观测对象的观察者数量。
+	deleteObserver(Observer o):synchronized void 
+		从该对象的一组观察者中删除一个观察者。向此方法传递null值将不起作用。
+	deleteObservers():synchronized void 
+		清除观察者列表，使此对象不再具有任何观察者。
+	hasChanged():synchronized boolean 
+		测试此对象是否已更改。
+	notifyObservers():void 
+		如果此对象已更改（如hasChanged方法所示），则通知其所有观察者，然后调用ClearChanged方法以指示此对象不再更改。
+		每个观察者都用两个参数调用了它的更新方法：这个可观察对象和空值。换句话说，该方法相当于：notifyObservers(null)
+	notifyObservers(Object arg):void 
+		如果此对象已更改（如hasChanged方法所示），则通知其所有观察者，然后调用ClearChanged方法以指示此对象不再更改。
+	setChanged():protected synchronized void 
+		将此可观察对象标记为已更改；hasChanged方法现在将返回true。
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、可观察对象（Observable）：又称为发布者或通知者。（类似于事件源）
+	5、观察者（Observer）：又称为订阅者，是实现Observer接口的任何对象。（类似于监听器）
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
