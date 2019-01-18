@@ -1,0 +1,170 @@
+--------------------------------LinkedList<E>----------------------------------------------------------------------------------------------------------------------
+LinkedList<E>：链接列表(双重链表)。【since 1.2】
+	列表和deque接口的双重链表实现。实现所有可选的列表操作，并允许所有元素（包括null元素）。
+	对于双重链接列表，所有操作都按预期执行。索引到列表中的操作将从开始或结束遍历列表，以更接近指定索引的为准。
+	注意，这个实现是不同步的。如果多个线程同时访问LinkedList，并且至少有一个线程在结构上修改该列表，则必须在外部同步该列表。（结构修改是添加或删除一个或多个元素的任何操作；仅仅设置元素的值不是结构修改。）这通常通过在自然封装列表的某些对象上进行同步来完成。如果不存在此类对象，则应使用Collections.synchronizedList方法“包装”列表。这最好在创建时完成，以防止意外地不同步访问列表：
+		 List list = Collections.synchronizedList(new LinkedList(...));
+	此类的迭代器和ListIterator方法返回的迭代器是fail-fast机制的：如果在创建迭代器之后的任何时候以任何方式修改了列表，除了通过迭代器自己的移除或添加方法，迭代器将抛出ConcurrentModificationException一次。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	该类是Java集合框架的成员。
+	
+	类定义	：public class LinkedList<E> extends AbstractSequentialList<E> implements List<E>, Deque<E>, Cloneable, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,List<E>,Queue<E>, Deque<E>, Cloneable, java.io.Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public LinkedList()
+	public LinkedList(Collection<? extends E> c)
+
+	
+Method Summary（方法概要）：
+	add(E e):boolean 
+		△ 将指定的元素附加到此列表的末尾（可选操作）。
+	add(int index, E element):void 
+		△  在此列表中的指定位置插入指定的元素（可选操作）。将当前位于该位置的元素（如果有）和任何后续元素右移（在其索引中添加一个元素）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	addAll(int index, Collection<? extends E> c):boolean 
+		△ 在指定位置将指定集合中的所有元素插入此列表（可选操作）。将当前位于该位置的元素（如果有）和任何后续元素右移（增加其索引）。新元素将按指定集合的迭代器返回它们的顺序出现在此列表中。如果在操作进行过程中修改了指定的集合，则此操作的行为不确定。（请注意，如果指定的集合是此列表本身，并且不是空的，则会发生这种情况。）
+		【Throws】：
+			NullPointerException 如果指定的集合包含一个或多个null元素，并且此列表不允许null元素，或者指定的集合为null
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	addFirst(E e):void 
+		△ 如果可以在不违反容量限制的情况下立即插入指定元素，则在该deque的前面插入该元素；如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offerFirst(E)方法。
+	addLast(E e):void 
+		△ 如果可以在不违反容量限制的情况下立即插入指定元素，则在该deque的结尾插入该元素；如果当前没有可用空间，则引发IllegalStateException。当使用容量受限的deque时，通常最好使用offerLast(E)方法。
+		此方法相当于add(E)。
+	clear():void 
+		△ 从此列表中删除所有元素（可选操作）。此调用返回后，列表将为空。
+	clone():Object 
+		△ 返回此LinkedList的浅副本。（不克隆元素本身。）
+	contains(Object o):boolean 
+		△如果此列表包含指定元素，则返回true。更正式地说，如果并且仅当此列表包含至少一个元素(o==null ? e==null : o.equals(e))。
+	descendingIterator():Iterator<E> 
+		△ 以相反的顺序返回此deque中元素的迭代器（降序迭代器）。元素将按从最后（尾）到第一（头）的顺序返回。
+	element():E 
+		△ 检索但不删除由这个deque表示的队列的头（换句话说，这个deque的第一个元素）。此方法与peek的不同之处在于，如果此deque为null，它将抛出异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	get(int index):E 
+		△ 返回此列表中指定位置的元素。
+		此实现首先获取指向索引元素的列表迭代器（使用listIterator(index)）。然后，它使用ListIterator.next获取元素并返回它。	
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	getFirst():E 
+		△ 检索但不删除此deque的第一个元素。此方法与peekFirst的不同之处在于，如果此deque（双端队列）为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	getLast():E 
+		△ 检索但不删除此deque的最后一个元素。此方法与peekLast的不同之处在于，如果此deque（双端队列）为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	indexOf(Object o):int 
+		△ 返回此列表中指定元素的第一个匹配项的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最低的索引i，以便(o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
+	lastIndexOf(Object o):int 
+		△ 返回此列表中指定元素最后一次出现的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最高的索引i，以便(o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
+	listIterator(int index):ListIterator<E> 
+		△ 返回此列表中元素的列表迭代器（按正确的顺序）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	offer(E e):boolean 
+		△ 将指定元素添加为此列表的尾部（最后一个元素）。		
+	offerFirst(E e):boolean
+		△ 在此列表的前面插入指定的元素。如果将元素添加到此列表，则为true，否则为false。
+	offerLast(E e):boolean 
+		在这个列表的末尾插入指定的元素，除非它会违反容量限制。如果将元素添加到此列表，则为true，否则为false。当使用容量受限的列表时，此方法通常优于addlast（e）方法，后者只能通过引发异常来插入元素。
+	peek():E 
+		△ 检索但不删除由此队列表示的队列头（换句话说，此deque的第一个元素），或者如果此deque为null，则返回null。
+	peekFirst():E 
+		△ 检索但不移除此队列的第一个元素，或者如果此队列为空则返回null。
+	peekLast():E 
+		检索但不移除此deque的最后一个元素，或者如果此队列为空则返回null。
+	poll():E 
+		△ 检索并删除由该deque表示的队列的头（换句话说，是该deque的第一个元素），或者如果该deque为空，则返回null。
+	pollFirst():E 
+		△ 检索并删除此列表的第一个元素，如果此列表为空，则返回null。
+	pollLast():E 
+		△ 检索并删除此列表的最后一个元素，如果此列表为空，则返回null。
+	pop():E 
+		从此列表所表示的栈中弹出一个元素。换句话说，删除并返回此列表的第一个元素。
+		此方法等效于removeFirst()。
+	push(E e):void 
+		△ 如果可以在不违反容量限制的情况下立即将元素推送到该列表表示的栈上（换句话说，在该列表的头部前面插入元素）。
+		此方法等效于addFirst(E)
+	remove():E	
+		△ 检索并删除此列表的头（第一个元素）。
+		【Throws】：
+			● NoSuchElementException 如果此队列为空
+	remove(int index):E 
+		△ 删除此列表中指定位置的元素（可选操作）。将任何后续元素向左移动（从其索引中减去一个）。返回从列表中删除的元素。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	remove(Object o):boolean 
+		△ 从该列表中删除指定元素的第一个匹配项（如果存在）。如果此列表不包含元素，则它是不变的。更正式地说，删除索引i最低的元素(o==null ? get(i)==null : o.equals(get(i))) (if such an element exists)，（如果存在这样的元素）。如果此列表包含指定元素，则返回“true”（如果此列表因调用而更改，则返回相同（也返回true））。
+	removeFirst():E 
+		△ 检索并删除此列表的第一个元素。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空		
+	removeLast():E 
+		△ 检索并删除此列表的最后一个元素。
+		【Throws】：
+			● NoSuchElementException 如果deque（双端队列）为空
+	removeFirstOccurrence(Object o):boolean
+		△ 删除此列表中指定元素的第一个匹配项（在从头到尾遍历列表时）。如果列表不包含元素，则该元素不变。
+		如果此列表包含指定元素（或等效地，如果此列表由于调用而更改），则返回true。
+	removeLastOccurrence(Object o):boolean 
+		△ 删除此列表中指定元素的最后一个匹配项（从头到尾遍历列表时）。如果列表不包含元素，则该元素不变。
+		如果此列表包含指定元素（或等效地，如果此列表由于调用而更改），则返回true。
+		【Throws】：
+			● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素	
+	set(int index, E element):E 
+		△ 将此列表中指定位置的元素替换为指定的元素（可选操作）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index >= size())
+	spliterator():Spliterator<E> 
+		△ 在此集合中的元素上创建后期绑定和fail-fast机制的Spliterator（拆分器）。
+		拆分器报告Spliterator.SIZED、Spliterator.ORDERED。实现应该记录额外特征值的报告。
+		Spliterator还报告Spliterator.SUBSIZED并实现trySplit以允许有限的并行性。
+	toArray():Object[] 
+		△ 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素。
+		返回的数组将是“安全的”，因为此列表不维护对它的引用。（换句话说，此方法必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T[] a):<T> T[] 
+		△ 返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素；返回的数组的运行时类型是指定数组的运行时类型。如果列表符合指定的数组，则将在其中返回。否则，将为新数组分配指定数组的运行时类型和此列表的大小。
+		如果列表适合具有备用空间的指定数组（即数组中的元素多于列表中的元素），则紧跟列表末尾的数组中的元素将设置为空。（只有当调用者知道列表不包含任何空元素时，这对于确定列表的长度很有用。）
+		与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		假设x是一个已知仅包含字符串的列表。以下代码可用于将列表转储到新分配的字符串数组中：
+			String[] y = x.toArray(new String[0]);
+		请注意，toArray(new Object[0])功能与toArray()相同
+		【Throws】：
+			● ArrayStoreException 如果指定数组的运行时类型不是此列表中每个元素的运行时类型的父类型
+			● NullPointerException 如果指定的数组为null
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

@@ -1,0 +1,83 @@
+HashSet<E>：哈希集（哈希集合），【Since:1.2】
+	此类实现由哈希表（实际上是一个HashMap实例）支持的Set接口。它不保证集合的迭代顺序；特别是，它不保证顺序将随时间保持不变。此类允许null元素。
+	此类为基本操作（add、remove、contains和size）提供恒定的时间性能，前提是散列函数在存储buckets中正确地分散元素。迭代此集合需要与HashSet实例的大小（元素数）加上支持HashMap实例的“容量”（存储buckets数量）之和成比例的时间。因此，如果迭代性能很重要，那么不要将初始容量设置得太高（或者负载系数设置得太低）。
+	注意，这个实现是不同步的。如果多个线程同时访问一个哈希集，并且至少有一个线程修改了该HashSet，则必须在外部同步该HashSet。这通常是通过在自然封装集合的某个对象上进行同步来完成的。如果不存在此类对象，则应使用Collections.synchronizedSet方法“包装”集合。这最好在创建时完成，以防止意外的对集合的非同步访问：
+		Set s = Collections.synchronizedSet(new HashSet(...));
+	此类迭代器方法返回的迭代器是fail-fast机制的：如果在创建迭代器之后的任何时候修改了集合，那么除了通过迭代器自己的remove方法之外，迭代器将以任何方式引发ConcurrentModificationException异常。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	该类是Java集合框架的成员。
+	
+	接口定义	：public class HashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Set<E>,Cloneable, java.io.Serializable
+	子类		：JobStateReasons, LinkedHashSet
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public HashSet()
+		构造一个新的空集合；支持hashmap实例具有默认的初始容量（16）和加载因子（0.75）。
+	public HashSet(int initialCapacity)
+		构造一个新的空集合；支持hashmap实例具有指定的初始容量和默认加载因子（0.75）。
+		【Throws】：
+			IllegalArgumentException 如果初始容量小于零
+	public HashSet(int initialCapacity, float loadFactor)
+		构造一个新的空集合；支持哈希映射实例具有指定的初始容量和指定的加载因子。
+		【Throws】：
+			IllegalArgumentException 如果初始容量小于零
+	public HashSet(Collection<? extends E> c)
+		构造包含指定集合中的元素的新集合。创建hashmap时使用默认的加载因子（0.75），初始容量足以包含指定集合中的元素。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+
+Method Summary（方法概要）：		
+	add(E e):boolean 
+		△ 如果指定的元素还不存在，则将其添加到此集合中（可选操作）。更正式地说，如果像这样(e==null ? e2==null : e.equals(e2))，集合不包含元素e2，则将指定的元素e添加到此集合中。如果此集合已经包含元素，则调用将使集合保持不变并返回false。
+	clear():void 
+		△从该集合中移除所有元素（可选操作）。此调用返回后，集合将为空。
+	clone():Object 
+		△ 返回此哈希集实例的浅副本：元素本身没有克隆。
+	contains(Object o):boolean 
+		△如果此集合包含指定元素，则返回true。更正式地说，如果且仅当此集合包含元素e(o==null ? e==null : o.equals(e))。
+	isEmpty():boolean 
+		△如果此集合不包含元素，则返回true
+	iterator():Iterator<E> 
+		△ 返回此集合中元素的迭代器。元素不会以特定的顺序返回。
+	remove(Object o):boolean 
+		△ 如果指定元素存在，则从该集合中移除该元素（可选操作）。更正式地说，删除像这样(o==null ? e==null : o.equals(e))的元素e，如果这个集合包含这样一个元素，则返回“真”（如果此集合因调用而更改，则返回等效）。（调用返回后，此集合将不包含此元素。）
+	size():int 
+		△ 返回此集合中的元素数量（其基数）。
+	spliterator():default Spliterator<E> 
+		△创建后期绑定并在此集合中的元素上失败快速拆分器。
+		Spliterator报告 Spliterator.SIZED 和 Spliterator.DISTINCT特征值。重写实现应该记录额外特征值的报告。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

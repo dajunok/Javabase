@@ -1,0 +1,61 @@
+-------------------------------------------LinkedHashSet<E>----------------------------------------------------------------------------------------------------------------------------
+LinkedHashSet<E>：链接哈希集（链接哈希集合），【Since:1.4】
+	<E>	此集合维护的元素类型
+	Set接口的哈希表和链表实现，具有可预测的迭代顺序。此实现与HashSet的不同之处在于，它维护一个贯穿其所有条目的双重链接列表。此链接列表定义迭代顺序，即元素插入到集合中的顺序（插入顺序）。请注意，如果元素重新插入到集合中，插入顺序不会受到影响。（如果在s.contains(e)将在调用前立即返回true时调用s.add(e)，则元素e将重新插入到集合s中。）
+	此实现使客户机不必使用HashSet提供的未指定的、通常是混乱的排序，而不会增加与TreeSet相关的成本。它可用于生成与原始集具有相同顺序的集合副本，而不管原始集合的实现如何：
+		void foo(Set s) {
+	         Set copy = new LinkedHashSet(s);
+	         ...
+	     }
+	如果一个模块接受一个输入集，复制它，然后返回结果，结果的顺序由复制集的顺序决定，那么这种技术特别有用。（客户通常很感激按相同的顺序返回。）
+	此类提供所有可选的集合操作，并允许null元素。与HashSet一样，它为基本操作（add、contains和remove）提供恒定的时间性能，前提是散列函数在buckets中正确地分散元素。由于维护链接列表的额外开销，性能可能略低于哈希集，但有一个例外：在LinkedHashSet上进行迭代需要与集大小成比例的时间，而不管其容量如何。在HashSet上迭代可能代价更昂贵，需要与其容量成比例的时间。
+	LinkedHashSet有两个影响其性能的参数：初始容量和负载系数。它们的定义与HashSet完全相同。但是，请注意，对于这个类，为初始容量选择一个过高的值的惩罚要比对HashSet的惩罚要轻，因为这个类的迭代时间不受容量的影响。
+	注意，这个实现是不同步的。如果多个线程同时访问链接哈希集，并且至少有一个线程修改了该哈希集，则必须在外部同步该哈希集。这通常是通过在自然封装集合的某个对象上进行同步来完成的。如果不存在此类对象，则应使用Collections.synchronizedSet方法“包装”集合。这最好在创建时完成，以防止意外的对集合的非同步访问：
+		Set s = Collections.synchronizedSet(new LinkedHashSet(...));
+	此类迭代器方法返回的迭代器是fail-fast机制的：如果在创建迭代器之后的任何时候修改了集合，那么除了通过迭代器自己的remove方法之外，迭代器将以任何方式引发ConcurrentModificationException异常。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	该类是Java集合框架的成员。
+	
+	接口定义	：public class LinkedHashSet<E> extends HashSet<E> implements Set<E>, Cloneable, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Set<E>,Cloneable, java.io.Serializable
+	子类		：JobStateReasons, LinkedHashSet
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public LinkedHashSet()
+		使用默认初始容量（16）和加载因子（0.75）构造一个新的空链接哈希集。
+	public LinkedHashSet(int initialCapacity)
+		使用指定的初始容量和默认加载因子（0.75）构造新的空链接哈希集。
+		【Throws】：
+			IllegalArgumentException 如果初始容量小于零
+	public LinkedHashSet(int initialCapacity, float loadFactor)
+		使用指定的初始容量和加载因子构造新的空链接哈希集。
+		【Throws】：
+			IllegalArgumentException 如果初始容量小于零
+	public LinkedHashSet(Collection<? extends E> c)
+		使用与指定集合相同的元素构造新的链接哈希集。创建链接哈希集的初始容量足以容纳指定集合中的元素和默认加载因子（0.75）。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+			
+Method Summary（方法概要）：	
+	spliterator():Spliterator<E> 
+		在此集合中的元素上创建后期绑定和fail-fast机制的Spliterator（拆分器）。
+		拆分器报告Spliterator.SIZED、Spliterator.DISTINCT和ORDERED。实现应该记录额外特征值的报告。
+		实现从集合的迭代器创建后期绑定拆分器。拆分器继承集合（Set)迭代器的fail-fast属性。创建的Spliterator还报告Spliterator.SUBSIZED。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

@@ -1,30 +1,34 @@
 -------------------------------IntSummaryStatistics-----------------------------------------------------------------------------------------------------------------------
-IntSummaryStatistics：整数摘要统计。【since 1.8】
+LongSummaryStatistics：整数摘要统计。【since 1.8】
 	用于收集统计信息（如计数、最小值、最大值、总和和平均值）的状态对象。
 	这个类设计用于（尽管不需要）流。例如，您可以使用以下方法计算整数流的摘要统计信息：
-	IntSummaryStatistics stats = intStream.collect(IntSummaryStatistics::new,
-                                                IntSummaryStatistics::accept,
-                                                IntSummaryStatistics::combine);
-    IntSummaryStatistics可以用作流的缩减目标。例如：
-    IntSummaryStatistics stats = people.stream().collect(Collectors.summarizingInt(Person::getDependents));
+	IntSummaryStatistics stats = intStream.collect(LongSummaryStatistics::new,
+                                                LongSummaryStatistics::accept,
+                                                LongSummaryStatistics::combine);
+    LongSummaryStatistics的Stream.collect(Collector)可以用作目标流的缩减。例如：
+    
+    LongSummaryStatistics stats = people.stream().collect(Collectors.summarizingLong(Person::getAge));
+	
 	这只需一次计算人数，以及受抚养人的最小、最大、总和和平均数。
 	实现说明：
-		此实现不是线程安全的。但是，在并行流上使用Collectors.toIntStatistics() 是安全的，因为Stream.collect()的并行实现提供了必要的分区、隔离和结果合并，以实现安全高效的并行执行。
+		此实现不是线程安全的。但是，在并行流上使用Collectors.toLongSummaryStatistics() 是安全的，因为Stream.collect()的并行实现提供了必要的分区、隔离和结果合并，以实现安全高效的并行执行。
 		此实现不检查和是否溢出。
 	
 
-	类定义	：public class IntSummaryStatistics implements IntConsumer
-	实现接口	：IntConsumer
+	类定义	：public class LongSummaryStatistics implements LongConsumer, IntConsumer
+	实现接口	：LongConsumer, IntConsumer
 ------------------------------------------------------------------------------------------------------------------------------------------------------		
 Constructors（构造器）：
-	public IntSummaryStatistics() { }
-		构造一个具有零计数、零和、integer.Integer.MAX_VALUE min、Integer.MIN_VALUE max和零平均值的空实例。
+	public LongSummaryStatistics() { }
+		构造一个具有零计数、零和、integer.Long.MAX_VALUE.MAX_VALUE min、Long.MAX_VALUE.MIN_VALUE max和零平均值的空实例。
 	
 Method Summary（方法概要）：
 	accept(int value):void 
-		△在摘要信息中记录新值。（IntConsumer函数接口的实现）
-	combine(IntSummaryStatistics other):void 
-		将另一个InSummaryStatistics的状态合并到此状态中。
+		△在摘要信息中记录新int值。（IntConsumer函数接口的实现）
+	accept(long value):void 
+		△将新的Long值记录到摘要信息中。（LongConsumer函数接口的实现）
+	combine(LongSummaryStatistics other):void 
+		将另一个LongSummaryStatistics的状态合并到此状态中。
 		【Throws】：
 			NullPointerException 如果other为null
 	getAverage():final double
@@ -32,9 +36,9 @@ Method Summary（方法概要）：
 	getCount():final long 
 		返回记录的值的计数。
 	getMax():final int 
-		返回记录的最大值，如果没有记录任何值，则返回Integer.MIN_VALUE。
+		返回记录的最大值，如果没有记录任何值，则返回Long.MIN_VALUE。
 	getMin():final int 
-		返回记录的最小值，如果没有记录任何值，则返回Integer.MAX_VALUE。
+		返回记录的最小值，如果没有记录任何值，则返回Long.MAX_VALUE。
 	getSum():final long 
 		返回记录的值之和，如果没有记录值，则返回零。
 	toString():String 

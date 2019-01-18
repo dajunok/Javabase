@@ -1,0 +1,78 @@
+----------------------------------------LinkedHashMap<K,V>--------------------------------------------------------------------------------------------------------------
+LinkedHashMap<K,V>：链接哈希映射。【Since:1.4】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型	
+	Map接口的哈希表和链表实现，具有可预测的迭代顺序。这个实现与HashMap的不同之处在于，它维护一个贯穿其所有条目的双重链接列表。此链接列表定义迭代顺序，通常是键插入到映射中的顺序（插入顺序）。请注意，如果将某个键重新插入到map中，则插入顺序不受影响。（当m.containsKey(k)在调用前立即返回true时，如果调用m.put（k，v），则键k将重新插入映射m。）
+	这种实现使客户机不必使用HashMap（和Hashtable）提供的未指定的、通常是混乱的排序，而不会增加与TreeMap相关的成本。它可用于生成与原始map顺序相同的map副本，而不管原始map的实现如何：
+		void foo(Map m) {
+	         Map copy = new LinkedHashMap(m);
+	         ...
+	     }
+	如果一个模块在输入时获取一个映射，复制它，然后返回结果，结果的顺序由复制的顺序决定，那么这种技术特别有用。（客户通常很感激按相同的顺序返回。）
+	提供了一个特殊的构造函数来创建一个链接散列映射，其迭代顺序是其条目最后访问的顺序，从最近访问到最近访问（访问顺序）。这种map非常适合建立LRU缓存。调用put、putifAssent、get、getOrDefault、compute、computeIfAbsent、computeIfPresent或merge方法将导致对相应条目的访问（假定在调用完成后存在）。仅当替换值时，replace方法才会导致对条目的访问。putAll方法为指定映射中的每个映射生成一个条目访问，顺序是由指定映射的条目集合迭代器提供键值映射。没有其他方法生成条目访问。特别是，对集合视图的操作不会影响支持映射的迭代顺序。
+	可以重写removeEldestEntry(Map.Entry)方法，以便在将新映射添加到映射时强制实施用于自动删除过时映射的策略。
+	此类提供所有可选的映射操作，并允许null元素。与HashMap类似，它为基本操作（add、contains和remove）提供恒定的时间性能，前提是hash函数在bucket中正确地分散元素。性能可能略低于HashMap，这是因为维护链接列表的额外开销，但有一个例外：在LinkedHashMap的集合视图上迭代需要与映射大小成比例的时间，而不管其容量如何。在HashMap上迭代可能代价更昂贵，需要与其容量成比例的时间。
+	LinkedHashMap有两个影响其性能的参数：初始容量和负载系数。它们的定义与HashMap完全相同。但是，请注意，对于这个类，为初始容量选择一个过高的值所受到的惩罚要比对HashMap的惩罚要轻，因为这个类的迭代时间不受容量的影响。
+	注意，这个实现是不同步的。如果多个线程同时访问链接的哈希映射，并且至少有一个线程在结构上修改了该映射，则必须在外部同步该映射。这通常是通过在自然封装映射的某个对象上进行同步来完成的。如果不存在此类对象，则应使用Collections.synchronizedMap方法“包装”映射。这最好在创建时完成，以防止意外地不同步地访问map：
+		Map m = Collections.synchronizedMap(new LinkedHashMap(...));
+	结构修改是添加或删除一个或多个映射的任何操作，或者在访问顺序链接哈希映射的情况下，影响迭代顺序的任何操作。在插入顺序链接哈希映射中，仅更改与已包含在映射中的键关联的值不是结构修改。在访问顺序链接散列映射中，只使用get查询映射是一种结构修改。）
+	由该类的所有集合视图方法返回的集合的迭代器方法返回的迭代器fail-fast机制：如果在创建迭代器之后的任何时候对映射进行结构修改，则除了通过迭代器自己的remove方法之外，迭代器将以任何方式引发ConcurrentModificationException异常。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	由该类所有集合视图方法返回的集合的Spliterator方法返回的Spliterator是后期绑定、fail-fast以及另外报告Spliterator.ORDERED特性。
+	该类是Java集合框架的成员
+	由该类的所有集合视图方法返回的集合的spliterator方法返回的Spliterator是从相应集合的迭代器创建的。
+	
+	
+	类定义	：public class LinkedHashMap<K,V> extends HashMap<K,V> implements Map<K,V>
+	实现接口	：Map<K,V>, Cloneable, Serializable
+	内部类	：AbstractMap.SimpleEntry<K,V>, AbstractMap.SimpleImmutableEntry<K,V>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public LinkedHashMap()
+		构造具有默认初始容量（16）和加载因子（0.75）的空插入顺序LinkedHashMap实例。
+	public LinkedHashMap(int initialCapacity)
+		构造具有指定初始容量和默认加载因子（0.75）的空插入顺序LinkedHashMap实例。
+		【Throws】：
+			IllegalArgumentException 如果初始容量为负数
+	public LinkedHashMap(int initialCapacity, float loadFactor)
+		构造具有指定初始容量和加载因子的空插入顺序LinkedHashMap实例。
+		【Throws】：
+			IllegalArgumentException 如果初始容量为负数
+	public LinkedHashMap(int initialCapacity,float loadFactor,boolean accessOrder)
+		构造具有指定初始容量、加载因子和排序模式的空LinkedHashMap实例。
+		accessOrder -true=访问顺序模式；false=插入顺序模式
+		【Throws】：
+			IllegalArgumentException 如果初始容量为负数
+	public LinkedHashMap(Map<? extends K, ? extends V> m)
+		构造与指定映射具有相同映射的插入顺序LinkedHashMap实例。创建LinkedHashMap实例时使用默认的加载因子（0.75）和足以在指定映射中保存映射的初始容量。
+		【Throws】：
+			NullPointerException 如果指定的map为null
+方法：
+	clear():void 			
+		△ 从该Map中删除所有映射（可选操作）。此调用返回后，映射将为空。
+	containsValue(Object value):boolean
+		△ 如果此映射将一个或多个键映射到指定值，则返回true。
+	entrySet():Set<Entry<K,V>>			
+		△ 返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。它的拆分器通常提供更快的顺序性能，但比HashMap的并行性能差得多。
+	forEach(BiConsumer<? super K, ? super V> action):void 
+		△ 对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+	get(Object key):V 
+		△ 返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
+		更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
+		则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+	getOrDefault(Object key, V defaultValue):V 
+		△ 返回指定键key映射到的值，如果此映射不包含键的映射，则返回默认值。
+	keySet():Set<K> 
+		△ 返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持add或addAll操作。它的拆分器通常提供更快的顺序性能，但比HashMap的并行性能差得多。
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	values():Collection<V>
+		△ 返回此Map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。它的拆分器通常提供更快的顺序性能，但比HashMap的并行性能差得多。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+		
+		
+		
+

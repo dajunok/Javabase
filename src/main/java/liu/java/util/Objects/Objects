@@ -1,0 +1,71 @@
+-------------------------------Objects-----------------------------------------------------------------------------------------------------------------------
+Objects：对象实用方法程序。【since 1.7】
+	此类包含用于操作对象的静态实用程序方法(静态方法工厂)。这些实用程序包括用于计算对象哈希代码、返回对象字符串和比较两个对象的null安全或允许为null的方法。
+	
+
+	类定义	：public final class Objects
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Method Summary（方法概要）：
+	compare(T a, T b, Comparator<? super T> c):static <T> int 
+		如果参数相同，则返回0；否则返回c.compare(a, b)。因此，如果两个参数都为null，则返回0。
+		请注意，如果其中一个参数为空，则可能会或可能不会引发NullPointerException，这取决于比较器为null值选择的排序策略（如果有）。
+	deepEquals(Object a, Object b):static boolean 
+		如果参数彼此非常相等，则返回true，否则返回false。两个空值完全相等。如果两个参数都是数组，则使用Arrays.deepEquals中的算法来确定相等性。否则，通过使用第一个参数的equals方法来确定相等性。
+	equals(Object a, Object b):static boolean 
+		如果参数彼此相等，则返回true，否则返回false。因此，如果两个参数都为null，则返回“true”；如果只有一个参数为null，则返回“false”。否则，通过使用第一个参数的equals方法来确定相等性。
+	hash(Object... values):static int 
+		为输入值序列生成哈希代码。散列代码的生成就像所有输入值都被放入一个数组中一样，并且该数组是通过调用Arrays.hashCode(Object[])进行散列的。
+		此方法对于在包含多个字段的对象上实现Object.hashCode()很有用。例如，如果一个对象有三个字段，X、Y和Z，可以写：
+			@Override public int hashCode() {
+			     return Objects.hash(x, y, z);
+			 }
+		警告：当提供单个对象引用时，返回的值不等于该对象引用的哈希代码。这个值可以通过调用hashCode(Object)来计算。
+	isNull(Object obj):static boolean 
+		如果提供的引用为空，则返回true，否则返回false。	
+	nonNull(Object obj):static boolean 
+		如果提供的引用不为null，则返回true，否则返回false。
+	requireNonNull(T obj):static <T> T 
+		检查指定的对象引用是否不为null。此方法主要用于在方法和构造函数中进行参数验证，如下所示：
+			public Foo(Bar bar) {
+			     this.bar = Objects.requireNonNull(bar);
+			 }
+		【Throws】：
+			NullPointerException 如果obj为null
+	requireNonNull(T obj, String message):static <T> T 
+		检查指定的对象引用是否不为空，如果为空，则引发自定义的NullPointerException异常。此方法主要用于在具有多个参数的方法和构造函数中进行参数验证，如下所示：
+			 public Foo(Bar bar, Baz baz) {
+			     this.bar = Objects.requireNonNull(bar, "bar must not be null");
+			     this.baz = Objects.requireNonNull(baz, "baz must not be null");
+			 }
+		【Throws】：
+			NullPointerException 如果obj为null
+	requireNonNull(T obj, Supplier<String> messageSupplier):static <T> T 
+		检查指定的对象引用是否不为空，如果为空，则引发自定义的NullPointerException。
+		与requireNonNull(Object, String)方法不同，此方法允许将消息的创建延迟到进行空检查之后。在非空情况下，这可能会带来性能优势，但在决定调用此方法时，应注意创建消息供应商的成本低于直接创建字符串消息的成本。
+	toString(Object o):static String 
+		返回为非空参数调用ToString和为空参数调用“null”的结果。
+	toString(Object o, String nullDefault)：static String
+		如果第一个参数不为空，则返回对第一个参数调用ToString的结果，否则返回第二个参数。
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
