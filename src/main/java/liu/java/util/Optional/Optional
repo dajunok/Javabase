@@ -1,8 +1,10 @@
 -------------------------------Optional<T>-----------------------------------------------------------------------------------------------------------------------
-Optional<T>：可选容器对象。【since 1.8】
-	可能包含或不包含non-null值的容器对象。如果存在值，isPresent()将返回true，get()将返回该值。
+Optional<T>：可选对象容器。【since 1.8】
+	Optional 类是一个可以为null的容器对象。如果值存在则isPresent()方法会返回true，调用get()方法会返回该对象。
 	提供了依赖于包含值的存在或不存在的其他方法，例如orElse()（如果值不存在，则返回默认值）和ifPresent()（如果值存在，则执行代码块）。
 	这是一个基于值的类；在Optional实例上使用对标识敏感的操作（包括引用相等（==）、标识哈希代码或同步）可能会产生不可预知的结果，应避免使用。
+	Optional 是个容器：它可以保存类型T的值，或者仅仅保存null。Optional提供很多有用的方法，这样我们就不用显式进行空值检测。
+	Optional 类的引入很好的解决空指针异常。
 
 	类定义	：public final class Optional<T>
 ------------------------------------------------------------------------------------------------------------------------------------------------------		
@@ -11,24 +13,25 @@ Method Summary（方法概要）：
 		<T>  不存值（non-existent）类型。
 		返回空的Optional实例。此Optional没有值。
 	of(T value):static <T> Optional<T> 
-		<T>  不存值（non-existent）类型。
+		<T>  不存在值（non-existent）类型。
 		返回具有指定当前非空值（non-null）的Optional。
 	ofNullable(T value):static <T> Optional<T> 
 		返回一个描述指定value的Optional（如果非空non-null），否则返回一个空的Optional。
 	equals(Object obj):boolean 
-		△ 指示其他对象是否“等于”此Optional。如果满足以下条件，则认为与另一个对象相等：
+		△ 判断其他对象是否“等于”此Optional。如果满足以下条件，则认为与另一个对象相等：
 		1、它也是一个Optional，并且；
 		2、两种情况都没有值存在，或者；
 		3、当前值通过equals()方法比较彼此“相等”。
 	filter(Predicate<? super T> predicate):Optional<T> 
 		<T>  不存在值（non-existent）类型。
-		如果存在值，并且该值与给定predicate匹配，则返回描述该值的Optional，否则返回空的Optional。
+		如果值存在，并且该值与给定predicate匹配，返回一个Optional用以描述这个值，否则返回空的Optional。
 		【Throws】：
 			NullPointerException 如果predicate为null。
 	flatMap(Function<? super T, Optional<U>> mapper):<U> Optional<U> 
 		<T> 不存值（non-existent）类型。
 		<U> 返回的Optional的类型参数。
-		如果存在某个值，请对其应用提供的Optional-bearing映射函数，返回该结果，否则返回空的Optional。此方法与map（函数）类似，但提供的映射器的结果已经是可选的，并且如果调用了该映射器，则flatmap不会用其他可选方法包装它。
+		如果值存在，返回基于Optional包含的映射方法的值，否则返回一个空的Optional。
+		此方法与map(Function)类似，但提供的映射器的结果已经是Optional，并且如果调用了该映射器，则flatMap不会用其他Optional包装它。
 		【Throws】：
 			NullPointerException 如果映射函数为null或者返回结果为null。
 	get():T 
@@ -41,11 +44,11 @@ Method Summary（方法概要）：
 		【Throws】：
 			NullPointerException 如果值不存在并且consumer为null。
 	isPresent():boolean 
-		如果存在值，则返回true，否则返回false。
+		如果值存在，则返回true，否则返回false。
 	map(Function<? super T, ? extends U> mapper):<U> Optional<U> 
-		<T> 不存值（non-existent）类型。
+		<T> 不存在值（non-existent）类型。
 		<U> 映射函数结果类型。
-		如果存在值，请将提供的映射函数应用于该值，如果结果为non-null，则返回描述结果的Optional。否则返回一个空Optional。
+		如果存在值，请将提供的映射函数应用于该值，如果返回值不为 null，则创建包含映射返回值的Optional作为map方法返回值，否则返回空Optional。
 		此方法支持对可选值进行后处理，无需显式检查返回状态。例如，以下代码遍历文件名流，选择一个尚未处理的文件，然后打开该文件，返回Optional<FileInputStream>：
 			Optional<FileInputStream> fis =
 	         names.stream().filter(name -> !isProcessedYet(name))
@@ -53,14 +56,14 @@ Method Summary（方法概要）：
 	                       .map(name -> new FileInputStream(name));
 		在这里，findFirst返回Optional<String>，然后map返回所需文件（如果存在）的Optional<FileInputStream>。
 	orElse(T other):T 
-		如果存在则返回值，否则返回other。
+		如果存在该值，则返回值，否则返回other。
 	orElseGet(Supplier<? extends T> other):T 
-		返回相应值（如果存在），否则调用Other并返回该调用的结果。
+		如果存在该值，则返回值，否则调用Other并返回该调用的结果。
 		【Throws】：
 			NullPointerException 如果值不存在或other为null
 	orElseThrow(Supplier<? extends X> exceptionSupplier):<X extends Throwable> T 
 		<X> 抛出的异常类型（X extends Throwable）
-		返回包含的值（如果存在），否则抛出由提供的Supplier创建的异常。
+		返回包含的值（如果存在），否则抛出Supplier继承的异常。
 		可以将带有空参数列表的异常构造函数的方法引用用作Supplier。例如，IllegalStateException::new
 		【Throws】：
 			NullPointerException 如果值不存在和exceptionSupplier为null
@@ -75,6 +78,7 @@ Method Summary（方法概要）：
 	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
 	4、可观察对象（Observable）：又称为发布者或通知者。（类似于事件源）
 	5、观察者（Observer）：又称为订阅者，是实现Observer接口的任何对象。（类似于监听器）
+
 	
 	
 	

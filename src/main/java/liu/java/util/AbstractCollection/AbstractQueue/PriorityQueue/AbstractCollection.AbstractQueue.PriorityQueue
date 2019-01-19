@@ -1,0 +1,129 @@
+-----------------------------------------PriorityQueue<E>-------------------------------------------------------------------------------------------------------------
+PriorityQueue<E>：优先级队列。【since 1.5 】
+	基于优先级堆的无边界优先级队列。优先级队列的元素按照它们的自然顺序进行排序，或者由队列构建时提供的比较器进行排序，具体取决于使用的构造函数。优先级队列不允许null元素。依赖自然排序的优先级队列也不允许插入不可比较的对象（这样做可能导致ClassCastException异常）。
+	此队列的头是与指定顺序相关的最小元素。如果为最小值绑定多个元素，则头部是这些元素中的一个———选择方法是任意的。队列检索操作poll、remove、peek 和 element 访问队列头部的元素。
+	优先级队列是无边界的，但是有一个内部容量，控制着用于存储队列元素的数组大小。它通常至少等于队列的大小。当元素添加到优先级队列中时，其容量将自动增长。无需指定容量增加策略的细节。
+	这个类及其迭代器实现Collection和Iterator接口的所有可选方法。方法iterator()中提供的迭代器不能保证以任何特定顺序遍历优先级队列的元素。如果需要按顺序遍历，请考虑使用Arrays.sort(pq.toArray())。
+	注意，这个实现是不同步的。如果有多个线程修改了队列，则多个线程不应同时访问PriorityQueue实例。而是使用线程安全的PriorityBlockingQueue类。
+	实现注意事项：此实现为排队和出队方法（offer、 poll、remove()和add）提供O(log(n))时间；为remove(Object)和contains(Object)方法提供线性时间；为检索方法（peek、element和size）提供恒定时间。
+	该类是Java集合框架的成员。
+	
+	类定义	：public class PriorityQueue<E> extends AbstractQueue<E> implements java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Queue<E>,Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public PriorityQueue()
+		创建具有默认初始容量（11）的PriorityQueue，该容量根据元素的自然顺序对其进行排序。
+	public PriorityQueue(int initialCapacity)
+		创建具有指定初始容量的PriorityQueue，该容量根据元素的自然顺序对其进行排序。
+		【Throws】：
+			IllegalArgumentException 如果initialCapacity小于1
+	public PriorityQueue(int initialCapacity,Comparator<? super E> comparator)
+		创建具有指定初始容量的PriorityQueue，该容量根据指定的比较器对其元素排序。
+		【Throws】：
+			IllegalArgumentException 如果initialCapacity小于1
+	public PriorityQueue(Collection<? extends E> c)
+		创建包含指定集合中的元素的PriorityQueue。如果指定的集合是SortedSet的实例或是其他PriorityQueue，则此优先级队列将按照相同的顺序排序。否则，该优先级队列将根据其元素的自然顺序进行排序。
+		【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素相互比较
+			NullPointerException 如果指定的集合或其任何元素为null
+	public PriorityQueue(Comparator<? super E> comparator)
+		创建具有默认初始容量的PriorityQueue，其元素根据指定的比较器排序。
+	public PriorityQueue(PriorityQueue<? extends E> c)
+		创建包含指定优先级队列中的元素的PriorityQueue。此优先级队列将按照与给定优先级队列相同的顺序进行排序。
+		【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素相互比较
+			NullPointerException 如果指定的优先级队列或其任何元素为null
+	public PriorityQueue(SortedSet<? extends E> c)
+		创建包含指定排序集中的元素的PriorityQueue。此优先级队列将按照与给定排序集相同的顺序进行排序。
+		【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素相互比较
+			NullPointerException 如果指定的排序集或其任何元素为null
+----------------------------------------------------------------------------------------------------------------	
+Method Summary（方法概要）：
+	add(E e):boolean 
+		△将指定的元素插入此优先级队列。
+		【Throws】：
+			ClassCastException 如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+	clear():void 
+		△ 删除此队列中的所有元素。此调用返回后，队列将为空。
+	comparator():Comparator<? super E> 
+		返回用于排序此队列中元素的比较器，如果此队列按照元素的自然顺序排序，则返回null值。
+	contains(Object o):boolean
+		△ 如果此 collection 包含指定的元素，则返回 true。更确切地讲，当且仅当此 队列 至少包含一个满足 o.equals(e)的元素 e 时，返回 true。
+	iterator():Iterator<E>
+		△ 返回此队列中元素的迭代器。迭代器不以任何特定的顺序返回元素。
+	offer(E e):boolean
+		△ 将指定的元素插入此优先级队列。
+		如果元素已添加到此队列，则为true，否则为false
+		【Throws】：
+			● ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+	peek():E
+		△ 检索但不删除此队列的头；如果此队列为空，则返回空值。
+	poll():E
+		△ 检索但不删除此队列的头；如果此队列为空，则返回空值。
+	remove(Object o):boolean
+		从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个这样的元素（o.equals(e)），则删除元素e。仅当此队列包含指定元素时返回true（或者，如果此队列由于调用而更改，则返回等效值）。
+	size():int 
+		返回此集合中的元素数量。如果此集合包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+	spliterator():default Spliterator<E>
+		△在此队列中的元素上创建Spliterator。
+		Spliterator报告Spliterator.SIZED、 Spliterator.SUBSIZED和Spliterator.NONNULL。重写实现应该记录额外特征值的报告。
+	toArray():Object[]
+		返回包含此队列中所有元素的数组。元素没有特定的顺序。
+		返回的数组将是“安全的”，因为此队列不维护对它的引用。（换句话说，即使此队列由数组支持，此方法也必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T[] a):T[]
+		<T> 要包含集合的数组的运行时类型
+		返回包含此队列中所有元素的数组；返回的数组的运行时类型是指定数组的运行时类型。如果队列符合指定的数组，则在其中返回。否则，将为新数组分配指定数组的运行时类型和此队列的大小。
+		如果此集合适合具有备用空间的指定数组（即，数组中的元素多于此队列），则紧跟集合结尾的数组中的元素将设置为null。
+		与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		假设x是一个已知仅包含字符串的集合。以下代码可用于将集合转储到新分配的字符串数组中：
+			String[] y = x.toArray(new String[0]);
+		请注意，toArray(new Object[0])的功能与toArray（）相同。
+		【Throws】：
+			ArrayStoreException 如果指定数组的运行时类型不是此队列中每个元素的运行时类型的父类型
+			NullPointerException 如果指定的数组为空
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

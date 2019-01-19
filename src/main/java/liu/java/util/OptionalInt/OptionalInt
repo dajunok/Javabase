@@ -1,0 +1,70 @@
+-------------------------------OptionalInt-----------------------------------------------------------------------------------------------------------------------
+OptionalInt：可选Int对象容器。【since 1.8】
+	可能包含或不包含non-null（非空值）的容器对象。如果存在值，isPresent()方法将返回true，get()方法将返回该值。
+	提供了依赖于包含值的存在或不存在的其他方法，例如orElse()（如果值不存在，则返回默认值）和ifPresent()（如果值存在，则执行代码块）。
+	这是一个基于值的类；在Optional实例上使用对标识敏感的操作（包括引用相等（==）、标识哈希代码或同步）可能会产生不可预知的结果，应避免使用。
+	
+	
+
+	类定义	：public final class OptionalInt 
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Method Summary（方法概要）：
+	empty():static OptionalInt 
+		返回空的OptionalInt实例。此OptionalInt没有值。
+	of(int value):static OptionalInt 
+		返回具有指定当前非空值（non-null）的OptionalInt。
+	equals(Object obj):boolean 
+		△ 指示其他对象是否“等于”此OptionalInt。如果满足以下条件，则认为与另一个对象相等：
+		1、它也是一个OptionalInt，并且；
+		2、两种情况都没有值存在，或者；
+		3、当前值通过equals()方法比较彼此“相等”。
+	getAsInt():int 
+		如果此OptionalInt中存在值，则返回该值，否则将引发NoSuchElementException异常。
+		【Throws】：NoSuchElementException 如果没有值存在
+	hashCode():int
+		△ 返回当前值的哈希代码值（如果有），如果值不存在，则返回0（零）。
+	ifPresent(IntConsumer consumer):void 
+		如果存在某个值，则使用该值调用指定的consumer，否则不执行任何操作。
+		【Throws】：
+			NullPointerException 如果值不存在并且consumer为null。
+	isPresent():boolean 
+		如果值存在，则返回true，否则返回false。
+	orElse(int other):double
+		如果存在该值，则返回值，否则返回other。
+	orElseGet(IntSupplier other):double 
+		如果存在该值，则返回值，否则调用Other并返回该调用的结果。
+		【Throws】：
+			NullPointerException 如果值不存在或other为null
+	orElseThrow(Supplier<X> exceptionSupplier):<X extends Throwable> int 
+		<X> 抛出的异常类型（X extends Throwable）
+		返回包含的值（如果存在），否则抛出Supplier继承的异常。
+		可以将带有空参数列表的异常构造函数的方法引用用作Supplier。例如，IllegalStateException::new
+		【Throws】：
+			NullPointerException 如果值不存在和exceptionSupplier为null
+	toString():String 	
+		△返回适用于调试的此Optional的非空字符串表示形式。具体的表示格式未指定，可能因实现和版本而异。
+		如果存在值，则结果必须在结果中包含其字符串表示形式。Empty和当前Optionals必须是明确可区分的。
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、可观察对象（Observable）：又称为发布者或通知者。（类似于事件源）
+	5、观察者（Observer）：又称为订阅者，是实现Observer接口的任何对象。（类似于监听器）
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
