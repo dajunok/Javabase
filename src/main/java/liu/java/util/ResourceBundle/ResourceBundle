@@ -1,0 +1,254 @@
+-------------------------------ResourceBundle-----------------------------------------------------------------------------------------------------------------------
+ResourceBundle：资源包。【since JDK1.1】
+	这个类主要用来解决国际化和本地化问题。国际化和本地化可不是两个概念，两者都是一起出现的。可以说，国际化的目的就是为了实现本地化。比如对于“取消”，中文中我们使用“取消”来表示，而英文中我们使用“cancel”。若我们的程序是面向国际的（这也是软件发展的一个趋势），那么使用的人群必然是多语言环境的，实现国际化就非常有必要。而ResourceBundle可以帮助我们轻松完成这个任务：当程序需要一个特定于语言环境的资源时（如 String），程序可以从适合当前用户语言环境的资源包（大多数情况下也就是.properties文件）中加载它。这样可以编写很大程度上独立于用户语言环境的程序代码，它将资源包中大部分（即便不是全部）特定于语言环境的信息隔离开来。
+	资源包包含特定于区域设置的对象。当程序需要特定于区域设置的资源（例如字符串）时，程序可以从适合当前用户区域设置的资源包中加载该资源。通过这种方式，您可以编写程序代码，它在很大程度上独立于用户的区域设置，在资源包中隔离大部分（如果不是全部）特定于区域设置的信息。
+	这使编写的程序可以
+		● 轻松地本地化或翻译成不同的语言
+		● 一次处理多个语言环境
+		● 以后可以轻松进行修改，以便支持更多的语言环境（locale）
+	ResourceBundle属于其成员共享一个公共基础名称，但其名称也具有标识其区域设置的其他组件的族。例如，ResourceBundle族的基名称可能是“myresources”。该系列应该有一个默认的资源包，它的名称与它的系列“myresources”相同，如果不支持特定的区域设置，它将被用作最后一个解决方案的包。然后，该系列可以根据需要提供尽可能多的特定于地区的成员，例如一个名为“myresources-de”的德国成员。 
+	一个系列中的每个资源包都包含相同的项，但这些项已被转换为该资源包表示的区域设置。例如，“MyResources”和“MyResources_de”可能都有一个字符串，用于按钮上取消操作。在“MyResources”中，字符串可以包含“cancel”，在“MyResources_de”中，字符串可以包含“Abbrechen”。
+	如果不同国家有不同的资源，您可以进行专门化：例如，“MyResources_de_CH”包含瑞士德语（de）的对象。如果您只想修改专门化中的一些资源，可以这样做。
+	当程序需要特定于区域设置的对象时，它将使用getBundle方法加载ResourceBundle类：
+		ResourceBundle myResources =ResourceBundle.getBundle("MyResources", currentLocale);
+	资源包中包含键/值对。这些键唯一地标识包中特定于区域设置的对象。下面是一个包含两个键/值对的ListResourceBundle示例：
+		public class MyResources extends ListResourceBundle {
+		     protected Object[][] getContents() {
+		         return new Object[][] {
+		             // LOCALIZE THE SECOND STRING OF EACH ARRAY (e.g., "OK")
+		             {"OkKey", "OK"},
+		             {"CancelKey", "Cancel"},
+		             // END OF MATERIAL TO LOCALIZE
+		        };
+		     }
+		 }
+	键总是字符串。在本例中，键是“Okkey”和“Cancelkey”。在上面的示例中，值也是字符串——“OK”和“Cancel”——但它们不一定是。这些值可以是任何类型的对象。
+	使用适当的getter方法从资源包中检索对象。因为“okkey”和“cancelkey”都是字符串，所以您可以使用getString来检索它们：
+		 button1 = new Button(myResources.getString("OkKey"));
+		 button2 = new Button(myResources.getString("CancelKey"));
+	getter方法都需要该键作为参数，如果找到该对象，则返回该对象。如果找不到该对象，getter方法将引发MissingResourceException异常。
+	除了getString之外，ResourceBundle还提供了一种获取字符串数组、getStringArray的方法，以及用于任何其他类型对象的通用getObject方法。使用getObject时，必须将结果强制转换为适当的类型。例如：
+		int[] myIntegers = (int[]) myResources.getObject("intList");
+	Java平台提供了ReaveCube、ListResourceBundle和PropertyResourceBundle的两个子类，它们提供了创建资源的简单方法。正如您在前一个示例中简短看到的，ListResourceBundle将其资源作为键/值对的列表进行管理。PropertyResourceBundle使用属性文件来管理其资源。
+	如果ListResourceBundle或PropertyResourceBundle不适合您的需要，您可以编写自己的ResourceBundle子类。子类必须重写两个方法：handleGetObject和getKeys()。
+	如果一个ResourceBundle子类同时被多个线程使用，那么它的实现必须是线程安全的。此类中非抽象方法的默认实现，以及直接已知的具体子类ListResourceBundle和PropertyResourceBundle中的方法都是线程安全的。
+	● ResourceBundle.Control
+		ResourceBundle.control类提供了使用ResourceBundle.control实例的getBundle工厂方法执行bundle加载过程所需的信息。您可以实现自己的子类，以启用非标准资源包格式、更改搜索策略或定义缓存参数。有关详细信息，请参阅类的说明和getBundle工厂方法。
+		对于不采用ResourceBundle.Control实例的getBundle工厂方法，可以使用已安装的ResourceBundleControlProvider实现修改其资源包加载的默认行为。在ResourceBundle类加载时检测到任何已安装的提供程序。如果任何提供程序为给定的基名称提供ResourceBundle.Control，则将使用该ResourceBundle.Control而不是默认的ResourceBundle.Control。如果安装了多个服务提供程序以支持相同的基名称，则将使用从ServiceLoader返回的第一个服务提供程序。
+	● Cache Management（缓存管理）
+		默认情况下，将缓存由getBundle工厂方法创建的ResourceBundle实例，如果已缓存，工厂方法将多次返回相同的ResourceBundle实例。getBundle客户端可以清除缓存，使用time-to-live（“生存时间”）值管理缓存的ResourceBundle实例的生存期，或者指定不缓存ResourceBundle实例。有关详细信息，请参阅getBundle工厂方法、clearCache、ResourceBundle.Control.getTimeToLive和ResourceBundle.Control.needsReload的说明。
+	● 示例：下面是一个管理两个资源的ResourceBundle子类MyResources的非常简单的示例（对于更多的资源，您可能会使用一个映射）。请注意，如果“parent-level”ResourceBundle处理具有相同值的同一个键（与下面的OkKey相同），则不需要提供值。
+			 // default (English language, United States)
+			 public class MyResources extends ResourceBundle {
+			     public Object handleGetObject(String key) {
+			         if (key.equals("okKey")) return "Ok";
+			         if (key.equals("cancelKey")) return "Cancel";
+			         return null;
+			     }
+			
+			     public Enumeration<String> getKeys() {
+			         return Collections.enumeration(keySet());
+			     }
+			
+			     // Overrides handleKeySet() so that the getKeys() implementation
+			     // can rely on the keySet() value.
+			     protected Set<String> handleKeySet() {
+			         return new HashSet<String>(Arrays.asList("okKey", "cancelKey"));
+			     }
+			 }
+			
+			 // German language
+			 public class MyResources_de extends MyResources {
+			     public Object handleGetObject(String key) {
+			         // don't need okKey, since parent level handles it.
+			         if (key.equals("cancelKey")) return "Abbrechen";
+			         return null;
+			     }
+			
+			     protected Set<String> handleKeySet() {
+			         return new HashSet<String>(Arrays.asList("cancelKey"));
+			     }
+			 }	
+		您不必限制自己使用单一的ResourceBundles系列。例如，您可以拥有一组用于异常消息、ExceptionResources（ExceptionResources_fr、ExceptionResources_de，…）和一组用于小部件，WidgetResource（WidgetResources_fr、WidgetResources_de，…）的捆绑包；您可以随意拆分资源。	
+	
+	类定义	：public abstract class ResourceBundle
+	子类		：ListResourceBundle, PropertyResourceBundle
+	内部类	：Control
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Field Summary（字段概要）：
+	parent:protected ResourceBundle 
+		此bundle的父bundle。当这个bundle不包含特定资源时，getobject会搜索父bundle。
+
+Constructor Summary（构造器概要）：
+	public ResourceBundle()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+
+Method Summary（方法概要）：
+	clearCache():static final void 
+		从缓存中删除已使用调用方的类加载器加载的所有资源包（bundles）。
+	clearCache(ClassLoader loader):static final void 
+		从缓存中删除已使用给定类加载器加载的所有资源包（bundles）。
+		【Throws】：
+			NullPointerException 如果loader为null
+	getBundle(String baseName):static final ResourceBundle 
+		使用指定的基础名称、默认区域设置（语言环境）和调用方的类加载器获取资源包。调用此方法等同于调用：
+			getBundle(baseName, Locale.getDefault(), this.getClass().getClassLoader()),
+		但getClassLoader()是以ResourceBundle的安全权限运行的。有关搜索和实例化策略的完整描述，请参阅getbundle。
+		【Throws】：
+			NullPointerException 如果baseName为null。
+			MissingResourceException 如果找不到指定baseName的资源包
+	getBundle(String baseName,Locale locale):static final ResourceBundle 
+		使用指定的baseName和locale（语言环境）以及调用方的类加载器获取资源包。调用此方法等同于调用：
+			getBundle(baseName, locale, this.getClass().getClassLoader()),
+		但getClassLoader()是以ResourceBundle的安全权限运行的。有关搜索和实例化策略的完整描述，请参阅getbundle。
+		【Throws】：
+			NullPointerException 如果baseName或locale为null。
+			MissingResourceException 如果找不到指定baseName的资源包
+	getBundle(String baseName, Locale locale,ClassLoader loader):static ResourceBundle 
+		使用指定的baseName、locale和类加载器获取资源包。
+		【Throws】：
+			NullPointerException 如果baseName、locale或loader为null。
+			MissingResourceException 如果找不到指定baseName的资源包			
+	getBundle(String baseName, Locale targetLocale,ClassLoader loader, Control control):static ResourceBundle 
+		使用指定的baseName、targetLocale、类加载器和控件返回资源包。与不带控制参数的getBundle工厂方法不同，给定的控件指定如何定位和实例化资源包。
+		【Throws】：
+			NullPointerException 如果baseName、targetLocale、loader或control为null。
+			MissingResourceException 如果找不到指定baseName的资源包	
+			IllegalArgumentException 如果给定的控件没有正确执行（例如，control.getCandidateLocales返回空值）。请注意，根据需要执行控件验证。
+	getBundle(String baseName, Locale targetLocale,Control control):static final ResourceBundle 
+		使用指定的baseName、目标区域设置和控件以及调用方的类加载器返回资源束。调用此方法等同于调用：
+			getBundle(baseName, targetLocale, this.getClass().getClassLoader(),control)
+		但getClassLoader()是以ResourceBundle的安全权限运行的。有关带有ResourceBundle.Control的资源包加载过程的完整描述，请参阅getBundle。
+		【Throws】：
+			NullPointerException 如果baseName、targetLocale或control为null。
+			MissingResourceException 如果找不到指定baseName的资源包	
+			IllegalArgumentException 如果给定的控件没有正确执行（例如，control.getCandidateLocales返回空值）。请注意，根据需要执行控件验证。
+	getBundle(String baseName,Control control):static final ResourceBundle 
+		使用指定的baseName、默认区域设置和指定的控件返回资源包。调用此方法等同于调用：
+			getBundle(baseName, Locale.getDefault(),this.getClass().getClassLoader(), control),
+		但getClassLoader()是以ResourceBundle的安全权限运行的。有关带有ResourceBundle.Control的资源包加载过程的完整描述，请参阅getBundle。
+		【Throws】：
+			NullPointerException 如果baseName或control为null。
+			MissingResourceException 如果找不到指定baseName的资源包	
+			IllegalArgumentException 如果给定的控件没有正确执行（例如，control.getCandidateLocales返回空值）。请注意，根据需要执行控件验证。
+	containsKey(String key):boolean
+		 确定给定的键是否包含在此ResourceBundle或其父包中。
+		 【Throws】：
+			NullPointerException 如果key为null。
+	getBaseBundleName():String 
+		如果已知，则返回此包的基础名称；如果未知，则返回null值。如果不为空，则这是加载资源包时传递给ResourceBundle.getBundle(...)方法的basename参数的值。
+	getKeys():abstract Enumeration<String> 
+		返回键的枚举（Enumeration类对象）。
+	getLocale():Locale 
+		返回此资源包的区域设置。调用getBundle()后，可以使用此方法来确定返回的资源包是否真正对应请求的区域设置或是fallback。
+	getObject(String key):final Object 
+		从该资源包或其父项之一获取给定键的对象。此方法首先尝试使用handleGetObject从该资源束中获取对象。如果不成功，并且父资源包不为空，则调用父级的getObject方法。如果仍然不成功，则会引发MissingResourceException。
+	getString(String key):final String 
+		从该资源包或其父项之一获取给定键的字符串。调用此方法等同于调用：
+			(String) getObject(key)
+		【Throws】：
+			NullPointerException 如果key为null。
+			MissingResourceException 如果找不到给定键的对象
+			ClassCastException 如果为给定键找到的对象不是字符串
+	handleGetObject(String key):protected abstract Object 
+		从该资源包中获取给定键的对象。如果此资源包不包含给定键的对象，则返回null值。
+		【Throws】：
+			NullPointerException 如果key为null。
+	handleKeySet():protected Set<String> 
+		返回仅包含在此ResourceBundle中的一组键。
+		默认实现返回一组由getKeys方法返回的键，handleGetObject方法返回null的键除外。创建集合后，该值将保留在此ResourceBundle中，以避免在后续调用中生成相同的集合。子类可以重写此方法以加快处理速度。
+	keySet():Set<String> 
+		返回此ResourceBundle及其父包中包含的所有键的集合。
+	setParent(ResourceBundle parent):protected void 
+		设置此包的父包。当这个bundle不包含特定资源时，getObject会搜索父bundle。
+------------------------------------------------------------------------------------------------------------------------------------------------------
+1、ResourceBundle$Control：控件（控制器）	【since 1.6】
+------------------------------------------------------------------------------------------------------------------------------------------------------
+	ResourceBundle.Control定义一组回调方法，这些方法在包加载过程中由ResourceBundle.getBundle工厂方法调用。换句话说，ResourceBundle.Control与工厂方法协作加载资源bundle。回调方法的默认实现提供了工厂方法执行默认行为所必需的信息。
+	除了回调方法外，还定义了toBundleName和toResourceName方法，主要是为了方便实现回调方法。但是，可以重写toBundleName方法，以在本地化资源的组织和打包中提供不同的约定。toResourceName是final关键字修饰的方法，以避免使用错误的资源和类名分隔符。
+	getControl(List)和getNoFallbackControl(List)两种工厂方法提供了ResourceBundle.Control实例，这些实例实现了默认bundle加载过程的常见变化。
+	getFormats方法返回的格式和getCandidateLocales方法返回的候选区域设置在同一基础包的所有ResourceBundle.getBundle调用中必须一致。否则，ResourceBundle.getBundle方法可能返回意外的bundle。例如，如果只有“java.class”由getFormats方法返回给ResourceBundle.getBundle的首次调用，而仅用于第二次调用的“java.properties”，那么第二次调用将返回在第一次调用期间缓存的基于类的一次调用。
+	如果多个线程同时使用ResourceBundle.Control实例，则该实例必须是线程安全的。ResourceBundle.getBundle没有同步调用ResourceBundle.Control方法。方法的默认实现是线程安全的。
+	应用程序可以指定getControl工厂方法返回的ResourceBundle.Control实例或从ResourceBundle.Control子类创建的ResourceBundle.Control实例，以自定义捆绑加载过程。以下是更改默认捆绑加载过程的示例。
+	【案例1】：以下代码使ResourceBundle.getBundle仅查找基于属性的资源。
+		 import java.util.*;
+		 import static java.util.ResourceBundle.Control.*;
+		 ...
+		 ResourceBundle bundle =
+		   ResourceBundle.getBundle("MyResources", new Locale("fr", "CH"),
+		                            ResourceBundle.Control.getControl(FORMAT_PROPERTIES));
+	给定ResourceBundle.getBundle描述示例中的资源包，此ResourceBundle.getBundle调用加载父级为MyResources_fr.properties、父级为MyResources.properties的MyResources_fr_CH.properties。（MyResources_fr_CH.properties不隐藏，MyResources_fr_CH.class隐藏。）	
+	
+	类定义：public static class Control	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	FORMAT_CLASS
+		包含“java.class”的class-only格式列表。此列表不可修改。
+	FORMAT_DEFAULT
+		默认格式列表，其中包含字符串“java.class”和“java.properties”，按此顺序排列。此列表不可修改。
+	FORMAT_PROPERTIES
+		包含“java.properties”的properties-only格式列表。此列表不可修改。
+	TTL_DONT_CACHE
+		不缓存加载的资源包实例的生存时间（ time-to-live）常量。
+	TTL_NO_EXPIRATION_CONTROL
+		在缓存中禁用已加载资源束实例的过期控制的生存时间常量。
+
+Constructor Summary（构造器概要）：
+	protected Control()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+
+
+Method Summary（方法概要）：
+	getControl(List<String> formats)：static final Control
+		返回一个ResourceBundle.Control，其中getFormats方法返回指定的格式。格式必须等于FORMAT_PROPERTIES、FORMAT_CLASS或FORMAT_DEFAULT之一。此方法返回的ResourceBundle.Control实例是单实例和线程安全的。
+		指定FORMAT_DEFAULT等同于实例化ResourceBundle.Control类，但此方法返回单例。
+		【Throws】：
+			NullPointerException 如果formats为null
+			IllegalArgumentException 如果formats是未知的
+	getNoFallbackControl(List<String> formats):static final Control 
+		返回一个ResourceBundle.Control，其中GetFormats方法返回指定的formats，getFallbackLocale方法返回null。格式必须等于FORMAT_PROPERTIES、FORMAT_CLASS或FORMAT_DEFAULT之一。此方法返回的ResourceBundle.Control实例是单实例和线程安全的。
+		【Throws】：
+			NullPointerException 如果formats为null
+			IllegalArgumentException 如果formats是未知的
+	getCandidateLocales(String baseName, Locale locale):List<Locale> 
+		返回区域设置列表，作为basename和locale的候选区域设置。每次工厂方法尝试查找目标区域设置的资源包时，ResourceBundle.getBundle工厂方法都会调用此方法。
+		【Throws】：
+			NullPointerException 如果baseName为null
+	getFallbackLocale(String baseName, Locale locale):Locale 
+		返回要用作回退区域设置（fallback）的区域设置，以供ResourceBundle.getBundle工厂方法进一步搜索资源包。每次未找到basename和locale的结果资源包时，都会从工厂方法调用此方法，其中locale是resource bundle.getbundle的参数，或者是此方法返回的上一个回退区域设置。
+		如果不需要进一步的回退搜索，则该方法返回null。
+		如果给定的区域设置不是默认区域设置，则默认实现返回默认区域设置。否则返回null。
+		【Throws】：
+			NullPointerException 如果baseName为null
+	getFormats(String baseName):List<String> 
+		
+	getTimeToLive(String baseName, Locale locale):long 
+	needsReload(String baseName, Locale locale,String format, ClassLoader loader,ResourceBundle bundle, long loadTime):boolean 
+	newBundle(String baseName, Locale locale, String format,ClassLoader loader, boolean reload):ResourceBundle 
+	toBundleName(String baseName, Locale locale):String 
+	toResourceName(String bundleName, String suffix):final String 
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、单实例：（即单例设计模式）。“一个类有且仅有一个实例，并且自行实例化向整个系统提供。”单例模式是设计模式中最简单的形式之一。这一模式的目的是使得类的一个对象成为系统中的唯一实例。要实现这一点，可以从客户端对其进行实例化开始。因此需要用一种只允许生成对象类的唯一实例的机制，“阻止”所有想要生成对象的访问。使用工厂方法来限制实例化过程。这个方法应该是静态方法（类方法），因为让类的实例去生成另一个唯一实例毫无意义。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
