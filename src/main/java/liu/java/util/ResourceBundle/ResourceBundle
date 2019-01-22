@@ -116,7 +116,7 @@ Method Summary（方法概要）：
 			MissingResourceException 如果找不到指定baseName的资源包	
 			IllegalArgumentException 如果给定的控件没有正确执行（例如，control.getCandidateLocales返回空值）。请注意，根据需要执行控件验证。
 	getBundle(String baseName, Locale targetLocale,Control control):static final ResourceBundle 
-		使用指定的baseName、目标区域设置和控件以及调用方的类加载器返回资源束。调用此方法等同于调用：
+		使用指定的baseName、目标区域设置和控件以及调用方的类加载器返回资源包。调用此方法等同于调用：
 			getBundle(baseName, targetLocale, this.getClass().getClassLoader(),control)
 		但getClassLoader()是以ResourceBundle的安全权限运行的。有关带有ResourceBundle.Control的资源包加载过程的完整描述，请参阅getBundle。
 		【Throws】：
@@ -142,7 +142,7 @@ Method Summary（方法概要）：
 	getLocale():Locale 
 		返回此资源包的区域设置。调用getBundle()后，可以使用此方法来确定返回的资源包是否真正对应请求的区域设置或是fallback。
 	getObject(String key):final Object 
-		从该资源包或其父项之一获取给定键的对象。此方法首先尝试使用handleGetObject从该资源束中获取对象。如果不成功，并且父资源包不为空，则调用父级的getObject方法。如果仍然不成功，则会引发MissingResourceException。
+		从该资源包或其父项之一获取给定键的对象。此方法首先尝试使用handleGetObject从该资源包中获取对象。如果不成功，并且父资源包不为空，则调用父级的getObject方法。如果仍然不成功，则会引发MissingResourceException。
 	getString(String key):final String 
 		从该资源包或其父项之一获取给定键的字符串。调用此方法等同于调用：
 			(String) getObject(key)
@@ -191,7 +191,7 @@ Field Summary（字段概要）：
 	TTL_DONT_CACHE
 		不缓存加载的资源包实例的生存时间（ time-to-live）常量。
 	TTL_NO_EXPIRATION_CONTROL
-		在缓存中禁用已加载资源束实例的过期控制的生存时间常量。
+		在缓存中禁用已加载资源包实例的过期控制的生存时间常量。
 
 Constructor Summary（构造器概要）：
 	protected Control()
@@ -221,14 +221,53 @@ Method Summary（方法概要）：
 		【Throws】：
 			NullPointerException 如果baseName为null
 	getFormats(String baseName):List<String> 
-		
+		返回一个字符串列表，其中包含用于加载给定baseName的资源包的格式。ResourceBundle.getBundle工厂方法尝试按列表指定的顺序加载格式的资源包。此方法返回的列表必须至少有一个字符串。预定义的格式是基于类的资源包的“java.class”和基于属性的“java.properties”。以“java.class”开头的字符串被保留用于将来的扩展，并且不能被应用程序定义的格式使用。
+		不强制要求返回不可变（不可修改）列表。但是，返回的列表在getFormats返回后不能改变。
+		默认实现返回FORMAT_DEFAULT，以便ResourceBundle.getBundle工厂方法查找第一个基于类的资源包，然后查找基于属性的资源包。
+		【Throws】：
+			NullPointerException 如果baseName为null
 	getTimeToLive(String baseName, Locale locale):long 
-	needsReload(String baseName, Locale locale,String format, ClassLoader loader,ResourceBundle bundle, long loadTime):boolean 
+		返回在此ResourceBundle.Control下加载的资源包的生存时间（TTL）值。正的生存时间值指定捆绑包可以在缓存中保留的毫秒数，而不根据构建包的源数据进行验证。值0表示每次从缓存中检索包时必须对其进行验证。TTL_DONT_CACHE指定加载的资源包不放在缓存中。TTL_NO_EXPIRATION_CONTROL指定将加载的资源包放在缓存中，不带过期控制。
+		到期仅影响ResourceBundle.getBundle工厂方法的包加载过程。也就是说，如果工厂方法在缓存中找到已过期的资源包，工厂方法将调用NeedsReload方法来确定是否需要重新加载资源包。如果needsreload返回true，则从缓存中删除缓存的资源包实例。否则，实例将保留在缓存中，并使用此方法返回的新TTL值进行更新。
+		由于运行时环境的内存限制，所有缓存的资源包都将从缓存中删除。返回一个大的正值并不意味着将加载的资源包锁定在缓存中。
+		默认实现返回TTL_NO_EXPIRATION_CONTROL。
+		【Throws】：
+			NullPointerException 如果baseName为null
+	needsReload(String baseName, Locale locale,String format, ClassLoader loader,ResourceBundle bundle, long loadTime):boolean
+		 确定是否需要根据loadTime或某些其他条件给定的加载时间重新加载缓存中过期的包。如果需要重新加载，则该方法返回true；否则返回false。加载时间是自日历纪元以来的毫秒偏移量。调用ResourceBundle.getBundle工厂方法对用于当前调用的ResourceBundle.Control实例调用此方法，而不是对最初加载资源包的调用中使用的实例调用此方法。
+		默认实现比较资源包源数据的加载时间和上次修改时间。如果确定源数据自loadTime起已被修改，则返回true。否则，返回false。此实现假定给定格式与它的文件后缀相同的字符串，如果它不是默认格式“java.class”或“java.properties”之一。
+		【Throws】：
+			NullPointerException 如果baseName、locale、format、loader或bundle为null
 	newBundle(String baseName, Locale locale, String format,ClassLoader loader, boolean reload):ResourceBundle 
+		为给定格式和区域设置的给定包名称实例化资源包，必要时使用给定的类加载器。如果给定参数没有可用的资源束，则此方法返回空值。如果由于意外错误而无法实例化资源束，则必须通过引发错误或异常而不是简单地返回空值来报告错误。
+		如果reload标志为true，则表示正在调用此方法，因为先前加载的资源包已过期。
+		默认实现实例化一个ResourceBundle，如下所示。
+		● 通过调用toBundleName(baseName, locale)获取包名称。
+		● 如果格式化为“java.class”，则通过调用ClassLoader.loadClass(String)来加载由包名称指定的类。然后，通过调用Class.newInstance()实例化ResourceBundle。请注意，在这个默认实现中加载基于类的资源包时会忽略reload标志。
+		● 如果格式化为“java.properties”，则调用toResourceName(bundlename, "properties")来获取资源名称。如果reload为true，则调用load.getResource以获取用于创建URLConnection的URL。此URLConnection用于禁用底层资源加载层的缓存，并获取输入流。否则，将调用loader.getResourceAsStream以获取输入流。然后，用inputstream构造一个PropertyResourceBundle。
+		● 如果格式既不是“Java.class”也不是“java.properties”，则会引发IllegalArgumentException异常。
+		【Throws】：
+			NullPointerException 如果bundleName、locale、format、loader为null，或者如果或者如果tobundlename返回空值返回null。
+			IllegalArgumentException  如果格式未知，或者为给定参数找到的资源包含格式错误的数据。
+			ClassCastException 	如果加载的类不能强制转换为ResourceBundle
+			IllegalAccessException 如果类或其空构造函数不可访问
+			InstantiationException 如果类的实例化由于其他原因失败。
+			ExceptionInInitializerError 如果此方法引发的初始化失败。
+			SecurityException 如果存在安全管理器并且拒绝创建新实例。有关详细信息，请参见Class.newInstance()。
+			IOException 如果在使用任何I/O操作读取资源时发生错误
 	toBundleName(String baseName, Locale locale):String 
+		将给定的basename和locale转换为bundle name。从newBundle和needsReload方法的默认实现调用此方法。
+		此实现返回以下值：
+			baseName + "_" + language + "_" + script + "_" + country + "_" + variant
+		其中，language、script、country和variant分别是locale的language、script、country和variant值。空字符串的Final组件值与前面的'_'一起省略。当脚本为空时，脚本值与前面的'_'一起省略。如果所有值都是空字符串，则返回baseName。
+		例如，如果baseName为“baseName”，locale为Locale("ja", "", "XX")，则返回"baseName_ja_ _XX"。如果给定的区域设置为Locale("en")，则返回"baseName_en"。
+		覆盖此方法允许应用程序在本地化资源的组织和打包中使用不同的约定。
+		【Throws】：
+			NullPointerException 如果baseName为null
 	toResourceName(String bundleName, String suffix):final String 
-
-
+		通过将bundleName中所有出现的“.”替换为“/”，并附加“.”和给定的文件后缀，将给定的bundleName转换为ClassLoader.getResource方法所需的格式。例如，如果bundleName为“foo/bar/MyResources_ja_JP.properties”，后缀为“properties”，则返回“foo/bar/MyResources_ja_JP.properties”。
+		【Throws】：
+			NullPointerException 如果baseName为null
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 附录：

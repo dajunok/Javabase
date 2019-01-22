@@ -1,0 +1,78 @@
+-------------------------------PropertyResourceBundle-----------------------------------------------------------------------------------------------------------------------
+PropertyResourceBundle：属性资源包。【since JDK1.1】
+	PropertyResourceBundle是ResourceBundle的具体子类，它使用属性文件中的一组静态字符串管理区域设置(locale)的资源。有关资源包的详细信息，请参阅ResourceBundle。
+	与其他类型的资源包不同，您不需要将PropertyResourceBundle子类化。而是提供包含资源数据的属性文件。ResourceBundle.getBundle将自动查找适当的属性文件，并创建引用该文件的PropertyResourceBundle。有关搜索和实例化策略的完整描述，请参阅ResourceBundle.getBundle。
+	下面的示例显示了具有基础名称（base name）“MyResources”的资源包族的成员。文本定义了包“MyResources_de”，德国成员包系列。此成员基于PropertyResourceBundle，因此文本是文件“MyResources_de.properties”的内容（相关的示例展示了如何向这个作为ListResourceBundle的子类实现的系列中添加bundles）。本例中的键的形式为“s1”等。实际的键完全取决于您的选择，只要它们与您在程序中用于从包中检索对象的键相同。键区分大小写。
+			# MessageFormat pattern
+		 	s1=Die Platte \"{1}\" enthält {0}.
+		 	# location of {0} in pattern
+		 	s2=1		
+			# sample disk name
+		 	s3=Meine Platte
+		 	# first ChoiceFormat choice
+		 	s4=keine Dateien
+		 	# second ChoiceFormat choice
+		 	s5=eine Datei
+		 	# third ChoiceFormat choice
+			s6={0,number} Dateien
+			# sample date
+		 	s7=3. März 1996
+	如果多个线程同时使用，则PropertyResourceBundle子类的实现必须是线程安全的。此类中非抽象方法的默认实现是线程安全的。
+	注意：可以从表示属性文件的InputStream或Reader构造PropertyResourceBundle。从InputStream构造PropertyResourceBundle实例需要将输入流编码为ISO-8859-1。在这种情况下，不能在ISO-859-1编码中表示的字符必须用Java语言规范的第3.3节中定义的Unicode-Escapes（Unicode转义）来表示，而另一个采用Reader的构造函数则没有这种限制。
+	
+	类定义	：public class PropertyResourceBundle extends ResourceBundle
+	内部类	：ResourceBundle.Control
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Field Summary（字段概要）：
+	parent:protected ResourceBundle 
+		此包的父包。当这个包不包含特定资源时，getobject会搜索父包。
+		
+Constructor Summary（构造器概要）：
+	public PropertyResourceBundle (InputStream stream)
+		从输入流创建属性资源包。用此构造函数读取的属性文件必须用ISO-8859-1编码。
+		【Throws】：
+			IOException 如果发生I/O错误
+			NullPointerException  如果stream为null
+			IllegalArgumentException 如果stream包含格式错误的Unicode转义序列。
+	PropertyResourceBundle (Reader reader)
+		从Reader创建属性资源包。与构造函数PropertyResourceBundle(InputStream)不同，输入属性文件的编码没有限制。
+		【Throws】：
+			IOException 如果发生I/O错误
+			NullPointerException  如果reader为null
+			IllegalArgumentException 如果reader包含格式错误的Unicode转义序列。
+Method Summary（方法概要）：
+	getKeys():Enumeration<String> 
+		△ 返回此ResourceBundle及其父包中包含的键的枚举。
+	handleGetObject(String key):Object 
+		△ 从该资源包中获取给定键的对象。如果此资源包不包含给定键的对象，则返回null值。
+	handleKeySet():protected Set<String> 
+		△ 返回此ResourceBundle及其父包中包含的键的枚举。
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、单实例：（即单例设计模式）。“一个类有且仅有一个实例，并且自行实例化向整个系统提供。”单例模式是设计模式中最简单的形式之一。这一模式的目的是使得类的一个对象成为系统中的唯一实例。要实现这一点，可以从客户端对其进行实例化开始。因此需要用一种只允许生成对象类的唯一实例的机制，“阻止”所有想要生成对象的访问。使用工厂方法来限制实例化过程。这个方法应该是静态方法（类方法），因为让类的实例去生成另一个唯一实例毫无意义。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

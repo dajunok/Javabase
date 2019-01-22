@@ -1,0 +1,294 @@
+-------------------------------Random-----------------------------------------------------------------------------------------------------------------------
+Random：随机数流。【since 1.0】
+	此类的一个实例用于生成伪随机数流。该类使用一个48位种子，该种子使用线性同余公式进行修改。（见Donald Knuth，《计算机编程艺术》，第2卷，第3.2.1节。）
+	如果使用相同的种子创建两个Random实例，并且为每个实例执行相同的方法调用序列，则它们将生成并返回相同的数字序列。为了保证这一特性，对类随机性指定了特定的算法。为了实现Java代码的绝对可移植性，Java实现必须使用这里所示的所有用于类随机的算法。然而，类随机的子类可以使用其他算法，只要它们遵守所有方法的一般约定。
+	类Random实现的算法使用一个受保护的实用方法，每次调用可以提供多达32个伪随机生成的位。
+	许多应用程序会发现Math.random()方法更易于使用。
+	java.util.Random的实例是线性安全的。但是，跨线程并发使用同一java.util.Random实例可能会遇到争用，从而导致性能低下。考虑在多线程设计中使用ThreadLocalRandom。
+	java.util.random的实例在密码学上不安全。考虑使用SecureRandom来获取加密安全的伪随机数生成器，以供安全敏感的应用程序使用。
+	
+	
+	类定义	：public class Random implements java.io.Serializable
+	实现接口	：Serializable
+	子类		：SecureRandom, ThreadLocalRandom
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	public Random()
+		创建新的随机数生成器。此构造函数将随机数生成器的种子设置为一个很可能与此构造函数的任何其他调用不同的值。
+	public Random(long seed)
+		使用单个long种子创建新的随机数生成器。种子是由next(int)方法维护的伪随机数生成器内部状态的初始值。
+		调用new Random(seed)等价于：
+			Random rnd = new Random();
+		 	rnd.setSeed(seed);
+
+Method Summary（方法概要）：
+	doubles():DoubleStream 
+		返回一个有效的不受限制的伪随机double值流，每个值介于0（包含）和1（不包含）之间。
+		生成一个伪随机double精度值，就好像它是调用方法nextDouble()的结果一样。
+		此方法实现为等效于doudoubles(Long.MAX_VALUE)
+	doubles(double randomNumberOrigin, double randomNumberBound):DoubleStream 
+		返回一个有效的不受限制的伪随机doubl值流，每个值都符合给定的origin（包含）和bound（排除）。
+		生成一个伪随机double精度值，就好像它是使用origin和bound调用以下方法的结果一样：
+			 double nextDouble(double origin, double bound) {
+			   double r = nextDouble();
+			   r = r * (bound - origin) + origin;
+			   if (r >= bound) // correct for rounding
+			     r = Math.nextDown(bound);
+			   return r;
+			 }
+		此方法实现为等效于doubles(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)。
+		【Throws】：
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。
+	doubles(long streamSize):DoubleStream 
+		返回产生给定streamSize的伪随机double值的流，每个值介于0（包含）和1（不包含）之间。
+		生成一个伪随机双精度值，就好像它是调用方法nextDouble()的结果一样。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于零。
+	doubles(long streamSize, double randomNumberOrigin,double randomNumberBound):DoubleStream 
+		返回产生给定streamSize的伪随机double值的流，每个值都符合给定的origin（包含）和bound（排除）。
+		生成一个伪随机double精度值，就好像它是使用origin和bound调用以下方法的结果一样：
+			 double nextDouble(double origin, double bound) {
+			   double r = nextDouble();
+			   r = r * (bound - origin) + origin;
+			   if (r >= bound) // correct for rounding
+			     r = Math.nextDown(bound);
+			   return r;
+			 }	
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于零。	
+			IllegalArgumentException 如果	randomNumberOrigin大于或等于randomNumberBound
+	ints():IntStream 
+		返回一个有效的不受限制的伪随机int值流。
+		生成一个伪随机int值，就好像它是调用nenextInt()方法的结果一样。
+	ints(int randomNumberOrigin, int randomNumberBound):IntStream 
+		返回一个有效的不受限制的伪随机int值流，每个值都符合给定的origin（包含）和bound（排除）。
+		生成一个伪随机int值，就好像它是使用origin和bound调用以下方法的结果一样：
+			 int nextInt(int origin, int bound) {
+			   int n = bound - origin;
+			   if (n > 0) {
+			     return nextInt(n) + origin;
+			   }
+			   else {  // range not representable as int
+			     int r;
+			     do {
+			       r = nextInt();
+			     } while (r < origin || r >= bound);
+			     return r;
+			   }
+			 }	
+		【Throws】：
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。			
+	ints(long streamSize):IntStream 
+		返回产生给定streamSize个伪随机int值的流。
+		生成一个伪随机int值，就好像它是调用nenextInt()方法的结果一样。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于零。	
+	ints(long streamSize, int randomNumberOrigin,int randomNumberBound):IntStream 
+		返回产生给定streamSize个伪随机int值的流。
+		生成一个伪随机int值，就好像它是使用origin和bound调用以下方法的结果一样：
+			 int nextInt(int origin, int bound) {
+			   int n = bound - origin;
+			   if (n > 0) {
+			     return nextInt(n) + origin;
+			   }
+			   else {  // range not representable as int
+			     int r;
+			     do {
+			       r = nextInt();
+			     } while (r < origin || r >= bound);
+			     return r;
+			   }
+			 }	
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于零,或者randomNumberOrigin大于或等于randomNumberBound	
+	longs():LongStream 
+		返回一个有效的不受限制的伪随机long值流。
+		生成一个伪随机int值，就好像它是调用nenextLong()方法的结果一样。
+	longs(long streamSize):LongStream 
+		返回产生给定streamSize个伪随机long值的流。
+		生成一个伪随机int值，就好像它是调用nenextLong()方法的结果一样。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于零。	
+	longs(long randomNumberOrigin, long randomNumberBound):LongStream 
+		返回产生给定streamSize个伪随机long值的流。
+		生成一个伪随机long值，就好像它是使用origin和bound调用以下方法的结果一样：
+			 long nextLong(long origin, long bound) {
+			   long r = nextLong();
+			   long n = bound - origin, m = n - 1;
+			   if ((n & m) == 0L)  // power of two
+			     r = (r & m) + origin;
+			   else if (n > 0L) {  // reject over-represented candidates
+			     for (long u = r >>> 1;            // ensure nonnegative
+			          u + m - (r = u % n) < 0L;    // rejection check
+			          u = nextLong() >>> 1) // retry
+			         ;
+			     r += origin;
+			   }
+			   else {              // range not representable as long
+			     while (r < origin || r >= bound)
+			       r = nextLong();
+			   }
+			   return r;
+			 }
+		【Throws】：
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。				
+	longs(long streamSize, long randomNumberOrigin,long randomNumberBound):LongStream 
+		返回产生给定streamSize个伪随机long值的流。
+		生成一个伪随机long值，就好像它是使用origin和bound调用以下方法的结果一样：
+			 long nextLong(long origin, long bound) {
+			   long r = nextLong();
+			   long n = bound - origin, m = n - 1;
+			   if ((n & m) == 0L)  // power of two
+			     r = (r & m) + origin;
+			   else if (n > 0L) {  // reject over-represented candidates
+			     for (long u = r >>> 1;            // ensure nonnegative
+			          u + m - (r = u % n) < 0L;    // rejection check
+			          u = nextLong() >>> 1) // retry
+			         ;
+			     r += origin;
+			   }
+			   else {              // range not representable as long
+			     while (r < origin || r >= bound)
+			       r = nextLong();
+			   }
+			   return r;
+			 }
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于零,或者randomNumberOrigin大于或等于randomNumberBound	
+	next(int bits):protected int 
+		生成下一个伪随机数。子类应该覆盖它，因为它被所有其他方法使用。
+		next的一般约定是返回一个int值，如果参数位在1到32之间（包括1和32），那么返回值的许多低阶位将是（大约）独立选择的位值，每个位（大约）都可能是0或1。next方法由类随机通过原子更新种子来实现：
+			(seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1)
+		然后返回
+			(int)(seed >>> (48 - bits))
+		这是一个线性同余伪随机数发生器，由D.H.Lehmer定义，Donald E.Knuth在《计算机编程技术》第3卷：半数值算法第3.2.1节中描述。
+	nextBoolean():boolean 
+		返回此随机数生成器序列中的下一个伪随机、均匀分布的布尔值。nextBoolean的一般约定是伪随机生成并返回一个布尔值。值“true”和“false”的概率（近似）相等。
+		方法nextBoolean是通过类random实现的，就像通过：
+			public boolean nextBoolean() {
+			   return next(1) != 0;
+			 }
+	nextBytes(byte[] bytes):void 
+		生成随机字节并将其放入用户提供的字节数组中。产生的随机字节数等于字节数组的长度。
+		方法nextBytes是由类Random实现的，就好像是通过：
+			 public void nextBytes(byte[] bytes) {
+			   for (int i = 0; i < bytes.length; )
+			     for (int rnd = nextInt(), n = Math.min(bytes.length - i, 4);
+			          n-- > 0; rnd >>= 8)
+			       bytes[i++] = (byte)rnd;
+			 }		
+	nextDouble():double 
+		返回此随机数生成器序列中下一个介于0.0和1.0之间的伪随机、均匀分布的双精度（double）值。
+		nextDouble的总原则是，从0.0d（含）到1.0d（不含）范围内均匀选择（约）一个double值，伪随机生成并返回。
+		方法nextDouble是通过类Random实现的，就像通过以下方式实现的一样：
+			 public double nextDouble() {
+			   return (((long)next(26) << 27) + next(27))
+			     / (double)(1L << 53);
+			 }	
+		上述描述中使用的对冲“近似”仅仅是因为下一个方法只是独立选择位的近似无偏源。如果它是随机选择位的完美来源，那么所示算法将从所述范围中选择具有完全一致性的double值。	
+		[在早期版本的Java中，结果被错误地计算为：
+			return (((long)next(27) << 27) + next(27)) / (double)(1L << 54);
+		这似乎是等效的，如果不是更好的话，但实际上它引入了一个很大的不均匀性，因为浮点数舍入时存在偏差：有效位的低阶位比1的低阶位可能是0的三倍！这种不一致可能在实践中并不重要，但我们力求完美。]
+	nextFloat():float 
+		从该随机数生成器序列返回下一个伪随机、均匀分布的浮点值，该值介于0.0和1.0之间。
+		NextFloat的总原则是，从0.0f（含）到1.0f（不含）范围内均匀选择（近似）的一个浮点值是伪随机生成并返回的。m x 2-24形式的所有224个可能的浮点值，其中m是小于224的正整数，均以（近似）等概率产生。
+		方法nextFloat是通过类Random实现的，就像通过：
+			 public float nextFloat() {
+			   return next(24) / ((float)(1 << 24));
+			 }			
+		上述描述中使用的对冲“近似”仅仅是因为下一个方法只是独立选择位的近似无偏源。如果它是随机选择位的完美来源，那么所示的算法将从所述范围中选择具有完全一致性的浮点值。
+		[在早期版本的Java中，结果被错误地计算为：
+			return next(30) / ((float)(1 << 30));
+		这似乎是等效的，如果不是更好的话，但实际上它引入了一个轻微的不一致性，因为浮点数舍入时存在偏差：有效位的低阶位可能比它的低阶位可能是0，而不是1。]
+	nextGaussian():synchronized double 
+		返回下一个伪随机高斯分布的双精度值，平均值为0.0，标准偏差为1.0。
+		nextGaussian的总原则是从（近似）平均值为0.0，标准差为1.0的正态分布中选择一个双值，伪随机生成并返回。
+		方法nextGaussian是通过类Random实现的，就像通过以下的线程安全版本实现的一样：
+			 private double nextNextGaussian;
+			 private boolean haveNextNextGaussian = false;
+			
+			 public double nextGaussian() {
+			   if (haveNextNextGaussian) {
+			     haveNextNextGaussian = false;
+			     return nextNextGaussian;
+			   } else {
+			     double v1, v2, s;
+			     do {
+			       v1 = 2 * nextDouble() - 1;   // between -1.0 and 1.0
+			       v2 = 2 * nextDouble() - 1;   // between -1.0 and 1.0
+			       s = v1 * v1 + v2 * v2;
+			     } while (s >= 1 || s == 0);
+			     double multiplier = StrictMath.sqrt(-2 * StrictMath.log(s)/s);
+			     nextNextGaussian = v2 * multiplier;
+			     haveNextNextGaussian = true;
+			     return v1 * multiplier;
+			   }
+			 }		
+		这使用了G.E.P.Box、M.E.Muller和G.Marsalgia的极坐标法，如Donald E.Knuth在《计算机编程技术》第3卷：半数值算法第3.4.1节C小节算法P中所述。注意，它生成两个独立值，只需调用StrictMath.log和调用StrictMath.sqrt一次。
+	nextInt():int 
+		返回此随机数生成器序列中的下一个伪随机、均匀分布的int值。nextInt的一般约定是伪随机生成并返回一个int值。所有232个可能的int值都以（近似）相等的概率生成。
+		方法nextInt是由类Random实现的，就像通过以下方法实现的一样：
+			 public int nextInt() {
+					   return next(32);
+					 }		
+				nextInt(int bound):int 
+					返回一个伪随机的、均匀分布的int值，该值介于0（含）和指定值（不含）之间，从该随机数生成器的序列中提取。nextInt的一般约定是在指定范围内伪随机生成并返回一个int值。所有绑定的可能int值都以（近似）相等的概率生成。方法nextInt（int-bound）是由类Random实现的，就像通过以下方法实现的一样：
+						 public int nextInt(int bound) {
+			   if (bound <= 0)
+			     throw new IllegalArgumentException("bound must be positive");
+			
+			   if ((bound & -bound) == bound)  // i.e., bound is a power of 2
+			     return (int)((bound * (long)next(31)) >> 31);
+			
+			   int bits, val;
+			   do {
+			       bits = next(31);
+			       val = bits % bound;
+			   } while (bits - val + (bound-1) < 0);
+			   return val;
+			 }
+		上述描述中使用的对冲“近似”仅仅是因为下一个方法只是独立选择位的近似无偏源。如果它是随机选择位的完美来源，那么所示的算法将从所述范围内以完全一致性选择int值。
+		算法有点复杂。它拒绝可能导致不均匀分布的值（因为2^31不能被n整除）。被拒绝的值的概率取决于n。最坏的情况是n=2^30+1，其中拒绝的概率为1/2，循环终止前的预期迭代次数为2。
+		该算法特别处理n是2的幂的情况：它从底层伪随机数生成器返回正确的高阶位数。在没有特殊处理的情况下，将返回正确的低阶位数。线性同余伪随机数生成器（如此类实现的生成器）在其低阶位的值序列中具有短周期。因此，如果n是2的小幂，这种特殊情况会大大增加连续调用此方法返回值序列的长度。
+	nextLong():long 
+		返回此随机数生成器序列中的下一个伪随机、均匀分布的long值。nextLong的一般契约是伪随机生成并返回一个long值。
+		方法nextLong是由类random实现的，就像通过：
+			 public long nextLong() {
+			   return ((long)next(32) << 32) + next(32);
+			 }
+		因为类随机使用的种子只有48位，所以该算法不会返回所有可能的long值。	
+	setSeed(long seed):synchronized void 
+		使用单个long种子设置此随机数生成器的种子。setseed的一般约定是改变这个随机数生成器对象的状态，使其处于完全相同的状态，就好像它是用参数seed作为种子创建的一样。方法setseed是通过将seed原子更新为
+			(seed ^ 0x5DEECE66DL) & ((1L << 48) - 1)
+		并清除nextGaussian()使用的haveNextNextGaussian标志。
+		类随机的setSeed实现只使用给定种子的48位。但是，一般来说，重写方法可以使用long参数的所有64位作为种子值。
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、单实例：（即单例设计模式）。“一个类有且仅有一个实例，并且自行实例化向整个系统提供。”单例模式是设计模式中最简单的形式之一。这一模式的目的是使得类的一个对象成为系统中的唯一实例。要实现这一点，可以从客户端对其进行实例化开始。因此需要用一种只允许生成对象类的唯一实例的机制，“阻止”所有想要生成对象的访问。使用工厂方法来限制实例化过程。这个方法应该是静态方法（类方法），因为让类的实例去生成另一个唯一实例毫无意义。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
