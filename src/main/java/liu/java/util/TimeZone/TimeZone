@@ -1,0 +1,157 @@
+-------------------------------TimeZone-----------------------------------------------------------------------------------------------------------------------
+TimeZone：时区。【since JDK1.1】
+	TimeZone代表时区偏移量，并且计算夏令时。（它是一个抽象类）
+	通常，您可以使用getDefault获得时区，它根据程序运行的时区创建TimeZone。例如，对于在日本运行的程序，getDefault基于日本标准时间创建TimeZone对象。
+	您还可以使用getTimeZone和时区ID来获取TimeZone。例如，美国太平洋TimeZone的时区ID是“America/Los_Angeles”。因此，您可以通过以下方式获得美国太平洋TimeZone对象：
+		TimeZone tz = TimeZone.getTimeZone("America/Los_Angeles");
+	可以使用getAvailableIDs方法迭代所有受支持的时区ID。然后您可以选择受支持的ID来获取TimeZone。如果您想要的时区不是由一个支持的ID表示的，那么可以指定一个自定义时区ID来生成TimeZone。自定义时区ID的语法为：
+		CustomID:
+         GMT Sign Hours : Minutes
+         GMT Sign Hours Minutes
+         GMT Sign Hours
+		 Sign: one of
+		         + -
+		 Hours:
+		         Digit
+		         Digit Digit
+		 Minutes:
+		         Digit Digit
+		 Digit: one of
+		         0 1 2 3 4 5 6 7 8 9
+	小时必须介于0到23之间，分钟必须介于00到59之间。例如，“GMT+10”和“GMT+0010”分别表示比格林尼治标准时间早10点和10分。
+	格式与区域设置无关，数字必须取自Unicode标准的基本拉丁块。不能使用自定义时区ID指定夏令时转换计划。如果指定的字符串与语法不匹配，则使用“GMT”。
+	创建时区时，指定的自定义时区ID将按以下语法规范化：
+		 NormalizedCustomID:
+		         GMT Sign TwoDigitHours : Minutes
+		 Sign: one of
+		         + -
+		 TwoDigitHours:
+		         Digit Digit
+		 Minutes:
+		         Digit Digit
+		 Digit: one of
+		         0 1 2 3 4 5 6 7 8 9	
+	例如，TimeZone.getTimeZone("GMT-8").getID()返回“GMT-08:00”。	
+	【Three-letter time zone IDs】（三字母时区ID）：
+	为了与JDK 1.1.x兼容，还支持其他一些三个字母的时区ID（如“PST”、“CTT”、“AST”）。然而，它们的使用被淘汰，因为相同的缩写经常用于多个时区（例如，“CST”可以是美国的“中央标准时间”和“中国标准时间”），而Java平台只能识别其中一个。
+	
+	
+		
+	类定义	：public abstract class TimeZone implements Serializable, Cloneable
+	实现接口	：Serializable, Cloneable
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Field Summary（字段概要）：
+	LONG  = 1:static final int 
+		getDisplayName()的样式说明符，指示长名称，如“Pacific Standard Time”。
+	SHORT = 0:static final int 
+		getDisplayName()的样式说明符，指示短名称，如“PST”。
+
+Constructor Summary（构造器概要）：
+	public TimeZone()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+
+Method Summary（方法概要）：
+	getAvailableIDs():static synchronized String[] 
+		获取所有支持的可用时区ID。
+	getAvailableIDs(int rawOffset):static synchronized String[] 
+		根据给定时区偏移量（毫秒）获取可用时区ID。
+	getDefault():static TimeZone 
+		获取Java虚拟机的默认时区。如果缓存的默认时区可用，则返回其克隆。否则，该方法将采取以下步骤来确定默认时区。
+			● 如果可用，请使用user.timezone属性值作为默认时区ID。
+			● 检测平台时区ID。平台时区和ID映射的源可能随实现而变化。
+			● 如果给定或检测到的时区ID未知，则使用GMT作为最后的手段。
+		缓存ID创建的默认时区，并返回其克隆。user.timezone属性值在返回时设置为ID。
+	getTimeZone(String ID):static synchronized TimeZone 
+		获取给定ID的时区。
+	getTimeZone(ZoneId zoneId):static TimeZone 
+		获取给定ZoneID的时区。
+	setDefault(TimeZone zone):static void 
+		设置由GetDefault方法返回的时区。zone已缓存。如果zone为空，则将清除缓存的默认时区。此方法不会更改user.timezone属性的值。
+	clone():Object 
+		△ 创建此时区的副本。
+	getDisplayName():final String 
+		返回此时区的长标准时间名称，该名称适用于在默认区域设置中向用户演示。
+		该方法相当于：
+			getDisplayName(false, LONG,ocale.getDefault(Locale.Category.DISPLAY))
+	getDisplayName(boolean daylight, int style):final String 
+		返回此时区的指定样式的名称，该名称适用于在默认区域设置中向用户演示。如果指定的夏令时（daylight）为true，则返回daylight名称（即使此时区不遵守夏令时）。否则，将返回标准时间名称。
+		该方法相当于：
+			getDisplayName(daylight, style,Locale.getDefault(Locale.Category.DISPLAY))
+		【Throws】：
+			IllegalArgumentException 如果style无效
+	getDisplayName(boolean daylight, int style, Locale locale):String 
+		返回此时区的指定样式的名称，该名称适用于在指定区域设置（locale）中向用户演示。如果指定的dayligh为true，则返回夏令时名称（即使此时区不遵守夏令时）。否则，将返回标准时间名称。
+		查找时区名称时，将使用从指定locale派生的ResourceBundle的默认区域设置搜索路径。（不执行回退区域设置搜索。）如果在搜索路径的任何区域设置（包括Locale.ROOT）中找到时区名称，则返回该名称。否则，将返回规范化自定义ID格式的字符串。
+		【Throws】：
+			IllegalArgumentException 如果style无效
+			NullPointerException 如果locale为null
+	getDisplayName(Locale locale):final String 
+		返回此时区的长标准时间名称，该名称适用于在指定区域设置中向用户演示。
+		该方法相当于：
+			getDisplayName(false, LONG, locale)
+		【Throws】：
+			NullPointerException 如果locale为null
+	getDSTSavings():int 
+		返回要添加到本地标准时间以获取本地挂钟时间的时间量。
+		如果调用useDaylightTime()返回true，则默认实现返回3600000毫秒（即一小时）。否则，返回0（零）。
+		如果基础时区实现子类支持历史和未来夏令时计划更改，则此方法返回可以作为未来预测的最后一个已知夏令时规则的节省时间量。
+		如果需要在任何给定时间戳上节省时间，请使用此时区和时间戳构建一个日历，并调用Calendar.get(Calendar.DST_OFFSET)。
+	getID():String 
+		获取此时区的ID。
+	getOffset(int era, int year, int month, int day,int dayOfWeek, int milliseconds):abstract int 
+		★ 获取当前日期在夏令时修改的时区偏移量。这是添加到UTC以获取本地时间的偏移量。
+		如果基础时区实现子类支持历史夏令时计划和GMT偏移量更改，则此方法返回历史上正确的偏移量。
+	getOffset(long date):int 
+		返回此时区在指定日期与UTC的偏移量。如果夏令时在指定日期生效，则偏移值将根据夏令时的量进行调整。
+		如果基础时区实现子类支持历史夏令时计划和GMT偏移量更改，则此方法返回历史上正确的偏移量值。
+	getRawOffset():abstract int 
+		返回添加到UTC以获取此时区中的标准时间所需的时间（毫秒）。由于该值不受夏令时影响，因此称为原始偏移。
+		如果基础时区实现子类支持历史GMT偏移量更改，则该方法返回当前日期的原始偏移量值。例如，在檀香山，它的原始偏移量在1947年从GMT-10:30更改为GMT-10:00，并且此方法始终返回-36000000毫秒（即-10小时）。
+	hasSameRules(TimeZone other):boolean 
+		如果此时区与另一个时区具有相同的规则和偏移量，则返回true。也就是说，如果这个时区只在ID上有所不同，那么就完全不同了。如果另一个区域为null，则返回false。
+	inDaylightTime(Date date):abstract boolean 
+		★ 查询给定日期是否在此时区中处于夏令时。
+	observesDaylightTime():boolean 
+		如果此时区当前处于夏令时，或者在未来任何时间发生从标准时间到夏令时的转换，则返回true。
+		如果useDaylightTime()或inDaylightTime(new Date())返回true，则默认实现返回true。
+	setID(String ID):void 
+		设置时区ID。这不会更改时区对象中的任何其他数据。
+	setRawOffset(int offsetMillis):abstract void 
+		★ 将基准时区偏移设置为GMT。这是添加到UTC以获取本地时间的偏移。
+	toZoneId():ZoneId 
+		将此时区对象转换为ZoneID对象。
+	useDaylightTime():abstract boolean 
+		★ 查询此时区是否使用夏令时。
+		如果基础时区实现子类支持历史和未来夏令时计划更改，则此方法引用最后一个已知的夏令时规则，该规则可以是未来预测，并且可能与当前规则不同。如果还应考虑到当前规则，请考虑调用observesDaylightTime()。
+	
+	
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。文档中的★符号表示抽象方法
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、单实例：（即单例设计模式）。“一个类有且仅有一个实例，并且自行实例化向整个系统提供。”单例模式是设计模式中最简单的形式之一。这一模式的目的是使得类的一个对象成为系统中的唯一实例。要实现这一点，可以从客户端对其进行实例化开始。因此需要用一种只允许生成对象类的唯一实例的机制，“阻止”所有想要生成对象的访问。使用工厂方法来限制实例化过程。这个方法应该是静态方法（类方法），因为让类的实例去生成另一个唯一实例毫无意义。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

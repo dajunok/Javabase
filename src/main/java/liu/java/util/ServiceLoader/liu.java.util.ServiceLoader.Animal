@@ -1,0 +1,3 @@
+#---注意此文件需放置在\target\classes\META-INF\services目录下
+liu.java.util.ServiceLoader.Pig
+liu.java.util.ServiceLoader.Dog

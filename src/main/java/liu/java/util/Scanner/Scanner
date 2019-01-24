@@ -31,7 +31,7 @@ Scanner：文本扫描器。【since 1.5】
 	     for (int i=1; i<=result.groupCount(); i++)
 	         System.out.println(result.group(i));
 	     s.close();	
-	扫描仪使用的默认空白分隔符由Character.isWhitespace识别。reset()方法将扫描程序分隔符的值重置为默认的空白分隔符，而不管它以前是否被更改过。
+	扫描器使用的默认空白分隔符由Character.isWhitespace识别。reset()方法将扫描程序分隔符的值重置为默认的空白分隔符，而不管它以前是否被更改过。
 	扫描操作可能会阻止等待输入。
 	next()和hasNext()方法及其基元类型的陪伴方法（如nextInt()和hasNextInt()）首先跳过与分隔符模式匹配的任何输入，然后尝试返回下一个标记。HasNext和Next方法都可能阻止等待进一步输入。hasNext方法块是否没有连接到其关联的next方法是否将阻塞。
 	findInLine(java.lang.String)、 findWithinHorizon(java.lang.String, int)和skip(java.util.regex.Pattern)方法独立于定界符模式运行。这些方法将尝试匹配指定的模式，而不考虑输入中的分隔符，因此可以在分隔符不相关的特殊情况下使用。这些方法可能会阻止等待更多输入。
@@ -43,7 +43,7 @@ Scanner：文本扫描器。【since 1.5】
 	除非另有说明，否则将null参数传递到Scanner的任何方法都将导致引发NullPointerException。
 	Scanner默认将数字解释为十进制，除非使用useRadix(int)方法设置了不同的基数。reset()方法将把扫描器的基数值重置为10，而不管它以前是否被更改过。
 	Localized numbers（本地化数字）
-	此类的一个实例能够以标准格式以及扫描仪区域设置（locale）的格式扫描数字。扫描器的初始区域设置是由Locale.getDefault(Locale.Category.FORMAT)方法返回的值；它可以通过useLocale(java.util.Locale)方法进行更改。reset()方法将扫描程序区域设置的值重置为初始区域设置，而不管它以前是否被更改过。
+	此类的一个实例能够以标准格式以及扫描器区域设置（locale）的格式扫描数字。扫描器的初始区域设置是由Locale.getDefault(Locale.Category.FORMAT)方法返回的值；它可以通过useLocale(java.util.Locale)方法进行更改。reset()方法将扫描程序区域设置的值重置为初始区域设置，而不管它以前是否被更改过。
 	本地化格式是根据以下参数定义的，对于特定区域设置，这些参数取自该区域设置的DecimalFormat对象df及其DecimalFormatSymbols对象dfs。
 		● LocalGroupSeparator(本地化组分隔符)	
 			用于分隔数千个组的字符，即dfs.getGroupingSeparator()	
@@ -134,9 +134,9 @@ Constructor Summary（构造器概要）：
 Method Summary（方法概要）：
 	close():void 
 		如果这个扫描器还没有关闭，那么如果它的底层可读性也实现了Closeable的接口，那么将调用可读性的close方法。如果这个扫描器已经关闭，那么调用这个方法将没有效果。
-		关闭扫描仪后尝试执行检索操作将导致IllegalStateException。
+		关闭扫描器后尝试执行检索操作将导致IllegalStateException。
 	delimiter():Pattern 
-		返回此扫描仪当前用于匹配分隔符的模式。
+		返回此扫描器当前用于匹配分隔符的模式。
 	findInLine(String pattern):String 
 		尝试查找从指定字符串构造的模式的下一个匹配项，忽略分隔符。
 		对findInLine(pattern)形式的此方法的调用与调用findInLine(Pattern.compile(pattern))的行为完全相同。
@@ -163,7 +163,7 @@ Method Summary（方法概要）：
 			IllegalStateException 如果scanner被关闭
 			IllegalArgumentException 如果horizon为负数
 	hasNext():boolean 
-		△ 如果此扫描仪的输入中有其他标记，则返回true。此方法可能会在等待输入扫描时阻塞。扫描器不会超出任何输入。
+		△ 如果此扫描器的输入中有其他标记，则返回true。此方法可能会在等待输入扫描时阻塞。扫描器不会超出任何输入。
 	hasNext(String pattern):boolean 
 		如果下一个标记与从指定字符串构造的模式匹配，则返回true。扫描器不会超出任何输入。
 		对hasNext(pattern)模式的此方法的调用与调用hasNext(Pattern.compile(pattern))的操作完全相同。
@@ -174,78 +174,78 @@ Method Summary（方法概要）：
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextBigDecimal():boolean 
-		如果使用nextBigDecimal()方法可以将此扫描仪输入中的下一个标记解释为BigDecimal，则返回true。扫描器不会超过任何输入。
+		如果使用nextBigDecimal()方法可以将此扫描器输入中的下一个标记解释为BigDecimal，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextBigInteger():boolean 
-		如果使用nextBigInteger()方法可以将此扫描仪输入中的下一个标记解释为BigInteger，则返回true。扫描器不会超过任何输入。
+		如果使用nextBigInteger()方法可以将此扫描器输入中的下一个标记解释为BigInteger，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextBigInteger(int radix):boolean 
-		如果使用nextBigInteger()方法可以将此扫描仪输入中的下一个标记解释为指定基数中的BigInteger，则返回true。扫描器不会超过任何输入。
+		如果使用nextBigInteger()方法可以将此扫描器输入中的下一个标记解释为指定基数中的BigInteger，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextBoolean():boolean 
-		如果可以使用从字符串“true|false”创建的不区分大小写的模式将此扫描仪输入中的下一个标记解释为布尔值，则返回true。扫描器没有超过匹配的输入。
+		如果可以使用从字符串“true|false”创建的不区分大小写的模式将此扫描器输入中的下一个标记解释为布尔值，则返回true。扫描器没有超过匹配的输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextByte():boolean 
-		如果使用nextByte()方法可以将此扫描仪输入中的下一个标记解释为默认基数中的字节值，则返回true。扫描器不会超过任何输入。
+		如果使用nextByte()方法可以将此扫描器输入中的下一个标记解释为默认基数中的字节值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextByte(int radix):boolean 
-		如果使用nextByte()方法可以将此扫描仪输入中的下一个标记解释为指定基数中的字节值，则返回true。扫描器不会超过任何输入。
+		如果使用nextByte()方法可以将此扫描器输入中的下一个标记解释为指定基数中的字节值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextDouble():boolean 
-		如果使用nextDouble()方法可以将此扫描仪输入中的下一个标记解释为默认基数中的double值，则返回true。扫描器不会超过任何输入。
+		如果使用nextDouble()方法可以将此扫描器输入中的下一个标记解释为默认基数中的double值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭
 	hasNextFloat():boolean
-		如果使用nextFloat()方法可以将此扫描仪输入中的下一个标记解释为默认基数中的浮点数值，则返回true。扫描器不会超过任何输入。
+		如果使用nextFloat()方法可以将此扫描器输入中的下一个标记解释为默认基数中的浮点数值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextInt():boolean 
-		如果使用nextInt()方法可以将此扫描仪输入中的下一个标记解释为默认基数中的int值，则返回true。扫描器不会超过任何输入。
+		如果使用nextInt()方法可以将此扫描器输入中的下一个标记解释为默认基数中的int值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextInt(int radix):boolean 
-		如果使用nextInt()方法可以将此扫描仪输入中的下一个标记解释为指定基数中的int值，则返回true。扫描器不会超过任何输入。
+		如果使用nextInt()方法可以将此扫描器输入中的下一个标记解释为指定基数中的int值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextLine():boolean 
-		如果此扫描仪的输入中有另一行，则返回“true”。此方法在等待输入时可能会阻塞。扫描器不会超过任何输入。
+		如果此扫描器的输入中有另一行，则返回“true”。此方法在等待输入时可能会阻塞。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextLong():boolean 
-		如果使用nextLong()方法可以将此扫描仪输入中的下一个标记解释为默认基数中的long值，则返回true。扫描器不会超过任何输入。
+		如果使用nextLong()方法可以将此扫描器输入中的下一个标记解释为默认基数中的long值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextLong(int radix):boolean 
-		如果使用nextLong()方法可以将此扫描仪输入中的下一个标记解释为指定基数中的long值，则返回true。扫描器不会超过任何输入。
+		如果使用nextLong()方法可以将此扫描器输入中的下一个标记解释为指定基数中的long值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextShort():boolean 
-		如果使用nextShort()方法可以将此扫描仪输入中的下一个标记解释为默认基数中的short值，则返回true。扫描器不会超过任何输入。
+		如果使用nextShort()方法可以将此扫描器输入中的下一个标记解释为默认基数中的short值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	hasNextShort(int radix):boolean 
-		如果使用nextShort()方法可以将此扫描仪输入中的下一个标记解释为指定基数中的short值，则返回true。扫描器不会超过任何输入。
+		如果使用nextShort()方法可以将此扫描器输入中的下一个标记解释为指定基数中的short值，则返回true。扫描器不会超过任何输入。
 		【Throws】：
 			IllegalStateException 如果scanner被关闭 
 	ioException():IOException 
-		返回此扫描仪的底层Readable最近抛出的IOException。如果不存在此类异常，则此方法返回null。
+		返回此扫描器的底层Readable最近抛出的IOException。如果不存在此类异常，则此方法返回null。
 	locale():Locale 
-		返回此扫描仪的区域设置（locale）。
+		返回此扫描器的区域设置（locale）。
 		扫描器的区域设置会影响其默认基元匹配正则表达式的许多元素；请参见上面的本地化数字。
 	match():MatchResult 
-		返回此扫描仪上次执行扫描操作的匹配结果。如果没有执行匹配，或者最后一次匹配不成功，则此方法将引发IllegalStateException。
+		返回此扫描器上次执行扫描操作的匹配结果。如果没有执行匹配，或者最后一次匹配不成功，则此方法将引发IllegalStateException。
 		扫描器的各种next方法使匹配结果在不引发异常的情况下完成时可用。
 		例如，在调用返回int的nextInt()方法后，此方法返回一个匹配结果，用于搜索上面定义的整数正则表达式。同样，如果成功，findInLine(java.lang.String)、findWithinHorizon(java.lang.String, int)和skip(java.util.regex.Pattern)方法将使匹配可用。
 		【Throws】：
 			IllegalStateException 如果没有匹配结果可用
 	next():String 
-		△ 查找并返回来自此扫描仪的下一个完整标记。完整标记的前面和后面是与分隔符模式匹配的输入。此方法可能会在等待输入扫描时阻塞，即使之前对hasNext()的调用返回了true。
+		△ 查找并返回来自此扫描器的下一个完整标记。完整标记的前面和后面是与分隔符模式匹配的输入。此方法可能会在等待输入扫描时阻塞，即使之前对hasNext()的调用返回了true。
 		【Throws】：
 			NoSuchElementException 如果没有更多的标记可用
 			IllegalStateException 如果scanner被关闭 
@@ -325,7 +325,7 @@ Method Summary（方法概要）：
 			NoSuchElementException 如果没有更多的标记可用
 			IllegalStateException 如果scanner被关闭 
 	nextLine():String 
-		将此扫描仪推进到当前行之后，并返回跳过的输入。此方法返回当前行除了末尾任何行分隔符的其余部分。位置设置为下一行的开始。
+		将此扫描器推进到当前行之后，并返回跳过的输入。此方法返回当前行除了末尾任何行分隔符的其余部分。位置设置为下一行的开始。
 		由于此方法继续在输入中搜索行分隔符，因此如果不存在行分隔符，它可能会缓冲所有搜索要跳过的行的输入。
 		【Throws】：
 			NoSuchElementException 如果line没有找到
@@ -359,14 +359,14 @@ Method Summary（方法概要）：
 			NoSuchElementException 如果没有更多的标记可用
 			IllegalStateException 如果scanner被关闭 
 	radix():int 
-		返回扫描仪的默认基数。
+		返回扫描器的默认基数。
 		扫描器的基数影响其默认数字匹配正则表达式的元素；请参见上面的本地化数字。
 	remove():void 
 		△ 迭代器的此实现不支持移除操作。
 		【Throws】：
 			UnsupportedOperationException 如果调用此方法。（此类没有实现具体功能代码）
 	reset():Scanner 
-		重置此扫描仪。
+		重置此扫描器。
 		重置使扫描器丢弃所有显式状态信息，这些状态信息可能是通过useDelimiter(java.util.regex.Pattern)、useLocale(java.util.Locale)或useRadix(int)调用而改变的。
 		对scanner.reset()形式的此方法的调用与以下调用的行为完全相同。
 			scanner.useDelimiter("\\p{javaWhitespace}+").useLocale(Locale.getDefault(Locale.Category.FORMAT)).useRadix(10);
@@ -378,25 +378,25 @@ Method Summary（方法概要）：
 	skip(Pattern pattern):Scanner 
 		跳过与指定模式匹配的输入，忽略分隔符。如果指定模式的锚定匹配成功，此方法将跳过输入。
 		如果在当前位置找不到与指定模式的匹配，则不会跳过任何输入，并引发NoSuchElementException异常。
-		由于此方法试图匹配从扫描仪当前位置开始的指定模式，因此可以匹配大量输入的模式（例如".*"）可能会导致扫描仪缓冲大量输入。
+		由于此方法试图匹配从扫描器当前位置开始的指定模式，因此可以匹配大量输入的模式（例如".*"）可能会导致扫描器缓冲大量输入。
 		请注意，通过使用不匹配任何内容的模式（例如sc.skip("[ \t]*")），可以跳过某些内容而不冒抛出NoSuchElementException的风险。
 		【Throws】：
 			NoSuchElementException 如果找不到指定的模式
 			IllegalStateException 如果scanner被关闭 
 	toString():String 
-		△ 返回此扫描仪的字符串表示形式。扫描器的字符串表示形式包含可能对调试有用的信息。未指定确切格式。
+		△ 返回此扫描器的字符串表示形式。扫描器的字符串表示形式包含可能对调试有用的信息。未指定确切格式。
 	useDelimiter(String pattern):Scanner 
-		将此扫描仪的分隔模式设置为从指定字符串构造的模式。
+		将此扫描器的分隔模式设置为从指定字符串构造的模式。
 		对useDelimiter(pattern)形式的此方法的调用与调用useDelimiter(Pattern.compile(pattern))的行为完全相同。
-		调用reset()方法会将扫描仪的分隔符设置为默认值。
+		调用reset()方法会将扫描器的分隔符设置为默认值。
 	useDelimiter(Pattern pattern):Scanner 
-		 将此扫描仪的分隔模式设置为指定的模式。
+		 将此扫描器的分隔模式设置为指定的模式。
 	useLocale(Locale locale):Scanner 
-		将此扫描仪的区域设置为指定的区域设置。
+		将此扫描器的区域设置为指定的区域设置。
 		扫描器的区域设置会影响其默认基元匹配正则表达式的许多元素；请参见上面的本地化数字。
-		调用 reset()方法会将扫描仪的区域设置为初始区域设置。
+		调用 reset()方法会将扫描器的区域设置为初始区域设置。
 	useRadix(int radix):Scanner 
-		将此扫描仪的默认基数设置为指定的基数。
+		将此扫描器的默认基数设置为指定的基数。
 		扫描器的基数影响其默认数字匹配正则表达式的元素；请参见上面的本地化数字。
 		如果基数小于character.min基数或大于character.max基数，则引发IllegalArgumentException。
 		调用reset()方法将扫描器的基数设置为10。

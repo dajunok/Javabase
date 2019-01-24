@@ -1,0 +1,171 @@
+-------------------------------TimeZone-----------------------------------------------------------------------------------------------------------------------
+SimpleTimeZone：简单时区（公历时区）。【since 1.1】
+	SimpleTimeZone是TimeZone的具体子类，它表示用于公历的时区。该类保存与GMT的偏移量，称为原始偏移量，以及夏令时计划的开始和结束规则。由于它只为每个值保存单个值，因此它无法处理与GMT和夏令时计划的偏移量的历史更改，除非setStartYear方法可以指定夏令时计划生效的年份。
+	要使用夏令时计划构造一个SimpleTimeZone，可以使用一组规则，用开始规则和结束规则来描述该计划。夏令时开始或结束的日期由month、day-of-month和day-of-week几个值的组合指定。month值由Calendar类的MONTH字段值表示，例如Calendar.MARCH。 day-of-week值的Calendar类的DAY_OF_WEEK值表示，如SUNDAY。值组合的含义如下：
+		● 每月的确切日期（Exact day of month）
+			若要指定月份的确切日期，请将月份（month）和日期（day-of-month）设置为精确值，并将星期几（day-of-week）设置为零。例如，要指定3月1日，请将month设置为3月，将day-of-month设置为1，将day-of-week设置为0。
+		● 一周中的某一天或某一天之后（Day of week on or after day of month）
+			若要指定一周中某一天在某个月的某一天或某一天之后，请将moth设置为精确的月份值，将day-of-month设置为应用规则的日期或该日期之后的日期，将day-of-week设置为负的DAY_OF_WEEK字段值。例如，要指定April（四月）的第二个星期日，请将month设置为April（四月），将day-of-month设置为8，将day-of-week设置为-SUNDAY。
+		● 一周中的某一天或某一天之前（Day of week on or before day of month）
+			若要指定一周中的某一天在月份的某一天或之前，请将day-of-month和day-of-week设置为负值。例如，要指定3月21日或之前的最后一个星期三（Wednesday），请将month设置为MARCH，day-of-month设置为-21，day-of-week设置为-WEDNESDAY。
+		● 每月的最后一天（Last day-of-week of month）
+			若要指定，请将day-of-week设置为DAY_OF_WEEK值，将day-of-month设置为-1。例如，要指定10月的最后一个星期日（Sunday），请将month设置为OCTOBER，将day-of-week设置为SUNDAY，将day-of-month设置为-1。
+	一天中夏令时开始或结束的时间由一天中的毫秒值指定。指定时间有三种模式：WALL_TIME（挂钟时间）、STANDARD_TIME（标准时间）和UTC_TIME（UTC时间）。例如，如果夏令节省时间在挂钟时钟时间的凌晨2:00结束，则可以在挂钟时间模式下以7200000毫秒指定。在这种情况下，结束规则的挂钟时间与夏令时的含义相同。
+	以下是构建时区对象的参数示例。
+	      // Base GMT offset: -8:00
+	      // DST starts:      at 2:00am in standard time
+	      //                  on the first Sunday in April
+	      // DST ends:        at 2:00am in daylight time
+	      //                  on the last Sunday in October
+	      // Save:            1 hour
+	      SimpleTimeZone(-28800000,
+	                     "America/Los_Angeles",
+	                     Calendar.APRIL, 1, -Calendar.SUNDAY,
+	                     7200000,
+	                     Calendar.OCTOBER, -1, Calendar.SUNDAY,
+	                     7200000,
+	                     3600000)
+	
+	      // Base GMT offset: +1:00
+	      // DST starts:      at 1:00am in UTC time
+	      //                  on the last Sunday in March
+	      // DST ends:        at 1:00am in UTC time
+	      //                  on the last Sunday in October
+	      // Save:            1 hour
+	      SimpleTimeZone(3600000,
+	                     "Europe/Paris",
+	                     Calendar.MARCH, -1, Calendar.SUNDAY,
+	                     3600000, SimpleTimeZone.UTC_TIME,
+	                     Calendar.OCTOBER, -1, Calendar.SUNDAY,
+	                     3600000, SimpleTimeZone.UTC_TIME,
+	                     3600000)	
+	这些参数规则也适用于setStartRule方法。
+	
+	类定义	：public class SimpleTimeZone extends TimeZone
+	实现接口	：Serializable, Cloneable
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Field Summary（字段概要）：
+	STANDARD_TIME = 1:static final int
+		 指定为标准时间的开始或结束时间模式的常量。
+	UTC_TIME = 2:static final int 
+		指定为UTC的开始或结束时间模式的常量。例如，欧盟规则被指定为UTC时间。
+	WALL_TIME = 0:static final int 
+		指定为挂钟时间的开始或结束时间模式的常量。挂钟时间是开始规则的标准时间，结束规则的夏令时。
+
+Constructor Summary（构造器概要）：
+	public SimpleTimeZone(int rawOffset, String ID)
+		构造一个simpleTimeZone，其给定的基本时区与GMT的偏移量和时区ID没有夏令时计划。
+	public SimpleTimeZone(int rawOffset, String ID,
+                          int startMonth, int startDay, int startDayOfWeek, int startTime,
+                          int endMonth, int endDay, int endDayOfWeek, int endTime)
+		构造一个simpleTimeZone，它具有给定的基准时区与GMT的偏移量、时区ID以及用于开始和结束夏令时的规则。startTime和endTime都被指定在挂钟时间中表示。夏令节省假定为36万毫秒（即一小时）。此构造函数等价于：		
+    		     SimpleTimeZone(rawOffset,
+		                    ID,startMonth,startDay,startDayOfWeek,startTime,
+		                    SimpleTimeZone.WALL_TIME,endMonth,endDay,endDayOfWeek,
+		                    endTime,SimpleTimeZone.WALL_TIME,3600000)
+		【Throws】：
+			IllegalArgumentException 如果 month, day, dayOfWeek 或者time参数超出开始或结束规则范围
+    public SimpleTimeZone(int rawOffset, String ID,
+                          int startMonth, int startDay, int startDayOfWeek, int startTime,
+                          int endMonth, int endDay, int endDayOfWeek, int endTime,
+                          int dstSavings)
+		构造一个simpleTimeZone，它具有给定的基准时区与GMT的偏移量、时区ID以及用于开始和结束夏令时的规则。开始时间和结束时间都假定以挂钟时间表示。此构造函数等价于：
+			     SimpleTimeZone(rawOffset,ID,startMonth,startDay,startDayOfWeek,
+			                    startTime,SimpleTimeZone.WALL_TIME,endMonth,
+			                    endDay,endDayOfWeek,endTime,SimpleTimeZone.WALL_TIME,dstSavings)	
+		【Throws】：
+			IllegalArgumentException 如果 month, day, dayOfWeek 或者time参数超出开始或结束规则范围			
+	public SimpleTimeZone(int rawOffset, String ID,
+                          int startMonth, int startDay, int startDayOfWeek,
+                          int startTime, int startTimeMode,
+                          int endMonth, int endDay, int endDayOfWeek,
+                          int endTime, int endTimeMode,
+                          int dstSavings)
+		构造一个simpleTimeZone，它具有给定的基准时区与GMT的偏移量、时区ID以及用于开始和结束夏令时的规则。此构造函数接受完整的开始和结束规则参数集，包括startTime和endTime模式。模式指挂钟时间、标准时间或UTC时间。
+	
+Method Summary（方法概要）：
+	clone():Object 
+		△ 创建此返回此SimpleTimeZone实例的克隆。
+	equals(Object obj):boolean 
+		△ 比较两个SimpleTimeZone对象的相等性。
+	getDSTSavings():int 
+		返回夏令时时钟提前的时间量（毫秒）。
+	getOffset(int era, int year, int month, int day,int dayOfWeek, int milliseconds):int 
+		△  返回指定日期和时间的本地时间和UTC之间的毫秒差异，同时考虑到原始偏移量和夏令时的影响。此方法假定开始月份和结束月份是不同的。它还使用默认的GregorianCalendar(公历日历)对象作为基础日历，例如用于确定闰年。不要将此方法的结果与默认公历日历以外的日历一起使用。
+		注意：一般情况下，客户端应该使用Calendar.get(ZONE_OFFSET) + Calendar.get(DST_OFFSET)而不是调用此方法。
+	getOffset(long date):int 
+		△  返回此时区在给定时间相对于UTC的偏移量。如果夏令时在给定时间生效，则偏移值将随夏令时的量进行调整。
+	getRawOffset():abstract int 
+		△  获取此时区的GMT偏移量。
+	hashCode():synchronized int 
+		△  为SimpleDateFormat对象生成哈希代码。
+	hasSameRules(TimeZone other):boolean 
+		△  如果此时区与另一个时区具有相同的规则和偏移量，则返回true。
+	inDaylightTime(Date date):boolean 
+		△  查询给定日期是否在此时区中处于夏令时。
+	observesDaylightTime():boolean 
+		△ 如果此SimpleTimeZone遵守夏令时，则返回true。此方法等效于useDaylightTime()
+	setDSTSavings(int millisSavedDuringDST):void 
+		设置夏令时时钟提前的时间量（毫秒）。
+	setEndRule(int endMonth, int endDay, int endTime):void 
+		将夏令时结束规则设置为一个月内的固定日期。该方法相当于：
+			setEndRule(endMonth, endDay, 0, endTime)	
+		【Throws】：
+			IllegalArgumentException endMonth、endDay 或endTime参数超出范围
+	setEndRule(int endMonth, int endDay, int endDayOfWeek,int endTime):void 
+		设置夏令时结束规则。例如，如果夏令时在10月的最后一个星期日的墙上时钟时间凌晨2点结束，则可以通过调用：
+			setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2*60*60*1000)
+		来设置结束规则。
+		【Throws】：
+			IllegalArgumentException endMonth、endDay 或endTime参数超出范围
+	setEndRule(int endMonth, int endDay, int endDayOfWeek, int endTime, boolean after):void 
+		将夏令时结束规则设置为一个月内给定日期之前或之后的一个工作日，例如，第8个星期一或之后的第一个星期一。
+		【Throws】：
+			IllegalArgumentException endMonth、endDay 或endTime参数超出范围
+	setRawOffset(int offsetMillis):void 
+		 △ 将基准时区偏移设置为GMT。这是添加到UTC以获取本地时间的偏移。
+	setStartRule(int startMonth, int startDay, int startTime):void 
+		将夏令时开始规则设置为一个月内的固定日期。该方法相当于：setStartRule(startMonth, startDay, 0, startTime)
+	setStartRule(int startMonth, int startDay, int startDayOfWeek, int startTime):void 
+		设置夏令时开始规则。例如，如果夏令时从4月的第一个星期日当地挂钟时间的凌晨2点开始，则可以通过调用以下命令来设置开始规则：
+			setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2*60*60*1000);
+	setStartRule(int startMonth, int startDay, int startDayOfWeek,int startTime, boolean after):void 
+		将夏令时开始规则设置为一个月内给定日期之前或之后的一个工作日，例如，第8个星期一或之后的第一个星期一。
+	setStartYear(int year):void 
+		设置夏令时开始年份。
+	toString():String 
+		返回此时区的字符串表示形式。
+	useDaylightTime():abstract boolean 
+		△ 查询此时区是否使用夏令时。
+	
+	
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。文档中的★符号表示抽象方法
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、单实例：（即单例设计模式）。“一个类有且仅有一个实例，并且自行实例化向整个系统提供。”单例模式是设计模式中最简单的形式之一。这一模式的目的是使得类的一个对象成为系统中的唯一实例。要实现这一点，可以从客户端对其进行实例化开始。因此需要用一种只允许生成对象类的唯一实例的机制，“阻止”所有想要生成对象的访问。使用工厂方法来限制实例化过程。这个方法应该是静态方法（类方法），因为让类的实例去生成另一个唯一实例毫无意义。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
