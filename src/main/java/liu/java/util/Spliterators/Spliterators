@@ -1,0 +1,309 @@
+-------------------------------Spliterators-----------------------------------------------------------------------------------------------------------------------
+Spliterators：拆分器工厂。【since 1.8】
+	用于操作或创建Spliterator及其原始专门化Spliterator.OfInt、Spliterator.OfLong和Spliterator.OfDouble实例的静态类和方法。
+	
+		
+	类定义	：public final class Spliterators
+	内部类	：AbstractDoubleSpliterator,AbstractIntSpliterator,AbstractLongSpliterator,AbstractSpliterator<T>
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Method Summary（方法概要）：
+	emptyDoubleSpliterator():static Spliterator.OfDouble 
+		创建空的Spliterator.OfDouble拆分器。
+		空的拆分器报告Spliterator.SIZED和Spliterator.SUBSIZED特征。对Spliterator.trySplit()的调用始终返回null。
+	emptyIntSpliterator():static Spliterator.OfInt 
+		创建空的Spliterator.OfInt拆分器。
+		空的拆分器报告Spliterator.SIZED和Spliterator.SUBSIZED特征。对Spliterator.trySplit()的调用始终返回null。
+	emptyLongSpliterator():static Spliterator.OfLong 
+		创建空的Spliterator.OfLong拆分器。
+		空的拆分器报告Spliterator.SIZED和Spliterator.SUBSIZED特征。对Spliterator.trySplit()的调用始终返回null。
+	emptySpliterator():static <T> Spliterator<T> 
+		创建空的拆分器。
+		空的拆分器报告Spliterator.SIZED和Spliterator.SUBSIZED特征。对Spliterator.trySplit()的调用始终返回null。
+	iterator(Spliterator.OfDouble spliterator):static PrimitiveIterator.OfDouble 
+		从Spliterator.OfDouble拆分器创建PrimitiveIterator.OfDouble迭代器。
+		元素的遍历应该通过迭代器完成。如果在迭代器返回后操作拆分器，则遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的spliterator为null。
+	iterator(Spliterator.OfInt spliterator):static PrimitiveIterator.OfInt 
+		从Spliterator.OfInt拆分器创建PrimitiveIterator.OfInt迭代器。
+		元素的遍历应该通过迭代器完成。如果在迭代器返回后操作拆分器，则遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的spliterator为null。
+	iterator(Spliterator.OfLong spliterator):static PrimitiveIterator.OfLong 
+		从Spliterator.OfLong拆分器创建PrimitiveIterator.OfLong迭代器。
+		元素的遍历应该通过迭代器完成。如果在迭代器返回后操作拆分器，则遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的spliterator为null。
+	iterator(Spliterator<? extends T> spliterator):static<T> Iterator<T> 
+		从Spliterator拆分器创建Iterator迭代器。
+		元素的遍历应该通过迭代器完成。如果在迭代器返回后操作拆分器，则遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的spliterator为null。
+	spliterator(double[] array,int additionalCharacteristics):static Spliterator.OfDouble 
+		创建一个Spliterator.OfDouble拆分器，它使用一组自定义的spliterator特性覆盖给定数组的元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(double[])。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供要报告的其他特性；另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+	spliterator(double[] array, int fromIndex, int toIndex,int additionalCharacteristics):static Spliterator.OfDouble 
+		创建一个Spliterator.OfDouble拆分器，使用一组自定义的spliterator特性覆盖给定数组的一系列元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(double[], int, int)。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供额外的特性来报告。（例如，如果已知数组将不会被进一步修改，请指定IMMUTABLE（不可变）；如果认为数组数据具有遭遇顺序，请指定ORDERED（有序））。通常可以使用方法Arrays.spliterator(long[], int, int)，它返回报告SIZED、SUBSIZED、IMMUTABLE和ORDERED的拆分器。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+			ArrayIndexOutOfBoundsException 如果fromIndex为负，则toIndex小于fromIndex，或者toIndex大于数组大小
+	spliterator(int[] array,int additionalCharacteristics):static Spliterator.OfInt 
+		创建一个Spliterator.OfInt拆分器，它使用一组自定义的spliterator特性覆盖给定数组的元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(int[])。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供要报告的其他特性；另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+	spliterator(int[] array, int fromIndex, int toIndex,int additionalCharacteristics):static Spliterator.OfInt 
+		创建一个Spliterator.OfInt拆分器，使用一组自定义的spliterator特性覆盖给定数组的一系列元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(int[], int, int)。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供额外的特性来报告。另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+			ArrayIndexOutOfBoundsException 如果fromIndex为负，则toIndex小于fromIndex，或者toIndex大于数组大小
+	spliterator(Object[] array,int additionalCharacteristics):static <T> Spliterator<T> 
+		使用自定义的拆分器特性集，创建一个覆盖给定数组元素的拆分器。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(Object[])。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供额外的特性来报告。另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+	spliterator(Object[] array, int fromIndex, int toIndex,int additionalCharacteristics):static <T> Spliterator<T> 
+		使用一组自定义的拆分器特性创建一个拆分器，该拆分器覆盖给定数组的一系列元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(Object[],int,int)。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供额外的特性来报告。另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+			ArrayIndexOutOfBoundsException 如果fromIndex为负，则toIndex小于fromIndex，或者toIndex大于数组大小
+	spliterator(Collection<? extends T> c,int characteristics):static <T> Spliterator<T> 
+		使用给定集合的Collection.iterator()作为元素源，并将其Collection.size()作为初始大小报告，创建一个拆分器。
+		拆分器是后期绑定的，继承集合迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		【Throws】：
+			NullPointerException 如果给定的集合c为null。
+	spliterator(Iterator<? extends T> iterator,long size,int characteristics):static <T> Spliterator<T> 
+		使用给定的迭代器作为元素源并使用给定的初始报告大小创建拆分器。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器后对迭代器进行操作，或者最初报告的大小不等于源中的实际元素数，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliterator(PrimitiveIterator.OfDouble iterator,long size,int characteristics):static Spliterator.OfDouble 
+		使用给定的DoubleStream.DoubleIterator作为元素源并使用给定的初始报告大小创建Spliterator.OfDouble。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器后对迭代器进行操作，或者最初报告的大小不等于源中的实际元素数，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliterator(PrimitiveIterator.OfInt iterator,long size,int characteristics):static Spliterator.OfInt 
+		使用给定的DoubleStream.IntIterator作为元素源并使用给定的初始报告大小创建Spliterator.OfInt。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器后对迭代器进行操作，或者最初报告的大小不等于源中的实际元素数，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliterator(PrimitiveIterator.OfLong iterator,long size,int characteristics):static Spliterator.OfLong 
+		使用给定的DoubleStream.LongIterator作为元素源并使用给定的初始报告大小创建Spliterator.OfLong。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器后对迭代器进行操作，或者最初报告的大小不等于源中的实际元素数，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliterator(long[] array,int additionalCharacteristics):static Spliterator.OfLong 
+		创建一个Spliterator.OfLong拆分器，它使用一组自定义的spliterator特性覆盖给定数组的元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(long[])。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供要报告的其他特性；另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+	spliterator(long[] array, int fromIndex, int toIndex,int additionalCharacteristics):static Spliterator.OfLong 
+		创建一个Spliterator.OfLong拆分器，使用一组自定义的spliterator特性覆盖给定数组的一系列元素。
+		该方法为分割器提供了一种方便的实现方法，它将其部分元素存储在数组中，并且需要对分割器的特性进行精细控制。在需要数组的拆分器的大多数其他情况下，应使用Arrays.spliterator(long[], int, int)。
+		返回的拆分器始终报告特征SIZED和SUBSIZED。调用者可以为拆分器提供额外的特性来报告。另外指定IMMUTABLE（不可变）和ORDERED（有序）是很常见的。
+		【Throws】：
+			NullPointerException 如果给定的array为null。
+			ArrayIndexOutOfBoundsException 如果fromIndex为负，则toIndex小于fromIndex，或者toIndex大于数组大小
+	spliteratorUnknownSize(Iterator<? extends T> iterator,int characteristics):static <T> Spliterator<T> 
+		使用给定的迭代器作为元素源创建拆分器，不进行初始大小估计。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器之后对迭代器进行操作，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliteratorUnknownSize(PrimitiveIterator.OfDouble iterator,int characteristics):static Spliterator.OfDouble 
+		使用给定的DoubleStream.DoubleIterator作为元素源创建Spliterator.OfDouble，不进行初始大小估计。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器之后对迭代器进行操作，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliteratorUnknownSize(PrimitiveIterator.OfInt iterator,int characteristics):static Spliterator.OfInt 
+		使用给定的DoubleStream.IntIterator作为元素源创建Spliterator.OfInt，不进行初始大小估计。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器之后对迭代器进行操作，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	spliteratorUnknownSize(PrimitiveIterator.OfLong iterator,int characteristics):static Spliterator.OfLong 
+		使用给定的DoubleStream.LongIterator作为元素源创建Spliterator.OfLong，不进行初始大小估计。
+		拆分器不是后期绑定，继承迭代器的fail-fast属性，并实现trySplit以允许有限的并行性。
+		元素的遍历应该通过拆分器完成。如果在返回拆分器之后对迭代器进行操作，则拆分和遍历操作不确定。
+		【Throws】：
+			NullPointerException 如果给定的iterator为null。
+	
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+1、Spliterators$AbstractDoubleSpliterator：抽象double拆分器。【since 1.8】
+	抽象Double拆分器实现了trySplit方法，允许有限的并行性操作。
+	要实现拆分器，扩展类只需要实现Spliterator.OfDouble.tryAdvance(java.util.function.DoubleConsumer)。如果扩展类可以提供更高性能的实现，那么它应该重写Spliterator.OfDouble.forEachRemaining(java.util.function.DoubleConsumer)。
+	API注意事项：
+	当无法或难以以允许平衡并行计算的方式有效地分区元素时，此类对于创建拆分器非常有用。
+	使用这个类的一个替代方法，也允许有限的并行性，是从迭代器创建一个拆分器（参见Spliterators.spliterator(java.util.PrimitiveIterator.OfDouble, long, int)）。根据具体情况，使用迭代器可能比扩展此类更容易或更方便。例如，如果已经有一个迭代器可用，那么就不需要扩展这个类。
+	
+		
+	类定义	：public static abstract class AbstractDoubleSpliterator implements Spliterator.OfDouble
+	实现接口	：Spliterator<Double>, Spliterator.OfDouble, Spliterator.OfPrimitive<Double,DoubleConsumer,Spliterator.OfDouble>
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	protected AbstractDoubleSpliterator(long est, int additionalCharacteristics)
+		创建一个拆分器，报告指定的估计大小和特征。
+
+Method Summary（方法概要）：
+	characteristics():public int 
+		△ 返回此拆分器及其元素的一组特征。结果表示为Spliterator.ORDERED、Spliterator.DISTINCT、Spliterator.SORTED、Spliterator.SIZED、Spliterator.NONNULL、Spliterator.IMMUTABLE、Spliterator.CONCURRENT、Spliterator.SUBSIZED中的ORed(位或运算)值。在调用trySplit之前或两次调用之间，对给定拆分器上的Spliterator.SUBSIZED重复调用应始终返回相同的结果。
+		如果拆分器报告了一组不一致的特征（从单个调用或跨多个调用返回的特征），则无法保证使用此拆分器进行的任何计算。
+	estimateSize():long 
+		△ 返回Spliterator.forEachRemaining(java.util.function.Consumer<? super T>)遍历将遇到的元素数的估计值，如果无限、未知或计算成本过高，则返回Long.MAX_VALUE。
+		如果此拆分器是Spliterator.SIZED且尚未部分遍历或拆分，或者此拆分器是Spliterator.SUBSIZED且尚未部分遍历，则此估计必须是完整遍历将遇到的元素的准确计数。否则，此估计值可能是任意不准确的，但必须按照Spliterator.trySplit()调用的规定减少。
+		此实现返回创建时报告的估计大小，如果已知估计大小，则在拆分时减小大小。
+	trySplit():Spliterator.OfDouble 
+		△ 如果可以对该拆分器进行分区，则返回一个包含元素的拆分器，从该方法返回时，不覆盖该拆分器。
+		如果此拆分器是Spliterator.ORDERED，则返回的拆分器必须包含元素的严格前缀。
+		除非此拆分器包含无限多的元素，否则对trySplit()的重复调用最终必须返回null值。非空返回时：
+			● 拆分前为estimateSize()报告的值，拆分后必须大于或等于此拆分器和返回的拆分器的estimateSize()；以及
+			● 如果此拆分器是SUBSIZED特征，则拆分前此拆分器的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null值，包括空性、遍历开始后无法拆分、数据结构干扰和效率考虑。此实现允许有限的并行性。	
+
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+2、Spliterators$AbstractIntSpliterator：抽象int拆分器。【since 1.8】
+	抽象Spliterator.OfInt拆分器实现了trySplit方法，允许有限的并行性操作。
+	要实现拆分器，扩展类只需要实现Spliterator.OfInt.tryAdvance(java.util.function.IntConsumer)。如果扩展类可以提供更高性能的实现，那么它应该重写Spliterator.OfInt.forEachRemaining(java.util.function.IntConsumer)。
+	API注意事项：
+	当无法或难以以允许平衡并行计算的方式有效地分区元素时，此类对于创建拆分器非常有用。
+	使用这个类的一个替代方法，也允许有限的并行性，是从迭代器创建一个拆分器（参见Spliterators.spliterator(java.util.PrimitiveIterator.OfInt, long, int)）。根据具体情况，使用迭代器可能比扩展此类更容易或更方便。例如，如果已经有一个迭代器可用，那么就不需要扩展这个类。
+	
+		
+	类定义	：public static abstract class AbstractIntSpliterator implements Spliterator.OfInt
+	实现接口	：Spliterator<Integer>, Spliterator.OfInt, Spliterator.OfPrimitive<Integer,IntConsumer,Spliterator.OfInt>
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	protected AbstractIntSpliterator(long est, int additionalCharacteristics)
+		创建一个拆分器，报告指定的估计大小和特征。
+
+Method Summary（方法概要）：
+	characteristics():public int 
+		△ 返回此拆分器及其元素的一组特征。结果表示为Spliterator.ORDERED、Spliterator.DISTINCT、Spliterator.SORTED、Spliterator.SIZED、Spliterator.NONNULL、Spliterator.IMMUTABLE、Spliterator.CONCURRENT、Spliterator.SUBSIZED中的ORed(位或运算)值。在调用trySplit之前或两次调用之间，对给定拆分器上的Spliterator.SUBSIZED重复调用应始终返回相同的结果。
+		如果拆分器报告了一组不一致的特征（从单个调用或跨多个调用返回的特征），则无法保证使用此拆分器进行的任何计算。
+		此实现返回创建时报告的特征。
+	estimateSize():long 
+		△ 返回Spliterator.forEachRemaining(java.util.function.Consumer<? super T>)遍历将遇到的元素数的估计值，如果无限、未知或计算成本过高，则返回Long.MAX_VALUE。
+		如果此拆分器是Spliterator.SIZED且尚未部分遍历或拆分，或者此拆分器是Spliterator.SUBSIZED且尚未部分遍历，则此估计必须是完整遍历将遇到的元素的准确计数。否则，此估计值可能是任意不准确的，但必须按照Spliterator.trySplit()调用的规定减少。
+		此实现返回创建时报告的估计大小，如果已知估计大小，则在拆分时减小大小。
+	trySplit():Spliterator.OfInt 
+		△ 如果可以对该拆分器进行分区，则返回一个包含元素的拆分器，从该方法返回时，不覆盖该拆分器。
+		如果此拆分器是Spliterator.ORDERED，则返回的拆分器必须包含元素的严格前缀。
+		除非此拆分器包含无限多的元素，否则对trySplit()的重复调用最终必须返回null值。非空返回时：
+			● 拆分前为estimateSize()报告的值，拆分后必须大于或等于此拆分器和返回的拆分器的estimateSize()；以及
+			● 如果此拆分器是SUBSIZED特征，则拆分前此拆分器的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null值，包括空性、遍历开始后无法拆分、数据结构干扰和效率考虑。此实现允许有限的并行性。	
+
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+3、Spliterators$AbstractLongSpliterator：抽象Long拆分器。【since 1.8】
+	抽象Spliterator.OfLong拆分器实现了trySplit方法，允许有限的并行性操作。
+	要实现拆分器，扩展类只需要实现Spliterator.OfLong.tryAdvance(java.util.function.LongConsumer)。如果扩展类可以提供更高性能的实现，那么它应该重写Spliterator.OfLong.forEachRemaining(java.util.function.LongConsumer)。
+	API注意事项：
+	当无法或难以以允许平衡并行计算的方式有效地分区元素时，此类对于创建拆分器非常有用。
+	使用这个类的一个替代方法，也允许有限的并行性，是从迭代器创建一个拆分器（参见Spliterators.spliterator(java.util.PrimitiveIterator.OfLong, long, int)）。根据具体情况，使用迭代器可能比扩展此类更容易或更方便。例如，如果已经有一个迭代器可用，那么就不需要扩展这个类。
+	
+		
+	类定义	：public static abstract class AbstractLongSpliterator implements Spliterator.OfLong
+	实现接口	：Spliterator<Long>, Spliterator.OfLong, Spliterator.OfPrimitive<Long,LongConsumer,Spliterator.OfLong>
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	protected AbstractLongSpliterator(long est, int additionalCharacteristics)
+		创建一个拆分器，报告指定的估计大小和特征。
+
+Method Summary（方法概要）：
+	characteristics():public int 
+		△ 返回此拆分器及其元素的一组特征。结果表示为Spliterator.ORDERED、Spliterator.DISTINCT、Spliterator.SORTED、Spliterator.SIZED、Spliterator.NONNULL、Spliterator.IMMUTABLE、Spliterator.CONCURRENT、Spliterator.SUBSIZED中的ORed(位或运算)值。在调用trySplit之前或两次调用之间，对给定拆分器上的Spliterator.SUBSIZED重复调用应始终返回相同的结果。
+		如果拆分器报告了一组不一致的特征（从单个调用或跨多个调用返回的特征），则无法保证使用此拆分器进行的任何计算。
+		此实现返回创建时报告的特征。
+	estimateSize():long 
+		△ 返回Spliterator.forEachRemaining(java.util.function.Consumer<? super T>)遍历将遇到的元素数的估计值，如果无限、未知或计算成本过高，则返回Long.MAX_VALUE。
+		如果此拆分器是Spliterator.SIZED且尚未部分遍历或拆分，或者此拆分器是Spliterator.SUBSIZED且尚未部分遍历，则此估计必须是完整遍历将遇到的元素的准确计数。否则，此估计值可能是任意不准确的，但必须按照Spliterator.trySplit()调用的规定减少。
+		此实现返回创建时报告的估计大小，如果已知估计大小，则在拆分时减小大小。
+	trySplit():Spliterator.OfLong 
+		△ 如果可以对该拆分器进行分区，则返回一个包含元素的拆分器，从该方法返回时，不覆盖该拆分器。
+		如果此拆分器是Spliterator.ORDERED，则返回的拆分器必须包含元素的严格前缀。
+		除非此拆分器包含无限多的元素，否则对trySplit()的重复调用最终必须返回null值。非空返回时：
+			● 拆分前为estimateSize()报告的值，拆分后必须大于或等于此拆分器和返回的拆分器的estimateSize()；以及
+			● 如果此拆分器是SUBSIZED特征，则拆分前此拆分器的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null值，包括空性、遍历开始后无法拆分、数据结构干扰和效率考虑。此实现允许有限的并行性。	
+
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+4、Spliterators$AbstractSpliterator<T>：抽象拆分器。【since 1.8】
+	抽象拆分器实现了trySplit方法，允许有限的并行性操作。
+	扩展类只需要实现tryAdvance。如果扩展类可以提供更高性能的实现，那么它应该重写forEach。
+	API注意事项：
+	当无法或难以以允许平衡并行计算的方式有效地分区元素时，此类对于创建拆分器非常有用。
+	使用这个类的一个替代方法，也允许有限的并行性，是从迭代器创建一个拆分器（参见Spliterators.spliterator(Iterator, long, int)）。根据具体情况，使用迭代器可能比扩展此类更容易或更方便。例如，如果已经有一个迭代器可用，那么就不需要扩展这个类。
+	
+		
+	类定义	：public static abstract class AbstractSpliterator<T> implements Spliterator<T>
+	实现接口	：Spliterator<T>
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	protected AbstractLongSpliterator(long est, int additionalCharacteristics)
+		创建一个拆分器，报告指定的估计大小和特征。
+
+Method Summary（方法概要）：
+	characteristics():public int 
+		△ 返回此拆分器及其元素的一组特征。结果表示为Spliterator.ORDERED、Spliterator.DISTINCT、Spliterator.SORTED、Spliterator.SIZED、Spliterator.NONNULL、Spliterator.IMMUTABLE、Spliterator.CONCURRENT、Spliterator.SUBSIZED中的ORed(位或运算)值。在调用trySplit之前或两次调用之间，对给定拆分器上的Spliterator.SUBSIZED重复调用应始终返回相同的结果。
+		如果拆分器报告了一组不一致的特征（从单个调用或跨多个调用返回的特征），则无法保证使用此拆分器进行的任何计算。
+		此实现返回创建时报告的特征。
+	estimateSize():long 
+		△ 返回Spliterator.forEachRemaining(java.util.function.Consumer<? super T>)遍历将遇到的元素数的估计值，如果无限、未知或计算成本过高，则返回Long.MAX_VALUE。
+		如果此拆分器是Spliterator.SIZED且尚未部分遍历或拆分，或者此拆分器是Spliterator.SUBSIZED且尚未部分遍历，则此估计必须是完整遍历将遇到的元素的准确计数。否则，此估计值可能是任意不准确的，但必须按照Spliterator.trySplit()调用的规定减少。
+		此实现返回创建时报告的估计大小，如果已知估计大小，则在拆分时减小大小。
+	trySplit():Spliterator<T> 
+		△ 如果可以对该拆分器进行分区，则返回一个包含元素的拆分器，从该方法返回时，不覆盖该拆分器。
+		如果此拆分器是Spliterator.ORDERED，则返回的拆分器必须包含元素的严格前缀。
+		除非此拆分器包含无限多的元素，否则对trySplit()的重复调用最终必须返回null值。非空返回时：
+			● 拆分前为estimateSize()报告的值，拆分后必须大于或等于此拆分器和返回的拆分器的estimateSize()；以及
+			● 如果此拆分器是SUBSIZED特征，则拆分前此拆分器的estimateSize()必须等于拆分后此拆分器和返回拆分器的estimateSize()之和。
+		此方法可能因任何原因返回null值，包括空性、遍历开始后无法拆分、数据结构干扰和效率考虑。此实现允许有限的并行性。	
+
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+
+附录：
+	1、注：文档中的☆符号已过时或淘汰掉的方法。文档中的★符号表示抽象方法
+	2、注：文档中的△符号表示覆盖重写方法。
+	3、'::' 关键字：	双冒号可以访问类的构造方法，对象方法，静态方法。就是把方法当做参数传到stream内部，使stream的每个元素都传入到该方法里面执行一下。
+	4、单实例：（即单例设计模式）。“一个类有且仅有一个实例，并且自行实例化向整个系统提供。”单例模式是设计模式中最简单的形式之一。这一模式的目的是使得类的一个对象成为系统中的唯一实例。要实现这一点，可以从客户端对其进行实例化开始。因此需要用一种只允许生成对象类的唯一实例的机制，“阻止”所有想要生成对象的访问。使用工厂方法来限制实例化过程。这个方法应该是静态方法（类方法），因为让类的实例去生成另一个唯一实例毫无意义。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
