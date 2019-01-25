@@ -1,0 +1,69 @@
+-------------------------------------StringJoiner-----------------------------------------------------------------------------------------------------------------------------------
+StringJoiner：字符串连接器。【since 1.8】
+	StringJoiner用于构造由分隔符分隔的字符序列，可以选择从提供的前缀开始，以提供的后缀结束。
+	在向StringJoiner添加内容之前，其sj.toString()方法默认将返回前缀+后缀。但是，如果调用setEmptyValue方法，则返回提供的emptyValue。例如，当使用集合表示法创建字符串以指示空集合时，可以使用该方法，即"{}"，其中前缀为"{"，后缀为"}"，表示未向StringJoiner添加任何内容。
+	API注意事项：
+	字符串"[George:Sally:Fred]"的构造如下：
+		 StringJoiner sj = new StringJoiner(":", "[", "]");
+		 sj.add("George").add("Sally").add("Fred");
+		 String desiredString = sj.toString();
+	
+	可以利用StringJoiner从使用Collectors.joining(CharSequence)的流创建格式化输出。例如：
+		List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
+		String commaSeparatedNumbers = numbers.stream()
+		     .map(i -> i.toString())
+		     .collect(Collectors.joining(", "));	
+	
+		
+	
+	类定义	：public final class StringJoiner
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public StringJoiner(CharSequence delimiter)
+		构造一个没有字符、没有前缀或后缀的StringJoiner，以及提供的分隔符的副本。如果没有向StringJoiner添加任何字符，并且调用了访问其值的方法，则除非首先调用了setEmptyValue，否则它不会在结果中返回前缀或后缀（或其属性）。
+		【Throws】：
+			NullPointerException 如果delimiter为null。
+	public StringJoiner(CharSequence delimiter,
+                        CharSequence prefix,
+                        CharSequence suffix)
+		使用提供的前缀、分隔符和后缀的副本构造一个没有字符的StringJoiner。如果没有向StringJoiner添加任何字符，并且调用了访问其字符串值的方法，那么它将在结果中返回前缀+后缀（或其属性），除非首先调用了setEmptyValue。
+		【Throws】：
+			NullPointerException 如果delimiter、prefix或suffix为null。
+Method Summary（方法概要）：
+	add(CharSequence newElement):StringJoiner 
+		添加给定CharSequence值的副本作为StringJoiner值的下一个元素。如果newElement为null，则添加“null”。
+	length():int 
+		返回此StringJoiner的字符串表示形式的长度。注意，如果没有调用任何add方法，那么将返回字符串表示形式的长度（前缀+后缀或emptyValue）。该值应等于toString().length()。
+	merge(StringJoiner other):StringJoiner
+		 如果给定的StringJoiner非空的，则添加不带前缀和后缀的内容作为下一个元素。如果给定的StringJoiner为空，则调用无效。
+		 如果从未调用add()，或者如果从未使用非空的StringJoiner参数调用merge()，则StringJoiner为空。
+		 如果另一个StringJoiner使用不同的分隔符，则来自另一个StringJoiner的元素将与该分隔符连接，结果作为单个元素附加到此StringJoiner。
+		 【Throws】：
+			NullPointerException 如果other为null。
+	setEmptyValue(CharSequence emptyValue):StringJoiner 
+		设置确定此StringJoiner的字符串表示形式时要使用的字符序列，但尚未添加任何元素，即，当它为空时。为此，将创建EmptyValue参数的副本。注意，一旦调用了Add方法，StringJoiner就不再被视为空的，即使添加的element(s)对应于空字符串。
+		【Throws】：
+			NullPointerException 如果参数emptyValue为null。
+	toString():String 
+		△ 返回当前值，该值由前缀、由分隔符分隔到目前为止添加的值和后缀组成，除非未添加任何元素，否则在这种情况下，将返回前缀+后缀或空值字符。
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

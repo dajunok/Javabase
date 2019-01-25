@@ -1,0 +1,90 @@
+-------------------------------------StringTokenizer-----------------------------------------------------------------------------------------------------------------------------------
+StringTokenizer：字符串标记类。【since JDK1.0】
+	字符串标记类类允许应用程序将字符串拆分为标记。tokenization方法比StreamTokenizer类使用的方法简单得多。StringTokenizer方法不区分标识符、数字和带引号的字符串，也不识别和跳过注释。
+	分隔符集（分隔标记的字符）可以在创建时指定，也可以在每个标记的基础上指定。
+	StringTokenizer的一个实例以两种方式之一进行操作，具体取决于它是使用值为true还是false的returnDelims标志创建的：
+		● 如果标志为false，分隔符用于分隔标记。标记是最大的连续字符序列，不是分隔符。
+		● 如果标志为true，则分隔符本身被视为标记。因此，标记可以是一个分隔符，也可以不是分隔符的最大连续字符序列。
+	StringTokenizer对象在内部维护要标记化的字符串中的当前位置。某些操作会将此当前位置推进到已处理的字符之后。
+	通过获取用于创建StringTokenizer对象的字符串的子字符串来返回标记（token）。
+	下面是使用标记类的一个例子。代码：
+	     StringTokenizer st = new StringTokenizer("this is a test");
+	     while (st.hasMoreTokens()) {
+	         System.out.println(st.nextToken());
+	     }	
+	以下是打印输出：
+	     this
+	     is
+	     a
+	     test		
+	StringTokenizer是一个遗留类，由于兼容性原因而保留，尽管在新代码中不鼓励使用它。建议任何寻求此功能的人使用字符串的split方法或java.util.regex包代替。
+	以下示例说明如何使用String.split方法将字符串拆分为其基本标记：
+	     String[] result = "this is a test".split("\\s");
+	     for (int x=0; x<result.length; x++)
+	         System.out.println(result[x]);		
+	以下是打印输出：
+	     this
+	     is
+	     a
+	     test	
+	
+	类定义	：public class StringTokenizer implements Enumeration<Object>
+	实现接口	：Enumeration<Object>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public StringTokenizer(String str)
+		为指定的字符串构造字符串标记类。标记器使用默认的分隔符集，即" \t\n\r\f"：空格字符、制表符、换行符、回车符和换行符。分隔符字符本身不会被视为标记。
+		【Throws】：
+			NullPointerException 如果str为null
+	public StringTokenizer(String str, String delim)
+		为指定的字符串构造字符串标记类。delim参数中的字符是分隔标记的分隔符。分隔符字符本身不会被视为标记。
+		请注意，如果delim为空，则此构造函数不会引发异常。但是，尝试在生成的StringTokenizer上调用其他方法可能会导致NullPointerException。
+		【Throws】：
+			NullPointerException 如果str为null
+	StringTokenizer(String str, String delim, boolean returnDelims)
+		为指定的字符串构造字符串标记类。delim参数中的所有字符都是分隔标记的分隔符。
+		如果returnDelims标志为true，则分隔符字符也作为标记返回。每个分隔符都作为长度为1的字符串返回。如果标志为false，则跳过分隔符字符，并且仅用作标记之间的分隔符。
+		请注意，如果delim为空，则此构造函数不会引发异常。但是，尝试在生成的StringTokenizer上调用其他方法可能会导致NullPointerException。
+		【Throws】：
+			NullPointerException 如果str为null
+			
+Method Summary（方法概要）：
+	countTokens():int 
+		计算此标记类的nextToken方法在生成异常之前可以被调用的次数。当前位置未提前。
+	hasMoreElements():boolean 
+		△ 返回与hasMoreTokens方法相同的值。它的存在使此类可以实现枚举接口。
+	hasMoreTokens():boolean 
+		测试这个标记类的字符串中是否有更多的标记可用。如果此方法返回true，则随后调用不带参数的nextToken将成功返回标记。
+	nextElement():Object 
+		△ 返回与nextToken方法相同的值，但其声明的返回值是对象而不是字符串。它的存在使此类可以实现枚举接口。
+	nextToken():String 
+		返回此字符串标记类中的下一个标记。
+		【Throws】：
+			NoSuchElementException 如果这个标记类的字符串中没有更多的标记。
+	nextToken(String delim):String 
+		返回此字符串标记类字符串中的下一个标记。首先，这个StringTokenizer对象认为是分隔符的字符集被更改为字符串分隔符中的字符。然后返回当前位置后字符串中的下一个标记。当前位置超出了可识别的标记。新的分隔符集在调用后仍为默认值。
+		【Throws】：
+			NoSuchElementException 如果这个标记类的字符串中没有更多的标记。
+			NullPointerException 如果delim为null
+			
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

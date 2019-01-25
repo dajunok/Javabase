@@ -1,7 +1,7 @@
 -------------------------------------Vector<E>-----------------------------------------------------------------------------------------------------------------------------------
 Vector<E>：向量列表（矢量列表）。【since JDK1.0】
-	Vector类实现了一个可增长的对象数组。与数组类似，它包含可以使用整数索引访问的组件。但是，矢量的大小可以根据需要增大或缩小，以适应在创建矢量后添加和删除项。
-	每个向量都试图通过保持容量和修正容量来优化存储管理。容量总是至少和向量大小一样大；它通常更大，因为将组件添加到向量中时，向量的存储量会以块的形式增加容量增量的大小。应用程序可以在插入大量组件之前增加向量的容量；这可以减少增量重新分配的数量。
+	Vector类实现了一个可增长的对象数组。与数组类似，它包含可以使用整数索引访问的元素。但是，矢量的大小可以根据需要增大或缩小，以适应在创建矢量后添加和删除项。
+	每个向量都试图通过保持容量和修正容量来优化存储管理。容量总是至少和向量大小一样大；它通常更大，因为将元素添加到向量中时，向量的存储量会以块的形式增加容量增量的大小。应用程序可以在插入大量元素之前增加向量的容量；这可以减少增量重新分配的数量。
 	此类的iterator和listIterator方法返回的迭代器是fail-fast机制：如果在创建迭代器之后的任何时候以任何方式修改了向量的结构，除了通过迭代器自己的remove或add方法，迭代器将抛出ConcurrentModificationException。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。elements方法返回的Enumerations不是fail-fast机制。
 	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
 	对于Java 2平台V1.2，该类被改装以实现列表接口，使其成为Java集合框架的成员。与新的集合实现不同，Vector是同步的。如果不需要线程安全实现，建议使用ArrayList代替Vector。
@@ -12,72 +12,203 @@ Vector<E>：向量列表（矢量列表）。【since JDK1.0】
 	子类		：Stack<E>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）：
-	protected int capacityIncrement
+	capacityIncrement:protected int 
+		当矢量的大小大于其容量时，其容量自动增加的量。如果容量增量小于或等于零，则向量的容量将在每次需要增长时翻倍。
+	elementCount:protected int 
+		此矢量对象中的有效元素数。elementData[0]至elementData[elementCount-1]部分为实际条目。
+	elementData:protected Object[] 
+		存储向量元素的数组缓冲区。向量的容量就是这个数组缓冲区的长度，并且至少足够大以包含所有向量的元素。
+		Vector中最后一个元素后面的任何数组元素都为空。
 	
 Constructor Summary（构造器概要）：
+	public Vector()
+		构造一个空向量，使其内部数据数组的大小为10，其标准容量增量为零。
+	public Vector(int initialCapacity)
+		构造具有指定初始容量且容量增量等于零的空向量。
+		【Throws】：
+			IllegalArgumentException 如果规定的初始容量为负
+	public Vector(int initialCapacity, int capacityIncrement)
+		构造具有指定初始容量和容量增量的空向量。
+		【Throws】：
+			IllegalArgumentException 如果规定的初始容量为负
+	public Vector(Collection<? extends E> c)
+		按照集合迭代器返回元素的顺序构造包含指定集合元素的向量。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
 
-
-
-Constructor Summary（方法概要）：
-	add(E e):boolean 
-		将指定的元素附加到此列表的末尾（可选操作）。
-		支持此操作的列表可能会限制哪些元素可以添加到此列表中。特别是，一些列表将拒绝添加空元素，而其他列表将对可能添加的元素类型施加限制。列表类应该在它们的文档中明确地指定对可以添加哪些元素的任何限制。
-		此实现调用add(size(), e)
-		请注意，除非重写add(int, E)，否则此实现将引发UnsupportedOperationException异常。
+Method Summary（方法概要）：
+	add(E e):synchronized boolean 
+		△ 将指定的元素追加到此向量的末尾。
 	add(int index, E element):void 
-		在此列表中的指定位置插入指定的元素（可选操作）。将当前位于该位置的元素（如果有）和任何后续元素右移（在其索引中添加一个元素）。	
-		★ 此实现始终抛出UnsupportedOperationException异常。（子类需覆盖实现功能代码）
-	addAll(int index, Collection<? extends E> c):boolean 
-		在指定位置将指定集合中的所有元素插入此列表（可选操作）。将当前位于该位置的元素（如果有）和任何后续元素右移（增加其索引）。新元素将按指定集合的迭代器返回它们的顺序出现在此列表中。如果在操作进行过程中修改了指定的集合，则此操作的行为未定义。（请注意，如果指定的集合是此列表，并且不是空的，则会发生这种情况。）
-		此实现获取指定集合上的迭代器并对其进行迭代，使用add(int, E)将从迭代器获取的元素插入此列表的适当位置，一次一个。为了提高效率，许多实现将重写此方法。
-		请注意，除非重写add(int, E)，否则此实现将引发UnsupportedOperationException异常。
+		△ 在此向量的指定位置插入指定的元素。将当前位于该位置的元素（如果有）和任何后续元素右移（在其索引中添加一个元素）。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index > size())
+	addAll(int index, Collection<? extends E> c):synchronized boolean 
+		△ 在指定位置将指定集合中的所有元素插入此向量。将当前位于该位置的元素（如果有）和任何后续元素右移（增加其索引）。新元素将按指定集合的迭代器返回它们的顺序出现在向量中。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index > size())
+			NullPointerException 如果指定的集合为null
+	addAll(Collection<? extends E> c):synchronized boolean 
+		△ 按指定集合的迭代器返回元素的顺序，将指定集合中的所有元素追加到此向量的末尾。如果在操作进行过程中修改了指定的集合，则此操作的行为不确定。（这意味着，如果指定的集合是此向量，并且此向量不是空的，则此调用的行为是不确定的。）
+		【Throws】：
+			● NullPointerException	如果指定的集合包含一个或多个null元素，并且此列表不允许null元素，或者指定的集合为null
+	addElement(E obj):synchronized void 
+		将指定的元素添加到此向量的末尾，将其大小增1。如果这个向量的大小大于它的容量，它的容量就会增加。
+		此方法的功能与 add(E)方法（列表接口的一部分）相同。
+	capacity():synchronized int 
+		返回此向量的当前容量。
 	clear():void 
-		从此列表中删除所有元素（可选操作）。此调用返回后，列表将为空。
-		此实现调用removeRange(0, size())方法
-		请注意，除非重写remove(int index)或removeRange(int fromIndex, int toIndex)，否则此实现将引发UnsupportedOperationException异常。
-	equals(Object o):boolean 
-		将指定的对象与此列表比较是否相等。如果且仅当指定的对象也是列表时，两个列表的大小相同，并且两个列表中所有对应的元素对都相等，则返回true。（两个元素e1和e2相等，如果（(e1==null ? e2==null : e1.equals(e2))）换句话说，如果两个列表包含的元素顺序相同，则定义为相等。
-		此实现首先检查指定的对象是否是此列表。如果是，则返回true；如果不是，则检查指定对象是否为列表。如果不是，则返回false；如果是，则对两个列表进行迭代，比较相应的元素对。如果任何比较返回false，则此方法返回false。如果迭代器先于另一个耗尽元素，则返回false（因为列表的长度不相等）；否则，在迭代完成时返回true。
-	get(int index):abstract E 
-		★ 返回此列表中指定位置的元素。（抽象方法，需要子类覆盖实现）
-	hashCode():int 
-		返回此列表的哈希代码值。
-		此实现正好使用用于在List.hashCode()方法的文档中定义列表哈希函数的代码。
+		△ 从这个向量中删除所有元素。此调用返回后，向量将为空（除非它引发异常）。
+	clone():synchronized Object 
+		△ 返回此向量的克隆。副本将包含对内部数据数组的克隆的引用，而不是对此向量对象的原始内部数据数组的引用。
+	contains(Object o):boolean 
+		△ 如果此向量包含指定的元素，则返回true。更正式地说，如果并且仅当此向量包含至少一个元素e(o==null ? e==null : o.equals(e))。
+	containsAll(Collection<?> c):synchronized boolean 
+		△ 如果此向量包含指定集合中的所有元素，则返回true。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+	copyInto(Object[] anArray):synchronized void 
+		将此向量的元素复制到指定的数组中。这个向量中索引k处的项被复制到数组的元素k中。
+		【Throws】：
+			NullPointerException 如果给定的数组为null
+			IndexOutOfBoundsException 如果指定的数组不够大，无法容纳此向量的所有元素
+			ArrayStoreException 如果此向量的元素不是可存储在指定数组中的运行时类型
+	elementAt(int index):synchronized E 
+		返回指定索引处的元素。
+		此方法的功能与get(int)方法（作为列表接口的一部分）相同。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size())
+	elements():Enumeration<E> 
+		返回此向量的元素的枚举。返回的枚举对象将生成此向量中的所有项。生成的第一个项是索引0处的项，然后是索引1处的项，依此类推。
+	ensureCapacity(int minCapacity):synchronized void 
+		如有必要，增加此向量的容量，以确保它至少可以容纳由最小容量参数指定的元素数。
+		如果此向量的当前容量小于minCapacity，则通过将保存在字段elementData中的内部数据数组替换为较大的数组来增加其容量。新的数据数组的大小将是旧的大小加上容量增量，除非容量增量的值小于或等于零，在这种情况下，新的容量将是旧容量的两倍；但如果新的大小仍然小于最小容量，则新的容量将是最小容量。
+	equals(Object o):synchronized boolean 
+		△ 将指定的对象与此向量比较是否相等。如果且仅当指定的对象也是列表时，两个列表的大小相同，并且两个列表中所有对应的元素对都相等，则返回true。（两个元素e1和e2相等，如果(e1==null ? e2==null : e1.equals(e2))换句话说，如果两个列表包含的元素顺序相同，则定义为相等。
+	firstElement():synchronized E 
+		返回此向量的第一个元素（索引0处的项）
+	forEach(Consumer<? super E> action):synchronized void 
+		△ 对Iterable的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。除非实现类另有指定，否则将按迭代顺序执行操作（如果指定了迭代顺序）。操作引发的异常将中继到调用方。
+	get(int index):synchronized E 
+		△ 返回此向量中指定位置的元素。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size())
+	hashCode():synchronized int 
+		△ 返回此向量的哈希代码值。
 	indexOf(Object o):int 
-		返回此列表中指定元素的第一个匹配项的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最低的索引i，以便(o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
-		此实现首先获取一个列表迭代器（使用listIterator()）。然后，它迭代列表，直到找到指定的元素或到达列表的末尾。
-	iterator():Iterator<E> 
-		以正确的顺序返回此列表中元素的迭代器。
-		此实现返回迭代器接口的简单实现，依赖于支持列表的size(), get(int), 和 remove(int)方法。
-		请注意，此方法返回的迭代器将引发UnsupportedOperationException ，以响应其remove方法，除非重写列表的remove(int)方法。
-		如（受保护的）modcount字段的规范中所述，此实现可以在面对并发修改时抛出运行时异常。
-	lastIndexOf(Object o):int 
-		返回此列表中指定元素最后一次出现的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最高的索引i，以便(o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
-		此实现首先获取指向列表结尾的列表迭代器（使用listIterator(size())）。然后，它在列表上向后迭代，直到找到指定的元素，或者到达列表的开头。	
-	listIterator():ListIterator<E> 
-		返回此列表中元素的列表迭代器（按正确的顺序）。此实现返回listIterator(0)。
-	listIterator(final int index):ListIterator<E> 
-		返回此列表中元素的列表迭代器（按正确的顺序），从列表中的指定位置开始。指定的索引指示将通过对next的初始调用返回的第一个元素。对previous的初始调用将返回具有指定索引减去1的元素。
-		此实现返回ListIterator接口的简单实现，该实现扩展了iterator()方法返回的迭代器接口的实现。ListIterator实现依赖于支持列表的get(int), set(int, E), add(int, E) 和 remove(int) 方法。
-		请注意，此实现返回的列表迭代器将针对其移除、设置和添加方法引发UnsupportedOperationException异常，除非重写列表的remove(int), set(int, E), 和 add(int, E) 方法。
-		如（受保护的）modcount字段的规范中所述，此实现可以在面对并发修改时抛出运行时异常。
-	remove(int index):E 
-		删除此列表中指定位置的元素（可选操作）。将任何后续元素向左移动（从其索引中减去一个）。返回从列表中删除的元素。
-		★ 此实现始终抛出UnsupportedOperationException异常。（子类需覆盖实现功能代码）
-	set(int index, E element):E 
-		将此列表中指定位置的元素替换为指定的元素（可选操作）。
-		★ 此实现始终抛出UnsupportedOperationException异常。（子类需覆盖实现功能代码）
-	subList(int fromIndex, int toIndex):List<E> 
-		返回指定的fromIndex（含）和toIndex（含）之间此列表部分的视图。（如果fromindex和toindex相等，则返回的列表为空。）返回的列表由此列表支持，因此返回列表中的非结构更改将反映在此列表中，反之亦然。返回的列表支持此列表支持的所有可选列表操作。
+		△ 返回该向量中指定元素第一次出现的索引，如果该向量不包含该元素，则返回-1。更正式地说，返回最低的索引i(o==null ? get(i)==null : o.equals(get(i)))，如果没有这样的索引，则返回-1。
+	indexOf(Object o, int index):synchronized int 
+		返回此向量中指定元素的第一个匹配项的索引，从索引中向前搜索，如果找不到该元素，则返回-1。更正式地说，返回最低的索引i (i >= index && (o==null ? get(i)==null : o.equals(get(i))))，如果没有这样的索引，则为-1。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	insertElementAt(E obj, int index):synchronized void 
+		将指定的对象作为该矢量中指定索引处的元素插入。索引大于或等于指定索引的向量中的每个元素都向上移动，使索引大于其以前的值。
+		索引必须是大于或等于0且小于或等于矢量当前大小的值。（如果索引等于矢量的当前大小，则新元素将附加到矢量中。）
+		此方法的功能与add(int, E)方法（作为列表接口的一部分）相同。注意，add方法会颠倒参数的顺序，以便更接近于数组的使用。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size())
+	isEmpty():synchronized boolean 
+		△ 测试此向量是否为空。
+	iterator():synchronized Iterator<E> 
+		△ 以正确的顺序返回此向量中元素的迭代器。
+		返回 fail-fast机制迭代器。
+	lastElement():synchronized E 
+		返回向量中的最后一个元素。
+	lastIndexOf(Object o):synchronized int 
+		△ 返回该向量中指定元素最后一次出现的索引，如果该向量不包含该元素，则返回-1。更正式地说，返回最高的索引i (o==null ? get(i)==null : o.equals(get(i)))，如果没有此类索引，则为-1。
+		【Throws】：
+			NoSuchElementException 如果向量为空
+	lastIndexOf(Object o, int index):synchronized int 
+		返回该向量中指定元素最后一次出现的索引，从索引向后搜索，如果找不到该元素，则返回-1。更正式地说，返回最高的索引i(i <= index && (o==null ? get(i)==null : o.equals(get(i))))，如果没有这样的索引，则为-1。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引大于或等于此向量的当前大小
+	listIterator():synchronized ListIterator<E>
+		△  返回此向量中元素的列表迭代器（按正确的顺序）。
+		 返回的列表迭代器是 fail-fast机制的。
+	listIterator(int index):synchronized ListIterator<E> 
+		△ 返回此向量中元素的列表迭代器（按正确的顺序），从向量中的指定位置开始。指定的索引指示将通过对next的初始调用返回的第一个元素。对previous的初始调用将返回具有指定索引减去1的元素。
+		返回的列表迭代器是 fail-fast机制的。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size())
+	remove(int index):synchronized E 
+		△ 删除此向量中指定位置的元素。将任何后续元素向左移动（从其索引中减去一个）。返回从向量中移除的元素。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size())
+	remove(Object o):boolean
+		△  删除此向量中指定元素的第一次出现。如果该向量不包含该元素，则该元素不变。更正式地说，删除索引i最低的元素(o==null ? get(i)==null : o.equals(get(i)))，（如果存在这样的元素）。
+	removeAll(Collection<?> c):synchronized boolean 
+		△ 从该向量中删除指定集合中包含的所有元素。
+		【Throws】：
+			ClassCastException 如果此向量中一个或多个元素的类型与指定集合不兼容（可选）
+			NullPointerException 如果此向量包含一个或多个null元素，并且指定的集合不支持null元素（可选），或者指定的集合为null
+	removeAllElements():synchronized void 
+		从该向量中移除所有元素，并将其大小设置为零。
+		此方法的功能与clear()方法（List接口的一部分）相同。
+	removeElement(Object obj):synchronized boolean 
+		从该向量中删除指定对象的第一次（索引最低）出现。如果在该向量中找到对象，则索引大于或等于对象索引的向量中的每个元素都向下移动，使索引小于其先前的值。
+		此方法的功能与remove(Object)方法（List接口的一部分）相同。
+	removeElementAt(int index):synchronized void 
+		删除指定索引处的元素。索引大于或等于指定索引的向量中的每个元素向下移动，使其索引小于以前的值。这个向量的大小减小了1。
+		索引必须是大于或等于0且小于矢量当前大小的值。
+		此方法的功能与remove(int)方法（作为List接口的一部分）相同。请注意，remove方法返回存储在指定位置的旧值。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size()
+	removeIf(Predicate<? super E> filter):synchronized boolean 
+		△ 删除此集合中满足给定条件的所有元素。迭代期间或filter引发的错误或运行时异常将中继到调用方。
+	removeRange(int fromIndex, int toIndex):protected synchronized void 
+		△ 从此列表中删除其索引介于fromIndex（含）和toIndex（含）之间的所有元素。将任何后续元素向左移动（减少其索引）。此调用通过（toIndex-fromIndex）元素缩短列表。（如果toIndex==fromIndex，则此操作无效。）
+	replaceAll(UnaryOperator<E> operator):synchronized void 
+		△ 将此向量中的每个元素替换为将operator应用于该元素的结果。由operator引发的错误或运行时异常将中继（断言）到调用方。
+	retainAll(Collection<?> c):synchronized boolean 
+		△ 仅保留此向量中包含在指定集合中的元素。换句话说，从这个向量中删除指定集合中不包含的所有元素。
+		【Throws】：
+			ClassCastException 如果此向量中一个或多个元素的类型与指定集合不兼容（可选）
+			NullPointerException 如果此向量包含一个或多个null元素，并且指定的集合不支持null元素（可选），或者指定的集合为null
+	set(int index, E element):synchronized E
+		△  △ 用指定的元素替换此向量中指定位置的元素。
+		 【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size()
+	setElementAt(E obj, int index):synchronized void 
+		将此向量的指定索引处的元素设置为指定对象。该位置的上一个元素将被丢弃。
+		索引必须是大于或等于0且小于矢量当前大小的值。
+		此方法的功能与 set(int, E)方法（List接口的一部分）相同。请注意，set方法会颠倒参数的顺序，以便更接近于数组的使用情况。还要注意，set方法返回存储在指定位置的旧值。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果索引超出范围(index < 0 || index >= size()
+	setSize(int newSize):synchronized void 
+		△ 设置此矢量的大小。如果newSize大于当前大小，则新的null项将添加到向量的末尾。如果newSize小于当前大小，则索引newSize和更大的所有元素都将被丢弃。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果newSize为负数
+	size():synchronized int 
+		△ 返回此向量中的元素数量。
+	sort(Comparator<? super E> c):synchronized void 
+		△ 根据指定比较器诱导的顺序对该向量进行排序。
+		此向量中的所有元素都必须使用指定的比较器进行相互比较（即c.compare(e1, e2)不能对向量中的任何元素e1和e2抛出ClassCastException异常）。
+		如果指定的comparator为null，那么向量中的所有元素都必须实现Comparable接口，并且应该使用元素的自然顺序。
+		此向量必须可修改，但不必调整大小。
+	spliterator():Spliterator<E> 
+		△ 在此列表中的元素上创建一个后期绑定和fail-fast机制的Spliterator（拆分器）。
+		此拆分器报告Spliterator.SIZED、Spliterator.SUBSIZED 和 Spliterator.ORDERED特征。重写此方法应该报告额外特征值。
+	subList(int fromIndex, int toIndex):synchronized List<E> 
+		△ 返回此列表中fromIndex（包含）和toIndex（不包含）之间的部分视图。（如果fromIndex和toIndex相等，则返回的列表为空。）返回的列表由此向量列表支持，因此返回列表中的更改将反映在此向量中，反之亦然。返回的列表支持此向量支持的所有可选列表操作。
 		这种方法不需要显式的范围操作（数组通常存在的类型）。任何需要列表的操作都可以通过传递子列表视图而不是整个列表来用作范围操作。例如，以下习惯用法从列表中删除一系列元素：
 			list.subList(from, to).clear();
-		可以为indexOf和lastIndexOf构造类似的习语，collections类中的所有算法都可以应用于subList。
+		可以为indexOf和lastIndexOf构造类似的习语，Collections类中的所有算法都可以应用于子列表。
 		如果支持列表（即此列表）在结构上进行了除通过返回列表以外的任何方式的修改，则此方法返回的列表的语义将变为未定义的。（结构修改是指那些改变列表大小的修改，或者以某种方式干扰列表，使正在进行的迭代可能产生不正确的结果。）
-		此实现返回一个将AbstractList子类化的列表。子类在私有字段中存储支持列表中子列表的偏移量、子列表的大小（可能在其生存期内发生更改）以及支持列表的预期modcount值。子类有两个变体，其中一个实现了RandomAccess。如果此列表实现了RandomAccess，则返回的列表将是实现RandomAccess的子类的实例。
-		子类的set(int, E), get(int), add(int, E), remove(int), addAll(int, Collection) 和 removeRange(int, int) 方法在边界检查索引并调整偏移量后，都委托给支持抽象列表上的相应方法。addAll(Collection c) 方法只返回addAll(size, c)。
-		listIterator(int)方法通过支持列表上的列表迭代器返回“包装对象”，该列表迭代器由支持列表上的相应方法创建。迭代器方法只返回listIterator()，而size方法只返回子类的size字段。
-		所有方法首先检查支持列表的实际modcount是否等于其预期值，如果不是，则抛出ConcurrentModificationException异常。
-		
+		【Throws】：
+			IndexOutOfBoundsException 如果端点索引值超出范围(fromIndex < 0 || toIndex > size)
+			IllegalArgumentException 如果端点索引不正常(fromIndex > toIndex)
+	toArray():synchronized Object[] 
+		△ 返回一个数组，该数组按正确顺序包含此向量中的所有元素。
+	toArray(T[] a):synchronized <T> T[] 
+		△ 返回此向量的字符串表示形式，其中包含每个元素的字符串表示形式。
+	toString():synchronized String 
+		△ 返回此向量的字符串表示形式，其中包含每个元素的字符串表示形式。
+	trimToSize():synchronized void 
+		将该向量的容量修改为该向量的当前大小。如果此向量的容量大于其当前大小，则将其保留在字段elementData中的内部数据数组替换为较小的数组，从而将容量更改为相等大小。应用程序可以使用此操作最小化向量的存储。
+	
+	
+	
+	
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 附录：
 	1、注：文档中的△符号表示覆盖重写方法。	

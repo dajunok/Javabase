@@ -1,0 +1,61 @@
+-------------------------------------Stack<E>-----------------------------------------------------------------------------------------------------------------------------------
+Stack<E>：栈。【since JDK1.0】
+	Stack类表示对象的后进先出（LIFO）栈。它通过五个操作来扩展Vector类，这些操作允许将向量视为栈。提供了常见的推送（push）和弹出（pop）操作，以及提取栈顶部项的方法peek，测试栈是否为空的方法empty，以及搜索栈以查找项并发现其与顶部的距离的方法search。
+	首次创建栈时，它不包含任何项。
+	Deque接口及其实现提供了一组更加完整和一致的后进先出栈操作，应该优先使用这个类。例如：
+		Deque<Integer> stack = new ArrayDeque<Integer>();
+	
+	类定义	：public class Stack<E> extends Vector<E>
+	实现接口	：Iterable<E>,Collection<E>,List<E>, RandomAccess, Cloneable, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	capacityIncrement:protected int 
+		当矢量的大小大于其容量时，其容量自动增加的量。如果容量增量小于或等于零，则向量的容量将在每次需要增长时翻倍。
+	elementCount:protected int 
+		此矢量对象中的有效元素数。elementData[0]至elementData[elementCount-1]部分为实际条目。
+	elementData:protected Object[] 
+		存储向量元素的数组缓冲区。向量的容量就是这个数组缓冲区的长度，并且至少足够大以包含所有向量的元素。
+		Vector中最后一个元素后面的任何数组元素都为空。
+	
+Constructor Summary（构造器概要）：
+	public Stack()
+		创建一个空栈。
+
+Method Summary（方法概要）：
+	empty():boolean 
+		测试此栈是否为空栈。如果是空栈返回true。
+	peek():synchronized E 
+		获取此栈顶部的对象，而不将其从栈中移除。
+		【Throws】：
+			EmptyStackException 如果此栈为空栈。
+	pop():synchronized E
+		移除此栈顶部的对象，并将该对象作为此函数的值返回。 
+		【Throws】：
+			EmptyStackException 如果此栈为空栈。
+	push(E item):E 
+		将元素项推到此栈的顶部。这与以下效果完全相同：
+			addElement(item);
+	search(Object o):synchronized int 
+		返回对象在此栈上基于1的位置。如果给定对象o作为该栈中的一个元素出现，则此方法返回距最接近栈顶部的距离；栈上最顶部的项被视为距离1。equals方法用于将对象o与此堆栈中的项进行比较。
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
