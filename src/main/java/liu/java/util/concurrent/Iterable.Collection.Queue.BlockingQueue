@@ -1,0 +1,62 @@
+-----------------------------------------BlockingQueue<E>-----------------------------------------------------------------------------------------------------------------------------		
+BlockingQueue<E>接口：队列 【Since:1.5】
+		
+	
+	接口定义	：public interface BlockingQueue<E> extends Queue<E>
+	父接口	：Iterable<E>,Collection<E>,Queue<E>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	add(E e):boolean 
+		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。
+		【Throws】：
+			● IllegalStateException 如果由于容量限制，此时无法添加元素
+			● ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此队列
+	contains(Object o):boolean
+		△ 如果此 collection 包含指定的元素，则返回 true。更确切地讲，当且仅当此 collection 至少包含一个满足 (o==null ? e==null : o.equals(e)) 的元素 e 时，返回 true。
+		【Throws】：
+			ClassCastException 如果指定元素的类型与此集合不兼容（可选）
+			NullPointerException 如果指定的元素为null，并且此集合不允许null元素（可选）
+	drainTo(Collection<? super E> c):int 
+	
+	drainTo(Collection<? super E> c, int maxElements):int 
+	
+	offer(E e):boolean
+		 如果可以在不违反容量限制的情况下立即将指定元素插入此队列。当使用容量受限队列时，此方法通常比add(E)更可取，因为插入元素失败时候add(E)只能抛出异常。
+		【Throws】：
+			● ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+	offer(E e, long timeout, TimeUnit unit):boolean 
+	poll(long timeout, TimeUnit unit):E 
+	put(E e):void 
+	remainingCapacity():int 
+	remove(Object o):boolean 
+	take():E 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
