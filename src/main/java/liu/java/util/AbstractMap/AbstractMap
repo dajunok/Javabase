@@ -13,11 +13,11 @@ AbstractMap<K,V>：抽象映射类。【Since:1.2】
 	内部类	：SimpleEntry<K,V>,SimpleImmutableEntry<K,V>
 	实现接口	：Map<K,V>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-构造器：
+Constructor Summary（构造器概要）：
 	protected AbstractMap()
 		唯一构造器（对于子类构造函数的调用，通常是隐式的）。
 
-方法：
+Method Summary（方法概要）：
 	clear():void 			
 		从该Map中删除所有映射（可选操作）。此调用返回后，映射将为空。此实现调用entrySet().clear()	
 		注意，如果entryset不支持clear操作，则此实现将引发unsupportedOperation异常。（子类需要先覆盖完成entrySet()方法的实现代码）		
@@ -68,19 +68,19 @@ AbstractMap<K,V>：抽象映射类。【Since:1.2】
 		返回此Map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
 		此实现返回一个将AbstractCollection子类化的集合。子类的迭代器方法在此映射的entrySet()迭代器上返回一个“包装对象”。size方法委托给此map的size方法，而contains方法委托给此map的containsValue方法。
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-AbstractMap$SimpleEntry<K,V>：简单条目类。是AbstractMap类中的一个静态内部类。【Since:1.6】
+1、AbstractMap$SimpleEntry<K,V>：简单条目类。是AbstractMap类中的一个静态内部类。【Since:1.6】
 	一种保持键和值的项。可以使用setValue方法更改该值。此类简化了构建自定义Map实现的过程。例如，在方法Map.entrySet().toArray中返回simpleEntry实例的数组可能比较方便。
 	
 	
 	类定义：public static class SimpleEntry<K,V> implements Map.Entry<K,V>, java.io.Serializable			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-构造器：
+Constructor Summary（构造器概要）：
 	SimpleEntry(Entry<? extends K, ? extends V> entry)
 		创建表示与指定项相同映射的项。
 	SimpleEntry(K key, V value)
 		创建一个条目，表示从指定键到指定值的映射。
 
-方法：
+Method Summary（方法概要）：
 	equals(Object o):boolean 
 		将指定的对象与此项进行比较以确保相等。如果给定对象也是映射项，并且这两个项表示相同的映射，则返回true。更正式地说，两个条目e1和e2表示相同的映射，如果:
 			(e1.getKey()==null ?e2.getKey()==null : e1.getKey().equals(e2.getKey()))
@@ -98,17 +98,17 @@ AbstractMap$SimpleEntry<K,V>：简单条目类。是AbstractMap类中的一个�
 	toString():String 	
 		返回此映射项的字符串表示形式。此实现返回此项的键的字符串表示形式，后跟等号字符（“=”），后跟此项值的字符串表示形式。	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-AbstractMap$SimpleImmutableEntry<K,V>：简单不可变条目类。【Since:1.6】
+2、AbstractMap$SimpleImmutableEntry<K,V>：简单不可变条目类。【Since:1.6】
 	维护不可变键和值的项。★此类不支持setValue方法。在返回键值映射的线程安全快照的方法中，此类可能很方便。
 
 	类定义：public static class SimpleImmutableEntry<K,V> implements Map.Entry<K,V>, java.io.Serializable		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-构造器：
+Constructor Summary（构造器概要）：
 	SimpleImmutableEntry(Entry<? extends K, ? extends V> entry)
 		创建表示与指定项相同映射的项。
 	SimpleImmutableEntry(K key, V value)
 		创建一个条目，表示从指定键到指定值的映射。
-方法：
+Method Summary（方法概要）：
 	equals(Object o):boolean 
 		将指定的对象与此项进行比较以确保相等。如果给定对象也是映射项，并且这两个项表示相同的映射，则返回true。更正式地说，两个条目e1和e2表示相同的映射，如果:
 			(e1.getKey()==null ?e2.getKey()==null : e1.getKey().equals(e2.getKey()))

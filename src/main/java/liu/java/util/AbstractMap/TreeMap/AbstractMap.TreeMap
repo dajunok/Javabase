@@ -1,0 +1,200 @@
+----------------------------------------TreeMap<K,V>--------------------------------------------------------------------------------------------------------------
+TreeMap<K,V>：树映射。【Since:1.2】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型
+	基于Red-Black树的NavigableMap实现。此映射是根据其键的自然顺序排序的，或者通过在映射创建时提供的比较器排序的，这取决于使用的是哪个构造函数。
+	此实现为containsKey、get、put和remove操作提供了保证的log(n)时间成本。算法是对Cormen、Leiserson和Rivest算法介绍中的算法的改编。
+	请注意，如果要正确实现Map接口，树映射维护的顺序与任何排序映射一样，并且无论是否提供显式的比较器，都必须与equals一致。（请参阅Comparable或Comparator以获得与equals一致的精确定义。）这是因为Map接口是根据equals操作定义的，但排序映射使用其compareTo (或者compare)方法执行所有键比较，因此从排序映射的角度来看，此方法认为相等的两个键是相等的。排序后的map的行为是明确的，即使它的排序与等号不一致；它只是不遵守Map接口的一般约定。
+	注意，这个实现是不同步的。如果多个线程同时访问一个映射，并且至少有一个线程在结构上修改该映射，则必须在外部同步该映射。（结构修改是添加或删除一个或多个映射的任何操作；仅更改与现有键关联的值不是结构修改。）这通常通过在自然封装映射的某些对象上进行同步来完成。如果不存在此类对象，则应使用Collections.synchronizedSortedMap方法“包装”map。这最好在创建时完成，以防止意外地不同步地访问map：
+		SortedMap m = Collections.synchronizedSortedMap(new TreeMap(...));
+	由该类的所有“集合视图方法”返回的集合的迭代器方法返回的迭代器是fail-fast:如果在迭代器创建后的任何时候对映射进行结构修改，则除了迭代器自己的remove方法之外，迭代器将以任何方式引发ConcurrentModificationException异常。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	此类中的方法及其视图返回的所有Map.Entry对项都表示生成映射时映射的快照。它们不支持Entry.setValue方法。（但是请注意，可以使用put更改关联映射中的映射。）
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class TreeMap<K,V> extends AbstractMap<K,V> implements NavigableMap<K,V>, Cloneable, java.io.Serializable	
+	实现接口	：Map<K,V>,SortedMap<K,V>,NavigableMap<K,V>, Cloneable, java.io.Serializable
+	内部类	：AbstractMap.SimpleEntry<K,V>,AbstractMap.SimpleImmutableEntry<K,V>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public TreeMap()
+		使用其键的自然顺序构造一个新的空树映射。所有插入map的键必须实现Comparable接口。此外，所有这些键必须是相互比较的：对于map中的任何键k1和k2，k1.compareTo(k2)不能抛出ClassCastException。如果用户试图将违反此约束的键放入映射中（例如，用户试图将字符串键放入键为整数的映射中），put(Object key, Object value)调用将抛出ClassCastException异常。
+	public TreeMap(Comparator<? super K> comparator)
+		构造一个新的空树映射，按照给定的比较器排序。插入到映射中的所有键必须通过给定的比较器相互比较：对于映射中的任何键k1和k2，comparator.compare(k1, k2)不能抛出ClassCastException。如果用户试图将违反此约束的键放入映射中，put(Object key, Object value)调用将抛出ClassCastException异常。
+	public TreeMap(Map<? extends K, ? extends V> m)
+		构造一个新的树映射，其中包含与给定映射相同的映射，并按照其键的自然顺序进行排序。插入新map的所有键必须实现Comparable接口。此外，所有这些键必须是相互比较的：对于map中的任何键k1和k2，k1.compareTo(k2)不能抛出ClassCastException。此方法在n*log(n)时间内运行。
+		【Throws】：
+			ClassCastException 如果m中的键不可比较或不可相互比较
+			NullPointerException 如果指定的map为null
+	public TreeMap(SortedMap<K, ? extends V> m)
+		构造一个新的树映射，该树映射包含指定m相同的映射，并且使用与指定的SortedMap具有相同的顺序。这种方法在线性时间内运行。
+		【Throws】：
+			NullPointerException 如果指定的map为null
+
+Method Summary（方法概要）：
+	ceilingEntry(K key):Map.Entry<K,V> 
+		△ 返回一个键-值映射关系，它与大于等于给定键的最小键关联；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	ceilingKey(K key):K 
+		△ 返回大于或等于给定键的最小键，如果没有该键，则返回null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	clear():void 			
+		△ 从该Map中删除所有映射。此调用返回后，映射将为空。	
+	clone():Object 
+		△ 返回此TreeMap实例的浅副本。（键和值本身不克隆。）
+	comparator():Comparator<? super K> 
+		△ 返回用于排序此映射中键的比较器，如果此映射使用其键的自然顺序，则返回null。	
+	containsKey(Object key):boolean 
+		△ 如果Map包含指定键的映射，则返回true。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	containsValue(Object value):boolean
+		△ 如果此映射将一个或多个键映射到指定值，则返回true。更正式地说，如果并且仅当此映射包含到值v的至少一个映射时返回true，这样（value==null ? v==null : value.equals(v)）。对于大多数映射接口实现，此操作可能需要映射大小的线性时间。 
+	descendingKeySet():NavigableSet<K> 
+		△ 返回此映射中包含的键的反向NavigableSet视图。集合的迭代器按降序返回键。集合由map支持，因此对map的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改map（通过迭代器自己的remove操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和  clear 操作从map中移除相应的映射。它不支持add或addAll操作。
+	descendingMap():NavigableMap<K,V> 
+		△ 返回此map中所包含映射关系的逆序视图。降序映射由此map支持，因此对map的更改反映在降序映射中，反之亦然。如果在对任一映射的集合视图进行迭代的过程中修改了其中一个映射（通过迭代器自己的remove操作除外），则迭代的结果不确定。
+		返回的映射与Collections.reverseOrder(comparator())具有相同的顺序。表达式m.descendingMap().descendingMap()返回实质上等同于m的视图。
+	entrySet():Set<Entry<K,V>>			
+		△ 返回Map中包含的映射的Set视图。
+		集合的迭代器按升序键顺序返回条目。集合的拆分器是后期绑定、fail-fast机制的，另外还报告了Spliterator.SORTED和Spliterator.ORDERED，其中的遇到顺序为递增的键顺序。
+		集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+	firstEntry():Map.Entry<K,V> 
+		返回一个与此映射中的最小键关联的键-值映射关系(Entry)；如果映射(Map)为空，则返回 null。
+	firstKey():K 
+		△ 返回该Map中当前第一个（最低）键。
+		【Throws】：
+			● NoSuchElementException 如果此map为空
+	floorEntry(K key):Map.Entry<K,V> 
+		△ 返回一个键-值映射关系(Entry)，它与小于等于给定键的最大键关联；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	floorKey(K key):K 
+		△ 返回小于等于给定键的最大键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	forEach(BiConsumer<? super K, ? super V> action):default void 
+		△ 对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+	get(Object key):V 
+		△ 返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
+		更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
+		如果此映射允许空值null，则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+	headMap(K toKey):SortedMap<K,V> 
+		△ 返回此map中键严格小于toKey的部分的视图。返回的map由该Map支持，因此返回的map中的更改反映在该map映射中，反之亦然。返回的map支持此map映射支持的所有可选映射操作。
+		返回的map将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果Tokey与map的比较器不兼容（或者，如果map没有比较器，如果tokey没有比较器）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果tokey为null，且此map不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	headMap(K toKey, boolean inclusive):NavigableMap<K,V> 
+		△ 返回此映射的部分视图，其键小于（或等于，如果 inclusive 为 true）toKey。
+		【Throws】：
+			● ClassCastException 如果toKey与map的比较器不兼容（或者，如果map没有比较器，如果toKey没有实现Comparable接口）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	higherEntry(K key):Map.Entry<K,V> 
+		△ 返回一个键-值映射关系，它与严格大于给定键的最小键关联；如果不存在这样的键，则返回 null。	
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	higherKey(K key):K 
+		△ 返回严格大于给定键的最小键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	keySet():Set<K> 
+		△ 返回此映射中包含的键的集合视图。
+		集合的迭代器按升序返回键。集合的拆分器是后期绑定fail-fast机制的，另外报告Spliterator.SORTED和Spliterator.ORDERED的遭遇顺序是递增的键顺序。如果树映射的比较器（参见comparator()）为空，则拆分器的比较器（参见Spliterator.getComparator()）为空。否则，拆分器的比较器与树映射的比较器相同，或实施相同的总排序。
+		集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+	lastEntry():Map.Entry<K,V> 
+		△ 返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
+	lastKey():K 
+		△ 返回此映射中当前的最后一个（最高）键。
+		【Throws】：
+			● NoSuchElementException 如果此map为空
+	lowerEntry(K key):Map.Entry<K,V> 
+		△  返回一个键-值映射关系，它与严格小于给定键的最大键关联；如果不存在这样的键，则返回 null。
+		 【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	lowerKey(K key):K 
+		△ 返回严格小于给定键的最大键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	navigableKeySet():NavigableSet<K> 
+		△ 返回此映射中包含的键的NavigableSet视图。集合的迭代器按升序返回键。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和 clear 操作从映射中移除相应的映射。它不支持add或addAll操作。
+	pollFirstEntry():Map.Entry<K,V> 
+		 △ 移除并返回与此映射中的最小键关联的键-值映射关系(Entry)；如果映射为空，则返回 null。
+	pollLastEntry():Map.Entry<K,V> 
+		△ 移除并返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。
+	put(K key, V value):V			
+		△ 将指定的值与此映射中的指定键相关联。如果映射之前包含键的映射，则旧值将替换为指定的值。（如果且仅当m.containsKey(k)返回true，则称map m包含键k的映射。）
+	putAll(Map<? extends K, ? extends V> m):void 			
+		△ 将指定映射中的所有映射复制到此映射。这些映射将替换此映射对指定映射中当前任何键所具有的任何映射。
+		【Throws】：
+			● ClassCastException 如果指定映射中的键或值的类阻止将其存储在此映射中
+			● NullPointerException 如果指定的映射为null或指定的映射包含null键，并且此映射不允许null键
+	remove(Object key):V 			 
+		从该映射中删除指定键的映射（如果存在）。
+		【Throws】：
+			● ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+	replace(K key, V value):default V 
+		仅当指定键当前映射到某个值时才替换该项。
+		返回与指定键关联的上一个值，如果没有键的映射，则为空。（如果实现支持空值，则空返回还可以指示先前与键关联的映射空值。）
+	replace(K key, V oldValue, V newValue):default boolean 
+		只有在当前key映射到指定值(oldValue)时才替换指定键的条目(newValue)。如果值被替换，返回true。		
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):default void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	size():int 
+		返回此map中的键值映射数量。
+	subMap(K fromKey, boolean fromInclusive,K toKey, boolean toInclusive):NavigableMap<K,V> 
+		返回此映射的部分视图，其键的范围从 fromKey 到 toKey。如果fromkey和tokey相等，则返回的映射为null，除非fromInclusive和toInclusive都为true。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键，或构造其端点位于其范围之外的子映射时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果不能使用这个map的比较器将fromKey和toKey相互比较（或者，如果map没有比较器，则使用自然顺序）。如果无法将fromKey或toKey与map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null且此映射不允许null键
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	subMap(K fromKey, K toKey):SortedMap<K,V> 
+		△返回此映射的部分视图，其键的范围从fromKey（包含fromKey）到toKey（不包含toKey）。（如果fromKey和toKey相等，则返回的映射为null。）返回的映射由该映射支持，因此返回映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果不能使用这个map的比较器将fromKey和toKey相互比较（或者，如果map没有比较器，则使用自然顺序）。如果无法将fromKey或toKey与map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null且此映射不允许null键
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	tailMap(K fromKey):SortedMap<K,V> 
+		返回此Map中键大于或等于fromKey的部分的视图。返回的map由该SortedMap支持，因此返回的map中的更改反映在该SortedMap中，反之亦然。返回的映射支持此SortedMap支持的所有可选映射操作
+		返回的map将在尝试插入超出其范围的键时引发IllegalArgumentException。
+		【Throws】：
+			● ClassCastException 如果fromKey与这个map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与映射中当前的键进行比较，则实现可能（但不是必需）引发此异常。
+			● NullPointerException 如果fromKey为null且此Map不允许null键
+			● IllegalArgumentException 如果此map本身的范围受限制，并且fromKey位于范围的边界之外
+	tailMap(K fromKey, boolean inclusive):NavigableMap<K,V> 
+		返回此映射的部分视图，其键大于（或等于，如果 inclusive 为 true）fromKey。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果fromKey与map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而fromKey在范围之外
+	values():Collection<V>
+		返回此Map中包含的所有值的集合视图。
+		集合的迭代器按升序返回键。集合的拆分器是后期绑定fail-fast机制的，另外报告Spliterator.SORTED，其遇到顺序是相应键的升序。
+		集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+		
+		
+		
+

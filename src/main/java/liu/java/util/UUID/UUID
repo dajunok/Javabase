@@ -1,0 +1,110 @@
+-------------------------------------UUID-----------------------------------------------------------------------------------------------------------------------------------
+UUID：通用唯一识别码。【since 1.5】
+	表示不可变的通用唯一标识符（UUID）的类。UUID表示一个128位的值。
+	这些全局标识符存在不同的变体。这个类的方法用于操作Leach-Salz变量，尽管构造函数允许创建任何UUID变量（如下所述）。	
+	变量2(Leach-Salz) UUID的布局如下：最重要的long由以下无符号字段组成：
+		 0xFFFFFFFF00000000 time_low
+		 0x00000000FFFF0000 time_mid
+		 0x000000000000F000 version
+		 0x0000000000000FFF time_hi	
+	最小有效long包含以下无符号字段：	
+		 0xC000000000000000 variant
+		 0x3FFF000000000000 clock_seq
+		 0x0000FFFFFFFFFFFF node		
+	变量字段包含一个标识UUID布局的值。上面描述的位布局仅对变量值为2的UUID有效，这表示Leach-Salz变量。
+	版本字段包含一个描述此UUID类型的值。UUID有四种不同的基本类型：基于时间的、DCE安全的、基于名称的和随机生成的UUID。这些类型的版本值分别为1、2、3和4。
+	有关包括用于创建UUID的算法在内的更多信息，请参阅RFC 4122:通用唯一标识符（UUID）URN命名空间，第4.2节“用于创建基于时间的UUID的算法”。
+	
+	
+	类定义	：public final class UUID implements java.io.Serializable,Comparable<UUID>
+	实现接口	：Comparable<UUID>,java.io.Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public UUID(long mostSigBits, long leastSigBits)
+		使用指定的数据构造新的UUID。mostSigBits用于UUID中最重要的64位，而leastSigBits则成为UUID中最不重要的64位。
+		
+Method Summary（方法概要）：
+	clockSequence():int 
+		与此UUID关联的时钟序列值。
+		14位时钟序列值由该UUID的时钟序列字段构造。时钟序列域用于保证基于时间的UUID的时间唯一性。
+		时钟序列值仅在基于时间的UUID中有意义，该UUID的版本类型为1。如果此UUID不是基于时间的UUID，则此方法将引发UnsupportedOperationException。
+		【Throws】：
+			UnsupportedOperationException 如果此UUID不是版本1 UUID
+	compareTo(UUID val):int 
+		△ 将此UUID与指定的UUID进行比较。
+		两个UUID中的第一个大于第二个，如果第一个UUID中UUID不同的最重要字段大于第二个UUID。
+	equals(Object obj):boolean 
+		△ 将此对象与指定的对象进行比较。如果且仅当参数不为null、是UUID对象、具有与此UUID相同的变量且包含相同的值（位对位），则结果为true。
+	fromString(String name):static UUID 
+		如toString()方法中所述，从字符串标准表示创建的UUID。
+		【Throws】：
+			IllegalArgumentException 如果名称不符合toString()中描述的字符串表示形式
+	nameUUIDFromBytes(byte[] name):static UUID 
+		静态工厂根据指定的字节数组检索类型3（基于名称）UUID。返回从指定数组生成的UUID。
+	randomUUID():static UUID 	
+		静态工厂以检索类型4（伪随机生成）UUID。UUID是使用加密的强伪随机数生成器生成的。
+	getLeastSignificantBits():long 
+		返回此UUID 128位值的最低有效64位。
+	getMostSignificantBits():long 
+		返回此UUID 128位值中最重要的64位。
+	hashCode():int 
+		△  返回此UUID的哈希代码。
+	node():long 
+		与此UUID关联的节点值。
+		48位节点值是从这个UUID的节点字段构造的。此字段用于保存生成此UUID的计算机的IEEE 802地址，以确保空间唯一性。
+		节点值仅在版本类型为1的基于时间的UUID中有意义。如果此UUID不是基于时间的UUID，则此方法将引发UnsupportedOperationException异常。
+	timestamp():long 
+		与此UUID关联的时间戳值。
+		60位时间戳值是根据该UUID的时间低、时间中和时间高字段构造的。从1582年10月15日午夜开始，所得时间戳以100纳秒为单位进行测量。
+		时间戳值仅在版本类型为1的基于时间的UUID中有意义。如果此UUID不是基于时间的UUID，则此方法将引发UnsupportedOperationException异常。
+	toString():String 
+		△ 返回表示此UUID的字符串对象。
+		UUID字符串表示如此bnf所述：
+			 UUID                   = <time_low> "-" <time_mid> "-"
+			                          <time_high_and_version> "-"
+			                          <variant_and_sequence> "-"
+			                          <node>
+			 time_low               = 4*<hexOctet>
+			 time_mid               = 2*<hexOctet>
+			 time_high_and_version  = 2*<hexOctet>
+			 variant_and_sequence   = 2*<hexOctet>
+			 node                   = 6*<hexOctet>
+			 hexOctet               = <hexDigit><hexDigit>
+			 hexDigit               =
+			       "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+			       | "a" | "b" | "c" | "d" | "e" | "f"
+			       | "A" | "B" | "C" | "D" | "E" | "F"			
+	variant():int 
+		与此UUID关联的变量号。变量号描述UUID的布局。变量号具有以下含义：
+			● 0	保留用于NCS向后兼容
+			● 2 IETF RFC 4122 (Leach-Salz)，本类使用
+			● 6	保留，Microsoft Corporation向后兼容
+			● 7	保留供将来定义
+	version():int 
+		与此UUID关联的版本号。版本号描述了如何生成此UUID。版本号具有以下含义：
+			1 Time-based UUID（基于时间的UUID）
+			2 DCE security UUID（DCE安全UUID）
+			3 Name-based UUID（基于名称的UUID）
+			4 Randomly generated UUID（随机生成的UUID）
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、UUID：（Universally Unique Identifier）通用唯一标识码。UUID 的目的，是让分布式系统中的所有元素，都能有唯一的辨识资讯，而不需要透过中央控制端来做辨识资讯的指定。 如此一来，每个人都可以建立不与其它人冲突的 UUID。在这样的情况下，就不需考虑数据库建立时的名称重复问题。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

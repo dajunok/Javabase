@@ -1,0 +1,105 @@
+----------------------------------------WeakHashMap<K,V>--------------------------------------------------------------------------------------------------------------
+WeakHashMap<K,V>：弱哈希映射。【Since:1.3】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型
+	基于哈希表的Map接口实现，带有弱键。当WeakHashMap中的某个条目的键不再正常使用时，该条目将自动删除。更准确地说，给定键的映射的存在不会阻止垃圾收集器丢弃该键，也就是说，使其可终止（finalizable）、被终止（finalized），然后回收（reclaimed）。当一个键被丢弃时，它的条目会有效地从映射中移除，因此这个类的行为与其他Map实现有些不同。
+	支持null值和null键。这个类具有类似于HashMap类的性能特征，并且具有相同的初始容量和负载系数的效率参数。
+	与大多数集合类一样，该类不同步。可以使用Collections.synchronizedMap方法构造同步的WeakHashMap。
+	此类主要用于equals方法，使用==运算符测试对象标识的键对象。这样一个键一旦被丢弃，它就永远无法被重新创建，因此在以后的某个时间在WeakHashMap中查找该键是不可能的，并且很惊讶它的条目被删除了。此类将非常适合于equals方法不基于对象标识的键对象，例如String实例。然而，对于此类可重新创建的键对象，自动删除已丢弃键的WeakHashMap条目可能会令人困惑。
+	WeakHashMap类的行为在一定程度上取决于垃圾收集器的操作，因此一些熟悉的（虽然不是必需的）Map不变量不适用于此类。因为垃圾收集器可以在任何时候丢弃键，所以WeakHashMap可能表现为一个未知线程正在静默地删除条目。特别是，即使您在WeakHashMap实例上同步并且不调用任何一个mutator方法，size方法也可能随着时间的推移返回较小的值，对于isEmpty方法返回false，然后返回true，对于containsKey方法返回true，然后返回false，对于给定键，get方法返回给定键的值，但稍后返回null，对于put方法返回null值，remove方法返回false，对于之前在映射中出现的键，以及对键集、值集合和条目集的连续检查，以生成连续较小数量的元素。
+	WeakHashMap中的每个关键对象都间接存储为弱引用的引用。因此，只有当对键的弱引用（包括映射的内部和外部）被垃圾收集器清除后，才会自动删除键。
+	实现说明：WeakHashMap中的值对象由普通强引用保存。因此，应该注意确保值对象不会直接或间接地强引用其自己的键，因为这样会阻止键被丢弃。注意，一个值对象可以通过WeakHashMap本身间接地引用它的键；也就是说，一个值对象可以强引用另一个键对象，其关联的值对象反过来又强引用第一个值对象的键。如果映射中的值不依赖于对其具有强引用的映射，处理这一问题的一种方法是在插入之前将值本身包装在WeakReferences中，如：m.put(key, new WeakReference(value))中所示，然后在每个get上展开。
+	由该类的所有“集合视图方法”返回的集合的迭代器方法返回的迭代器是fail-fast机制的：如果在迭代器创建后的任何时候对映射进行了结构修改，则除了通过迭代器自己的remove方法，迭代器将抛出ConcurrentModificationException。因此，在面对并发修改时，迭代器会快速而清晰地失败，而不是在未来的不确定时间内冒任意、不确定的风险。
+	请注意，不能保证迭代器的fail-fast行为，因为一般来说，在不同步的并发修改的情况下，不可能做出任何硬保证。fail-fast迭代器在尽最大努力的基础上抛出ConcurrentModificationException异常。因此，编写一个依赖于这个异常的程序来保证其正确性是错误的：迭代器的fail-fast行为应该只用于检测错误。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class WeakHashMap<K,V> extends AbstractMap<K,V> implements Map<K,V>
+	实现接口	：Map<K,V>
+	内部类	：AbstractMap.SimpleEntry<K,V>,AbstractMap.SimpleImmutableEntry<K,V>	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public WeakHashMap()
+		使用默认初始容量（16）和负载系数（0.75）构造新的空WeakHashMap。
+	public WeakHashMap(int initialCapacity)
+		构造一个新的空WeakHashMap，具有给定的初始容量和默认的负载系数（0.75）。
+		【Throws】：
+			IllegalArgumentException 如果初始容量为负数
+	public WeakHashMap(int initialCapacity, float loadFactor)
+		在给定初始容量和给定负载系数的情况下，构造一个新的空WeakHashMap。
+		【Throws】：
+			IllegalArgumentException 如果初始容量为负，或者负载系数为非正。
+	public WeakHashMap(Map<? extends K, ? extends V> m)
+		使用与指定映射相同的映射构造新的WeakHashMap。创建WeakHashMap时使用默认的负载系数（0.75）和足以在指定映射中保存映射的初始容量。
+		【Throws】：
+			IllegalArgumentException 如果初始容量为负数
+
+Method Summary（方法概要）：
+	clear():void 			
+		△ 从该Map中删除所有映射。此调用返回后，映射将为空。		
+	containsKey(Object key):boolean 
+		△ 如果map包含指定键的映射，则返回true。
+	containsValue(Object value):boolean
+		△ 如果此映射将一个或多个键映射到指定值，则返回true。 
+	entrySet():Set<Entry<K,V>>			
+		△ 返回此map中包含的映射的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的remove操作或通过迭代器返回的映射项上的setValue操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll and clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+	forEach(BiConsumer<? super K, ? super V> action):default void 
+		△ 对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+	get(Object key):V 
+		△ 返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
+		更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）	
+		如果此映射允许空值null，则返回值为null并不一定表示映射不包含键的映射；映射也可能显式地将键映射为null。containsKey操作可用于区分这两种情况。
+	isEmpty():boolean 
+		△ 如果此映射不包含键值映射，则返回true。此结果是快照，可能不会反映将在下次尝试访问之前删除的未处理条目，因为它们不再被引用。	
+	keySet():Set<K> 
+		△ 返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持添加或添加所有操作。
+	put(K key, V value):V			
+		△ 将指定的值与此映射中的指定键相关联（可选操作）。如果映射之前包含键的映射，则旧值将替换为指定的值。
+	putAll(Map<? extends K, ? extends V> m):void 			
+		△ 将指定映射中的所有映射复制到此映射。这些映射将替换此映射对指定映射中当前任何键的任何映射。
+		【Throws】：
+			NullPointerException 如果指定的map为null
+	remove(Object key):V 			 
+		△ 从该映射中删除键的映射（如果存在）（可选操作）。更正式地说，如果这个映射包含从k键到v值的映射，那么(key==null ? k==null : key.equals(k))，该映射将被删除。（该映射最多可包含一个此类映射。）
+		返回此映射以前与该键关联的值，如果该映射不包含该键的映射，则返回空值。
+		一旦调用返回，映射将不包含指定键的映射。
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):default void 
+		△ 将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	size():int 
+		△ 返回此映射中的键值映射数。此结果是快照，可能不会反映将在下次尝试访问之前删除的未处理条目，因为它们不再被引用。
+	values():Collection<V>
+		△ 返回此Map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+附录2：WeakHashMap实现原理：
+	在“前言”中有提到WeakHashMap的key是“弱键”，即是WeakReference类型的。ReferenceQueue是一个队列，它会保存被GC回收的“弱键”。实现步骤是：	
+		1、新建WeakHashMap，将“键值对”添加到WeakHashMap中。实际上，WeakHashMap是通过数组table保存Entry(键值对)；每一个Entry实际上是一个单向链表，即Entry是键值对链表
+		2、当某“弱键”不再被其它对象引用，并被GC回收时。在GC回收该“弱键”时，这个“弱键”也同时会被添加到ReferenceQueue(queue)队列中
+		3、当下一次我们需要操作WeakHashMap时，会先同步table和queue。table中保存了全部的键值对，而queue中保存被GC回收的键值对；同步它们，就是删除table中被GC回收的键值对。
+			这就是“弱键”如何被自动从WeakHashMap中删除的步骤了。和HashMap一样，WeakHashMap是不同步的。可以使用 Collections.synchronizedMap 方法来构造同步的 WeakHashMap。
+				
+				
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
