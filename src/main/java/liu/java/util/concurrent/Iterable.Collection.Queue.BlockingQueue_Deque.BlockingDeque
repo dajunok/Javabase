@@ -1,0 +1,226 @@
+-----------------------------------------BlockingDeque<E>-----------------------------------------------------------------------------------------------------------------------------		
+BlockingDeque<E>接口：阻塞双端队列 【Since:1.6】
+	一种双端队列（DEQUE），它另外支持阻塞操作，在检索一个元素时等待DEQUE变为非空，在存储一个元素时等待DEQUE中的空间变为可用。
+	BlockingDeque方法有四种形式，处理不能立即满足的操作的方式不同，但在将来的某个时候可能会满足：第一：抛出异常；第二个：返回特殊值（null或false，取决于操作）；第三个：无限期地阻塞当前线程，直到操作成功；第四个：模块在放弃前只在一个给定的最大时间限制内运行。下表总结了这些方法：
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+							==============第一个元素（头部元素）=====================
+			抛出异常（Throws exception）	返回特殊值（Special value）	阻塞（Blocks）			延迟（Times out）
+	插入		addFirst(e)					offerFirst(e)			putFirst(e)			offerFirst(e, time, unit)
+	删除		removeFirst()				pollFirst()				takeFirst()			pollFirst(time, unit)
+	检出		getFirst()					peekFirst()				not applicable		not applicable
+	----------------------------------------------------------------------------------------------------------
+							==============最后一个元素（尾部元素）=====================
+			抛出异常（Throws exception）	返回特殊值（Special value）	阻塞（Blocks）			延迟（Times out）
+	插入		addLast(e)					offerLast(e)			putLast(e)			offerLast(e, time, unit)
+	删除		removeLast()				pollLast()				takeLast()			pollLast(time, unit)
+	检出		getLast()					peekLast()				not applicable		not applicable	
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	与任何BlockingQueue一样，BlockingQueue是线程安全的，不允许null元素，并且可能（或不可能）受到容量限制。
+	BlockingDeque实现可以直接用作FIFO阻塞队列。从BlockingDeque接口继承的方法与BlockingQueue接口方法完全等效，如下表所示：
+					【比较BlockingQueue接口与BlockingDeque接口方法】
+		-------------------------------------------------------------------------
+		BlockingQueue Method					Equivalent BlockingDeque Method
+								插入（Insert）
+		-------------------------------------------------------------------------
+		add(e)									addLast(e)
+		offer(e)								offerLast(e)
+		put(e)									putLast(e)
+		offer(e, time, unit)					offerLast(e, time, unit)
+		-------------------------------------------------------------------------
+								移除（Remove）
+		-------------------------------------------------------------------------
+		remove()								removeFirst()
+		poll()									pollFirst()
+		take()									takeFirst()
+		poll(time, unit)						pollFirst(time, unit)
+		-------------------------------------------------------------------------
+								检出（Examine）
+		-------------------------------------------------------------------------
+		element()								getFirst()
+		peek()									peekFirst()	
+		-------------------------------------------------------------------------
+	内存一致性影响：与其他并发集合一样，在将对象放入BlockingDeque之前，线程中的操作发生在访问或从另一线程的BlockingDeque中删除该元素之后的操作之前。
+	此接口是Java集合框架的成员。
+	
+	
+	接口定义	：public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E>
+	父接口	：Iterable<E>,Collection<E>,Queue<E>,BlockingQueue,Deque<E>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	add(E e):boolean 
+		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalstateException。当使用容量受限队列时，通常最好使用offer。
+		【Throws】：
+			IllegalStateException 如果由于容量限制，此时无法添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此队列
+	addFirst(E e):void 
+		△ 如果可以在不违反容量限制的情况下立即插入指定元素，则在该Deque的前面插入该元素；如果当前没有可用空间，则抛出IllegalStateException。当使用容量受限的deque时，通常最好使用offerFirst(E)方法。
+		【Throws】：
+			IllegalStateException 如果由于容量限制，此时无法添加元素
+			ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	addLast(E e):void 
+		△ 如果可以在不违反容量限制的情况下立即插入指定元素，则在该Deque的结尾插入该元素；如果当前没有可用空间，则引发IllegalStateException。当使用容量受限的deque时，通常最好使用offerLast(E)方法。
+		此方法相当于add(E)
+		【Throws】：
+			IllegalStateException 如果由于容量限制，此时无法添加元素
+			ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	contains(Object o):boolean
+		△ 如果此队列包含指定的元素，则返回true。更正式地说，如果并且仅当此队列包含至少一个元素e（如o.equals(e)），则返回true。
+		【Throws】：
+			ClassCastException 如果指定元素的类型与此队列不兼容
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+	element():E
+		△ 在队列的头部查询并返回元素。如果队列为空时，抛出一个异常。
+		【Throws】：
+			NoSuchElementException 如果此队列为空
+	iterator():Iterator<E> 
+		△ 以正确的顺序返回此deque中元素的迭代器。元素将按从第一个（头）到最后一个（尾）的顺序返回。
+	offer(E e):boolean
+		 △如果可以在不违反容量限制的情况下立即将指定元素插入此队列，则在成功时返回true；如果当前没有可用空间，则返回false。当使用容量受限队列时，此方法通常比add(E)更可取，因为add(E)只能通过引发异常来插入元素。
+		【Throws】：
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+	offer(E e, long timeout, TimeUnit unit):boolean 
+		△ 将指定的元素插入此队列，如有必要，等待指定的等待时间以使空间可用。
+		timeout - 放弃前等待多长时间（即等待时长），单位为指定的unit参数		
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+	offerFirst(E e):boolean
+		△ 在这个deque（双端队列）的前面插入指定的元素，除非它违反了容量限制。如果将元素添加到此deque，则为true，否则为false。当使用容量受限的deque时，此方法通常优于addFirst(E)方法，后者只能通过引发异常而无法插入元素。
+		【Throws】：
+			ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	offerFirst(E e, long timeout, TimeUnit unit):boolean 
+		在该deque的前面插入指定的元素，如果需要空间可用，则等待指定的等待时间。
+		【Throws】：
+			InterruptedException 如果等待中断
+			ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	offerLast(E e):boolean 
+		△ 在这个deque的末尾插入指定的元素，除非它会违反容量限制。如果将元素添加到此deque，则为true，否则为false。当使用容量受限的deque时，此方法通常优于addlast（e）方法，后者只能通过引发异常来插入元素。
+		【Throws】：
+			ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	offerLast(E e, long timeout, TimeUnit unit):boolean 
+		在该deque的末尾插入指定的元素，如果需要空间可用，则等待指定的等待时间。
+		【Throws】：
+			InterruptedException 如果等待中断
+			ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	peek():E
+		△ 在队列的头部查询并返回元素。如果队列为空时，返回null。
+	poll():E
+		△检索但不删除此队列的头；如果此队列为空，则返回空值。
+	poll(long timeout, TimeUnit unit):E 
+		△检索并删除此队列的头，如果需要，可等待指定的等待时间以使元素可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	pollFirst(long timeout, TimeUnit unit):E 
+		检索并删除此deque的第一个元素，如果需要，则等待指定的等待时间以使元素可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	pollLast(long timeout, TimeUnit unit):E 
+		检索并删除此deque的最后一个元素，如果需要，可等待指定的等待时间以使元素可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	push(E e):void 
+		△ 如果可以在不违反容量限制的情况下立即将元素推送到该deque表示的栈上（换句话说，在该deque的头部），如果当前没有可用空间，则引发IllegalStateException异常。
+		此方法等效于addFirst(E)
+		【Throws】：
+			● IllegalStateException 如果由于容量限制，此时无法添加元素
+			● ClassCastException 如果指定元素的类阻止将其添加到此deque（双端队列）中
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+			● IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此deque（双端队列）中
+	put(E e):void 
+		△ 将指定的元素插入此队列，并在必要时等待空间可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+	putFirst(E e):void 
+		在该deque的前面插入指定的元素，如果需要，等待空间可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+	putLast(E e):void 
+		在该deque的末尾插入指定的元素，如有必要，等待空间可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+	remove():E	
+		△ 检索并删除此队列的头。此方法与Poll的不同之处在于，如果此队列为空，它将引发异常。
+		【Throws】：
+			● NoSuchElementException 如果此队列为空
+	remove(Object o):boolean 
+		△ 从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个这样的元素，则删除元素e（o.equals(e)）。如果此队列包含指定元素，则返回“true”（如果此队列因调用而更改，则返回“等效”（即返回true））。
+		【Throws】：
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null（可选）
+	removeFirstOccurrence(Object o):boolean
+		△ 从该deque中删除指定元素的第一个匹配项。如果deque不包含元素，则它是不变的。更正式地说，删除第一个元素e像这样(o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+		【Throws】：
+			● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+	removeLastOccurrence(Object o):boolean 
+		△ 从该deque中删除指定元素的最后一次出现。如果deque不包含元素，则它是不变的。更正式地说，删除最后一个元素e像这样(o==null ? e==null : o.equals(e))（如果存在这样的元素）。如果此deque包含指定元素（或等效地，如果此deque由于调用而更改），则返回true。
+		【Throws】：
+			● ClassCastException 如果指定元素的类型与此deque（双端队列）不兼容（可选）
+			● NullPointerException 如果指定的元素为null，并且此deque（双端队列）不允许null元素
+	size():int 
+		△ 返回此deque中的元素数。
+	take():E 
+		△ 检索并删除此队列的头，必要时等待元素变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	takeFirst():E 
+		检索并删除此deque的第一个元素，必要时等待元素变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	takeLast():E 
+		检索并删除此deque的最后一个元素，如有必要，等待元素变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。Iterable.Collection.Queue.BlockingQueue
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

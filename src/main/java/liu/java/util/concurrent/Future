@@ -1,0 +1,78 @@
+-----------------------------------------Future<V>-----------------------------------------------------------------------------------------------------------------------------		
+Future<V>：未来接口【Since:1.5】
+	<V> 此Future的get方法返回的结果类型
+	Future表示异步计算的结果。提供了检查计算是否完成、等待计算完成以及检索计算结果的方法。只有在计算完成后，才能使用get方法来检索结果，必要时进行阻塞，直到结果准备就绪。取消是通过cancel方法执行的。提供了其他方法来确定任务是否正常完成或被取消。一旦计算完成，就不能取消计算。如果为了可取消性而使用Future，但不提供可用的结果，则可以声明Future<?>形式的类型，并作为基础任务的结果返回null值。
+	示例用法（请注意，以下所有类都是由组成的。）：
+		 interface ArchiveSearcher { String search(String target); }
+		 class App {
+		   ExecutorService executor = ...
+		   ArchiveSearcher searcher = ...
+		   void showSearch(final String target)
+		       throws InterruptedException {
+		     Future<String> future
+		       = executor.submit(new Callable<String>() {
+		         public String call() {
+		             return searcher.search(target);
+		         }});
+		     displayOtherThings(); // do other things while searching
+		     try {
+		       displayText(future.get()); // use future
+		     } catch (ExecutionException ex) { cleanup(); return; }
+		   }
+		 }
+		
+	FutureTask类是Future的一个实现，实现了Runnable，因此可以由Executor执行。例如，上述提交的结构可以替换为：
+		 FutureTask<String> future =
+		   new FutureTask<String>(new Callable<String>() {
+		     public String call() {
+		       return searcher.search(target);
+		   }});
+		 executor.execute(future);	
+	内存一致性效果：异步计算所采取的操作发生在另一个线程中相应Future.get()之后的操作之前。
+
+
+	接口定义	：public interface Future<V>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	cancel(boolean mayInterruptIfRunning):boolean 
+		尝试取消执行此任务。如果任务已完成、已取消或由于其他原因无法取消，则此尝试将失败。如果成功，并且调用cancel时此任务尚未启动，则此任务不应运行。如果任务已启动，则mayInterruptIfRunning参数确定执行此任务的线程是否应在尝试停止任务时中断。
+	get():V 
+		此方法返回后，对isDone()的后续调用将始终返回true。如果此方法返回true，对isCancelled()的后续调用将始终返回true。
+		【Throws】：
+			CancellationException  如果计算被取消
+			ExecutionException 如果计算抛出异常
+			InterruptedException 如果当前线程在等待时被中断
+	get(long timeout, TimeUnit unit):V 
+		如果需要，最多等待给定的时间（timeout）以完成计算，然后检索其结果（如果可用）。
+		unit - timeout参数的时间单位
+		【Throws】：
+			CancellationException  如果计算被取消
+			ExecutionException 如果计算抛出异常
+			InterruptedException 如果当前线程在等待时被中断
+			TimeoutException 如果等待超时
+	isCancelled():boolean 
+		如果此任务在正常完成之前被取消，则返回true。
+	isDone():boolean 
+		如果此任务完成，则返回true。完成可能是由于正常终止、异常或取消——在所有这些情况下，此方法都将返回true。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

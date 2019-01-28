@@ -1,0 +1,74 @@
+-----------------------------------------Executor-----------------------------------------------------------------------------------------------------------------------------		
+Executor：执行器接口 【Since:1.5】
+	执行提交的可运行任务的对象。该接口提供了一种将任务提交与每个任务运行机制分离的方法，包括线程使用、调度等的详细信息。通常使用执行器而不是显式创建线程。例如，您不必为一组任务中的每一个调用new Thread(new(RunnableTask())).start()，而是可以使用：
+		Executor executor = anExecutor;
+		 executor.execute(new RunnableTask1());
+		 executor.execute(new RunnableTask2());
+		 ...
+	但是，Executor接口并不严格要求执行是异步的。在最简单的情况下，执行器可以在调用方线程中立即运行提交的任务：
+		 class DirectExecutor implements Executor {
+		   public void execute(Runnable r) {
+		     r.run();
+		   }
+		 }	
+	更典型的是，任务是在调用方线程之外的某个线程中执行的。下面的执行器为每个任务生成一个新线程。
+		 class ThreadPerTaskExecutor implements Executor {
+		   public void execute(Runnable r) {
+		     new Thread(r).start();
+		   }
+		 }
+	许多执行器实现对如何以及何时调度任务施加了某种限制。下面的执行器将任务提交给第二个执行器，表明一个复合执行器。
+		 class SerialExecutor implements Executor {
+		   final Queue<Runnable> tasks = new ArrayDeque<Runnable>();
+		   final Executor executor;
+		   Runnable active;
+		
+		   SerialExecutor(Executor executor) {
+		     this.executor = executor;
+		   }
+		
+		   public synchronized void execute(final Runnable r) {
+		     tasks.offer(new Runnable() {
+		       public void run() {
+		         try {
+		           r.run();
+		         } finally {
+		           scheduleNext();
+		         }
+		       }
+		     });
+		     if (active == null) {
+		       scheduleNext();
+		     }
+		   }
+		
+		   protected synchronized void scheduleNext() {
+		     if ((active = tasks.poll()) != null) {
+		       executor.execute(active);
+		     }
+		   }
+		 }	
+	此包中提供的Executor实现类实现了ExecutorService接口，这是一个更广泛的接口。ThreadPoolExecutor类提供了一个可扩展的线程池实现。Executors类为这些执行器提供了方便的工厂方法。
+	内存一致性影响：在将可运行对象提交给执行器之前，线程中的操作发生在执行器开始执行之前，可能发生在另一个线程中。
+	
+
+	接口定义	：public interface Executor
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	execute(Runnable command):void 
+		将来某个时候执行给定的命令。
+		【Throws】：
+			RejectedExecutionException 如果此任务无法接受执行
+			NullPointerException 如果command为null
+
+
+
+
+
+
+
+
+
+
+
+
+

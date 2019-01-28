@@ -1,43 +1,124 @@
 -----------------------------------------BlockingQueue<E>-----------------------------------------------------------------------------------------------------------------------------		
-BlockingQueue<E>接口：队列 【Since:1.5】
+BlockingQueue<E>接口：阻塞队列 【Since:1.5】
 	一种队列，它还支持在检索元素时等待队列变为非空的操作，以及在存储元素时等待队列中的空间变为可用的操作。
-	
+	BlockingQueue方法有四种形式，处理不能立即满足的操作的方式不同，但在将来的某个时候可能会满足：一个抛出异常，第二个返回特殊值（null或false，取决于操作），第三个无限期地阻塞当前线程，直到操作它可以成功，第四个模块在放弃前只在一个给定的最大时间限制内运行。下表总结了这些方法：
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+					Throws exception	Special value				Blocks					Times out
+	插入（Insert）		add(e)				offer(e)					put(e)					offer(e, time, unit)
+	移除（Remove）		remove()			poll()						take()					poll(time, unit)
+	检出（Examine）	element()			peek()						not applicable			not applicable	
+	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	BlockingQueue不接受null元素。实现在尝试添加（add）、设置（set）或获取（offer）null值时引发NullPointerException异常。null值用作sentinel值（岗哨），表示poll操作失败。
+	BlockingQueue可以是容量限制的。在任何给定的时间，它可能有一个剩余的能力，超过这个能力，非阻塞情况下任何额外的元素都不能放入。没有任何内部容量约束的阻塞队列总是报告剩余容量Integer.MAX_VALUE。
+	BlockingQueue实现主要用于生产者-消费者队列，但还支持集合接口。因此，例如，可以使用remove(x)从队列中删除任意元素。但是，这些操作通常执行效率不高，并且仅用于偶尔使用，例如当队列消息被取消时。
+	BlockingQueue实现是线程安全的。所有排队方法都使用内部锁或其他形式的并发控制原子地实现它们的效果。但是，批量收集操作addAll、containsAll、retainAll和removeAll不一定以原子方式执行，除非在实现中另有指定。因此，例如，在c中只添加了一些元素之后，addAll(c)可能会失败（引发异常）。
+	BlockingQueue本质上不支持任何类型的“close”或“shutdown”操作，以指示不再添加任何项。这些特性的需求和使用往往依赖于实现。例如，一个常见的策略是让生产者插入特殊的end-of-stream或有害对象，当消费者使用时，这些对象会被相应地解释。
+	使用示例：基于典型的生产者-消费者场景。请注意，BlockingQueue可以安全地与多个生产者和多个使用者一起使用。
+		 class Producer implements Runnable {
+		   private final BlockingQueue queue;
+		   Producer(BlockingQueue q) { queue = q; }
+		   public void run() {
+		     try {
+		       while (true) { queue.put(produce()); }
+		     } catch (InterruptedException ex) { ... handle ...}
+		   }
+		   Object produce() { ... }
+		 }
+		
+		 class Consumer implements Runnable {
+		   private final BlockingQueue queue;
+		   Consumer(BlockingQueue q) { queue = q; }
+		   public void run() {
+		     try {
+		       while (true) { consume(queue.take()); }
+		     } catch (InterruptedException ex) { ... handle ...}
+		   }
+		   void consume(Object x) { ... }
+		 }
+		
+		 class Setup {
+		   void main() {
+		     BlockingQueue q = new SomeQueueImplementation();
+		     Producer p = new Producer(q);
+		     Consumer c1 = new Consumer(q);
+		     Consumer c2 = new Consumer(q);
+		     new Thread(p).start();
+		     new Thread(c1).start();
+		     new Thread(c2).start();
+		   }
+		 }	
+	内存一致性影响：与其他并发集合一样，将对象放入BlockingQueue之前线程中的操作发生在访问或从另一线程的BlockingQueue中删除该元素之后的操作发生之前。
+	此接口是Java集合框架的成员。
 	
 	接口定义	：public interface BlockingQueue<E> extends Queue<E>
 	父接口	：Iterable<E>,Collection<E>,Queue<E>
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	add(E e):boolean 
-		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalStateException。
+		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalstateException。当使用容量受限队列时，通常最好使用offer。
 		【Throws】：
-			● IllegalStateException 如果由于容量限制，此时无法添加元素
-			● ClassCastException  如果指定元素的类阻止将其添加到此队列中
-			● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
-			● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此队列
+			IllegalStateException 如果由于容量限制，此时无法添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此队列
 	contains(Object o):boolean
-		△ 如果此 collection 包含指定的元素，则返回 true。更确切地讲，当且仅当此 collection 至少包含一个满足 (o==null ? e==null : o.equals(e)) 的元素 e 时，返回 true。
+		△ 如果此队列包含指定的元素，则返回true。更正式地说，如果并且仅当此队列包含至少一个元素e（如o.equals(e)），则返回true。
 		【Throws】：
-			ClassCastException 如果指定元素的类型与此集合不兼容（可选）
-			NullPointerException 如果指定的元素为null，并且此集合不允许null元素（可选）
+			ClassCastException 如果指定元素的类型与此队列不兼容
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
 	drainTo(Collection<? super E> c):int 
-	
-	drainTo(Collection<? super E> c, int maxElements):int 
-	
-	offer(E e):boolean
-		 如果可以在不违反容量限制的情况下立即将指定元素插入此队列。当使用容量受限队列时，此方法通常比add(E)更可取，因为插入元素失败时候add(E)只能抛出异常。
+		 删除此队列中的所有可用元素并将它们添加到给定集合中。此操作可能比重复轮询（polling）此队列更有效。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
 		【Throws】：
-			● ClassCastException  如果指定元素的类阻止将其添加到此队列中
-			● NullPointerException 如果指定的元素为null，并且此队列不允许null元素
-			● IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	drainTo(Collection<? super E> c, int maxElements):int 
+		最多可以从此队列中删除给定数量的可用元素，并将它们添加到给定集合中。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	offer(E e):boolean
+		 △如果可以在不违反容量限制的情况下立即将指定元素插入此队列，则在成功时返回true；如果当前没有可用空间，则返回false。当使用容量受限队列时，此方法通常比add(E)更可取，因为add(E)只能通过引发异常来插入元素。
+		【Throws】：
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
 	offer(E e, long timeout, TimeUnit unit):boolean 
+		将指定的元素插入此队列，如有必要，等待指定的等待时间以使空间可用。
+		timeout - 放弃前等待多长时间（即等待时长），单位为指定的unit参数		
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
 	poll(long timeout, TimeUnit unit):E 
+		检索并删除此队列的头，如果需要，可等待指定的等待时间以使元素可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
 	put(E e):void 
+		将指定的元素插入此队列，并在必要时等待空间可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null，并且此队列不允许null元素
+			IllegalArgumentException 如果此元素的某些属性阻止将其添加到此
 	remainingCapacity():int 
+		返回此队列在不阻塞的情况下（在没有内存或资源约束的情况下）可以接受的其他元素的数量（剩余容量），或者如果没有内部限制，则返回Integer.MAX_VALUE。
+		请注意，您不能总是通过检查剩余容量来判断插入元素的尝试是否会成功，因为可能是另一个线程将要插入或删除元素。
 	remove(Object o):boolean 
+		从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个这样的元素，则删除元素e（o.equals(e)）。如果此队列包含指定元素，则返回“true”（如果此队列因调用而更改，则返回“等效”（即返回true））。
+		【Throws】：
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的元素为null（可选）
 	take():E 
-
+		检索并删除此队列的头，必要时等待元素变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
-	1、注：文档中的△符号表示覆盖重写方法。
+	1、注：文档中的△符号表示覆盖重写方法。Iterable.Collection.Queue.BlockingQueue
 
 
 
