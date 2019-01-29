@@ -56,7 +56,7 @@ ExecutorService：执行器服务接口 【Since:1.5】
 	接口定义	：public interface ExecutorService extends Executor
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	awaitTermination(long timeout, TimeUnit unit):boolean 
-		阻塞，直到所有任务在关闭请求后完成执行，或发生超时，或当前线程被中断（以先发生者为准）。
+		阻塞（等待终止），直到所有任务在关闭请求后完成执行，或发生超时，或当前线程被中断（以先发生者为准）。
 		【Throws】：
 			InterruptedException 如果在等待时中断
 	invokeAll(Collection<? extends Callable<T>> tasks):<T> List<Future<T>> 
@@ -113,12 +113,17 @@ ExecutorService：执行器服务接口 【Since:1.5】
 		注意：Executor类包含一组方法，这些方法可以将一些其他常见的闭包（如对象）转换为可调用形式，以便提交它们。
 		【Throws】：
 			RejectedExecutionException 如果任何任务无法调度执行
-			NullPointerException 如果要执行的任务为null
-			
+			NullPointerException 如果要执行的任务为null			
 	submit(Runnable task, T result):<T> Future<T> 
-	submit(Callable<T> task):<T> Future<T> 
-	
-
+		<T> 返回结果的类型
+		提交可运行任务以执行，并返回表示该任务的Future任务。Future的get方法将在成功完成后返回给定的结果。
+		【Throws】：
+			RejectedExecutionException 如果任何任务无法调度执行
+			NullPointerException 如果要执行的任务为null
+	submit(Callable<T> task):<T> Future<T>
+		 提交返回值的任务以供执行，并返回表示任务挂起结果的Future。Future的get方法将在成功完成后返回任务的结果。
+		如果希望立即阻塞等待任务，可以使用result = exec.submit(aCallable).get()形式的构造；
+		注意：Executors类包含一组方法，这些方法可以将一些其他常见的内部对象（如PrivilegedAction到Callable形式）转换为可提交的对象。
 
 
 

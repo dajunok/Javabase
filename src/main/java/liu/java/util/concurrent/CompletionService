@@ -1,0 +1,30 @@
+-----------------------------------------CompletionService<V>-----------------------------------------------------------------------------------------------------------------------------		
+CompletionService<V>：完成服务接口 【Since:1.5】
+	将新的异步任务的生成与已完成任务的结果的消费分离开来的服务。生产商提交要执行的任务。消费者接受已完成的任务，并按照完成的顺序处理结果。例如，CompletionService可用于管理异步I/O，在异步I/O中，执行读取的任务在程序或系统的一个部分提交，然后在读取完成时在程序的另一个部分执行，可能以与请求的顺序不同的顺序执行。
+	通常，CompletionService依赖于单独的执行器来实际执行任务，在这种情况下，CompletionService只管理内部完成队列。ExecutorCompletionService类提供了此方法的实现。
+	内存一致性影响：在将任务提交到CompletionService之前，线程中的操作发生在该任务拿取动作之前，而该操作又发生在从相应的take()成功返回之后的动作之前。
+
+	接口定义	：public interface CompletionService<V>
+	实现类	：ExecutorCompletionService
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	poll():Future<V> 
+		检索并删除表示下一个已完成任务的Future，如果不存在，则为null。
+	poll(long timeout, TimeUnit unit):Future<V> 
+		unit - timeout的时间单位
+		检索并删除表示下一个已完成任务的Future，如果需要，则等待到指定的等待时间（timeout）（如果尚未存在）。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	submit(Runnable task, V result):Future<V> 
+		提交Runnable任务以供执行，并返回表示该任务的Future任务。完成后，可以执行或轮询（polled）此任务。
+		【Throws】：
+			RejectedExecutionException 如果任务无法调度执行
+			NullPointerException 如果任务为null
+	submit(Callable<V> task):Future<V> 
+		提交指定返回值（result）的任务以供执行，并返回表示任务挂起结果的Future。完成后，可以执行或轮询（polled）此任务。
+		【Throws】：
+			RejectedExecutionException 如果任务无法调度执行
+			NullPointerException 如果任务为null
+	take():Future<V> 
+		检索并删除表示下一个已完成任务的Future，如果尚未完成任务，则等待。
+		【Throws】：
+			InterruptedException 如果在等待时中断
