@@ -1,0 +1,58 @@
+-----------------------------------------ManagedBlocker-----------------------------------------------------------------------------------------------------------------------------		
+ManagedBlocker：管理拦截器接口 【Since:1.7】	
+	用于扩展在ForkJoinPools中运行的任务的托管并行性的接口。
+	ManagedBlocker提供了两种方法。如果不需要阻塞，方法isReleasable()必须返回true。方法block()根据需要阻塞当前线程（可能在实际阻塞之前内部调用isReleasable）。这些操作由调用ForkJoinPool.managedBlock(ManagedBlocker)的任何线程执行。这个API中的unusual方法支持同步器，同步器可能会（但通常不会）长时间阻塞。同样，它们允许更有效的内部处理可能需要但通常不需要额外工作程序来确保足够的并行性的情况。为此，isReleasable方法的实现必须能够适应重复调用。
+	例如，这里有一个基于ReentrantLock的ManagedBlocker：
+		 class ManagedLocker implements ManagedBlocker {
+		   final ReentrantLock lock;
+		   boolean hasLock = false;
+		   ManagedLocker(ReentrantLock lock) { this.lock = lock; }
+		   public boolean block() {
+		     if (!hasLock)
+		       lock.lock();
+		     return true;
+		   }
+		   public boolean isReleasable() {
+		     return hasLock || (hasLock = lock.tryLock());
+		   }
+		 }		
+	下面是一个类，它可能会阻塞等待给定队列中的条目：
+	 class QueueTaker<E> implements ManagedBlocker {
+	   final BlockingQueue<E> queue;
+	   volatile E item = null;
+	   QueueTaker(BlockingQueue<E> q) { this.queue = q; }
+	   public boolean block() throws InterruptedException {
+	     if (item == null)
+	       item = queue.take();
+	     return true;
+	   }
+	   public boolean isReleasable() {
+	     return item != null || (item = queue.poll()) != null;
+	   }
+	   public E getItem() { // call after pool.managedBlock completes
+	     return item;
+	   }
+	 }		
+	
+	
+	
+	
+	
+	它是封装在ForkJoinPool类中的一个内部类。
+	
+
+	接口定义	：public static interface ManagedBlocker
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	block():boolean 
+		可能会阻塞当前线程，例如等待锁或条件。
+		如果不需要追加阻塞，则为true（即，如果isReleasable返回true）
+		【Throws】：
+			InterruptedException 如果在等待时中断（方法不需要这样做，但允许这样做）
+	isReleasable():boolean 
+		如果不需要阻塞，则返回true。
+		
+		
+		
+		
+		
+		

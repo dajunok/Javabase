@@ -1,0 +1,20 @@
+-----------------------------------------ForkJoinWorkerThreadFactory-----------------------------------------------------------------------------------------------------------------------------		
+ForkJoinWorkerThreadFactory：分叉连接工作线程工厂接口 【Since:1.7】
+	用于创建新ForkJoinWorkerThreads的工厂。ForkJoinWorkerThreadFactory必须定义并用于扩展基本功能或用不同上下文初始化线程的ForkJoinWorkerThread子类。
+	它封装在ForkJoinPool类中的一个内部类。
+
+
+	接口定义	：public static interface ForkJoinWorkerThreadFactory
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	newThread(ForkJoinPool pool):ForkJoinWorkerThread 
+		pool - 此线程工作池
+		返回在给定池中操作的新工作线程。
+		【Throws】：
+			NullPointerException 如果pool为null。
+			
+		
+		
+		
+		
+		
+		

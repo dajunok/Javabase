@@ -124,7 +124,9 @@ ExecutorService：执行器服务接口 【Since:1.5】
 		 提交返回值的任务以供执行，并返回表示任务挂起结果的Future。Future的get方法将在成功完成后返回任务的结果。
 		如果希望立即阻塞等待任务，可以使用result = exec.submit(aCallable).get()形式的构造；
 		注意：Executors类包含一组方法，这些方法可以将一些其他常见的内部对象（如PrivilegedAction到Callable形式）转换为可提交的对象。
-
+		【Throws】：
+			RejectedExecutionException 如果任何任务无法调度执行
+			NullPointerException 如果要执行的任务为null
 
 
 

@@ -1,0 +1,45 @@
+-----------------------------------------RejectedExecutionHandler-----------------------------------------------------------------------------------------------------------------------------		
+RejectedExecutionHandler：拒绝执行处理器接口 【Since:1.5】
+	当线程池执行器（ThreadPoolExecutor）无法执行任务时的处理程序。
+
+	接口定义	：public interface RejectedExecutionHandler
+	接口实现类	：ThreadPoolExecutor.AbortPolicy, ThreadPoolExecutor.CallerRunsPolicy, ThreadPoolExecutor.DiscardOldestPolicy, ThreadPoolExecutor.DiscardPolicy
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	rejectedExecution(Runnable r, ThreadPoolExecutor executor):void 
+		r - 请求执行的可运行的任务
+		executor -试图执行此任务的执行器
+		当execute无法接受任务时ThreadPoolExecutor可以调用此方法。当线程或队列槽不再可用时，可能会发生这种情况，因为它们的边界将被超出，或者在执行器（Executor）关闭时。
+		在没有其他替代方法的情况下，该方法可能会引发未经检查的RejectedExecutionException，该异常将传递到execute的调用方。
+		【Throws】：
+			RejectedExecutionException  如果没有补救措施
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		

@@ -45,6 +45,7 @@ BlockingDeque<E>接口：阻塞双端队列 【Since:1.6】
 	
 	接口定义	：public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E>
 	父接口	：Iterable<E>,Collection<E>,Queue<E>,BlockingQueue,Deque<E>
+	接口实现类	：LinkedBlockingDeque
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	add(E e):boolean 
 		△ 如果可以在不违反容量限制的情况下立即将指定元素插入此队列，成功时返回true，如果当前没有可用空间，则抛出IllegalstateException。当使用容量受限队列时，通常最好使用offer。

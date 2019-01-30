@@ -1,0 +1,36 @@
+-----------------------------------------ThreadFactory-----------------------------------------------------------------------------------------------------------------------------		
+ThreadFactory：线程工厂接口 【Since:1.5】
+	按需创建新线程的对象。使用线程工厂可以消除对新线程的调用的硬连接，使应用程序能够使用特殊的线程子类、优先级等。
+	这个接口的最简单实现是：
+		 class SimpleThreadFactory implements ThreadFactory {
+		   public Thread newThread(Runnable r) {
+		     return new Thread(r);
+		   }
+		 }		
+	Executors.defaultThreadFactory()方法提供了一个更有用的简单实现，它将创建的线程上下文设置为已知值，然后再返回。
+	
+
+	接口定义	：public interface ThreadFactory
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	newThread(Runnable r):Thread 
+		r - 由新线程实例执行的Runnable
+		创建新线程。实现还可以初始化优先级（priority）、名称（name）、守护进程状态（daemon status）、线程组（ThreadGroup）等。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

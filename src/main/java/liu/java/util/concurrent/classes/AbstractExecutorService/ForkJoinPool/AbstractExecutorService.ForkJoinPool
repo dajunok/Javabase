@@ -1,0 +1,105 @@
+-------------------------------------ForkJoinPool-----------------------------------------------------------------------------------------------------------------------------------
+ForkJoinPool：分叉连接池。【since 1.7】
+	用于运行ForkJoinTasks的ExecutorService。ForkJoinPool为来自非ForkJoinTask客户端的提交以及管理和监视操作提供入口点。
+	ForkJoinPool与其他ExecutorService的区别主要在于采用了work-stealing算法：池中的所有线程都试图查找和执行提交到池并且（或者）由其他活动任务创建的任务（如果不存在，则最终阻塞等待工作）。这使得在大多数任务产生其他子任务时（大多数ForkJoinTasks也是如此），以及当许多小任务从外部客户机提交到池时，能够进行有效的处理。尤其是在构造函数中将asyncMode设置为true时，ForkJoinPools也可能适合用于从未联接的事件样式任务。
+	静态commonPool()适用于大多数应用。公用池由未显式提交到指定池的任何ForkJoinTask使用。使用公共池通常会减少资源占用（在不使用期间，线程会缓慢回收，并在随后使用时恢复）。
+	对于需要单独或自定义池的应用程序，可以使用给定的目标并行度级别构造ForkJoinPool；默认情况下，等于可用处理器的数量。池试图通过动态添加、挂起或恢复内部工作线程来维护足够的活动（或可用）线程，即使某些任务在等待加入其他任务时暂停。但是，面对阻塞的I/O或其他非托管同步，不保证进行此类调整。嵌套的ForkJoinPool.ManagedBlocker接口可以扩展所适应的同步类型。
+	除了执行（execution）和生命周期（lifecycle）控制方法之外，这个类还提供状态检查方法（例如getStealCount()），这些方法旨在帮助开发、调优和监视fork/join应用程序。此外，方法toString()以方便的形式返回池状态指示，以便进行非正式监测。
+	与其他ExecutorServices一样，下表总结了三种主要的任务执行方法。这些设计主要用于当前池中尚未参与fork/join计算的客户机。这些方法的主要形式接受ForkJoinTask的实例，但是重载的形式也允许混合执行基于纯Runnable（可运行）或Callable（可调用）的任务。但是，已经在池中执行的任务通常应使用表中列出的内部计算形式，除非使用通常不连接的异步事件样式（async event-style）任务，在这种情况下，方法的选择几乎没有差异。
+										《任务执行方法总结》
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++										
+					Call from non-fork/join clients			Call from within fork/join computations
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	安排异步执行			execute(ForkJoinTask)						ForkJoinTask.fork()
+	等待并获取结果			invoke(ForkJoinTask)						ForkJoinTask.invoke()
+	安排执行并获取Future 	submit(ForkJoinTask)						ForkJoinTask.fork() (ForkJoinTasks are Futures)
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	默认情况下，公共池是用默认参数构建的，但可以通过设置三个系统属性来控制这些参数：
+		● java.util.concurrent.ForkJoinPool.common.parallelism	     	并行度级别，非负整数
+		● java.util.concurrent.ForkJoinPool.common.threadFactory  		ForkJoinPool.ForkJoinWorkerThreadFactory的类名
+		● java.util.concurrent.ForkJoinPool.common.exceptionHandler		Thread.UncaughtExceptionHandler的类名
+	如果存在SecurityManager且未指定工厂，则默认池使用提供未启用权限的线程的工厂。系统类加载器用于加载这些类。在建立这些设置时出现错误时，将使用默认参数。通过将parallelism属性设置为零并且（或）使用可能返回null值的工厂，可以禁用或限制在公共池中使用线程。但是，这样做可能会导致未连接的任务永远无法执行。
+	实现说明：此实现将运行线程的最大数量限制为32767。尝试创建大于最大数量的池会导致IllegalArgumentException异常。
+	只有当池关闭或内部资源用尽时，此实现才会拒绝提交的任务（即通过抛出RejectedExecutionException）。
+	
+	
+	
+	类定义	：public class ForkJoinPool extends AbstractExecutorService
+	实现接口	：Executor,ExecutorService
+	内部接口	：ForkJoinWorkerThreadFactory,ManagedBlocker
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	defaultForkJoinWorkerThreadFactory:static final ForkJoinWorkerThreadFactory
+		创建新的ForkJoinWorkerThread。除非在ForkJoinPool构造函数中重写，否则将使用此工厂。
+
+Constructor Summary（构造器概要）：
+	public ForkJoinPool()
+	ForkJoinPool(int parallelism)
+	ForkJoinPool(int parallelism,ForkJoinWorkerThreadFactory factory,UncaughtExceptionHandler handler,boolean asyncMode)
+
+Method Summary（方法概要）：
+	commonPool():static ForkJoinPool 
+	getCommonPoolParallelism():static int 
+	managedBlock(ManagedBlocker blocker):static void 
+	awaitQuiescence(long timeout, TimeUnit unit):boolean 
+	awaitTermination(long timeout, TimeUnit unit):boolean 
+	drainTasksTo(Collection<? super ForkJoinTask<?>> c):protected int 
+	execute(Runnable task):void 
+	execute(ForkJoinTask<?> task):void 
+	getActiveThreadCount():int 
+	getAsyncMode():boolean 
+	getFactory():ForkJoinWorkerThreadFactory 
+	getParallelism():int 
+	getPoolSize():int 
+	getQueuedSubmissionCount():int 
+	getQueuedTaskCount():long 
+	getRunningThreadCount():int 
+	getStealCount():long 
+	getUncaughtExceptionHandler():UncaughtExceptionHandler 
+	hasQueuedSubmissions():boolean 
+	invoke(ForkJoinTask<T> task):<T> T 
+	invokeAll(Collection<? extends Callable<T>> tasks):<T> List<Future<T>> 
+	isQuiescent():boolean 
+	isShutdown():boolean 
+	isTerminated():boolean 
+	isTerminating():boolean 
+	newTaskFor(Runnable runnable, T value):protected <T> RunnableFuture<T> 
+	newTaskFor(Callable<T> callable):protected <T> RunnableFuture<T> 
+	pollSubmission():protected ForkJoinTask<?> 
+	shutdown():void 
+	shutdownNow():List<Runnable> 
+	submit(Runnable task):ForkJoinTask<?> 
+	submit(Runnable task, T result):<T> ForkJoinTask<T> 
+	submit(Callable<T> task):<T> ForkJoinTask<T> 
+	submit(ForkJoinTask<T> task):<T> ForkJoinTask<T> 
+	toString():String 
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、work-stealing：工作窃取算法。是指某个线程从其他队列里窃取任务来执行。一个大任务分割为若干个互不依赖的子任务，为了减少线程间的竞争，把这些子任务分别放到不同的队列里，并未每个队列创建一个单独的线程来执行队列里的任务，线程和队列一一对应。比如线程1负责处理1队列里的任务，2线程负责2队列的。但是有的线程会先把自己队列里的任务干完，而其他线程对应的队列里还有任务待处理。干完活的线程与其等着，不如帮其他线程干活，于是它就去其他线程的队列里窃取一个任务来执行。而在这时它们可能会访问同一个队列，所以为了减少窃取任务线程和被窃取任务线程之间的竞争，通常会使用双端队列，被窃取任务线程永远从双端队列的头部拿任务执行，而窃取任务线程永远从双端队列的尾部拿任务执行。
+		优点：充分利用线程进行并行计算，减少线程间的竞争。
+		缺点：在某些情况下还是会存在竞争，比如双端队列里只有一个任务时。并且该算法会消耗更多的系统资源， 比如创建多个线程和多个双端队列。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

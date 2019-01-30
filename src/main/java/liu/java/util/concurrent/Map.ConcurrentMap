@@ -1,0 +1,189 @@
+-----------------------------------------------ConcurrentMap<K,V>------------------------------------------------------------------------------------------------------------------------
+ConcurrentMap<K,V>：映射。【Since:1.5】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型	
+	提供线程安全和原子性保证的Map。
+	内存一致性影响：与其他并发集合一样，在将对象作为键或值放入ConcurrentMap之前，线程中的操作在访问或从另一线程的ConcurrentMap中删除该对象之后的操作发生。
+	此接口是Java集合框架的成员。
+	
+	
+	
+	接口定义	：public interface ConcurrentMap<K, V> extends Map<K, V>
+	父接口	：Map<K, V>
+	内部接口	：Map.Entry<K,V>
+	接口实现类	：ConcurrentHashMap, ConcurrentSkipListMap
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+		尝试计算Map的指定键及其当前映射值（如果没有当前映射，则为null）。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
+			map.compute(key, (k, v) -> (v == null) ? msg : v.concat(msg))
+		（方法merge()通常更容易用于此目的。）
+		如果函数返回null，则删除映射（如果最初不存在，则保持不存在）。如果函数本身抛出（未选中unchecked）异常，则该异常将被重新抛出，并且当前映射保持不变。
+		默认实现相当于为此map（映射）执行以下步骤，然后返回当前值，如果不存在则返回null：
+			 V oldValue = map.get(key);
+			 V newValue = remappingFunction.apply(key, oldValue);
+			 if (oldValue != null ) {
+				if (newValue != null)
+				   map.put(key, newValue);
+				else
+				   map.remove(key);
+			 } else {
+				if (newValue != null)
+				   map.put(key, newValue);
+				else
+				   return null;
+			 }	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况执行一次原子性操作。		
+		此实现假定ConcurrentMap不能包含null值，get()返回空值明确表示键不存在。支持null值的实现必须重写此默认实现。
+		【Throws】：
+			● NullPointerException 如果指定的键为null，并且此映射不支持null键，或者mappingFunction结果为null
+			● UnsupportedOperationException 如果此映射不支持put操作（可选）
+			● ClassCastException  如果指定键或值的类阻止它存储在此map（映射）中（可选）			
+	computeIfAbsent(K key,Function<? super K, ? extends V> mappingFunction):default V 
+		如果指定的键尚未与某个值关联（或映射为null），则尝试使用给定的mappingFunction计算其值，并将其输入此映射，除非为null。
+		如果函数返回null，则不记录任何映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且不会记录任何映射。最常见的用法是构造一个新对象，作为初始映射值或旧结果，如：
+			map.computeIfAbsent(key, k -> new Value(f(k)));
+		或者要实现多值映射，Map<K,Collection<V>>，支持每个键的多个值：
+			 map.computeIfAbsent(key, k -> new HashSet<V>()).add(v);
+		默认实现相当于此映射的以下步骤，然后返回当前值，如果不存在，则返回null：
+			if (map.get(key) == null) {
+				 V newValue = mappingFunction.apply(key);
+				 if (newValue != null)
+					 map.put(key, newValue);
+			 }	
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况下执行一次原子性操作。	
+		此实现假定ConcurrentMap不能包含null值，get()返回空值明确表示键不存在。支持null值的实现必须重写此默认实现。
+		【Throws】：
+			● NullPointerException 如果指定的键为null，并且此映射不支持null键，或者mappingFunction结果为null
+			● UnsupportedOperationException 如果此映射不支持put操作（可选）
+			● ClassCastException  如果指定键或值的类阻止它存储在此map（映射）中（可选）
+	computeIfPresent(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):default V 
+		如果指定键的值存在且不为null，则尝试在给定键及其当前映射值的情况下计算新映射。
+		如果函数返回null，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。
+		默认实现相当于为此映射执行以下步骤，然后返回当前值，如果现在不存在，则返回null：
+		 if (map.get(key) != null) {
+			 V oldValue = map.get(key);
+			 V newValue = remappingFunction.apply(key, oldValue);
+			 if (newValue != null)
+				 map.put(key, newValue);
+			 else
+				 map.remove(key);
+		 }				
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况下执行一次原子性操作。
+		此实现假定ConcurrentMap不能包含null值，get()返回空值明确表示键不存在。支持null值的实现必须重写此默认实现。
+		【Throws】：
+			● NullPointerException 如果指定的键为null，并且此映射不支持null键，或者mappingFunction结果为null
+			● UnsupportedOperationException 如果此映射不支持put操作（可选）
+			● ClassCastException  如果指定键或值的类阻止它存储在此map（映射）中（可选）		
+	forEach(BiConsumer<? super K, ? super V> action):default void 
+		对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+		对于此映射，默认实现等效于：
+			for ((Map.Entry<K, V> entry : map.entrySet())
+			     action.accept(entry.getKey(), entry.getValue());	
+		默认实现假定getKey()或getValue()引发的IllegalStateException异常，表示该条目已被删除，无法处理。对后续条目继续操作。	
+		【Throws】：
+			● NullPointerException 如果指定action为null
+	merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):default V 
+		如果指定的键尚未与值关联或与null关联，请将其与给定的非空值关联。否则，将关联值替换为给定remappingFunction的结果，或者如果结果为空，则移除该值。当键拥有多个映射值时，可以使用此方法。例如，要创建字符串msg或将其附加到值映射，请执行以下操作：
+			map.merge(key, msg, String::concat)
+		如果函数返回空值，则删除映射。如果函数本身抛出（未选中）异常，则该异常将被重新抛出，并且当前映射保持不变。	
+		默认实现相当于为此映射执行以下步骤，然后返回当前值，如果不存在则返回null：
+			 V oldValue = map.get(key);
+			 V newValue = (oldValue == null) ? value :
+						  remappingFunction.apply(oldValue, value);
+			 if (newValue == null)
+				 map.remove(key);
+			 else
+				 map.put(key, newValue);
+		默认实现不保证该方法的同步性或原子性属性。提供原子性保证的任何实现都必须重写此方法并记录其并发属性。特别是，子接口ConcurrentMap的所有实现必须记录该函数是否只在不存在该值的情况下执行一次原子性操作。
+		此实现假定ConcurrentMap不能包含null值，get()返回空值明确表示键不存在。支持null值的实现必须重写此默认实现。
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作（可选）
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）	
+			● NullPointerException 如果指定的key为null，并且此映射不支持null键，或者null值，或remappingFunction结果为null。
+	putIfAbsent(K key, V value):V 
+		如果指定的键尚未与某个值关联（或映射到空值），则将其与给定值关联并返回null，否则返回当前值（旧值）。
+		等效于：
+		 if (!map.containsKey(key))
+		   return map.put(key, value);
+		 else
+		   return map.get(key);
+		此实现有意重新抽象Map中提供的不适当的默认值。
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持put操作
+			● ClassCastException  如果key或value的类型不适合此映射（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中（可选）		
+	remove(Object key, Object value):boolean 
+		仅当指定键当前映射到指定值时才删除该项（即指定值与旧值相同）。成功删除返回true。
+		这相当于：
+			 if (map.containsKey(key) && Objects.equals(map.get(key), value)) {
+			   map.remove(key);
+			   return true;
+			 } else
+			   return false;
+		此实现有意重新抽象Map中提供的不适当的默认值。
+		【Throws】：
+			● UnsupportedOperationException 如果此Map不支持remove操作（可选）
+			● ClassCastException  如果key或value的类型不适合此映射（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值（可选）	
+	replace(K key, V value):V 
+		仅当指定键当前映射到某个值时才替换该项。
+		返回与指定键关联的上一个值，如果没有键的映射，则返回null。（如果实现支持空值，则空返回还可以指示先前与键关联的映射空值。）
+		这相当于：
+			 if (map.containsKey(key)) {
+			   return map.put(key, value);
+			 } else
+			   return null;	
+		此实现有意重新抽象Map中提供的不适当的默认值。
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）
+			● NullPointerException 如果指定的key或value为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中（可选）
+	replace(K key, V oldValue, V newValue):boolean 
+		只有在当前key映射到指定值(oldValue)时才替换指定键的条目(newValue)。如果值被替换，返回true。
+		这相当于：
+		 if (map.containsKey(key) && Objects.equals(map.get(key), oldValue)) {
+		   map.put(key, newValue);
+		   return true;
+		 } else
+		   return false;
+		只不过动作是原子性的。
+		此实现有意重新抽象Map中提供的不适当的默认值。						
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作
+			● ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）
+			● NullPointerException 如果指定的key或newValue为null，并且此映射不允许null键或null值
+			● IllegalArgumentException 如果指定键或值的某些属性阻止它存储在此映射中（可选）
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+		对于此映射，默认实现等效于：
+			 for ((Map.Entry<K, V> entry : map.entrySet())
+			     do {
+			        K k = entry.getKey();
+			        V v = entry.getValue();
+			     } while(!replace(k, v, function.apply(k, v)));
+		当多个线程尝试更新时，默认实现可能会重试这些步骤，包括可能重复调用给定键的函数。
+		此实现假定ConcurrentMap不能包含null值，get()返回空值明确表示键不存在。支持null值的实现必须重写此默认实现。
+		【Throws】：
+			● UnsupportedOperationException 如果此映射不支持set操作
+			● ClassCastException  如果替换值的类阻止它存储在此映射中（可选）
+			● NullPointerException 如果function或替换值为null，并且此映射不允许null键或null值（可选）
+			● IllegalArgumentException 如果替换值的某些属性阻止它存储在此映射中（可选）	
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
