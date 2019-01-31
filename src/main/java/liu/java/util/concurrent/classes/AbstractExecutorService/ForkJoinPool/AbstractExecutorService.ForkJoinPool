@@ -20,7 +20,7 @@ ForkJoinPool：分叉连接池。【since 1.7】
 		● java.util.concurrent.ForkJoinPool.common.exceptionHandler		Thread.UncaughtExceptionHandler的类名
 	如果存在SecurityManager且未指定工厂，则默认池使用提供未启用权限的线程的工厂。系统类加载器用于加载这些类。在建立这些设置时出现错误时，将使用默认参数。通过将parallelism属性设置为零并且（或）使用可能返回null值的工厂，可以禁用或限制在公共池中使用线程。但是，这样做可能会导致未连接的任务永远无法执行。
 	实现说明：此实现将运行线程的最大数量限制为32767。尝试创建大于最大数量的池会导致IllegalArgumentException异常。
-	只有当池关闭或内部资源用尽时，此实现才会拒绝提交的任务（即通过抛出RejectedExecutionException）。
+	只有当池关闭或内部资源用尽时，此实现才会拒绝提交的任务（即通过抛出RejectedExecutionException异常）。
 	
 	
 	
@@ -34,45 +34,148 @@ Field Summary（字段概要）：
 
 Constructor Summary（构造器概要）：
 	public ForkJoinPool()
+		使用默认线程工厂、无UncaughtExceptionHandler和非异步LIFO处理模式创建并行度等于Runtime.availableProcessors()的ForkJoinPool。
+		【Throws】：
+			如果存在安全管理器，并且调用方不允许修改线程，因为它不包含RuntimePermission("modifyThread")
 	ForkJoinPool(int parallelism)
+		创建一个具有指定并行级别（parallelism）、默认线程工厂、无UncaughtExceptionHandler和非异步LIFO（后进先出）处理模式的ForkJoinPool。
+		【Throws】：
+			IllegalArgumentException 如果parallelism小于或等于零，或大于实现限制
+			SecurityException 如果存在安全管理器，并且调用方不允许修改线程，因为它不包含RuntimePermission("modifyThread")
 	ForkJoinPool(int parallelism,ForkJoinWorkerThreadFactory factory,UncaughtExceptionHandler handler,boolean asyncMode)
+		parallelism - 并行度级别。对于默认值，请使用Runtime.availableProcessors()。
+		factory - 用于创建新线程的工厂。对于默认值，请使用defaultForkJoinWorkerThreadFactory
+		handler - 由于执行任务时遇到无法恢复的错误而终止的内部工作线程的处理程序。对于默认值，使用null。
+		asyncMode - 如果为true，则为不进行分叉任务建立本地先进先出（first-in-first-out）调度模式。在工作线程只处理事件类型异步任务的应用程序中，此模式可能比默认的基于本地栈的模式更合适。对于默认值，使用false。		
+		使用给定参数创建ForkJoinPool。
+		【Throws】：
+			IllegalArgumentException 如果parallelism小于或等于零，或大于实现限制
+			NullPointerException 如果工厂为null
+			SecurityException 如果存在安全管理器，并且调用方不允许修改线程，因为它不包含RuntimePermission("modifyThread")
+	
 
 Method Summary（方法概要）：
 	commonPool():static ForkJoinPool 
+		返回共享池实例。该池是静态构建的；其运行状态不受shutdown()或shutdownNow()的影响。然而，该池和任何正在进行的处理程序在System.exit(int)时自动终止。任何依赖异步任务处理在程序终止前完成的程序都应在退出前调用commonPool().awaitQuiescence。
 	getCommonPoolParallelism():static int 
+		返回共享池的目标并行度级别。
 	managedBlock(ManagedBlocker blocker):static void 
+		运行给定的可能阻塞的任务。在ForkJoinPool中运行时，如果需要，此方法可能会安排激活备用线程，以确保在blocker.block()中阻止当前线程时具有足够的并行性。
+		此方法反复调用blocker.isReleasable()和blocker.block()，直到其中一个方法返回true。对blocker.block()的每个调用前面都有对blocker.isReleasable()的调用，该调用返回了false。
+		如果不在ForkJoinPool中运行，则此方法的行为等效于:
+		 while (!blocker.isReleasable())
+		   if (blocker.block())
+		     break;		
+		如果在ForkJoinPool中运行，则可以首先扩展池，以确保在调用blocker.block()期间具有足够的并行性。
+		【Throws】：
+			InterruptedException 如果调用blocker.block()在等到时中断。
 	awaitQuiescence(long timeout, TimeUnit unit):boolean 
+		timeout - 最长等待时间
+		unit - timeout的时间单位
+		如果由该池中运行的ForkJoinTask调用，则等效于ForkJoinTask.helpQuiesce()。否则，等待和/或者尝试协助执行任务，直到池isQuiescent()或指示超时结束。
+		静止（Quiescent）时为true；超时时为false。		
 	awaitTermination(long timeout, TimeUnit unit):boolean 
+		timeout - 最长等待时间
+		unit - timeout的时间单位
+		阻塞，直到所有任务在关闭请求后完成执行，或发生超时，或当前线程被中断（以先发生者为准）。因为commonPool()在程序关闭之前不会终止，所以当应用到共享池时，此方法等同于awaitQuiescence(long, TimeUnit)，但始终返回false。
+		如果此执行器终止，则为true；如果在终止之前超时，则为false
+		【Throws】：
+			InterruptedException - 如果在等待时中断
 	drainTasksTo(Collection<? super ForkJoinTask<?>> c):protected int 
+		从调度队列中删除所有可用的未执行的已提交和分叉任务，并将它们添加到给定集合中，而不更改它们的执行状态。这些任务可能包括人工生成或打包的任务。此方法设计为仅在池已知为静态时调用。其他时间的调用可能不会删除所有任务。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在原调度队列中，也不在给定集合中。如果在操作进行过程中修改了指定的集合，则此操作的行为不确定。
 	execute(Runnable task):void 
+		将来某个时候执行给定的命令。命令可以在新线程、线程池或调用线程中执行，具体由执行器（Executor）实现决定。
+		【Throws】：
+			NullPointerException 如果任务（task）为null
+			RejectedExecutionException 如果任务无法调度执行
 	execute(ForkJoinTask<?> task):void 
+		安排给定任务的（异步）执行。
+		【Throws】：
+			NullPointerException 如果任务（task）为null
+			RejectedExecutionException 如果任务无法调度执行
 	getActiveThreadCount():int 
+		返回当前正在窃取或执行任务的线程数量的估计值。此方法可能会高估活动线程的数量。
+		返回活动线程的数量。
 	getAsyncMode():boolean 
+		如果此池对从未连接分叉任务使用本地先进先出（ first-in-first-out）调度模式，则返回true。
 	getFactory():ForkJoinWorkerThreadFactory 
+		返回用于构建新分叉连接工作线程的工厂。
 	getParallelism():int 
+		返回此池的目标并发度级别。
 	getPoolSize():int 
+		返回已启动但尚未终止的工作线程数量。此方法返回的结果可能与创建线程以在其他线程被阻塞时保持并行性的getParallelism()不同。
 	getQueuedSubmissionCount():int 
+		返回提交到此池但尚未开始执行的任务的估计数量。这种方法可能需要与提交的数量成比例的时间。
 	getQueuedTaskCount():long 
+		返回工作线程当前在队列中保留的任务总数的估计值（但不包括提交到池中尚未开始执行的任务）。这个值只是一个近似值，通过迭代池中的所有线程获得。此方法对于调整任务粒度可能很有用。
 	getRunningThreadCount():int 
+		返回等待加入任务或其他托管同步时未被阻塞的工作线程数量的估计值。此方法可能会高估正在运行的线程数量。
 	getStealCount():long 
+		返回一个线程的工作队列中被另一个线程窃取的任务总数的估计值。当线程池非静止时，报告的值低估了实际的窃取总数。这个值对于监视和调优fork/join程序可能很有用：一般来说，窃取计数应该足够高，以使线程保持繁忙，但要足够低，以避免线程间的开销和争用。
 	getUncaughtExceptionHandler():UncaughtExceptionHandler 
+		返回由于执行任务时遇到无法恢复的错误而终止的内部工作线程的处理程序。
 	hasQueuedSubmissions():boolean 
+		如果提交到此池的任何任务尚未开始执行，则返回true。
 	invoke(ForkJoinTask<T> task):<T> T 
+		执行给定的任务，完成后返回其结果。如果计算遇到未经检查的异常或错误，则作为此调用的结果重新执行。rethrown异常的行为方式与常规异常相同，但在可能的情况下，包含当前线程和实际遇到异常的线程的堆栈跟踪（如使用a1显示的那样）；仅限于后者。
+		【Throws】：
+		NullPointerException 如果task为null
+		RejectedExecutionException 如果任务无法调度执行
 	invokeAll(Collection<? extends Callable<T>> tasks):<T> List<Future<T>> 
+		执行给定的任务，当所有任务完成时返回一个Futures的列表，其中包含它们的状态和结果。对于返回列表的每个元素，Future.isDone()为真。请注意，已完成的任务可以正常终止，也可以通过引发异常终止。如果在执行此操作时修改了给定集合，则此方法的结果不确定。
+		【Throws】：
+		NullPointerException 如果task为null
+		RejectedExecutionException 如果任务无法调度执行
 	isQuiescent():boolean 
+		如果所有工作线程当前都处于空闲状态，则返回true。空闲工作线程是指无法获取要执行的任务，因为没有可从其他线程窃取的任务，并且没有到线程池的挂起提交。此方法是保守的；在所有线程空闲时，它可能不会立即返回true，但如果线程保持非活动状态，它最终将变为true。
 	isShutdown():boolean 
+		如果此线程池已关闭，则返回true。
 	isTerminated():boolean 
+		如果关闭后所有任务都已完成，则返回true。
 	isTerminating():boolean 
+		如果终止过程已开始但尚未完成，则返回true。此方法可能对调试有用。关闭后足够长时间内返回“true”报告可能表明提交的任务已忽略或抑制中断，或正在等待I/O，导致该执行器无法正确终止。（参见类ForkJoinTask的咨询说明，说明任务通常不需要进行阻塞操作。但是如果他们这样做了，他们必须在中断时中止它们。）
 	newTaskFor(Runnable runnable, T value):protected <T> RunnableFuture<T> 
+		runnable - 正在包装的可运行任务
+		value - 返回的Future的默认值		
+		为给定的可运行值（runnable）和默认值（value）返回RunnableFuture。
 	newTaskFor(Callable<T> callable):protected <T> RunnableFuture<T> 
+		T - callable的结果类型
+		返回给定可调用任务（callable）的RunnableFuture。		
 	pollSubmission():protected ForkJoinTask<?> 
+		删除并返回下一个未执行的提交（如果有）。此方法在此类的扩展中可能很有用，这些扩展可以在具有多个线程池的系统中重新分配工作。
 	shutdown():void 
+		可能会启动有序关闭，在该关闭中执行以前提交的任务，但不会接受任何新任务。如果这是commonPool()，则调用对执行状态没有影响；如果已经关闭，则调用也没有其他影响。在此方法过程中同时提交任务可能会被拒绝，也可能不会被拒绝。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且不允许调用方修改线程，因为它不包含RuntimePermission("modifyThread")
 	shutdownNow():List<Runnable> 
+		可能会尝试取消和/或者停止所有任务，并拒绝所有随后提交的任务。如果这是commonPool()，则调用对执行状态没有影响；如果已经关闭，则调用也没有其他影响。否则，在此方法过程中同时提交或执行的任务可能会被拒绝，也可能不会被拒绝。此方法取消现有和未执行的任务，以便允许在存在任务依赖项的情况下终止。因此，该方法总是返回一个空列表（与其他一些执行器（Executors）的情况不同）。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且不允许调用方修改线程，因为它不包含RuntimePermission("modifyThread")
 	submit(Runnable task):ForkJoinTask<?> 
+		提交可运行（Runnable）任务以执行，并返回表示该任务的Future任务。成功完成后，Future的get方法将返回空值。
+		【Throws】：
+			RejectedExecutionException 如果任何任务无法调度执行
+			NullPointerException 如果要执行的任务为null	
 	submit(Runnable task, T result):<T> ForkJoinTask<T> 
+		<T> 返回结果的类型
+		提交可运行任务以执行，并返回表示该任务的Future任务。Future的get方法将在成功完成后返回给定的结果。
+		【Throws】：
+			RejectedExecutionException 如果任何任务无法调度执行
+			NullPointerException 如果要执行的任务为null	
 	submit(Callable<T> task):<T> ForkJoinTask<T> 
+		提交返回值的任务以供执行，并返回表示任务挂起结果的Future。Future的get方法将在成功完成后返回任务的结果。
+		如果希望立即阻塞等待任务，可以使用result = exec.submit(aCallable).get()形式的构造；
+		注意：Executors类包含一组方法，这些方法可以将一些其他常见的内部对象（如PrivilegedAction到Callable形式）转换为可提交的对象。
+		【Throws】：
+			RejectedExecutionException 如果任何任务无法调度执行
+			NullPointerException 如果要执行的任务为null
 	submit(ForkJoinTask<T> task):<T> ForkJoinTask<T> 
+		提交要执行的ForkJoinTask任务。
+		【Throws】：
+			RejectedExecutionException 如果任何任务无法调度执行
+			NullPointerException 如果要执行的任务为null
 	toString():String 
+		返回一个标识此线程池及其状态的字符串，包括运行状态、并行度级别以及工作线程和任务计数的指示。
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 附录：

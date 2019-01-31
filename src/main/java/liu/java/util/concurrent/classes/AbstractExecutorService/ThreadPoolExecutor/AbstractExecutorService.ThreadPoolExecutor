@@ -1,0 +1,164 @@
+-------------------------------------ThreadPoolExecutor-----------------------------------------------------------------------------------------------------------------------------------
+ThreadPoolExecutor：线程池执行器。【since 1.5】
+	一种执行器服务(ExecutorService)，它使用可能几个线程池中的一个来执行每个提交的任务，通常使用执行器（Executors）工厂方法进行配置。
+	线程池解决了两个不同的问题：它们通常在执行大量异步任务时提供更好的性能，这是由于减少了每个任务的调用开销，并且它们提供了一种在执行任务集合时使用的资源（包括线程）的边界和管理方法。每个线程池执行器（ThreadPoolExecutor）还维护一些基本统计信息，例如已完成任务的数量。
+	为了在广泛的上下文中有用，这个类提供了许多可调整的参数和可扩展性挂钩。但是，我们鼓励程序员使用更方便的执行器工厂方法Executors.newCachedThreadPool()（无边界线程池，带自动线程回收）、Executors.newFixedThreadPool(int)（固定大小线程池）和Executors.newSingleThreadExecutor()（单后台线程），为最常见的使用场景预先配置设置。否则，在手动配置和优化此类时，请使用以下指南：
+	
+	类定义	：public class ThreadPoolExecutor extends AbstractExecutorService
+	实现接口	：Executor,ExecutorService
+	内部类	：AbortPolicy,CallerRunsPolicy,DiscardOldestPolicy,DiscardPolicy
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue)
+		
+	public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              RejectedExecutionHandler handler) 
+	public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory)
+	public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler)                                                         
+
+
+Method Summary（方法概要）：
+	afterExecute(Runnable r, Throwable t):protected void 
+	allowCoreThreadTimeOut(boolean value):void 
+	allowsCoreThreadTimeOut():boolean 
+	awaitTermination(long timeout, TimeUnit unit):boolean 
+	beforeExecute(Thread t, Runnable r):protected void 
+	execute(Runnable command):void 
+	finalize():protected void 
+	getActiveCount():int 
+	getCompletedTaskCount():long 
+	getCorePoolSize():int 
+	getKeepAliveTime(TimeUnit unit):long 
+	getLargestPoolSize():int 
+	getMaximumPoolSize():int 
+	getPoolSize():int 
+	getQueue():BlockingQueue<Runnable> 
+	getRejectedExecutionHandler():RejectedExecutionHandler 
+	getTaskCount():long 
+	getThreadFactory():ThreadFactory 
+	isShutdown():boolean 
+	isTerminated():boolean 
+	isTerminating():boolean 
+	prestartAllCoreThreads():int 
+	prestartCoreThread():boolean 
+	purge():void 
+	remove(Runnable task):boolean 
+	setCorePoolSize(int corePoolSize):void 
+	setKeepAliveTime(long time, TimeUnit unit):void 
+	setMaximumPoolSize(int maximumPoolSize):void 
+	setRejectedExecutionHandler(RejectedExecutionHandler handler):void 
+	setThreadFactory(ThreadFactory threadFactory):void 
+	shutdown():void 
+	shutdownNow():List<Runnable> 
+	terminated():protected void 
+	toString():String 
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+1、ThreadPoolExecutor$AbortPolicy
+
+
+	类定义	：public static class AbortPolicy implements RejectedExecutionHandler
+	实现接口	：RejectedExecutionHandler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public AbortPolicy()
+
+Method Summary（方法概要）：
+	rejectedExecution(Runnable r, ThreadPoolExecutor e):void 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+2、ThreadPoolExecutor$CallerRunsPolicy
+
+
+	类定义	：public static class CallerRunsPolicy implements RejectedExecutionHandler
+	实现接口	：RejectedExecutionHandler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public CallerRunsPolicy()
+
+Method Summary（方法概要）：
+	rejectedExecution(Runnable r, ThreadPoolExecutor e):void 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+3、ThreadPoolExecutor$DiscardOldestPolicy
+
+
+	类定义	：public static class DiscardOldestPolicy implements RejectedExecutionHandler
+	实现接口	：RejectedExecutionHandler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public DiscardOldestPolicy()
+
+Method Summary（方法概要）：
+	rejectedExecution(Runnable r, ThreadPoolExecutor e):void 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+4、ThreadPoolExecutor$DiscardPolicy
+
+
+	类定义	：public static class DiscardPolicy implements RejectedExecutionHandler
+	实现接口	：RejectedExecutionHandler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public DiscardPolicy()
+
+Method Summary（方法概要）：
+	rejectedExecution(Runnable r, ThreadPoolExecutor e):void 
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、work-stealing：工作窃取算法。是指某个线程从其队列里窃取任务来执行。一个大任务分割为若干个互不依赖的子任务，为了减少线程间的竞争，把这些子任务分别放到不同的队列里，并未每个队列创建一个单独的线程来执行队列里的任务，线程和队列一一对应。比如线程1负责处理1队列里的任务，2线程负责2队列的。但是有的线程会先把自己队列里的任务干完，而其他线程对应的队列里还有任务待处理。干完活的线程与其等着，不如帮其他线程干活，于是它就去其他线程的队列里窃取一个任务来执行。而在这时它们可能会访问同一个队列，所以为了减少窃取任务线程和被窃取任务线程之间的竞争，通常会使用双端队列，被窃取任务线程永远从双端队列的头部拿任务执行，而窃取任务线程永远从双端队列的尾部拿任务执行。
+		优点：充分利用线程进行并行计算，减少线程间的竞争。
+		缺点：在某些情况下还是会存在竞争，比如双端队列里只有一个任务时。并且该算法会消耗更多的系统资源， 比如创建多个线程和多个双端队列。
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
