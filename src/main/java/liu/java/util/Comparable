@@ -1,5 +1,5 @@
 -------------------------------------------------Comparable<T>----------------------------------------------------------------------------------------------------------------------
-Comparable<T>接口：可比较接口。【Since:1.2】
+Comparable<T>：可比较接口。【Since:1.2】
 	这个接口对实现它的每个类的对象施加了一个总的顺序。这种排序称为类的自然排序，类的compareTo方法称为类的自然比较方法。
 	实现此接口的对象列表（和数组）可以按Collections.sort（或Arrays.sort）自动排序。实现此接口的对象可以用作SortedMap中的键或SortedSet中的元素，而无需指定比较器。
 	仅当e1.compareTo(e2) == 0对于C类的每一个e1和e2具有与e1.equals(e2)相同的布尔（boolean）值时，说明C的自然顺序与equals一致。注意，null不是任何类的实例，e.compareTo(null)应该抛出NullPointerException，即使e.equals(null)返回false。

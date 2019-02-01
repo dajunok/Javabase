@@ -4,29 +4,158 @@ ThreadPoolExecutor：线程池执行器。【since 1.5】
 	线程池解决了两个不同的问题：它们通常在执行大量异步任务时提供更好的性能，这是由于减少了每个任务的调用开销，并且它们提供了一种在执行任务集合时使用的资源（包括线程）的边界和管理方法。每个线程池执行器（ThreadPoolExecutor）还维护一些基本统计信息，例如已完成任务的数量。
 	为了在广泛的上下文中有用，这个类提供了许多可调整的参数和可扩展性挂钩。但是，我们鼓励程序员使用更方便的执行器工厂方法Executors.newCachedThreadPool()（无边界线程池，带自动线程回收）、Executors.newFixedThreadPool(int)（固定大小线程池）和Executors.newSingleThreadExecutor()（单后台线程），为最常见的使用场景预先配置设置。否则，在手动配置和优化此类时，请使用以下指南：
 	
+	核心和最大池大小：
+	ThreadPoolExecutor将根据corePoolSize（参见getCorePoolSize()）和maximumPoolSize（参见getMaximumPoolSize()）设定的界限自动调整池大小（参见getPoolSize()）。当在方法execute(Runnable)中提交一个新任务，并且运行的线程少于corePoolSize时，即使其他工作线程空闲，也会创建一个新线程来处理请求。
+	如果运行的线程数超过corePoolSize但少于maximumPoolSize，则只有在队列已满时才会创建新的线程。通过将corePoolSize和maximumPoolSize设置相同，可以创建固定大小的线程池。通过将maximumPoolSize设置为基本上无边界的值（如Integer.MAX_VALUE），可以允许线程池容纳任意数量的并发任务。最典型的情况是，核心池和最大池尺寸仅在施工时设置，但也可以使用setCorePoolSize(int)和setMaximumPoolSize(int)动态更改。
+	
+	按需创建（On-demand construction）：
+	默认情况下，甚至核心线程最初都是在新任务到达时创建和启动的，但可以使用方法prestartCoreThread()或prestartAllCoreThreads()动态重写。如果使用非空队列构造线程池，则可能需要预启动线程。
+	
+	创建新线程：
+	使用ThreadFactory创建新线程。如果没有另外指定，则使用Executors.defaultThreadFactory()，它将创建所有线程都处于相同的ThreadGroup、具有相同NORM_PRIORITY优先级和非守护进程状态的线程。通过提供不同的ThreadFactory，可以更改线程的名称、线程组、优先级、守护进程状态等。如果ThreadFactory在从newThread返回null时未能创建线程，则执行器将继续，但可能无法执行任何任务。线程应具有“modifyThread”运行时权限。如果使用线程池的工作线程或其他线程不具有此权限，则服务可能降级：配置更改可能不会及时生效，关闭池可能仍处于终止可能但未完成的状态。
+	
+	保持活跃时间（Keep-alive times）：
+	如果池当前有多个corePoolSize线程，则如果超出的线程空闲时间超过keepAliveTime，则将终止这些线程（请参见getKeepAliveTime(TimeUnit)）。这提供了一种在线程池未被积极使用时减少资源消耗的方法。如果线程池稍后变得更活跃，将构造新线程。也可以使用setKeepAliveTime(long, TimeUnit)方法动态更改此参数。使用值Long.MAX_VALUE TimeUnit.NANOSECONDS可以有效地禁止空闲线程在关闭之前终止。默认情况下，仅当线程数超过corePoolSize时才应用保持活动策略。但是方法allowCoreThreadTimeOut(boolean)也可以用于将这个超时策略应用到核心线程，只要keepAliveTime值为非零。
+	
+	排队（Queuing）：
+	任何阻塞队列都可以用于传送和保留提交的任务。此队列的使用与池大小调整交互：
+		● 如果运行的线程少于corePoolSize线程，则执行器（Executor）始终倾向于添加新线程，而不是排队。
+		● 如果corePoolSize或更多线程正在运行，执行器（Executor）总是倾向于将请求排队，而不是添加新线程。
+		● 如果一个请求不能排队，则会创建一个新线程，除非这将超过maximumPoolSize，在这种情况下，任务将被拒绝。
+	排队一般有三种策略：
+		1、直接移交。对于工作队列，一个好的默认选择是同步队列（SynchronousQueue），它将任务分发给线程，而不保留它们。在这里，如果没有线程可以立即运行任务，那么对该任务进行排队的尝试将失败，因此将构造一个新的线程。此策略在处理可能具有内部依赖关系的请求集合时避免锁定。直接移交通常需要无界限的maximumPoolSizes，以避免拒绝新提交的任务。这反过来也承认了当命令继续以比处理速度更快的速度到达时，线程可能会无限增长。
+		2、无限队列。使用无限队列（例如，没有预定义容量的LinkedBlockingQueue）将导致新任务在所有corePoolSize线程忙时在队列中等待。因此，最多只能创建corePoolSize个线程。（因此，maximumPoolSize的值没有任何影响。）当每个任务完全独立于其他任务时，这可能是适当的，因此任务不能影响其他任务的执行；例如，在网页服务器中。尽管这种类型的排队在消除请求的短暂突发性方面很有用，但它也承认当命令平均以高于处理速度的速度继续到达时，可能会出现无限制的工作队列增长。
+		3、有界队列。有界队列（例如，ArrayBlockingQueue）有助于防止有限maximumPoolSizes使用时资源耗尽，但可能更难调整和控制。队列大小和最大池大小可以相互交换：使用大型队列和小型池可以最大限度地减少CPU使用、操作系统（OS）资源和上下文切换开销，但可能导致人为的低吞吐量。如果任务经常阻塞（例如，如果它们是I/O绑定的），系统可能能够为比您所允许的更多的线程安排时间。使用小队列通常需要更大的线程池大小，这样可以使CPU更忙，但可能会遇到不可接受的调度开销，这也会降低吞吐量。
+	
+	拒绝任务（Rejected tasks）：
+	方法execute(Runnable)中提交的新任务将在执行器（Executor）已关闭时被拒绝，也将在执行器对最大线程和工作队列容量使用有限界限且已饱和时被拒绝。无论哪种情况，execute方法都会调用其RejectedExecutionHandler的RejectedExecutionHandler.rejectedExecution(Runnable,ThreadPoolExecutor)方法。提供了四个预定义的处理程序策略：
+		1、在默认ThreadPoolExecutor.AbortPolicy中，处理程序在拒绝时抛出运行时RejectedExecutionException异常。
+		2、在ThreadPoolExecutor.CallerRunsPolicy中，调用execute本身的线程运行任务。这提供了一个简单的反馈控制机制，可以降低提交新任务的速度。
+		3、在ThreadPoolExecutor.DiscardPolicy中，只会删除无法执行的任务。
+		4、在ThreadPoolExecutor.DiscardOldestPolicy中，如果未关闭执行器，则会删除工作队列头部的任务，然后重试执行（可能再次失败，导致重复执行）。
+	可以定义和使用其他类型的RejectedExecutionHandler类。这样做需要一些注意，特别是当策略设计为仅在特定容量或排队策略下工作时。
+	
+	钩子方法（Hook methods）：
+	此类提供受保护的可重写beforeExecute(Thread, Runnable)和afterExecute(Runnable, Throwable)方法，这些方法在执行每个任务之前和之后调用。这些可以用于操作执行环境；例如，重新初始化线程局部变量、收集统计信息或添加日志项。此外，可以重写terminated()方法来执行Executor完全终止后需要执行的任何特殊处理。
+	如果钩子或回调方法抛出异常，则内部工作线程可能会依次失败并突然终止。
+	
+	队列维护（Queue maintenance）：
+	方法getQueue()允许访问工作队列以进行监视和调试。强烈反对将此方法用于任何其他目的。提供了两种方法，remove(Runnable)和purge()，用于在大量排队的任务被取消时帮助内存回收。
+	
+	终止线程池（Finalization）
+	程序中不再引用并且没有剩余线程的池将自动关闭。如果您希望确保回收未引用的池，即使用户忘记调用shutdown()，那么您必须通过设置适当的保持活动时间、使用零核心线程的下限与/或者设置allowCoreThreadTimeOut(boolean)来终止未使用线程。
+	扩展示例。此类的大多数扩展重写一个或多个受保护的hook方法。例如，这里有一个子类，它添加了一个简单的暂停/恢复功能：
+		 class PausableThreadPoolExecutor extends ThreadPoolExecutor {
+		   private boolean isPaused;
+		   private ReentrantLock pauseLock = new ReentrantLock();
+		   private Condition unpaused = pauseLock.newCondition();
+		
+		   public PausableThreadPoolExecutor(...) { super(...); }
+		
+		   protected void beforeExecute(Thread t, Runnable r) {
+		     super.beforeExecute(t, r);
+		     pauseLock.lock();
+		     try {
+		       while (isPaused) unpaused.await();
+		     } catch (InterruptedException ie) {
+		       t.interrupt();
+		     } finally {
+		       pauseLock.unlock();
+		     }
+		   }
+		
+		   public void pause() {
+		     pauseLock.lock();
+		     try {
+		       isPaused = true;
+		     } finally {
+		       pauseLock.unlock();
+		     }
+		   }
+		
+		   public void resume() {
+		     pauseLock.lock();
+		     try {
+		       isPaused = false;
+		       unpaused.signalAll();
+		     } finally {
+		       pauseLock.unlock();
+		     }
+		   }
+		 }	
+	
+	
 	类定义	：public class ThreadPoolExecutor extends AbstractExecutorService
 	实现接口	：Executor,ExecutorService
 	内部类	：AbortPolicy,CallerRunsPolicy,DiscardOldestPolicy,DiscardPolicy
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
 	public ThreadPoolExecutor(int corePoolSize,
-                              int maximumPoolSize,
-                              long keepAliveTime,
-                              TimeUnit unit,
-                              BlockingQueue<Runnable> workQueue)
+							  int maximumPoolSize,
+							  long keepAliveTime,
+							  TimeUnit unit,
+							  BlockingQueue<Runnable> workQueue)
+       	参数说明：                       
+			corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+			maximumPoolSize - 池中允许的最大线程数
+			keepAliveTime - 当线程数大于corePoolSize时，这是多余的空闲线程在终止前等待新任务的最长时间。
+			unit - keepAliveTime参数的时间单位
+			workQueue - 工作队列。用于在执行任务之前保存任务的队列。此队列将只保存由execute方法提交的可运行任务。
+		使用给定的初始参数和默认线程工厂创建新的ThreadPoolExecutor，并拒绝执行处理程序。使用Executors的工厂方法而不是这个通用的构造函数可能更方便。
+		【Throws】：
+			IllegalArgumentException 如果下列条件之一成立：
+					corePoolSize < 0
+					keepAliveTime < 0
+					maximumPoolSize <= 0
+					maximumPoolSize < corePoolSize
+			NullPointerException 如果workQueue为null
 		
+	------------------------------------------------------------------------------------------------------------------	
 	public ThreadPoolExecutor(int corePoolSize,
-                              int maximumPoolSize,
-                              long keepAliveTime,
-                              TimeUnit unit,
-                              BlockingQueue<Runnable> workQueue,
-                              RejectedExecutionHandler handler) 
+							  int maximumPoolSize,
+							  long keepAliveTime,
+							  TimeUnit unit,
+							  BlockingQueue<Runnable> workQueue,
+							  RejectedExecutionHandler handler) 
+		参数说明：                       
+			corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+			maximumPoolSize - 池中允许的最大线程数
+			keepAliveTime - 当线程数大于corePoolSize时，这是多余的空闲线程在终止前等待新任务的最长时间。
+			unit - keepAliveTime参数的时间单位
+			workQueue - 工作队列。用于在执行任务之前保存任务的队列。此队列将只保存由execute方法提交的可运行任务。
+			handler - 由于达到线程边界和队列容量而阻止执行时要使用的处理程序
+		使用给定的初始参数和默认线程工厂创建新的ThreadPoolExecutor。
+		【Throws】：
+			IllegalArgumentException 如果下列条件之一成立：
+					corePoolSize < 0
+					keepAliveTime < 0
+					maximumPoolSize <= 0
+					maximumPoolSize < corePoolSize
+			NullPointerException 如果workQueue或者handler为null
+	
+	------------------------------------------------------------------------------------------------------------------
 	public ThreadPoolExecutor(int corePoolSize,
                               int maximumPoolSize,
                               long keepAliveTime,
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue,
                               ThreadFactory threadFactory)
+    	参数说明：                       
+			corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+			maximumPoolSize - 池中允许的最大线程数
+			keepAliveTime - 当线程数大于corePoolSize时，这是多余的空闲线程在终止前等待新任务的最长时间。
+			unit - keepAliveTime参数的时间单位
+			workQueue - 工作队列。用于在执行任务之前保存任务的队列。此队列将只保存由execute方法提交的可运行任务。
+			threadFactory - 执行器创建新线程时要使用的工厂
+    	使用给定的初始参数和默认被拒绝的执行处理程序创建新的ThreadPoolExecutor。
+    	【Throws】：
+			IllegalArgumentException 如果下列条件之一成立：
+					corePoolSize < 0
+					keepAliveTime < 0
+					maximumPoolSize <= 0
+					maximumPoolSize < corePoolSize
+			NullPointerException 如果workQueue或者threadFactory为null
+    ------------------------------------------------------------------------------------------------------------------	
 	public ThreadPoolExecutor(int corePoolSize,
                               int maximumPoolSize,
                               long keepAliveTime,
@@ -34,6 +163,23 @@ Constructor Summary（构造器概要）：
                               BlockingQueue<Runnable> workQueue,
                               ThreadFactory threadFactory,
                               RejectedExecutionHandler handler)                                                         
+		参数说明：                       
+			corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+			maximumPoolSize - 池中允许的最大线程数
+			keepAliveTime - 当线程数大于corePoolSize时，这是多余的空闲线程在终止前等待新任务的最长时间。
+			unit - keepAliveTime参数的时间单位
+			workQueue - 工作队列。用于在执行任务之前保存任务的队列。此队列将只保存由execute方法提交的可运行任务。
+			threadFactory - 执行器创建新线程时要使用的工厂
+			handler - 由于达到线程边界和队列容量而阻止执行时要使用的处理程序
+		【Throws】：
+			IllegalArgumentException 如果下列条件之一成立：
+					corePoolSize < 0
+					keepAliveTime < 0
+					maximumPoolSize <= 0
+					maximumPoolSize < corePoolSize
+			NullPointerException 如果workQueue或者handler或者threadFactory为null
+
+
 
 
 Method Summary（方法概要）：
