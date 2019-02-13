@@ -184,40 +184,131 @@ Constructor Summary（构造器概要）：
 
 Method Summary（方法概要）：
 	afterExecute(Runnable r, Throwable t):protected void 
+		t -	导致终止的异常，如果执行正常，则为null。
+		在完成给定Runnable的执行时调用的方法。此方法由执行任务的线程调用。如果不为空（non-null），则throwable是导致执行突然终止的未捕获RuntimeException或Error。
+		这个实现什么也不做(没有方法实体)，但可以在子类中定制。注意：为了正确地嵌套多个重写，子类通常应该在这个方法的开头调用super.afterExecute。
+		注意：当操作显式地或通过submit等方法包含在任务（如FutureTask）中时，这些任务对象捕获并维护计算异常，因此不会导致突然终止，并且不会将内部异常传递给此方法。如果希望在该方法中捕获这两种类型的失败，则可以进一步探测此类情况，例如，在此示例子类中，如果任务已中止，则打印直接原因或基础异常：
+			 class ExtendedExecutor extends ThreadPoolExecutor {
+			   // ...
+			   protected void afterExecute(Runnable r, Throwable t) {
+			     super.afterExecute(r, t);
+			     if (t == null && r instanceof Future<?>) {
+			       try {
+			         Object result = ((Future<?>) r).get();
+			       } catch (CancellationException ce) {
+			           t = ce;
+			       } catch (ExecutionException ee) {
+			           t = ee.getCause();
+			       } catch (InterruptedException ie) {
+			           Thread.currentThread().interrupt(); // ignore/reset
+			       }
+			     }
+			     if (t != null)
+			       System.out.println(t);
+			   }
+			 }				
 	allowCoreThreadTimeOut(boolean value):void 
-	allowsCoreThreadTimeOut():boolean 
+		value - 如果要超时则设置为true，否则设置为false。
+		设置策略，控制核心线程在保持活动状态时间内没有任务到达时是否可以超时和终止，在新任务到达时根据需要进行替换。如果为false，则不会因为缺少传入任务而终止核心线程。如果为true，同样适用于非核心线程的保持活动策略也适用于核心线程。为避免连续更换线程，当设置为true时，保持活动时间必须大于零。通常应在池被激活之前调用此方法。
+		【Throws】：
+			IllegalArgumentException 如果值为true且当前保持活动时间不大于零
+	allowsCoreThreadTimeOut():boolean 		
+		如果此线程池允许核心线程超时，并且在保留时间内没有任务到达时终止，则返回true，在新任务到达时根据需要替换。如果为true，同样适用于非核心线程的保持活动策略也适用于核心线程。如果为false（默认值），则不会因为缺少传入任务而终止核心线程。
+		如果允许核心线程超时，则为true，否则为false
 	awaitTermination(long timeout, TimeUnit unit):boolean 
+		△ timeout - 最长等待时间
+		unit - timeout参数的时间单位
+		阻塞（等待终止），直到所有任务在关闭请求后完成执行，或发生超时，或当前线程被中断（以先发生者为准）。
+		【Throws】：
+			InterruptedException 如果在等待时中断
 	beforeExecute(Thread t, Runnable r):protected void 
+		在给定线程中执行给定Runnable之前调用的方法。此方法由将执行任务r的线程t调用，并可用于重新初始化ThreadLocals或执行logging。
+		这个实现什么也不做（没有方法实体），但可以在子类中定制。注意：为了正确地嵌套多个重写，子类通常应该在该方法结束时调用super.beforeExecute。
 	execute(Runnable command):void 
+		△ 将来某个时候执行给定的任务。任务可以在新线程或现有线程池中执行。如果任务无法提交执行，可能是因为该执行器已关闭或已达到其容量，则该任务由当前的RejectedExecutionHandler处理。
+		【Throws】：
+			RejectedExecutionException 如果任务无法被执行，则由RejectedExecutionHandler决定。
+			NullPointerException 如果command为null
 	finalize():protected void 
+		△ 当不再引用此执行器并且它没有线程时，调用Shutdown。
 	getActiveCount():int 
+		返回当前正在执行任务的线程的近似数目。
 	getCompletedTaskCount():long 
+		返回已完成执行的任务的大致总数。由于任务和线程的状态在计算过程中可能会动态更改，因此返回的值只是一个近似值，但在连续调用中不会减少。
 	getCorePoolSize():int 
+		返回线程的核心数目。（这个数目由setCorePoolSize(int)方法进行设置）
 	getKeepAliveTime(TimeUnit unit):long 
+		unit - 指定返回值的时间单位
+		返回线程保持活动状态的时间，这是超过核心池大小的线程在终止前可能保持空闲的时间量。
 	getLargestPoolSize():int 
+		返回池中同时存在的最大线程数量。
 	getMaximumPoolSize():int 
+		返回允许的最大线程数量。
 	getPoolSize():int 
+		返回池中的当前线程数量。
 	getQueue():BlockingQueue<Runnable> 
+		返回此执行器使用的任务队列。对任务队列的访问主要用于调试和监视。此队列可能正在使用中。检索任务队列不会阻止排队的任务执行。
 	getRejectedExecutionHandler():RejectedExecutionHandler 
+		返回不可执行任务的当前处理程序。
 	getTaskCount():long 
+		返回已计划执行的任务（调度任务）的大致总数。由于任务和线程的状态在计算过程中可能会动态更改，因此返回的值只是一个近似值。
 	getThreadFactory():ThreadFactory 
+		返回用于创建新线程的线程工厂。
 	isShutdown():boolean 
+		△ 如果此执行器已关闭，则返回true。
 	isTerminated():boolean 
+		△ 如果关闭后所有任务都已完成，则返回true。请注意，除非先调用shutdown或shutdownNow，否则isTerminated永远不会为true。
 	isTerminating():boolean 
+		如果此执行器正在shutdown()或shutdownNow()之后终止，但尚未完全终止，则返回true。此方法可能对调试有用。如果在关闭后一段足够长的时间内返回“true”，则表明提交的任务已忽略或抑制中断，从而导致该执行器无法正确终止。
 	prestartAllCoreThreads():int 
+		启动所有核心线程，使它们空闲地等待工作。这将覆盖仅在执行新任务时启动核心线程的默认策略。
+		返回被启动线程的总数。
 	prestartCoreThread():boolean 
+		启动核心线程，使其空闲地等待工作。这将覆盖仅在执行新任务时启动核心线程的默认策略。如果所有核心线程都已启动，则此方法将返回false。
+		如果线程被启动则返回true。
 	purge():void 
+		尝试从工作队列中删除所有已取消的Future任务。此方法可作为存储回收操作使用，对功能没有其他影响。被取消的任务永远不会执行，但可能会累积到工作队列中，直到工作线程可以主动删除它们。调用此方法将尝试立即删除它们。但是，此方法可能无法在存在其他线程干扰的情况下删除任务。
 	remove(Runnable task):boolean 
+		如果此任务存在，则将其从执行器的内部队列中删除，从而导致它在尚未启动时不运行。
+		此方法可能作为取消方案的一部分有用。它可能无法删除在放入内部队列之前已转换为其他形式的任务。例如，使用submit输入的任务可以转换为保持Future状态的形式。但是，在这种情况下，可以使用方法purge()删除那些已取消的Future。
 	setCorePoolSize(int corePoolSize):void 
+		设置线程的核心数目。这将覆盖构造函数中设置的任何值。如果新的值小于当前的值，多余的现有线程将在下一次空闲时终止。如果更大，新线程将在需要时启动以执行任何排队的任务。
+		【Throws】：
+			IllegalArgumentException 如果corePoolSize < 0
 	setKeepAliveTime(long time, TimeUnit unit):void 
+		time - 等待的时间。时间值为零将导致多余的线程在执行任务后立即终止。
+		unit - time参数的时间单位
+		设置线程在终止前可能保持空闲的时间限制。如果池中的线程数超过了核心线程数，则在等待这段时间而不处理任务后，多余的线程将被终止。这将覆盖构造函数中设置的任何值。
+		【Throws】：
+			IllegalArgumentException 如果时间小于零或时间为零并且allowsCoreThreadTimeOut
 	setMaximumPoolSize(int maximumPoolSize):void 
+		设置允许的最大线程数。这将覆盖构造函数中设置的任何值。如果新的值小于当前的值，多余的现有线程将在下一次空闲时终止。
+		【Throws】：
+			IllegalArgumentException 如果新的最大值小于或等于零，或小于核心池大小
 	setRejectedExecutionHandler(RejectedExecutionHandler handler):void 
+		为不可执行的任务设置新的处理程序。
+		【Throws】：
+			NullPointerException 如果handler为null
 	setThreadFactory(ThreadFactory threadFactory):void 
+		设置用于创建新线程的线程工厂。
+		【Throws】：
+			NullPointerException 如果threadFactory为null
 	shutdown():void 
+		△ 启动有序关闭，在该关闭中执行以前提交的任务，但不接受新任务。如果已经关闭，则调用没有其他效果。
+		此方法不等待以前提交的任务完成执行。使用awaitTermination来完成此操作。
+		【Throws】：
+			SecurityException 如果存在安全管理器并关闭此ExecutorService，则可能会操作不允许调用方修改的线程，因为它不具有RuntimePermission("modifyThread")，或者安全管理器的checkAccess方法拒绝访问。
 	shutdownNow():List<Runnable> 
+		△ 尝试停止所有正在执行的任务，停止正在等待的任务的处理，并返回正在等待执行的任务的列表。从该方法返回时，这些任务将从任务队列中排出（删除）。
+		此方法不等待主动执行的任务终止。使用awaitTermination来完成此操作。
+		除了尽最大努力尝试停止处理活动执行的任务之外，没有任何保证。此实现通过Thread.interrupt()取消任务，因此任何未能响应中断的任务都可能永远不会终止。
+		返回从未开始执行的任务列表。
+		【Throws】：
+			SecurityException 如果存在安全管理器并关闭此ExecutorService，则可能会操作不允许调用方修改的线程，因为它不具有RuntimePermission("modifyThread")，或者安全管理器的checkAccess方法拒绝访问。
 	terminated():protected void 
+		当执行器终止时调用此方法。默认实现什么也不做（没有方法实体）。注意：为了正确地嵌套多个重写，子类通常应该在这个方法中调用super.terminated。
 	toString():String 
-	
+		△ 返回标识此线程池及其状态的字符串，包括运行状态指示、估计的工作线程和任务计数。
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 1、ThreadPoolExecutor$AbortPolicy
 

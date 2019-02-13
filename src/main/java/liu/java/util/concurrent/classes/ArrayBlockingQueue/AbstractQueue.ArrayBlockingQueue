@@ -1,0 +1,153 @@
+-----------------------------------------ArrayBlockingQueue<E>-------------------------------------------------------------------------------------------------------------
+ArrayBlockingQueue<E>：数组阻塞队列。【Since:1.5】
+	<E> 此集合中保留的元素的类型
+	由数组支持的有界阻塞队列。此队列按元素FIFO（先进先出）排序。队列的头是队列中最长时间的元素。队列的尾部是队列中时间最短的元素。新元素插入到队列的尾部，队列检索操作在队列的头部获取元素。
+	这是一个典型的“有界缓冲区”，其中一个固定大小的数组保存由生产者插入并由消费者提取的元素。一旦创建，就不能更改容量。尝试将元素放入饱和队列（大于容量元素）将导致操作阻塞；尝试从空队列中获取元素也将同样阻塞。
+	此类支持用于排序等待的生产者和使用者线程的可选的公平策略（fairness）。默认情况下，不保证此顺序。但是，使用设置为true的“公平”（fairness）策略构造的队列将按FIFO顺序授予线程访问权限。“公平”策略通常会减少吞吐量，但会减少可变性并避免Starvation(“饥饿”)。
+	这个类及其迭代器实现集合和迭代器接口的所有可选方法。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class ArrayBlockingQueue<E> extends AbstractQueue<E>  implements BlockingQueue<E>, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Queue<E>,BlockingQueue<E>,java.io.Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ArrayBlockingQueue(int capacity)
+		创建具有给定（固定）容量和默认访问策略的ArrayBlockingQueue。
+		【Throws】：
+			llegalArgumentException 如果capacity < 1
+	public ArrayBlockingQueue(int capacity, boolean fair)
+		创建具有给定（固定）容量和指定访问策略的ArrayBlockingQueue。	
+		【Throws】：
+			llegalArgumentException 如果capacity < 1
+	public ArrayBlockingQueue(int capacity, boolean fair,Collection<? extends E> c)
+		创建具有给定（固定）容量和指定访问策略的ArrayBlockingQueue，最初包含给定集合的元素，按集合迭代器的遍历顺序添加。
+		【Throws】：
+			IllegalArgumentException 如果容量（capacity）小于c.size()，或小于1。
+			llegalArgumentException 如果capacity < 1
+
+Method Summary（方法概要）：
+	add(E e):boolean 
+		△ 如果可以在不超过队列容量的情况下立即插入指定元素，则在该队列的尾部插入该元素；如果成功，则返回true；如果该队列已满，则引发IllegalStateException。
+		【Throws】：
+			IllegalStateException 如果此队列已满
+			NullPointerException 如果指定的元素为null
+	clear():void 
+		△ 按原子特性从这个队列中删除所有元素。此调用返回后，队列将为空。
+	contains(Object o):boolean 
+		△ 如果此队列包含指定的元素，则返回true。更正式地说，如果并且仅当此队列包含至少一个元素e（如o.equals(e)），则返回true。
+	drainTo(Collection<? super E> c):int 
+		△  删除此队列中的所有可用元素并将它们添加到给定集合中。此操作可能比重复轮询（polling）此队列更有效。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	drainTo(Collection<? super E> c, int maxElements):int 
+		△ 最多可以从此队列中删除给定数量的可用元素，并将它们添加到给定集合中。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	iterator():Iterator<E> 
+		△ 以正确的顺序返回此队列中元素的迭代器。元素将按从第一个（头）到最后一个（尾）的顺序返回。返回的迭代器弱一致性。
+	offer(E e):boolean 
+		△ 如果可以在不超过队列容量的情况下立即插入指定元素，则在该队列的尾部插入该元素；如果成功，则返回true；如果该队列已满，则返回false。此方法通常优于方法add(E)，后者插入元素失败时引发异常。
+		【Throws】：
+			NullPointerException 如果指定的元素为null。
+	offer(E e, long timeout, TimeUnit unit):boolean 
+		△ 在此队列的尾部插入指定的元素，等待指定的等待时间，以便在队列已满时获得可用空间。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			NullPointerException 如果指定的元素为null。
+	peek():E 
+		△ 检索但不删除此队列的头；如果此队列为空，则返回null。
+	poll():E 
+		△ 检索并删除此队列的头，如果此队列为空，则返回null。
+	poll(long timeout, TimeUnit unit):E 
+		△ 检索并删除此队列的头，如果需要，可等待指定的等待时间以使元素可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	put(E e):void 
+		△ 在该队列的尾部插入指定的元素，等待队列满时空间变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+			NullPointerException 如果指定的元素为null。
+	remainingCapacity():int 
+		△ 返回此队列在不阻塞的情况下（在没有内存或资源约束的情况下）可以接受的其他元素的数量。这始终等于此队列的初始容量减去此队列的当前大小。
+		请注意，您不能总是通过检查remainingCapacity来判断插入元素的尝试是否会成功，因为可能是另一个线程将要插入或删除元素。
+	remove(Object o):boolean 
+		△ 从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个这样的元素，则删除元素e，“o.equals（e））”。如果此队列包含指定元素，则返回“true”（如果此队列因调用而更改，则返回“等效”）。
+		在基于圆形阵列的队列中删除内部元素本质上是一种缓慢且具有破坏性的操作，因此应仅在特殊情况下进行，理想情况下，只有在已知队列不可被其他线程访问时才进行。
+	size():int 
+		△ 返回此队列中的元素数量。
+	spliterator():Spliterator<E> 
+		△ 返回此队列中元素的拆分器。返回的拆分器弱一致性。此Spliterator报告Spliterator.CONCURRENT, Spliterator.ORDERED, 和 Spliterator.NONNULL特征。
+		拆分器实现Trysplit以允许有限的并行性。
+	take():E 
+		△ 检索并删除此队列的头，必要时等待元素变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	toArray():Object[] 
+		△ 返回一个数组，该数组按正确的顺序包含此队列中的所有元素。
+		返回的数组将是“安全的”，因为此队列不维护对它的引用。（换句话说，此方法必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T[] a):<T> T[] 
+		△ 以正确的顺序返回包含此队列中所有元素的数组；返回数组的运行时类型是指定数组的运行时类型。如果队列适合指定的数组，则会在其中返回。否则，将为新数组分配指定数组的运行时类型和此队列的大小。
+		如果此队列适合具有备用空间的指定数组（即，该数组中的元素多于此队列），则紧跟队列末尾的数组中的元素将设置为null。
+		与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		假设x是一个已知只包含字符串的队列。以下代码可用于将队列转储到新分配的字符串数组中：
+			String[] y = x.toArray(new String[0]);
+		请注意，toArray(new Object[0])，功能与toArray()相同。
+		【Throws】：
+			ArrayStoreException 如果指定数组的运行时类型不是此队列中每个元素的运行时类型的父类型
+			NullPointerException 如果指定的array为null。
+	toString():String 
+		△ 返回此集合的字符串表示形式。字符串表示形式由集合元素的列表组成，这些元素按迭代器返回的顺序排列，用方括号（"[]"）括起来。相邻元素由字符“,”（逗号和空格）分隔。元素按String.valueOf(Object)转换为字符串。
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、线程“公平”与“饥饿”：如果一个线程的cpu执行时间都被其他线程抢占了，导致得不到cpu执行，这种情况就叫做“饥饿”（Starvation），这个线程就会出现饥饿致死的现象，因为永远无法得到cpu的执行。解决饥饿现象的方法就是实现“公平”（fairness），保证所有线程都公平的获得执行的机会。
+	4、Java并发操作特性：
+		原子性：是指一个操作是不可中断的。即使是在多个线程一起执行的时候，一个操作一旦开始，就不会被其它线程干扰。
+		有序性：即程序执行的顺序按照代码的先后顺序执行。 
+		可见性 ：可见性是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

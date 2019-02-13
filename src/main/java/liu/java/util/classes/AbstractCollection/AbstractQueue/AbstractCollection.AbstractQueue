@@ -1,5 +1,5 @@
 -----------------------------------------AbstractQueue<E>-------------------------------------------------------------------------------------------------------------
-AbstractQueue<E>：抽象队列。【since 1.5 】
+AbstractQueue<E>：抽象队列。【Since:1.5】
 	此类提供一些队列操作的框架实现。当基本实现不允许null元素时，此类中的实现是适当的。方法add、remove和element分别基于offer、poll和peek，但抛出异常而不是通过false或null返回来指示失败。
 	扩展此类的队列实现必须至少定义方法Queue.offer(E)，它不允许插入空元素，以及方法 Queue.peek()、Queue.poll()、Collection.size()和Collection.iterator()。通常，其他方法也会被重写。如果无法满足这些要求，请考虑对AbstractCollection进行子类化。	
 	该类是Java集合框架的成员。
