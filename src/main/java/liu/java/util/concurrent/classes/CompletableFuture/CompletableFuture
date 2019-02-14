@@ -1,0 +1,253 @@
+-------------------------------------CompletableFuture<T>-----------------------------------------------------------------------------------------------------------------------------------
+CompletableFuture<T>：可完成Future。【since 1.8】
+	可以显式完成（设置其值和状态）的Future，可用作CompletionStage（完成阶段），支持在完成时触发的依赖函数和动作。
+	当两个或多个线程尝试complete、completeExceptionally或取消CompletableFuture时，只有一个线程成功。
+	除了这些直接操作状态和结果的相关方法外，CompletableFuture还使用以下策略实现了CompletionStage接口：
+		● 为非异步方法的依赖完成提供的操作可以由完成当前CompletableFuture的线程或完成方法的任何其他调用方执行。
+		● 所有没有显式执行器（Executor）参数的异步方法都使用ForkJoinPool.commonPool()执行（除非它不支持至少两个并行级别，在这种情况下，将创建一个新线程来运行每个任务）。为了简化监视、调试和跟踪，所有生成的异步任务都是标记接口CompletableFuture.AsynchronousCompletionTask的实例。
+		● 所有CompletionStage方法都是独立于其他公共（public）方法实现的，因此一个方法的行为不会受到子类中其他方法的重写的影响。
+	CompletableFuture还使用以下策略实现Future：
+		● 因为（与FutureTask不同）这个类不能直接控制导致它完成的计算，所以取消被视为异常完成的另一种形式。方法cancel与completeExceptionally(new CancellationException())的作用相同。方法isCompletedExceptionally()可用于确定CompletableFuture是否以任何特殊方式完成。
+		● 如果异常完成时出现CompletionException，方法get()和get(long, TimeUnit)将抛出与相应的CompletionException中保持的原因相同的ExecutionException。为了简化大多数上下文中的使用，这个类还定义了方法join()和getNow(T)，而不是在这些情况下直接抛出CompletionException。
+	
+	
+	
+	类定义	：public class CompletableFuture<T> implements Future<T>, CompletionStage<T>
+	实现接口	：Future<T>, CompletionStage<T>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public CompletableFuture()
+		创建新的未完成的CompletableFuture。
+	
+
+Method Summary（方法概要）：
+	allOf(CompletableFuture<?>... cfs):static CompletableFuture<Void> 
+		返回一个新的CompletableFuture，该CompletableFuture在所有给定CompletableFuture完成时完成。如果给定的CompletableFuture中的任何一个异常完成，那么返回的CompletableFuture也会这样做，CompletionException将此异常作为其原因。否则，给定CompletableFuture的结果（如有）不会反映在返回的CompletableFuture中，但可以通过单独检查来获得。如果未提供CompletableFuture，则返回值为null的已完成CompletableFuture。
+		这种方法的应用之一是在继续一个程序之前等待一组独立的CompletableFutures完成，如：CompletableFuture.allOf(c1, c2, c3).join();。
+		【Throws】：
+			NullPointerException 如果数组或其任何元素为null。
+	anyOf(CompletableFuture<?>... cfs):static CompletableFuture<Object> 
+		返回一个新的CompletableFuture，该CompletableFuture在给定CompletableFutures中的任何一个完成时完成，结果相同。否则，如果异常完成，返回的CompletableFuture也会这样做，CompletionException将此异常作为其原因。如果没有提供CompletableFutures，则返回未完成的CompletableFuture。
+		【Throws】：
+			NullPointerException 如果数组或其任何元素为null。
+	completedFuture(U value):static <U> CompletableFuture<U> 
+		返回已用给定值完成的新的CompletableFuture。
+	runAsync(Runnable runnable):static CompletableFuture<Void> 
+		返回一个新的CompletableFuture，该CompletableFuture在运行给定操作后由ForkJoinPool.commonPool()中运行的任务异步完成。
+	runAsync(Runnable runnable,Executor executor):static CompletableFuture<Void> 
+		返回一个新的CompletableFuture，该CompletableFuture由运行给定操作后在给定执行器中运行的任务异步完成。
+	supplyAsync(Supplier<U> supplier):static <U> CompletableFuture<U> 
+		返回一个新的CompletableFuture，该CompletableFuture由ForkJoinPool.commonPool()中运行的任务异步完成，其值通过调用给定的supplier获得。
+	supplyAsync(Supplier<U> supplier,Executor executor):static <U> CompletableFuture<U> 
+		U - 函数的返回类型
+		返回一个新的CompletableFuture，该CompletableFuture由在给定执行器中运行的任务异步完成，其值通过调用给定的supplier获得。
+	acceptEither(CompletionStage<? extends T> other, Consumer<? super T> action):CompletableFuture<Void> 
+		action - 完成返回CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段或另一个给定阶段正常完成时，将以相应的结果作为所提供操作的参数执行。有关异常完成的规则，请参阅完成阶段（CompletionStage）文档。
+	acceptEitherAsync(CompletionStage<? extends T> other, Consumer<? super T> action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段或给定阶段other正常完成时，将使用此阶段的默认异步执行功能执行该阶段，并将相应的结果作为所提供操作（action）的参数。有关异常完成的规则，请参阅完成阶段（CompletionStage）文档。
+	acceptEitherAsync(CompletionStage<? extends T> other, Consumer<? super T> action,Executor executor):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段或另一个给定阶段正常完成时，将使用提供的执行器执行该阶段，并将相应的结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段（CompletionStage）文档。
+	applyToEither(CompletionStage<? extends T> other, Function<? super T, U> fn):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段或另一个给定阶段正常完成时，将以相应的结果作为所提供函数的参数执行。有关异常完成的规则，请参阅完成阶段文档。
+	applyToEitherAsync(CompletionStage<? extends T> other, Function<? super T, U> fn):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段或其他给定阶段正常完成时，将使用此阶段的默认异步执行功能执行该阶段，并将相应的结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	applyToEitherAsync(CompletionStage<? extends T> other, Function<? super T, U> fn,Executor executor):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段或另一个给定阶段正常完成时，将使用提供的执行器执行该阶段，并将相应的结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	cancel(boolean mayInterruptIfRunning):boolean 
+		△ mayInterruptIfRunning - 此值在此实现中无效，因为中断不用于控制处理。
+		如果尚未完成，请使用CancellationException完成此CompletableFuture。尚未完成的依赖CompletableFutures也将异常完成，CompletionException由CancellationException引起。
+		如果此任务现在被取消，则返回true。
+	complete(T value):boolean 
+		如果尚未完成，请将get()和相关方法返回的值设置为给定值。
+		如果此调用导致此CompletableFuture转换为已完成状态，则为true，否则为false
+	completeExceptionally(Throwable ex):boolean 
+		如果尚未完成，将导致调用get()和相关方法引发给定的异常。
+	exceptionally(Function<Throwable, ? extends T> fn):CompletableFuture<T> 
+		△ 如果此调用导致此CompletableFuture转换为已完成状态，则为true，否则为false
+	get():T 
+		△ 如果需要，请等待此Future完成，然后返回其结果。
+		【Throws】：
+			CancellationException  如果计算被取消
+			ExecutionException 如果计算抛出异常
+			InterruptedException 如果当前线程在等待时被中断
+	get(long timeout, TimeUnit unit):T 
+		△ 如果需要，最多等待给定的时间（timeout）以完成计算，然后检索其结果（如果可用）。
+		unit - timeout参数的时间单位
+		【Throws】：
+			CancellationException  如果计算被取消
+			ExecutionException 如果计算抛出异常
+			InterruptedException 如果当前线程在等待时被中断
+			TimeoutException 如果等待超时
+	getNow(T valueIfAbsent):T 
+		返回结果值（或引发任何遇到的异常），如果完成，则返回给定的valueIfAbsent。
+	getNumberOfDependents():int 
+		返回完成等待此CompletableFuture完成的CompletableFutures的估计数。该方法设计用于监控系统状态，不用于同步控制。
+		返回依赖的CompletableFutures的数量。
+	handle(BiFunction<? super T, Throwable, ? extends U> fn):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段正常或异常完成时，将使用此阶段的结果和异常作为所提供函数的参数执行。
+		完成此阶段后，将使用此阶段的结果（如果没有，则为null）和异常（如果没有，则为null）作为参数调用给定函数，并使用函数的结果完成返回的阶段。
+	handleAsync(BiFunction<? super T, Throwable, ? extends U> fn):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段正常或异常完成时，将使用此阶段的默认异步执行功能执行该阶段，并将此阶段的结果和异常作为所提供函数的参数执行。
+		完成此阶段后，将使用此阶段的结果（如果没有，则为null）和异常（如果没有，则为null）作为参数调用给定函数，并使用函数的结果完成返回的阶段。
+	handleAsync(BiFunction<? super T, Throwable, ? extends U> fn, Executor executor):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成或异常完成时，将使用提供的执行器执行该阶段，并将此阶段的结果和异常作为所提供函数的参数。
+		完成此阶段后，将使用此阶段的结果（如果没有，则为null）和异常（如果没有，则为null）作为参数调用给定函数，并使用函数的结果完成返回的阶段。
+	isCancelled():boolean 
+		△ 如果此CompletableFuture在正常完成之前被取消，则返回true。
+	isCompletedExceptionally():boolean 
+		如果CompletableFuture以任何方式异常完成，则返回true。可能的原因包括取消、明确调用completeExceptionally和突然终止CompletionStage动作。
+	isDone():boolean 
+		△ 如果以任何方式完成，则返回true，完成可能是由于正常终止、异常或取消——在所有这些情况下，此方法都将返回true。
+	join():T 
+		完成时返回结果值，或异常完成时引发（未选中）异常。为了更好地符合公共函数形式的使用，如果完成CompletableFuture所涉及的计算引发了异常，则此方法将抛出（未选中）CompletionException，并将底层异常作为其原因。
+		【Throws】：
+			CancellationException 如果计算被取消
+			CompletionException 如果此Future异常完成或完成计算引发异常
+	obtrudeException(Throwable ex):void 
+		强制导致方法get()和相关方法的后续调用引发给定的异常，无论是否已完成。此方法仅用于错误恢复操作，即使在这种情况下，也可能导致使用已建立的结果和覆盖的结果进行持续的依赖完成。
+		【Throws】：
+			NullPointerException 如果exception为null
+	obtrudeValue(T value):void 
+		强制设置或重置方法get()和相关方法随后返回的值，无论是否已完成。此方法仅用于错误恢复操作，即使在这种情况下，也可能导致使用已建立的结果和覆盖的结果进行持续的依赖完成。
+	runAfterBoth(CompletionStage<?> other,Runnable action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，将执行给定的操作（action）。有关异常完成的规则，请参阅完成阶段文档。
+	runAfterBothAsync(CompletionStage<?> other,Runnable action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，使用此阶段的默认异步执行功能执行给定的操作。有关异常完成的规则，请参阅完成阶段文档。
+	runAfterBothAsync(CompletionStage<?> other,Runnable action,Executor executor):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，使用提供的执行器执行给定的操作。有关异常完成的规则，请参阅完成阶段文档。
+	runAfterEither(CompletionStage<?> other,Runnable action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段或给定阶段（other）正常完成时，将执行给定的操作。有关异常完成的规则，请参阅完成阶段文档。
+	runAfterEitherAsync(CompletionStage<?> other,Runnable action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段或给定阶段（other）正常完成时，使用此阶段的默认异步执行功能执行给定操作。有关异常完成的规则，请参阅完成阶段文档。
+	runAfterEitherAsync(CompletionStage<?> other,Runnable action,Executor executor):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段或其他给定阶段正常完成时，使用提供的执行器执行给定的操作。有关异常完成的规则，请参阅完成阶段文档。
+	thenAccept(Consumer<? super T> action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用此阶段的结果作为所提供操作的参数执行该阶段。有关异常完成的规则，请参阅完成阶段文档。
+	thenAcceptAsync(Consumer<? super T> action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用此阶段的默认异步执行功能执行该阶段，并将此阶段的结果作为所提供操作的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenAcceptAsync(Consumer<? super T> action,Executor executor):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用提供的执行器执行该阶段，并将此阶段的结果作为提供的操作的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenAcceptBoth(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action):<U> CompletableFuture<Void> 
+		U - other完成阶段结果的类型
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段都正常完成时，将以两个结果作为所提供操作的参数执行。有关异常完成的规则，请参阅完成阶段文档。
+	thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action):<U> CompletableFuture<Void> 
+		U - other完成阶段结果的类型
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，将使用此阶段的默认异步执行功能执行该阶段，两个结果作为所提供操作的参数。
+	thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action, Executor executor):<U> CompletableFuture<Void> 
+		U - other完成阶段结果的类型
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，将使用提供的执行器执行，两个结果作为所提供函数的参数。
+	thenApply(Function<? super T,? extends U> fn):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用此阶段的结果作为所提供函数的参数执行该阶段。有关异常完成的规则，请参阅完成阶段文档。
+	thenApplyAsync(Function<? super T,? extends U> fn):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用此阶段的默认异步执行功能执行该阶段，并将此阶段的结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenApplyAsync(Function<? super T,? extends U> fn, Executor executor):<U> CompletableFuture<U> 
+		U - Function的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用提供的执行器执行该阶段，并将此阶段的结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenCombine(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn):<U,V> CompletableFuture<V> 
+		U - other完成阶段结果的类型
+		V - 函数（fn）的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段都正常完成时，将以两个结果作为所提供函数的参数执行。有关异常完成的规则，请参阅完成阶段文档。
+	thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn):<U,V> CompletableFuture<V> 
+		U - other完成阶段结果的类型
+		V - 函数（fn）的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，将使用此阶段的默认异步执行功能执行该阶段，两个结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn, Executor executor):<U,V> CompletableFuture<V> 
+		U - other完成阶段结果的类型
+		V - 函数（fn）的返回类型
+		fn - 用于计算返回的CompletionStage值的函数
+		△ 返回一个新的CompletionStage，当此阶段和另一个给定阶段正常完成时，将使用提供的执行器执行，两个结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenCompose(Function<? super T, ? extends CompletionStage<U>> fn):<U> CompletableFuture<U> 
+		U - 返回的CompletionStage结果的类型
+		fn - 返回新CompletionStage的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用此阶段作为所提供函数的参数执行该阶段。有关异常完成的规则，请参阅完成阶段文档。
+	thenComposeAsync(Function<? super T, ? extends CompletionStage<U>> fn):<U> CompletableFuture<U> 
+		U - 返回的CompletionStage结果的类型
+		fn - 返回新CompletionStage的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用此阶段的默认异步执行功能执行该阶段，并将此阶段作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenComposeAsync(Function<? super T, ? extends CompletionStage<U>> fn,Executor executor):<U> CompletableFuture<U> 
+		U - 返回的CompletionStage结果的类型
+		fn - 返回新CompletionStage的函数
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，将使用提供的执行器执行该阶段，并将此阶段的结果作为所提供函数的参数。有关异常完成的规则，请参阅完成阶段文档。
+	thenRun(Runnable action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回新的CompletionStage，当此阶段正常完成时，将执行给定的操作（action）。有关异常完成的规则，请参阅完成阶段文档。
+	thenRunAsync(Runnable action):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，使用此阶段的默认异步执行功能执行给定的操作。有关异常完成的规则，请参阅完成阶段文档。
+	thenRunAsync(Runnable action,Executor executor):CompletableFuture<Void> 
+		action - 完成返回的CompletionStage之前要执行的操作
+		△ 返回一个新的CompletionStage，当此阶段正常完成时，使用提供的执行器执行给定的操作。有关异常完成的规则，请参阅完成阶段文档。
+	toCompletableFuture():CompletableFuture<T> 
+		△ 返回此CompletableFuture。
+	toString():String 
+		△ 返回一个标识此CompletableFuture及其完成状态的字符串。括号中的状态包含字符串“Completed Normally”（正常完成）或字符串“Completed Exceptionally”（异常完成），或字符串“Not completed”（未完成），后面跟着取决于其完成情况的CompletableFutures编号（如果有）。
+	whenComplete(BiConsumer<? super T, ? super Throwable> action):CompletableFuture<T> 
+		action - 要执行的操作
+		△ 返回与此阶段具有相同结果或异常的新CompletionStage，此阶段完成时将执行给定操作。
+		完成此阶段后，将调用给定的操作（action），并将此阶段的结果（如果没有，则为null）和异常（如果没有，则为null）作为参数。返回的阶段在action返回时完成。如果所提供的action本身遇到异常，则返回的阶段将异常完成，并出现此异常，除非此阶段也异常完成。
+	whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action):CompletableFuture<T> 
+		action - 要执行的操作
+		△ 返回与此阶段具有相同结果或异常的新CompletionStage，此阶段完成时使用此阶段的默认异步执行功能执行给定操作。
+		完成此阶段后，将调用给定的操作（action），并将此阶段的结果（如果没有，则为null）和异常（如果没有，则为null）作为参数。返回的阶段在action返回时完成。如果所提供的action本身遇到异常，则返回的阶段将异常完成，并出现此异常，除非此阶段也异常完成。
+	whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action, Executor executor):CompletableFuture<T> 
+		action - 要执行的操作
+		△ 返回与此阶段具有相同结果或异常的新CompletionStage，此阶段完成时使用提供的执行器执行给定的操作。
+		完成此阶段后，将调用给定的操作（action），并将此阶段的结果（如果没有，则为null）和异常（如果没有，则为null）作为参数。返回的阶段在action返回时完成。如果所提供的action本身遇到异常，则返回的阶段将异常完成，并出现此异常，除非此阶段也异常完成。
+	
+	
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
