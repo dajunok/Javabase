@@ -58,11 +58,11 @@ Method Summary（方法概要）：
 		initialCapacity - 调整容量大小以适应元素数量规模。
 		创建一个由给定类型的ConcurrentHashMap支持的新集合，并将其设置为Boolean.TRUE。
 	clear():void 
-		从该映射中删除所有映射。
+		△  从该映射中删除所有映射。
 	compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):V 
 		key - 与指定值关联的键
 		remappingFunction - 计算值的函数（重新映射函数）
-		尝试计算指定键及其当前映射值的映射（如果没有当前映射，则为null）。整个方法调用是以原子方式执行的。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
+		△  尝试计算指定键及其当前映射值的映射（如果没有当前映射，则为null）。整个方法调用是以原子方式执行的。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
 		【Throws】：
 			NullPointerException 如果指定的键或remappingFunction（重新映射函数）为null
 			IllegalStateException 如果计算可检测地尝试对此映射进行递归更新，否则将永远无法完成
@@ -70,7 +70,7 @@ Method Summary（方法概要）：
 	computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction):V 
 		key - 与指定值关联的键
 		mappingFunction - 计算值的函数
-		如果指定的键尚未与值关联，则尝试使用给定的映射函数计算其值，并将其输入此映射，除非为null。整个方法调用是以原子方式执行的，因此每个键最多应用一次函数。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
+		△  如果指定的键尚未与值关联，则尝试使用给定的映射函数计算其值，并将其输入此映射，除非为null。整个方法调用是以原子方式执行的，因此每个键最多应用一次函数。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
 		【Throws】：
 			NullPointerException 如果指定的键或mappingFunction（映射函数）为null
 			IllegalStateException 如果计算可检测地尝试对此映射进行递归更新，否则将永远无法完成
@@ -78,7 +78,7 @@ Method Summary（方法概要）：
 	computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction):V 
 		key - 与指定值关联的键
 		remappingFunction - 计算值的函数（重新映射函数）
-		如果指定键的值存在，则尝试在给定键及其当前映射值的情况下计算新映射。整个方法调用是以原子方式执行的。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
+		△  如果指定键的值存在，则尝试在给定键及其当前映射值的情况下计算新映射。整个方法调用是以原子方式执行的。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
 		【Throws】：
 			NullPointerException 如果指定的键或remappingFunction（重新映射函数）为null
 			IllegalStateException 如果计算可检测地尝试对此映射进行递归更新，否则将永远无法完成
@@ -89,28 +89,29 @@ Method Summary（方法概要）：
 		【Throws】：
 			NullPointerException 如果指定的value为null
 	containsKey(Object key):boolean 
-		测试指定的对象是否是此表中的键。
+		△  测试指定的对象是否是此表中的键。
 		如果且仅当指定的对象是此表中的键时为true，由equals方法确定；否则为false
 		【Throws】：
 			NullPointerException 如果指定的key为null
 	containsValue(Object value):boolean 
-		如果此映射将一个或多个键映射到指定值，则返回true。注意：此方法可能需要对映射进行完全遍历，并且比方法containsKey慢得多。
+		△  如果此映射将一个或多个键映射到指定值，则返回true。注意：此方法可能需要对映射进行完全遍历，并且比方法containsKey慢得多。
 		【Throws】：
 			NullPointerException 如果指定的value为null
 	elements():Enumeration<V> 
 		返回此表中值的枚举（Enumeration）。
 	entrySet():Set<Map.Entry<K,V>> 
-		返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和 clear操作从映射中移除相应的映射。
+		△  返回Map中包含的映射的Set视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和 clear操作从映射中移除相应的映射。
 		视图的迭代器和拆分器弱一致。
 	equals(Object o):boolean 
-		将指定的对象与此map进行相等比较。如果给定对象是与此map具有相同映射的映射，则返回true。如果在执行此方法期间同时修改其中一个映射，则此操作可能返回误导性结果。
+		△  将指定的对象与此map进行相等比较。如果给定对象是与此map具有相同映射的映射，则返回true。如果在执行此方法期间同时修改其中一个映射，则此操作可能返回误导性结果。
 	forEach(BiConsumer<? super K, ? super V> action):void
-		对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+		△  对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
 	forEach(long parallelismThreshold,BiConsumer<? super K,? super V> action):void 
 		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
 		action - 所执行的操作（动作）	
 		为每个（键、值）执行给定的操作。
 	forEach(long parallelismThreshold,BiFunction<? super K, ? super V, ? extends U> transformer,Consumer<? super U> action):<U> void 
+		U - transformer的返回类型
 		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
 		transformer - 返回元素转换的函数，如果没有转换则返回空值（在这种情况下，action不应该被执行）
 		action - 所执行的操作（动作）
@@ -120,59 +121,304 @@ Method Summary（方法概要）：
 		action - 所执行的操作（动作）	
 		对每个条目执行给定的操作。
 	forEachEntry(long parallelismThreshold,Function<Map.Entry<K,V>, ? extends U> transformer,Consumer<? super U> action):<U> void 
+		U - transformer的返回类型
 		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
 		transformer - 返回元素转换的函数，如果没有转换则返回空值（在这种情况下，action不应该被执行）
 		action - 所执行的操作（动作）
 		对每个条目的每个非空（non-null）转换执行给定的操作。
 	forEachKey(long parallelismThreshold,Consumer<? super K> action):void 
-		
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		action - 所执行的操作（动作）	
+		对每个键执行给定的操作。
 	forEachKey(long parallelismThreshold,Function<? super K, ? extends U> transformer,Consumer<? super U> action):<U> void 
+		U - transformer的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数，如果没有转换则返回空值（在这种情况下，action不应该被执行）
+		action - 所执行的操作（动作）
+		对每个键的每个非空转换（non-null）执行给定的操作。
 	forEachValue(long parallelismThreshold,Consumer<? super V> action):void 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		action - 所执行的操作（动作）
+		对每个值执行给定的操作。
 	forEachValue(long parallelismThreshold,Function<? super V, ? extends U> transformer,Consumer<? super U> action):<U> void 
+		U - transformer的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数，如果没有转换则返回空值（在这种情况下，action不应该被执行）
+		action - 所执行的操作（动作）
+		对每个值的每个非空（non-null）转换执行给定的操作。
 	get(Object key):V 
+		△  返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
+		更正式地说，如果此映射包含从键k到值v的映射，如key.equals(k)，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）
+		【Throws】：
+			NullPointerException 如果指定的key为null
 	getOrDefault(Object key, V defaultValue):V 
+		△  返回指定键映射到的值，如果此映射不包含键的映射，则返回给定的默认值。
+		【Throws】：
+			NullPointerException 如果指定的key为null
 	hashCode():int 
+		△  返回此映射的哈希代码值，即映射中每个键值对key.hashCode() ^ value.hashCode()的和。
 	isEmpty():boolean 
+		△  如果此映射不包含键值映射，则返回true。
 	keys():Enumeration<K> 
+		返回此表中键的枚举（Enumeration）。
 	keySet():KeySetView<K,V> 
+		△  返回此映射中包含的键的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果未定义。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+		视图的迭代器和拆分器弱一致。
+		视图的Spliterator报告Spliterator.CONCURRENT, Spliterator.DISTINCT, 和 Spliterator.NONNULL特征。
 	keySet(V mappedValue):KeySetView<K,V> 
+		返回此映射中键的集合视图，使用给定的公共映射值进行任何添加（即Collection.add(E)和Collection.addAll(Collection)）。当然，只有在可以接受对该视图中的所有添加使用相同的值时，这才适用。
+		【Throws】：
+			NullPointerException 如果指定的mappedValue为null
 	mappingCount():long 
+		返回映射数。应该使用此方法而不是size()，因为ConcurrentHashMap可能包含的映射多于可以表示为int的映射。返回的值是估计值；如果存在并发插入或删除，实际计数可能会有所不同。
 	merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction):V 
+		△  如果指定的键尚未与（非空）值关联，请将其与给定的值关联。否则，用给定的重新映射函数的结果替换该值，或者如果为空则移除该值。整个方法调用是以原子方式执行的。在计算过程中，其他线程在此映射上尝试的某些更新操作可能会被阻止，因此计算应简短，并且不得尝试更新此映射的任何其他映射。
+		【Throws】：
+			NullPointerException 如果指定的键或重新映射函数为null
+			RuntimeException 或者，如果remappingFunction这样做，则会出错，在这种情况下，映射是不变的。
 	put(K key, V value):V 
+		△  将指定的键映射到此表中的指定值。键和值都不能为null。
+		可以通过使用等于原始键的键调用get方法来检索该值。
+		【Throws】：
+			NullPointerException 如果指定的key或value为null
 	putAll(Map<? extends K, ? extends V> m):void 
+		△  将指定映射中的所有映射复制到此映射。这些映射将替换此映射对指定映射中当前任何键所具有的任何映射。
 	putIfAbsent(K key, V value):V 
+		△  如果指定的键尚未与值关联，请将其与给定的值关联。这相当于
+			 if (!map.containsKey(key))
+			   return map.put(key, value);
+			 else
+			   return map.get(key);		
+		只不过动作是原子性的。	
 	reduce(long parallelismThreshold,BiFunction<? super K, ? super V, ? extends U> transformer,BiFunction<? super U, ? super U, ? extends U> reducer):<U> U 
+		U - transformer的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数，如果没有转换，则返回null（在这种情况下，不进行组合）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将所有（key，value）对的给定转换累积为组合值的结果，如果没有，则返回null。
+		返回累积所有（键、值）对的给定转换的结果		
 	reduceEntries(long parallelismThreshold,BiFunction<Map.Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer):Map.Entry<K,V> 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将所有条目累加为组合值的结果，如果没有，则返回null。
 	reduceEntries(long parallelismThreshold,Function<Map.Entry<K,V>, ? extends U> transformer,BiFunction<? super U, ? super U, ? extends U> reducer):<U> U 
+		U - transformer的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数，如果没有转换，则返回null（在这种情况下，不进行组合）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将所有项的给定转换累积为组合值的结果，如果没有，则返回null		
 	reduceEntriesToDouble(long parallelismThreshold,ToDoubleFunction<Map.Entry<K,V>> transformer,double basis,DoubleBinaryOperator reducer):double 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的basis作为标识值累积所有项的给定转换的结果。		
 	reduceEntriesToInt(long parallelismThreshold,ToIntFunction<Map.Entry<K,V>> transformer,int basis,IntBinaryOperator reducer):int 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的basis作为标识值累积所有项的给定转换的结果。
 	reduceEntriesToLong(long parallelismThreshold,ToLongFunction<Map.Entry<K,V>> transformer,long basis,LongBinaryOperator reducer):long 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的basis作为标识值累积所有项的给定转换的结果。
 	reduceKeys(long parallelismThreshold,BiFunction<? super K, ? super K, ? extends K> reducer):K 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer组合值累积所有键的结果，如果没有，则返回null。
 	reduceKeys(long parallelismThreshold,Function<? super K, ? extends U> transformer,BiFunction<? super U, ? super U, ? extends U> reducer):<U> U 
+		U - transformer的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		reducer - 转换结合组合函数
+		返回使用给定的reducer组合值来累积所有键的给定转换的结果，如果没有，则返回null。
 	reduceKeysToDouble(long parallelismThreshold,ToDoubleFunction<? super K> transformer,double basis,DoubleBinaryOperator reducer):double 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的基作为标识值累积所有键的给定转换的结果。
 	reduceKeysToInt(long parallelismThreshold,ToIntFunction<? super K> transformer,int basis,IntBinaryOperator reducer):int 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的基作为标识值累积所有键的给定转换的结果。
 	reduceKeysToLong(long parallelismThreshold,ToLongFunction<? super K> transformer,long basis,LongBinaryOperator reducer):long 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的基作为标识值累积所有键的给定转换的结果。
 	reduceToDouble(long parallelismThreshold,ToDoubleBiFunction<? super K, ? super V> transformer,double basis,DoubleBinaryOperator reducer):double 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		返回使用给定的reducer将所有（key，value）对的给定转换进行累积的结果，并将给定的基作为标识值进行组合。
 	reduceToInt(long parallelismThreshold,ToIntBiFunction<? super K, ? super V> transformer,int basis,IntBinaryOperator reducer):int 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将所有（key，value）对的给定转换进行累积的结果，并将给定的基作为标识值进行组合。
 	reduceToLong(long parallelismThreshold,ToLongBiFunction<? super K, ? super V> transformer,long basis,LongBinaryOperator reducer):long 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将所有（key，value）对的给定转换进行累积的结果，并将给定的基作为标识值进行组合。
 	reduceValues(long parallelismThreshold,BiFunction<? super V, ? super V, ? extends V> reducer):V 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer组合值来累积所有值的结果，如果没有，则返回null。
 	reduceValues(long parallelismThreshold,Function<? super V, ? extends U> transformer,BiFunction<? super U, ? super U, ? extends U> reducer):r<U> U 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		reducer - 转换结合组合函数
+		返回使用给定的reducer组合值来累积所有值的给定转换的结果，如果没有，则返回null。
 	reduceValuesToDouble(long parallelismThreshold,ToDoubleFunction<? super V> transformer,double basis,DoubleBinaryOperator reducer):double 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的basis作为标识值累积所有值的给定转换的结果。
 	reduceValuesToInt(long parallelismThreshold,ToIntFunction<? super V> transformer,int basis,IntBinaryOperator reducer):int
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的basis作为标识值累积所有值的给定转换的结果。
 	reduceValuesToLong(long parallelismThreshold,ToLongFunction<? super V> transformer,long basis,LongBinaryOperator reducer):long 
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		transformer - 返回元素转换的函数
+		basis - 减少的标识（初始默认值）
+		reducer - 转换结合组合函数
+		返回使用给定的reducer将值和给定的basis作为标识值累积所有值的给定转换的结果。
 	remove(Object key):V 
+		△  从该映射中删除键（及其相应的值）。如果键不在映射中，则此方法不执行任何操作。
+		【Throws】：
+			NullPointerException 如果指定的key为null
 	remove(Object key, Object value):boolean 
+		△  仅当当前映射到给定值时才删除键的项。这相当于
+			 if (map.containsKey(key) && Objects.equals(map.get(key), value)) {
+			   map.remove(key);
+			   return true;
+			 } else
+			   return false;
+		只不过动作是原子性的。
+		【Throws】：
+			NullPointerException 如果指定的key或value为null
 	replace(K key, V value):V 
+		△  仅当当前映射到某个值时才替换键的条目。这相当于
+			 if (map.containsKey(key)) {
+			   return map.put(key, value);
+			 } else
+			   return null;
+		只不过动作是原子性的。
+		【Throws】：
+			NullPointerException 如果指定的key或value为null
 	replace(K key, V oldValue, V newValue):boolean 
+		△  仅当当前映射到给定值时才替换键的条目。这相当于
+			 if (map.containsKey(key) && Objects.equals(map.get(key), oldValue)) {
+			   map.put(key, newValue);
+			   return true;
+			 } else
+			   return false;
+		只不过动作是原子性的。
+		【Throws】：
+			NullPointerException 如果指定的任何参数为null
 	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):void 
-	search(long parallelismThreshold,BiFunction<? super K, ? super V, ? extends U> searchFunction):<U> U 
+		△  将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	search(long parallelismThreshold,BiFunction<? super K, ? super V, ? extends U> searchFunction):<U> U
+		U - 搜索函数searchFunction的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		searchFunction - 函数成功时返回非空结果，否则为null
+		通过对每个（键、值）应用给定的搜索函数返回非空结果，如果没有，则返回null。一旦成功，将抑制进一步的元素处理，并且忽略搜索函数的任何其他并行调用的结果。
 	searchEntries(long parallelismThreshold,Function<Map.Entry<K,V>, ? extends U> searchFunction):<U> U 
+		U - 搜索函数searchFunction的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		searchFunction - 函数成功时返回非空结果，否则为null
+		对每个条目应用给定的搜索函数，返回非空结果；如果没有，则返回null。一旦成功，将抑制进一步的元素处理，并且忽略搜索函数的任何其他并行调用的结果。
 	searchKeys(long parallelismThreshold,Function<? super K, ? extends U> searchFunction):<U> U 
+		U - 搜索函数searchFunction的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		searchFunction - 函数成功时返回非空结果，否则为null
+		对每个键应用给定的搜索函数返回非空结果，如果没有，则返回null。一旦成功，将抑制进一步的元素处理，并且忽略搜索函数的任何其他并行调用的结果。
 	searchValues(long parallelismThreshold,Function<? super V, ? extends U> searchFunction):<U> U 
+		U - 搜索函数searchFunction的返回类型
+		parallelismThreshold - 并行执行此操作所需的（估计的）元素数量（并行阈值）
+		searchFunction - 函数成功时返回非空结果，否则为null
+		通过对每个值应用给定的搜索函数返回非空结果，如果没有，则返回null。一旦成功，将抑制进一步的元素处理，并且忽略搜索函数的任何其他并行调用的结果。
 	size():int 
+		△  返回此映射中的键值映射数。如果映射包含的元素多于Integer.MAX_VALUE，则返回Integer.MAX_VALUE。
 	toString():String 
+		△  返回此映射的字符串表示形式。字符串表示形式由括在大括号（"{}"）中的键值映射列表（无特定顺序）组成。相邻映射由字符", "（逗号和空格）分隔。每个键值映射将呈现为键，后跟等号（"="）和关联值。
 	values():Collection<V> 
+		△  返回此map中包含的所有值的集合视图。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。如果在对集合进行迭代时修改映射（通过迭代器自己的移除操作除外），则迭代的结果不确定。集合支持元素移除，它通过Iterator.remove, Collection.remove, removeAll, retainAll , clear操作从map中移除相应的映射。它不支持add或addAll操作。
+		视图的迭代器和拆分器弱一致。
+		视图的spliterator报告Spliterator.CONCURRENT 和 Spliterator.NONNULL
 
+
+----------------------------------------ConcurrentHashMap$KeySetView<K,V>--------------------------------------------------------------------------------------------------------------
+1、ConcurrentHashMap.KeySetView<K,V>：键集视图。【Since:1.8】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型
+	把ConcurrentHashMap看作键的Set的一种视图，在这种视图中，可以通过映射到一个公共值来选择地启用添加。此类不能直接实例化。参见keySet()、keySet(V)、newKeySet()、newKeySet(int)。
+	
+
+	类定义	：public static class KeySetView<K,V> extends CollectionView<K,V,K> implements Set<K>, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Set<K>, java.io.Serializable
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Method Summary（方法概要）：	
+	add(K e):boolean 
+		通过将该键映射到支持映射中的默认映射值（如果已定义），将指定键添加到此集合视图。
+		【Throws】：
+			NullPointerException 如果指定的key为null
+			UnsupportedOperationException 如果没有提供用于添加的默认映射值
+	addAll(Collection<? extends K> c):boolean 
+		将指定集合中的所有元素添加到此集合中，就像对每个元素调用add(K)一样。
+		【Throws】：
+			NullPointerException 如果指定的collection或其任何元素为null
+			UnsupportedOperationException 如果没有提供用于添加的默认映射值
+	contains(Object o):boolean 
+		如果此集合包含指定元素，则返回true。更正式地说，如果且仅当此集合包含至少一个元素e（如(o==null ? e==null : o.equals(e))），则返回true。
+		【Throws】：
+			NullPointerException 如果指定的key为null
+	equals(Object o):boolean 
+		参数指定对象是否等于此对象。
+		equals方法在非空对象引用上实现等价关系：
+			● 它是自反的：对于任何非空的引用值x，x.equals(x)都应返回true。
+			● 它是对称的：对于任何非空引用值x和y，当且仅当y.equals（x）返回true时，x.equals（y）应返回true。
+			● 它是可传递的：对于任何非空引用值x、y和z，如果x.equals(y)返回true，y.equals(z)返回true，则x.equals(z)应返回true。
+			● 它是一致的：对于任何非空的引用值x和y，多次调用x.equals(y)始终返回true或始终返回false，前提是不修改在对象的equals比较中使用的信息。
+			● 对于任何非空引用值x，x.equals(null)应返回false。
+		类对象的equals方法在对象上实现了最具辨别力的等价关系；也就是说，对于任何非空引用值x和y，如果x和y引用同一对象（x==y的值为true），则此方法返回true。	
+		请注意，每当重写此方法时，通常需要重写hashCode方法，以便维护hashCode方法的一般约定，即相等的对象必须具有相等的哈希代码。					
+	forEach(Consumer<? super K> action):void 
+		对Iterable的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。除非实现类另有指定，否则将按迭代顺序执行操作（如果指定了迭代顺序）。操作引发的异常将中继到调用方。
+	getMappedValue():V 
+		返回添加的默认映射值，如果不支持添加，则返回null。
+	hashCode():int 
+		返回对象的哈希代码值。为了有利于哈希表（如哈希映射提供的哈希表），支持此方法。
+		hashCode的所有约定如下：
+			● 每当Java应用程序执行过程中在同一对象上多次调用时，hashCode方法必须始终返回相同的整数，如果没有修改对象中的相等信息。从应用程序的一次执行到同一应用程序的另一次执行，这个整数不需要保持一致。
+			● 如果两个对象根据equals(object)方法相等，则对两个对象中的每个对象调用hashcode方法都必须产生相同的整数结果。
+			● 如果两个对象根据Object.equals(java.lang.Object)方法不相等，则不需要调用两个对象中的每个对象的hashcode方法必须产生不同的整数结果。但是，程序员应该知道，为不同的对象生成不同的整数结果可能会提高哈希表的性能。
+		只要合理可行，类对象定义的hashCode方法就不会为不同的对象返回不同的整数。（这通常是通过将对象的内部地址转换成整数来实现的，但是Java实现程序语言不需要这种实现技术。）
+	iterator():Iterator<K> 
+		返回此集合中元素的迭代器。
+		返回的迭代器弱一致。
+	remove(Object o):boolean 
+		通过从备份映射中删除键（及其相应的值），从该映射视图中删除键。如果键不在映射中，则此方法不执行任何操作。
+		【Throws】：
+			NullPointerException 如果指定的key为null
+	spliterator():Spliterator<K> 
+		在此集合中的元素上创建拆分器。
+		spliterator报告Spliterator.DISTINCT。实现应该记录额外特征值的报告。
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法。	
