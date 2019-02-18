@@ -1,0 +1,141 @@
+----------------------------------------CountDownLatch--------------------------------------------------------------------------------------------------------------
+CountDownLatch：倒计数锁。【Since:1.5】
+	一种同步辅助工具，允许一个或多个线程等到在其它线程中执行的一组操作完成为止。
+	CountDownLatch是用给定的计数初始化的。await方法由于countDown()方法的调用而阻塞，直到当前计数达到零，然后释放所有等待线程，并且等待的任何后续调用立即返回。这是一种一次性现象——计数无法重置。如果您需要重置计数的版本，请考虑使用CyclicBarrier。
+	CountDownLatch是一种通用的同步工具，可以用于多种用途。用一个数初始化的CountDownLatch充当一个简单的开/关闩锁或门：所有调用await的线程都在门处等待，直到它被调用countDown()的线程打开。初始化为n的CountDownLatch可用于使一个线程等待，直到n个线程完成了某个操作，或某个操作已完成n次。
+	CountDownLatch的一个有用属性是，它不要求调用countDown的线程在继续之前等待计数达到零，它只是阻止任何线程继续通过await，直到所有线程都可以通过为止。
+	示例用法：这里是一对类，其中一组工作线程使用两个倒计数锁：
+		● 第一个是启动信号，阻止任何工人继续工作，直到司机准备好让他们继续工作；
+		● 第二个是一个完成信号，允许驾驶员等待所有工人完成。
+		 class Driver { // ...
+		   void main() throws InterruptedException {
+		     CountDownLatch startSignal = new CountDownLatch(1);
+		     CountDownLatch doneSignal = new CountDownLatch(N);
+		
+		     for (int i = 0; i < N; ++i) // create and start threads
+		       new Thread(new Worker(startSignal, doneSignal)).start();
+		
+		     doSomethingElse();            // don't let run yet
+		     startSignal.countDown();      // let all threads proceed
+		     doSomethingElse();
+		     doneSignal.await();           // wait for all to finish
+		   }
+		 }
+		
+		 class Worker implements Runnable {
+		   private final CountDownLatch startSignal;
+		   private final CountDownLatch doneSignal;
+		   Worker(CountDownLatch startSignal, CountDownLatch doneSignal) {
+		     this.startSignal = startSignal;
+		     this.doneSignal = doneSignal;
+		   }
+		   public void run() {
+		     try {
+		       startSignal.await();
+		       doWork();
+		       doneSignal.countDown();
+		     } catch (InterruptedException ex) {} // return;
+		   }
+		
+		   void doWork() { ... }
+		 }
+	另一个典型的用法是将一个问题分为N个部分，用一个可运行文件（Runnable）描述每个部分，该文件执行该部分并在锁存器上倒计数，然后将所有可运行文件（Runnable）排队给执行器。当所有子部件都完成时，协调线程将能够通过await。（当线程必须以这种方式重复倒计数时，请使用CyclicBarrier。）
+		 class Driver2 { // ...
+		   void main() throws InterruptedException {
+		     CountDownLatch doneSignal = new CountDownLatch(N);
+		     Executor e = ...
+		
+		     for (int i = 0; i < N; ++i) // create and start threads
+		       e.execute(new WorkerRunnable(doneSignal, i));
+		
+		     doneSignal.await();           // wait for all to finish
+		   }
+		 }
+		
+		 class WorkerRunnable implements Runnable {
+		   private final CountDownLatch doneSignal;
+		   private final int i;
+		   WorkerRunnable(CountDownLatch doneSignal, int i) {
+		     this.doneSignal = doneSignal;
+		     this.i = i;
+		   }
+		   public void run() {
+		     try {
+		       doWork(i);
+		       doneSignal.countDown();
+		     } catch (InterruptedException ex) {} // return;
+		   }
+		
+		   void doWork() { ... }
+		 }
+	内存一致性影响：在计数为零之前，在调用countDown()之前的线程中的操作发生在从另一个线程中的相应await()成功返回之后的操作之前。
+	
+	
+	
+	类定义：public class CountDownLatch
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public CountDownLatch(int count)
+		构造用给定计数初始化的CountDownLatch。
+		【Throws】：
+			IllegalArgumentException 如果count为负数
+			
+Method Summary（方法概要）：
+	await():void 
+		使当前线程等待直到锁计数为零，除非线程被中断。
+		如果当前计数为零，则此方法立即返回。
+		如果当前计数大于零，则出于线程调度目的，当前线程将被禁用，并处于休眠状态，直到发生以下两种情况之一：
+			● 由于countDown()方法的调用，计数达到零；或
+			● 其他一些线程中断当前线程。
+		如果当前线程：
+			● 在进入此方法时是否设置了中断状态；或
+			● 在等待时被中断，
+		然后抛出InterruptedException，并清除当前线程的中断状态。
+		【Throws】：
+			InterruptedException 如果当前线程在等待时中断
+	await(long timeout, TimeUnit unit):boolean 
+		timeout - 最长等待时间
+		unit - timeout参数的时间单位
+		使当前线程等待直到锁计数为零，除非线程被中断或指定的等待时间已过。
+		如果当前计数为零，则此方法立即返回值为true的值。
+		如果当前计数大于零，则出于线程调度目的，当前线程将被禁用，并处于休眠状态，直到发生以下三种情况之一：
+			● 由于countdown（）方法的调用，计数达到零；或
+			● 其他线程中断当前线程；或
+			● 指定的等待时间已过。
+		如果计数为零，则方法返回值为true。
+		如果当前线程：
+			● 在进入此方法时是否设置了中断状态；或
+			● 在等待时被中断，
+		然后抛出InterruptedException异常，并清除当前线程的中断状态。
+		如果指定的等待时间已过，则返回值false。如果时间小于或等于零，该方法将根本不等待。
+		【Throws】：
+			InterruptedException 如果当前线程在等待时中断
+	countDown():void 
+		锁计数递减，如果计数到达零，释放所有等待的线程。
+		如果当前计数大于零，则它将递减。如果新的计数为零，那么为了线程调度的目的，将重新启用所有等待线程。
+		如果当前计数等于零，则不会发生任何情况。
+	getCount():long 
+		返回当前计数。
+		此方法通常用于调试和测试目的。
+	toString():String 
+		返回一个标识此锁及其状态的字符串。括号中的状态包括字符串“Count =”后跟当前计数。
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
