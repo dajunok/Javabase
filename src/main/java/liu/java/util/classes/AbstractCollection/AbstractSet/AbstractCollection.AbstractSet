@@ -11,11 +11,11 @@ AbstractSet<E>：抽象集合。【Since:1.2】
 	子类		：ConcurrentSkipListSet, CopyOnWriteArraySet, EnumSet, HashSet, TreeSet
 	实现接口	：Iterable<E>,Collection<E>,Set<E>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-构造器：
+Constructor Summary（构造器概要）
 	protected AbstractSet()
 		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
 
-方法：
+Method Summary（方法概要）：
 	equals(Object o):boolean 
 		△ 将指定的对象与此集进行相等比较。如果给定对象也是一个集合，则返回“true”，两个集合的大小相同，并且给定集合的每个成员都包含在此集合中。这样可以确保equals方法在set接口的不同实现中正常工作。
 		此实现首先检查指定的对象是否是此集合；如果是，则返回true。然后，它检查指定对象是否是一个大小与该集大小相同的集；如果不是，则返回false。如果是，则返回containsAll((Collection) o)。

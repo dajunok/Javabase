@@ -25,7 +25,7 @@ Method Summary（方法概要）：
 		【Throws】：
 			NullPointerException 如果指定的元素为null。
 	addAll(Collection<? extends E> c):boolean 
-		△ 将指定集合中的所有元素追加到此Deque的末尾，顺序是指定集合的迭代器返回这些元素。Deque试图将自身自身作为指定集合操作addAll会导致IllegalArgumentException。
+		△ 将指定集合中的所有元素追加到此Deque的末尾，顺序是指定集合的迭代器返回这些元素。Deque试图将自身作为指定集合操作addAll会导致IllegalArgumentException。
 		【Throws】：
 			NullPointerException 如果指定的集合或其任何元素为null。
 			IllegalArgumentException - 如果指定集合是Deque自身。

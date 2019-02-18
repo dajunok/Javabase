@@ -1,0 +1,284 @@
+----------------------------------------ConcurrentSkipListMap<K,V>--------------------------------------------------------------------------------------------------------------
+ConcurrentSkipListMap<K,V>：并发跳表映射。【Since:1.6】
+	<K>	此映射维护的键的类型
+	<V>	映射值的类型
+	可扩展的并发ConcurrentNavigableMap实现。映射是根据其键的自然顺序排序的，或者通过在映射创建时提供的比较器排序的，这取决于使用的是哪个构造函数。
+	此类实现SkipList的并发变量，为containsKey、get、put和remove操作及其变量提供预期的平均log(n)时间成本。插入、删除、更新和访问操作由多个线程同时安全地执行。
+	迭代器和拆分器是弱一致性的。
+	升序键顺序视图及其迭代器比降序视图更快。
+	此类及其视图中方法返回的所有Map.Entry键值对都表示生成映射时映射的快照。它们不支持Entry.setValue方法。（但是，请注意，可以使用put、putIfAbsent或replace更改关联映射中的映射，具体取决于您需要的效果。）
+	请注意，与大多数集合不同，size方法不是一个常量时间操作。由于这些映射的异步性质，确定当前元素数需要遍历元素，因此如果在遍历期间修改此集合，则可能会报告不准确的结果。此外，批量操作putAll、equals、toArray、containsValue和clear不能保证自动执行。例如，与putAll操作并发的迭代器可能只查看部分添加的元素。
+	这个类及其视图和迭代器实现了Map和Iterator接口的所有可选方法。与大多数其他并发集合一样，此类不允许使用null键或null值，因为某些null返回值不能与缺少元素可靠地区分开来。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V> implements ConcurrentNavigableMap<K,V>, Cloneable, Serializable
+	内部类	：AbstractMap.SimpleEntry<K,V>, AbstractMap.SimpleImmutableEntry<K,V>
+	实现接口	：Map<K,V>, NavigableMap<K,V>, SortedMap<K,V>,ConcurrentMap<K,V>, ConcurrentNavigableMap<K,V>, Cloneable, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ConcurrentSkipListMap()
+		构造一个新的空映射，按照键的自然顺序排序。
+	public ConcurrentSkipListMap(Comparator<? super K> comparator)
+		构造一个新的空映射，根据指定的比较器进行排序。
+	public ConcurrentSkipListMap(Map<? extends K, ? extends V> m)
+		构造一个新映射，该映射包含与给定映射相同的映射，并按照键的自然顺序排序。
+		【Throws】：
+			ClassCastException 如果m中的键不可比较或不可相互比较
+			NullPointerException 如果指定的映射或其任何键或值为null		
+	public ConcurrentSkipListMap(SortedMap<K, ? extends V> m)
+		构造一个新映射，该映射包含相同的映射，并且使用与指定的已排序映射相同的顺序。
+		【Throws】：
+			NullPointerException 如果指定的排序映射或其任何键或值为null	
+
+Method Summary（方法概要）：
+	ceilingEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系，它与大于等于给定键的最小键关联；如果不存在这样的键，则返回 null。返回的项不支持Entry.setValue方法。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	ceilingKey(K key):K 
+		返回大于或等于给定键的最小键，如果没有该键，则返回null。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	clear():void 
+		从该Map中删除所有映射。
+	clone():ConcurrentSkipListMap<K,V> 
+		返回此ConcurrentSkipListMap实例的浅副本。（键和值本身不克隆。）
+	comparator():Comparator<? super K> 
+		返回用于排序此映射中键的比较器，如果此映射使用其键的自然顺序，则返回null。
+	compute(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):V 
+		尝试计算指定键及其当前映射值的映射（如果没有当前映射，则为空）。该函数不能保证原子地应用一次。
+		返回与指定键关联的新值，如果没有，则为空
+		【Throws】：
+			NullPointerException 如果指定的key为null或者remappingFunction为null。
+	computeIfAbsent(K key,Function<? super K, ? extends V> mappingFunction):V 
+		如果指定的键尚未与值关联，则尝试使用给定的映射函数计算其值，并将其输入到此映射，除非为null。该函数不能保证仅在不存在该值时原子地应用一次。
+		返回与指定键关联的当前值（现有值或计算值），如果计算值为空，则为空。
+		【Throws】：
+			NullPointerException 如果指定的key为null或者mappingFunction为null。
+	computeIfPresent(K key,BiFunction<? super K, ? super V, ? extends V> remappingFunction):V 
+		如果指定键的值存在，则尝试在给定键及其当前映射值的情况下计算新映射。该函数不能保证原子地应用一次。
+		返回与指定键关联的新值，如果没有，则为null
+		【Throws】：
+			NullPointerException 如果指定的key为null或者remappingFunction为null。
+	containsKey(Object key):boolean 
+		如果此映射包含指定键的映射，则返回true。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与映射中当前的键进行比较
+			NullPointerException 如果指定的key为null或者mappingFunction为null。
+	containsValue(Object value):boolean 
+		如果此映射将一个或多个键映射到指定值，则返回true。此操作需要map大小的线性时间。此外，在执行此方法期间，映射可能会发生更改，在这种情况下，返回的结果可能不准确。
+		【Throws】：
+			NullPointerException 如果指定的value为null
+	descendingKeySet():NavigableSet<K> 
+		△ 返回此映射中包含的键的NavigableSet视图。集合的迭代器按升序返回键。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+		视图的迭代器和拆分器是弱一致性。
+	descendingMap():ConcurrentNavigableMap<K,V> 
+		返回此map中所包含映射关系的逆序视图。降序映射由此map支持，因此对map的更改反映在降序映射中，反之亦然。
+		返回的映射与Collections.reverseOrder(comparator())具有相同的顺序。表达式m.descendingMap().descendingMap()返回实质上等同于m的视图。
+	entrySet():Set<Map.Entry<K,V>> 
+		返回此映射中包含的映射的集合视图。
+		集合的迭代器按升序键顺序返回条目。该集合的spliterator还报告Spliterator.CONCURRENT、Spliterator.NONNULL、 Spliterator.SORTED和Spliterator.ORDERED，其遇到顺序为升序。
+		集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove、Set.remove、removeAll、retainAll和clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+		视图的迭代器和拆分器弱一致。
+		迭代器或拆分器遍历的Map.Entry元素不支持setValue操作。
+	equals(Object o):boolean 
+		将指定的对象与此映射进行相等比较。如果给定对象也是映射，并且两个映射表示相同的映射，则返回true。更正式地说，如果m1.entrySet().equals(m2.entrySet())，则两个映射m1和m2表示相同的映射。如果在执行此方法期间同时修改其中一个映射，则此操作可能返回误导性结果。
+	firstEntry():Map.Entry<K,V> 
+		返回与此映射中最小键关联的键值映射，如果映射为空，则返回空。返回的项不支持Entry.setValue方法。
+	firstKey():K 
+		返回此映射中当前的第一个（最低）键。
+		【Throws】：
+			NoSuchElementException 如果map为空
+	floorEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系(Entry)，它与小于等于给定键的最大键关联；如果不存在这样的键，则返回 null。返回的项不支持Entry.setValue方法。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null，并且此映射不允许null键
+	floorKey(K key):K 
+		返回小于等于给定键的最大键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	forEach(BiConsumer<? super K, ? super V> action):void 
+		对此映射中的每个条目（映射条目）执行给定的操作，直到所有条目都已处理或该操作引发异常为止。除非实现类另有指定，否则将按照条目集合迭代（如果指定了迭代顺序）的顺序执行操作。该操作引发的异常将中继到调用方。
+	get(Object key):V 
+		返回指定键映射到的值，如果此映射不包含键的映射，则返回null。
+		更正式地说，如果这个映射包含从键k到值v的映射，那么(key==null ? k==null : key.equals(k))，则此方法返回v；否则返回null。（最多可以有一个这样的映射。）
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	getOrDefault(Object key, V defaultValue):V 
+		返回指定键映射到的值，如果此映射不包含键的映射，则返回给定的默认值。
+		【Throws】：
+			NullPointerException 如果指定的key为null
+	headMap(K toKey):ConcurrentNavigableMap<K,V> 
+		△返回此地图中键严格小于toKey的部分视图。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		相当于调用headMap(toKey, false)。
+		【Throws】：
+			ClassCastException 如果toKey与map的比较器不兼容（或者，如果map没有比较器，如果toKey没有实现Comparable接口）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			NullPointerException 如果指定的键为null
+			IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	headMap(K toKey,boolean inclusive):ConcurrentNavigableMap<K,V> 
+		返回此映射的部分视图，其键小于（或等于，如果 inclusive 为 true）toKey。
+		【Throws】：
+			ClassCastException 如果toKey与map的比较器不兼容（或者，如果map没有比较器，如果toKey没有实现Comparable接口）。如果无法将toKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			NullPointerException 如果指定的键为null
+			IllegalArgumentException 如果这个map本身的范围是有限的，而toKey在范围之外
+	higherEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系，它与严格大于给定键的最小键关联；如果不存在这样的键，则返回 null。	返回的项不支持Entry.setValue方法。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	higherKey(K key):K 
+		返回严格大于给定键的最小键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null，并且此映射不允许null键
+	isEmpty():boolean 
+		如果此映射不包含键-值映射，则返回true。
+	keySet():NavigableSet<K> 
+		返回此映射中包含的键的NavigableSet视图。
+		集合的迭代器按升序返回键。该集合的spliterator还报告Spliterator.CONCURRENT、Spliterator.NONNULL、Spliterator.SORTED和Spliterator.ORDERED，如果映射的Comparator（请参见Comparator()）为空，则Spliterator的Comparator（请参见Spliterator.getComparator()）为空。否则，拆分器的比较器与map的比较器相同，或者实施与map的比较器相同的总排序。
+		集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+		视图的迭代器和拆分器是弱一致性。
+		该方法等价于navigableKeySet方法。
+	lastEntry():Map.Entry<K,V> 
+		返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。	返回的项不支持Entry.setValue方法。
+	lastKey():K 
+		返回此映射中当前的最后一个（最高）键。
+		【Throws】：
+			NoSuchElementException 如果此map为空
+	lowerEntry(K key):Map.Entry<K,V> 
+		返回一个键-值映射关系，它与严格小于给定键的最大键关联；如果不存在这样的键，则返回 null。	返回的项不支持Entry.setValue方法。
+		 【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	lowerKey(K key):K 
+		返回严格小于给定键的最大键；如果不存在这样的键，则返回 null。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的键为null
+	merge(K key, V value,BiFunction<? super V, ? super V, ? extends V> remappingFunction):V 
+		如果指定的键尚未与值关联或与null关联，请将其与给定的非空值关联。否则，将关联值替换为给定remappingFunction的结果，或者如果结果为空，则移除该值。该函数不能保证原子地应用一次。
+		【Throws】：
+			UnsupportedOperationException 如果此映射不支持set操作（可选）
+			ClassCastException  如果指定key或value的类阻止它存储在此映射中（可选）	
+			NullPointerException 如果指定的key或者value为nul，或remappingFunction结果为null。
+	navigableKeySet():NavigableSet<K> 
+		△ 返回此映射中包含的键的NavigableSet视图。集合的迭代器按升序返回键。集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove, Set.remove, removeAll, retainAll, 和clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+		图的迭代器和拆分器是弱一致性。
+	pollFirstEntry():Map.Entry<K,V> 
+		 移除并返回与此映射中的最小键关联的键-值映射关系(Entry)；如果映射为空，则返回 null。返回的项不支持Entry.setValue方法。
+	pollLastEntry():Map.Entry<K,V> 
+		移除并返回与此映射中的最大键关联的键-值映射关系；如果映射为空，则返回 null。返回的项不支持Entry.setValue方法。
+	put(K key, V value): V 
+		将指定的值与此映射中的指定键相关联（可选操作）。如果映射之前包含键的映射，则旧值将替换为指定的值。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的key或value为null
+	putIfAbsent(K key, V value):V 
+		如果指定的键尚未与某个值关联，则将其与给定值关联，这等效于：
+			 if (!map.containsKey(key))
+			   return map.put(key, value);
+			 else
+			   return map.get(key);
+		只不过动作是原子性的。
+		 【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的key或value为null
+	remove(Object key):V 
+		从该映射中删除指定键的映射（如果存在）。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的key或value为null
+	remove(Object key, Object value):boolean 
+		仅当当前映射到给定值时才删除键的项。这相当于
+			 if (map.containsKey(key) && Objects.equals(map.get(key), value)) {
+			   map.remove(key);
+			   return true;
+			 } else
+			   return false;	
+		只不过动作是原子性的。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的key或value为null
+	replace(K key, V value):V 
+		仅当当前映射到某个值时才替换键的条目。这相当于
+			 if (map.containsKey(key)) {
+			   return map.put(key, value);
+			 } else
+			   return null;
+		只不过动作是原子性的。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定的key或value为null
+	replace(K key, V oldValue, V newValue):boolean 
+		仅当当前映射到给定值时才替换键的条目。这相当于
+			 if (map.containsKey(key) && Objects.equals(map.get(key), oldValue)) {
+			   map.put(key, newValue);
+			   return true;
+			 } else
+			   return false;
+		只不过动作是原子性的。
+		【Throws】：
+			ClassCastException 如果无法将指定的键与map中当前的键进行比较
+			NullPointerException 如果指定任何参数为null
+	replaceAll(BiFunction<? super K, ? super V, ? extends V> function):void 
+		将每个条目的值替换为对该条目调用给定function的结果，直到所有条目都被处理或function引发异常为止。function抛出的异常将中继到调用方。
+	size():int 
+		返回此映射中的键值映射数量。如果此映射包含超过Integer.MAX_VALUE，则返回Integer.MAX_VALUE。
+		注意，与大多数集合不同，此方法不是一个常量时间（constant-time）操作。由于这些映射的异步特性，确定当前元素的数目需要遍历它们来计算它们。此外，在执行此方法的过程中，大小也可能发生变化，在这种情况下，返回的结果将不准确。因此，这种方法在并发应用程序中通常不太有用。
+	subMap(K fromKey,boolean fromInclusive,K toKey,boolean toInclusive):ConcurrentNavigableMap<K,V> 
+		返回此映射的部分视图，其键的范围从 fromKey 到 toKey。如果fromkey和tokey相等，则返回的映射为null，除非fromInclusive和toInclusive都为true。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键，或构造其端点位于其范围之外的子映射时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果不能使用这个map的比较器将fromKey和toKey相互比较（或者，如果map没有比较器，则使用自然顺序）。如果无法将fromKey或toKey与map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	subMap(K fromKey, K toKey):ConcurrentNavigableMap<K,V> 
+		△返回此映射的部分视图，其键的范围从fromKey（包含fromKey）到toKey（不包含toKey）。（如果fromKey和toKey相等，则返回的映射为null。）返回的映射由该映射支持，因此返回映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		这等效于subMap(fromKey, true, toKey, false)。
+		【Throws】：
+			● ClassCastException 如果不能使用这个map的比较器将fromKey和toKey相互比较（或者，如果map没有比较器，则使用自然顺序）。如果无法将fromKey或toKey与map中当前的键进行比较，则实现可能会（但不需要）抛出此异常。
+			● NullPointerException 如果fromKey或toKey为null
+			● IllegalArgumentException 如果fromKey大于toKey；或者如果此map本身的范围受到限制，并且fromKey或toKey位于范围的边界之外
+	tailMap(K fromKey):ConcurrentNavigableMap<K,V> 
+		△ 返回此映射中键大于或等于fromKey的部分视图。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		这等效于tailMap(fromKey, true)。
+		【Throws】：
+			● ClassCastException 如果fromKey与map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而fromKey在范围之外
+	tailMap(K fromKey,boolean inclusive):ConcurrentNavigableMap<K,V> 
+		返回此映射的部分视图，其键大于（或等于，如果 inclusive 为 true）fromKey。返回的映射由该映射支持，因此返回的映射中的更改反映在该映射中，反之亦然。返回的映射支持此映射支持的所有可选映射操作。
+		返回的映射将在尝试插入超出其范围的键时引发IllegalArgumentException异常。
+		【Throws】：
+			● ClassCastException 如果fromKey与map的比较器不兼容（或者，如果map没有比较器，如果fromKey没有实现Comparable接口）。如果无法将fromKey与当前map中的键进行比较，则实现可能（但不需要）抛出此异常。
+			● NullPointerException 如果指定的键为null，并且此映射不允许null键
+			● IllegalArgumentException 如果这个map本身的范围是有限的，而fromKey在范围之外
+	values():Collection<V> 
+		返回此映射中包含的值的集合视图。
+		集合的迭代器按相应键的升序返回值。集合的spliterator还报告Spliterator.CONCURRENT、Spliterator.NONNULL 和 Spliterator.ORDERED特征，其遇到顺序为相应键的升序。
+		集合由映射支持，因此对映射的更改反映在集合中，反之亦然。集合支持元素移除，它通过Iterator.remove、Collection.remove、removeAll、retainAl和clear操作从映射中移除相应的映射。它不支持add或addAll操作。
+		视图的迭代器和拆分器是弱一致性。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	

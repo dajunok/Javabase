@@ -1,0 +1,164 @@
+----------------------------------------CopyOnWriteArrayList<E>--------------------------------------------------------------------------------------------------------------
+CopyOnWriteArrayList<E>：COW数组列表。【Since:1.5】
+	<E> 此集合维护的元素类型
+	ArrayList的一种线程安全变体，其中所有可变操作（add、set等）都是通过生成底层数组的新副本来实现的。
+	这通常成本太高，但是当遍历操作远远超过了数量变化时，这可能比其他方法更有效，并且当您不能或不想同步遍历，但需要排除并发线程之间的干扰时，这非常有用。“快照”样式的迭代器方法在迭代器创建时使用对数组状态的引用。此数组在迭代器的生命周期内不会更改，因此不可能发生干扰，迭代器保证不会引发ConcurrentModificationException。自创建迭代器以来，迭代器不会反映对列表的添加、删除或更改。不支持对迭代器本身（remove、set和and ）进行元素更改操作。这些方法引发UnsupportedOperationException异常。
+	允许所有元素，包括null元素。
+	内存一致性影响：与其他并发集合一样，在将对象放入CopyOnWriteArrayList之前，线程中的操作发生在从另一线程的CopyOnWriteArrayList中访问或删除该元素之后的操作之前。
+	该类是Java集合框架的成员。
+	
+	
+	类定义	：public class CopyOnWriteArrayList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+	实现接口	：List<E>, RandomAccess, Cloneable, java.io.Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public CopyOnWriteArrayList()
+		创建空列表。
+	public CopyOnWriteArrayList(E[] toCopyIn)
+		创建包含给定数组副本的列表。
+		【Throws】：
+			NullPointerException 如果指定的array为null
+	public CopyOnWriteArrayList(Collection<? extends E> c)
+		按集合迭代器返回元素的顺序，创建包含指定集合的元素的列表。
+		【Throws】：
+			NullPointerException 如果指定的集合为null	
+			
+Method Summary（方法概要）：
+	add(E e):boolean 
+		将指定的元素追加到此列表的结尾。
+	add(int index, E element):void 
+		△ 在此列表中的指定位置插入指定的元素。将当前位于该位置的元素（如果有）和任何后续元素右移（在其索引中添加一个元素）。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围(index < 0 || index > size())。
+	addAll(int index, Collection<? extends E> c):boolean 
+		△ 将指定集合中的所有元素从指定位置开始插入此列表。将当前位于该位置的元素（如果有）和任何后续元素右移（增加其索引）。新元素将按指定集合的迭代器返回它们的顺序出现在列表中。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+			NullPointerException 如果指定的集合为null
+	addAll(Collection<? extends E> c):boolean 
+		△ 按指定集合的迭代器返回元素的顺序，将指定集合中的所有元素追加到此列表的末尾。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+	addAllAbsent(Collection<? extends E> c):int 
+		将指定集合中尚未包含在此列表中的所有元素追加到此列表的末尾，顺序为指定集合的迭代器返回这些元素的顺序。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+	addIfAbsent(E e):boolean 
+		添加元素（如果不存在）。如果添加了元素，则返回true
+	clear():void 
+		删除此列表中的所有元素。此调用返回后，列表将为空。
+	clone():Object 
+		返回此列表的浅副本。（不复制元素本身。）
+	contains(Object o):boolean 
+		△ 如果此列表包含指定元素，则返回true。更正式地说，如果并且仅当此列表包含至少一个元素e(o==null ? e==null : o.equals(e))。
+	containsAll(Collection<?> c):boolean 
+		如果此列表包含指定集合的所有元素，则返回true。
+		【Throws】：
+			NullPointerException 如果指定的集合为null
+	equals(Object o):boolean 
+		将指定的对象与此列表比较是否相等。如果指定的对象与此对象是同一对象，或者它也是列表，并且由迭代器在指定列表上返回的元素序列与迭代器在此列表上返回的序列相同，则返回true。如果两个序列的长度相同，并且序列中相同位置的对应元素相同，则认为这两个序列是相同的。如果(e1==null ? e2==null : e1.equals(e2))，则认为e1和e2两个元素相等。
+	forEach(Consumer<? super E> action):void 
+		对Iterable的每个元素执行给定的操作，直到所有元素都被处理或操作引发异常为止。除非实现类另有指定，否则将按迭代顺序执行操作（如果指定了迭代顺序）。操作引发的异常将中继到调用方。
+	get(int index):E 
+		返回此列表中指定位置的元素。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	hashCode():int 
+		返回此列表的哈希代码值。
+		此实现使用List.hashCode()中的定义。
+	indexOf(E e, int index):int 
+		返回此列表中指定元素的第一个匹配项的索引，从索引中向前搜索，如果找不到该元素，则返回-1。更正式地说，返回最低的索引i，如果没有这样的索引，则返回(i >= index && (e==null ? get(i)==null : e.equals(get(i))))或-1。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	indexOf(Object o):int 
+		返回此列表中指定元素最后一次出现的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最高的索引i，如果没有这样的索引，则返回(o==null ? get(i)==null : o.equals(get(i)))或-1。
+	isEmpty():boolean 
+		如果此列表不包含元素，则返回true。
+	iterator():Iterator<E> 
+		以正确的顺序返回此列表中元素的迭代器。
+		返回的迭代器提供构造迭代器时列表状态的快照。遍历迭代器时不需要同步。迭代器不支持移除方法。
+	lastIndexOf(E e, int index):int 
+		返回此列表中指定元素最后一次出现的索引，从索引向后搜索，如果找不到该元素，则返回-1。更正式地说，返回最高的索引i，如果没有这样的索引，则返回(i <= index && (e==null ? get(i)==null : e.equals(get(i))))或-1。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	lastIndexOf(Object o):int 
+		返回此列表中指定元素最后一次出现的索引，如果此列表不包含元素，则返回-1。更正式地说，返回最高的索引i，如果没有这样的索引，则返回(o==null ? get(i)==null : o.equals(get(i)))或-1。
+	listIterator():ListIterator<E> 
+		返回此列表中元素的列表迭代器（按正确的顺序）。
+		返回的迭代器提供构造迭代器时列表状态的快照。遍历迭代器时不需要同步。迭代器不支持remove、set或add方法。
+	listIterator(int index):ListIterator<E> 
+		返回此列表中元素的列表迭代器（按正确的顺序），从列表中的指定位置开始。指定的索引指示将通过对next的初始调用返回的第一个元素。对previous的初始调用将返回具有指定索引减去1的元素。
+		返回的迭代器提供构造迭代器时列表状态的快照。遍历迭代器时不需要同步。迭代器不支持remove、set或add方法。
+		【Throws】：
+			IndexOutOfBoundsException 如果指定的索引为负
+	remove(int index):E 
+		删除此列表中指定位置的元素。将任何后续元素向左移动（从其索引中减去一个）。返回从列表中删除的元素。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	remove(Object o):boolean 
+		从该列表中删除指定元素的第一个匹配项（如果存在）。如果此列表不包含元素，则它是不变的。更正式地说，删除索引i最低的元素(o==null ? get(i)==null : o.equals(get(i)))（如果存在这样的元素）。如果此列表包含指定元素，则返回“true”（如果此列表因调用而更改，则返回“等效”）。
+	removeAll(Collection<?> c):boolean 
+		从此列表中删除指定集合中包含的所有元素。在这个类中，这是一个特别昂贵的操作，因为需要一个内部临时数组。
+		【Throws】：
+			ClassCastException 如果此列表的元素的类与指定的集合不兼容（可选）
+			NullPointerException 如果此列表包含空元素，并且指定的集合不允许空元素（可选），或者指定的集合为空
+	removeIf(Predicate<? super E> filter):boolean 
+		删除此集合中满足给定过滤器的所有元素。迭代期间或过滤器引发的错误或运行时异常将中继到调用方。
+	replaceAll(UnaryOperator<E> operator):void 
+		将此列表中的每个元素替换为将运算符应用于该元素的结果。由运算符引发的错误或运行时异常将中继到调用方。
+	retainAll(Collection<?> c):boolean 
+		仅保留此列表中包含在指定集合中的元素。换句话说，从该列表中删除不包含在指定集合中的所有元素。
+		【Throws】：
+			ClassCastException 如果此列表的元素的类与指定的集合不兼容（可选）
+			NullPointerException 如果此列表包含空元素，并且指定的集合不允许空元素（可选），或者指定的集合为空
+	set(int index, E element):E 
+		用指定的元素替换此列表中指定位置的元素。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引超出范围 (index < 0 || index > size())
+	size():int 
+		返回此列表中的元素数量。
+	sort(Comparator<? super E> c):void 
+		根据c指定的比较规则（比较器）对容器元素进行排序。
+		此列表中的所有元素都必须使用指定的比较器进行相互比较（即，c.compare(e1, e2)不能对列表中的任何元素e1和e2抛出ClassCastException异常）。
+		如果指定的comparator为空，那么列表中的所有元素都必须实现Comparable接口，并且应该使用元素的自然顺序。
+		此列表必须可修改，但不必调整大小。
+	spliterator():Spliterator<E> 
+		返回此列表中元素的拆分器。
+		拆分器报告Spliterator.IMMUTABLE、Spliterator.ORDERED、Spliterator.SIZED和Spliterator.SUBSIZED。
+		拆分器在构造拆分器时提供列表状态的快照。在拆分器上操作时不需要同步。
+	subList(int fromIndex, int toIndex):List<E> 
+		返回此列表中fromIndex、inclusive和toIndex、exclusive之间部分的视图。此列表支持返回列表，因此返回列表中的更改将反映在此列表中。
+		如果通过返回列表以外的任何方式修改支持列表（即此列表），则此方法返回的列表的语义将变为不确定。
+	toArray():Object[] 
+		返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素。
+		返回的数组将是“安全的”，因为此列表不维护对它的引用。（换句话说，此方法必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T a[]):<T> T[] 
+		返回一个数组，该数组按正确的顺序（从第一个元素到最后一个元素）包含此列表中的所有元素；返回的数组的运行时类型是指定数组的运行时类型。如果列表符合指定的数组，则将在其中返回。否则，将为新数组分配指定数组的运行时类型和此列表的大小。
+		如果此列表适合具有备用空间的指定数组（即，数组中的元素多于此列表），则紧跟列表末尾的数组中的元素将设置为空。（只有当调用方知道此列表不包含任何空元素时，此选项才有助于确定此列表的长度。）
+		与ttoArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		假设x是一个已知仅包含字符串的列表。以下代码可用于将列表转储到新分配的字符串数组中：
+			String[] y = x.toArray(new String[0]);
+		请注意，toArray(new Object[0])功能与toArray()相同
+		【Throws】：
+			ArrayStoreException 如果指定数组的运行时类型不是此列表中每个元素的运行时类型的父类型
+			NullPointerException 如果指定的array为null
+	toString():String 
+		返回此列表的字符串表示形式。字符串表示形式由列表元素的字符串表示形式组成，按迭代器返回这些元素的顺序排列，用方括号（“[]”）括起来。相邻元素由字符“，”（逗号和空格）分隔。元素按String.valueOf(Object)转换为字符串。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
