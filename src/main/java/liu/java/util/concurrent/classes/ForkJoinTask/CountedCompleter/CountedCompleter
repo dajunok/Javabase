@@ -1,0 +1,280 @@
+----------------------------------------CountedCompleter<T>--------------------------------------------------------------------------------------------------------------
+CountedCompleter<T>：计数完成器。【Since:1.8】
+	一种ForkJoinTask，在触发时执行完成操作，并且没有剩余的挂起操作。CountedCompleter在子任务暂停和阻塞的情况下通常比ForkJoinTask的其他形式更强大，但编程时不太直观。CountedCompleter的使用类似于其他基于完成的组件（如CompletionHandler），但可能需要多个待定完成来触发完成操作onCompletion(CountedCompleter)，而不仅仅是一个。除非另行初始化，否则挂起的计数从零开始，但可以（原子地）使用方法setPendingCount(int)、addToPendingCount(int)和compareAndSetPendingCount(int, int)更改。调用tryComplete()时，如果挂起的操作计数不为零，则递减；否则，将执行完成操作，如果此完成器（completer）本身具有completer，则流程将继续其completer。与Phaser和Semaphore等相关同步组件一样，这些方法只影响内部计数；它们不建立任何进一步的内部记账。特别是，挂起任务的标识不被维护。如下图所示，您可以创建子类，在需要时记录一些或所有挂起的任务或其结果。如下图所示，还提供了支持完成遍历定制的实用方法。但是，由于CountedCompleters只提供基本的同步机制，因此创建进一步的抽象子类可能会很有用，这些子类维护链接、字段和适合于一组相关用途的其他支持方法。
+	具体的CountedCompleter类必须定义方法compute()，在大多数情况下（如下图所示），在返回之前调用一次tryComplete()。类还可以选择重写方法onCompletion(CountedCompleter)以在正常完成时执行操作，以及方法onExceptionalCompletion(Throwable, CountedCompleter)以在任何异常时执行操作。
+	CountedCompleter通常不包含结果，在这种情况下，它们通常声明为CountedCompleter<Void>，并且作为结果值总是返回null。在其他情况下，您应该重写方法getRawResult()以提供join()、invoke()和相关方法的结果。通常，此方法应返回在完成时保存结果的CountedCompleter对象的字段（或一个或多个字段的函数）的值。方法setRawResult(T)在CountedCompleter中默认不起作用。可以（但很少适用）重写此方法以维护保存结果数据的其他对象或字段。
+	一个本身没有完成器的CountedCompleter（即getCompleter()返回null的CountedCompleter）可以用作具有此添加功能的常规ForkJoinTask。但是，任何具有另一个完成器的完成器只能作为其他计算的内部助手，因此其自身的任务状态（如ForkJoinTask.isDone()等方法中报告的）是任意的；此状态仅在明确调用complete(T)、ForkJoinTask.cancel(boolean)、ForkJoinTask.completeExceptionally(Throwable)或异常完成方法计算时更改。在任何异常完成时，如果存在异常并且该异常尚未完成，则该异常可以中继到任务的完成器（及其完成器，等等）。类似地，取消一个内部的CountedCompleter只对该Completer有局部影响，因此通常没有用。
+	
+	使用样板：
+	并行递归分解。CountedCompleter可以安排在树中，类似于那些经常与递归操作一起使用的树，尽管涉及设置它们的构造通常是不同的。在这里，每个任务的完成器是它在计算树中的父级。即使它们需要更多的簿记，当对数组或集合的每个元素应用可能耗时的操作（不能进一步细分）时，CountedCompleter可能是更好的选择；特别是当某些元素的完成时间明显不同于其他元素时，这可能是由于内部原因。变化（例如I/O）或辅助效应，如垃圾收集。因为CountedCompleter提供了自己的延续，所以其他线程不需要阻塞等待执行它们。
+	例如，这里是一个类的初始版本，它使用除以两个递归分解将工作划分为单个部分（叶任务）。即使将工作拆分为单个调用，基于树的技术通常也比直接分叉叶任务更可取，因为它们减少了线程间的通信并提高了负载平衡。在递归情况下，每对要完成的子任务中的第二个子任务将触发其父任务的完成（因为没有执行结果组合，所以方法onCompletion的默认no-op实现不会被重写）。静态实用工具方法设置基本任务并调用它（此处，隐式使用ForkJoinPool.commonPool()）。
+		 class MyOperation<E> { void apply(E e) { ... }  }
+		
+		 class ForEach<E> extends CountedCompleter<Void> {
+		
+		   public static <E> void forEach(E[] array, MyOperation<E> op) {
+		     new ForEach<E>(null, array, op, 0, array.length).invoke();
+		   }
+		
+		   final E[] array; final MyOperation<E> op; final int lo, hi;
+		   ForEach(CountedCompleter<?> p, E[] array, MyOperation<E> op, int lo, int hi) {
+		     super(p);
+		     this.array = array; this.op = op; this.lo = lo; this.hi = hi;
+		   }
+		
+		   public void compute() { // version 1
+		     if (hi - lo >= 2) {
+		       int mid = (lo + hi) >>> 1;
+		       setPendingCount(2); // must set pending count before fork
+		       new ForEach(this, array, op, mid, hi).fork(); // right child
+		       new ForEach(this, array, op, lo, mid).fork(); // left child
+		     }
+		     else if (hi > lo)
+		       op.apply(array[lo]);
+		     tryComplete();
+		   }
+		 }	
+	这种设计可以通过注意到在递归的情况下，任务在分叉其右任务之后没有任何事情可做，因此可以在返回前直接调用其左任务。（这类似于尾部递归删除。）此外，由于任务在执行其左任务时返回（而不是通过调用TryComplete），挂起计数设置为1：
+		 class ForEach<E> ...
+		   public void compute() { // version 2
+		     if (hi - lo >= 2) {
+		       int mid = (lo + hi) >>> 1;
+		       setPendingCount(1); // only one pending
+		       new ForEach(this, array, op, mid, hi).fork(); // right child
+		       new ForEach(this, array, op, lo, mid).compute(); // direct invoke
+		     }
+		     else {
+		       if (hi > lo)
+		         op.apply(array[lo]);
+		       tryComplete();
+		     }
+		   }	
+	作为进一步的改进，注意左边的任务甚至不需要存在。我们可以使用原始任务迭代，并为每个分叉添加一个挂起的计数，而不是创建一个新的分叉。此外，由于此树中没有任务实现onCompletion(CountedCompleter)方法，因此可以将tryComplete()替换为propagateCompletion()。
+		 class ForEach<E> ...
+		   public void compute() { // version 3
+		     int l = lo,  h = hi;
+		     while (h - l >= 2) {
+		       int mid = (l + h) >>> 1;
+		       addToPendingCount(1);
+		       new ForEach(this, array, op, mid, h).fork(); // right child
+		       h = mid;
+		     }
+		     if (h > l)
+		       op.apply(array[l]);
+		     propagateCompletion();
+		   }	
+	此类类的其他改进可能需要预先计算待定计数，以便可以在构造函数中建立这些计数，为叶步骤专门化类，按例如四次（而不是每次迭代两次）进行细分，并使用自适应阈值而不是始终细分为单个元素。
+	搜索。CountedCompleters树可以在数据结构的不同部分搜索值或属性，并在找到结果后立即在原子引用中报告结果。其他人可以对结果进行投票，以避免不必要的工作。（您还可以取消其他任务，但通常更简单、更高效的做法是让他们注意到结果已设置，如果设置了结果，则跳过进一步的处理。）再次说明使用完全分区的数组（再次说明，实际上，叶任务几乎总是处理多个元素）：
+		 class Searcher<E> extends CountedCompleter<E> {
+		   final E[] array; final AtomicReference<E> result; final int lo, hi;
+		   Searcher(CountedCompleter<?> p, E[] array, AtomicReference<E> result, int lo, int hi) {
+		     super(p);
+		     this.array = array; this.result = result; this.lo = lo; this.hi = hi;
+		   }
+		   public E getRawResult() { return result.get(); }
+		   public void compute() { // similar to ForEach version 3
+		     int l = lo,  h = hi;
+		     while (result.get() == null && h >= l) {
+		       if (h - l >= 2) {
+		         int mid = (l + h) >>> 1;
+		         addToPendingCount(1);
+		         new Searcher(this, array, result, mid, h).fork();
+		         h = mid;
+		       }
+		       else {
+		         E x = array[l];
+		         if (matches(x) && result.compareAndSet(null, x))
+		           quietlyCompleteRoot(); // root task is now joinable
+		         break;
+		       }
+		     }
+		     tryComplete(); // normally complete whether or not found
+		   }
+		   boolean matches(E e) { ... } // return true if found
+		
+		   public static <E> E search(E[] array) {
+		       return new Searcher<E>(null, array, new AtomicReference<E>(), 0, array.length).invoke();
+		   }
+		 }	
+	在本例中，以及任务除比较和设置一个公共结果外没有其他效果的其他情况下，Trycomplete的无条件尾随调用可以成为条件调用（if (result.get() == null) tryComplete();），因为根任务完成后，不需要再进行簿记来管理完成。			 
+	记录子任务。组合多个子任务结果的CountedCompleter任务通常需要在方法onCompletion(CountedCompleter)中访问这些结果。如下面的类所示（它执行映射和缩减的简化形式，其中映射和缩减都是E类型），在分而治之的设计中实现这一点的一种方法是让每个子任务记录其同级，以便可以在方法OnCompletion中访问它。这种方法适用于组合左右结果的顺序无关紧要的缩减；有序的缩减需要明确的左右指定。上述示例中看到的其他流线型的变体也可能适用。	 
+		 class MyMapper<E> { E apply(E v) {  ...  } }
+		 class MyReducer<E> { E apply(E x, E y) {  ...  } }
+		 class MapReducer<E> extends CountedCompleter<E> {
+		   final E[] array; final MyMapper<E> mapper;
+		   final MyReducer<E> reducer; final int lo, hi;
+		   MapReducer<E> sibling;
+		   E result;
+		   MapReducer(CountedCompleter<?> p, E[] array, MyMapper<E> mapper,
+		              MyReducer<E> reducer, int lo, int hi) {
+		     super(p);
+		     this.array = array; this.mapper = mapper;
+		     this.reducer = reducer; this.lo = lo; this.hi = hi;
+		   }
+		   public void compute() {
+		     if (hi - lo >= 2) {
+		       int mid = (lo + hi) >>> 1;
+		       MapReducer<E> left = new MapReducer(this, array, mapper, reducer, lo, mid);
+		       MapReducer<E> right = new MapReducer(this, array, mapper, reducer, mid, hi);
+		       left.sibling = right;
+		       right.sibling = left;
+		       setPendingCount(1); // only right is pending
+		       right.fork();
+		       left.compute();     // directly execute left
+		     }
+		     else {
+		       if (hi > lo)
+		           result = mapper.apply(array[lo]);
+		       tryComplete();
+		     }
+		   }
+		   public void onCompletion(CountedCompleter<?> caller) {
+		     if (caller != this) {
+		       MapReducer<E> child = (MapReducer<E>)caller;
+		       MapReducer<E> sib = child.sibling;
+		       if (sib == null || sib.result == null)
+		         result = child.result;
+		       else
+		         result = reducer.apply(child.result, sib.result);
+		     }
+		   }
+		   public E getRawResult() { return result; }
+		
+		   public static <E> E mapReduce(E[] array, MyMapper<E> mapper, MyReducer<E> reducer) {
+		     return new MapReducer<E>(null, array, mapper, reducer,
+		                              0, array.length).invoke();
+		   }
+		 }				 
+	在这里，方法onCompletion采用了许多组合结果的完成设计的通用形式。此回调样式方法在挂起计数为或变为零的两个不同上下文中的任意一个中，每个任务触发一次：（1）由任务本身触发，如果在调用TryComplete时其挂起计数为零，或（2）由其任何子任务在完成时触发，并将挂起计数减为零。caller参数区分大小写。通常，当调用者是这样的时候，不需要任何操作。否则，可以使用调用者参数（通常通过强制转换）提供要组合的值（和/或指向其他值的链接）。假设正确使用挂起的计数，则完成任务及其子任务后将发生（一次）OnCompletion内的操作。此方法中不需要额外的同步，以确保访问此任务或其他已完成任务字段的线程安全。		
+	完成遍历。如果使用onCompletion处理完成不适用或不方便，可以使用方法firstComplete()和nextComplete()创建自定义遍历。例如，要定义仅以第三个ForEach示例的形式拆分右侧任务的MapReducer，完成操作必须沿着未扩展的子任务链接协同减少，可以按如下方式完成：
+		 class MapReducer<E> extends CountedCompleter<E> { // version 2
+		   final E[] array; final MyMapper<E> mapper;
+		   final MyReducer<E> reducer; final int lo, hi;
+		   MapReducer<E> forks, next; // record subtask forks in list
+		   E result;
+		   MapReducer(CountedCompleter<?> p, E[] array, MyMapper<E> mapper,
+		              MyReducer<E> reducer, int lo, int hi, MapReducer<E> next) {
+		     super(p);
+		     this.array = array; this.mapper = mapper;
+		     this.reducer = reducer; this.lo = lo; this.hi = hi;
+		     this.next = next;
+		   }
+		   public void compute() {
+		     int l = lo,  h = hi;
+		     while (h - l >= 2) {
+		       int mid = (l + h) >>> 1;
+		       addToPendingCount(1);
+		       (forks = new MapReducer(this, array, mapper, reducer, mid, h, forks)).fork();
+		       h = mid;
+		     }
+		     if (h > l)
+		       result = mapper.apply(array[l]);
+		     // process completions by reducing along and advancing subtask links
+		     for (CountedCompleter<?> c = firstComplete(); c != null; c = c.nextComplete()) {
+		       for (MapReducer t = (MapReducer)c, s = t.forks;  s != null; s = t.forks = s.next)
+		         t.result = reducer.apply(t.result, s.result);
+		     }
+		   }
+		   public E getRawResult() { return result; }
+		
+		   public static <E> E mapReduce(E[] array, MyMapper<E> mapper, MyReducer<E> reducer) {
+		     return new MapReducer<E>(null, array, mapper, reducer,
+		                              0, array.length, null).invoke();
+		   }
+		 }	
+	触发器。一些计数的完成器本身从不分叉，而是在其他设计中充当管道的一部分；包括那些完成一个或多个异步任务触发另一个异步任务的设计。例如：	
+		 class HeaderBuilder extends CountedCompleter<...> { ... }
+		 class BodyBuilder extends CountedCompleter<...> { ... }
+		 class PacketSender extends CountedCompleter<...> {
+		   PacketSender(...) { super(null, 1); ... } // trigger on second completion
+		   public void compute() { } // never called
+		   public void onCompletion(CountedCompleter<?> caller) { sendPacket(); }
+		 }
+		 // sample use:
+		 PacketSender p = new PacketSender();
+		 new HeaderBuilder(p, ...).fork();
+		 new BodyBuilder(p, ...).fork(); 
+	
+	
+	类定义	：public abstract class CountedCompleter<T> extends ForkJoinTask<T>
+	实现接口	：Future<V>, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected CountedCompleter()
+		创建一个新的CountedCompleter，没有完成器，初始挂起计数为零。
+	protected CountedCompleter(CountedCompleter<?> completer)
+		创建一个具有给定完成器和初始挂起计数为零的新CountedCompleter。
+	protected CountedCompleter(CountedCompleter<?> completer,int initialPendingCount)
+		创建具有给定完成器和初始挂起计数的新CountedCompleter。	
+Method Summary（方法概要）：
+	addToPendingCount(int delta):final void 
+		将给定值自动添加到挂起计数。
+	compareAndSetPendingCount(int expected, int count):final boolean
+		仅当挂起的计数当前保持给定的预期值expected时，才将其设置为给定的计数count。 如果成功则返回true。
+	complete(T rawResult):void 
+		△ 不管挂起的计数是多少，调用onCompletion(CountedCompleter)，将此任务标记为已完成，如果存在，则在此任务的完成器上进一步触发tryComplete()。给定的rawResult在调用onCompletion(CountedCompleter)或将此任务标记为完成之前用作setRawResult(T)的参数；其值仅对重写setRawResult的类有意义。此方法不修改挂起计数。
+		一旦获得几个子任务结果中的任何一个（相对于全部），此方法在强制完成时可能很有用。但是，在不重写setRawResult的常见（和推荐）情况下，可以更简单地使用quitellyCompleteRoot()；获得此效果。
+	compute():abstract void 
+		★ 此任务执行的主要计算。
+	decrementPendingCountUnlessZero():final int 
+		如果挂起的计数不为零，（原子地）递减它。
+		返回此方法项的初始（未递减时）挂起计数
+	exec():protected final boolean 
+		△ CountedCompleter的实现execution约定。
+		如果已知此任务已正常完成，则为true
+	firstComplete():final CountedCompleter<?> 
+		如果此任务的挂起计数为零，则返回此任务；否则，将减少其挂起计数并返回null。此方法设计用于完成遍历循环中的nextComplete()。
+	getCompleter():final CountedCompleter<?> 
+		返回在此任务的构造函数中建立的完成器，如果没有，则返回空值。
+	getPendingCount():final int 
+		返回当前挂起的计数。
+	getRawResult(): T 
+		△ 返回计算结果。默认情况下，返回null，这适用于void操作，但在其他情况下应该被重写，几乎总是返回在完成时保存结果的字段或字段的函数。
+	getRoot():final CountedCompleter<?> 
+		返回当前计算的root；即，如果此任务没有完成器，则返回其完成器的root。
+	helpComplete(int maxTasks):final void 
+		如果此任务尚未完成，则尝试最多处理给定数量的其他未处理任务，如果已知存在此任务，则此任务位于完成路径上。
+	nextComplete():final CountedCompleter<?> 
+		如果此任务没有完成符，则调用ForkJoinTask.quietlyComplete()并返回null。或者，如果完成器的挂起计数为非零，则递减该挂起计数并返回null。否则，返回完成器。此方法可以用作同构任务层次结构的完成遍历循环的一部分：
+			 for (CountedCompleter<?> c = firstComplete();
+			      c != null;
+			      c = c.nextComplete()) {
+			   // ... process c ...
+			 }		
+	onCompletion(CountedCompleter<?> caller):void 
+		当调用方法tryComplete()且挂起计数为零或调用无条件方法complete(T)时执行操作。默认情况下，此方法不执行任何操作。您可以通过检查给定调用方参数的标识来区分大小写。如果不等于此值，则它通常是一个子任务，可以包含要组合的结果（和/或指向其他结果的链接）。
+	onExceptionalCompletion(Throwable ex, CountedCompleter<?> caller):boolean 
+		当调用方法ForkJoinTask.completeExceptionally(Throwable)或方法compute()引发异常时执行操作，而此任务尚未正常完成。进入此方法后，此任务ForkJoinTask.isCompletedAbnormally()。此方法的返回值控制进一步传播：如果为true且此任务的完成器尚未完成，则该完成器也会异常完成，但与此完成器具有相同的异常。此方法的默认实现只执行返回true。
+	propagateCompletion():final void 
+		相当于tryComplete()，但不沿完成路径调用onCompletion(CountedCompleter)：如果挂起计数非零，则递减计数；否则，同样尝试完成此任务的完成者（如果存在），否则将此任务标记为完成。在计算中不应该或不需要为每个完成者调用onCompletion的情况下，此方法可能很有用。
+	quietlyCompleteRoot():final void 
+		等效于getRoot().quietlyComplete()。
+	setPendingCount(int count):final void 
+		将挂起计数设置为给定值。
+	setRawResult(T t):protected void 
+		△ 结果承载计数完成数的方法可以选择性地用于帮助维护结果数据。默认情况下，什么都不做。不建议覆盖。但是，如果此方法被重写以更新现有的对象或字段，则通常必须将其定义为线程安全的。
+	tryComplete():final void 
+		如果挂起计数不为零，则递减计数；否则调用onCompletion(CountedCompleter)，然后同样尝试完成此任务的完成者（如果存在），否则将此任务标记为完成。
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+		
+		
+		
+		

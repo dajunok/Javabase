@@ -1,0 +1,144 @@
+----------------------------------------ForkJoinTask<V>--------------------------------------------------------------------------------------------------------------
+ForkJoinTask<V>：分叉连接任务。【Since:1.7】
+	在ForkJoinPool中运行的任务的抽象基类。ForkJoinTask是一个类似于线程的实体，比普通线程轻得多。大量的任务和子任务可能由ForkJoinPool中的少量实际线程托管，但代价是存在一些使用限制。
+	一个“main” ForkJoinTask在显式提交到ForkJoinPool时开始执行，或者，如果尚未参与ForkJoin计算，则通过fork()、invoke()或相关方法在ForkJoinPool.commonPool()中开始执行。一旦启动，它通常会依次启动其他子任务。正如这个类的名称所指出的，许多使用ForkJoinTask的程序只使用方法fork()和join()，或者衍生出来的如invokeAll。然而，这个类还提供了许多其他可以在高级用法中使用的方法，以及允许支持新形式的fork/join处理的扩展机制。
+	ForkJoinTask是Future的轻量级形式。ForkJoinTask的效率源于一组限制（仅部分静态地可执行），反映出它们主要用作计算纯函数或在纯孤立对象上操作的计算任务。主要的协调机制是安排异步执行的fork()和join()，它们在计算任务结果之前不会继续执行。在理想情况下，计算应该避免同步方法或块，并且除了加入其他任务或使用同步器（如为配合fork/join调度而公布的相量器）之外，还应该最小化其他阻塞同步。可细分任务也不应执行阻塞I/O，理想情况下应访问完全独立于其他运行任务访问的变量。通过不允许抛出被检查的异常（如IOExceptions），这些准则被松散地执行。但是，计算可能仍然会遇到未经检查的异常，这些异常会重新传递给试图加入它们的调用方。这些异常可能还包括由于内部资源耗尽而导致的RejectedExecutionException，例如未能分配内部任务队列。Rethrown异常的行为方式与常规异常相同，但在可能的情况下，包含启动计算的线程和实际遇到异常的线程的栈跟踪（如使用ex.printStackTrace()显示的那样）；仅限后者。
+	可以定义和使用可能阻塞的ForkJoinTask，但是这样做需要三个进一步的考虑：（1）如果任何其他任务依赖于一个阻塞外部同步或I/O的任务，则完成很少的任务。从未连接的事件样式（Event-style）异步任务（例如，那些子类化的CountedCompleter）通常属于此类别。（2）为了最小化资源影响，任务应该很小；理想情况下只执行（可能的）阻塞操作。（3）除非使用ForkJoinPool.ManagedBlocker API，或者已知可能被阻塞的任务数量小于池的ForkJoinPool.getParallelism()级别，否则线程池不能保证有足够的线程来确保进度或良好的性能。
+	等待任务完成和提取结果的主要方法是join()，但有几个变体：Future.get()方法支持可中断和/或定时等待完成，并使用Future约定报告结果。方法invoke()在语义上等价于fork()；join()但始终尝试在当前线程中开始执行。这些方法的“安静”形式不会提取结果或报告异常。当一组任务正在执行时，这些可能会很有用，并且您需要延迟结果或异常的处理，直到全部完成。方法invokeAll（在多个版本中可用）执行最常见的并行调用形式：分叉一组任务并将它们全部连接起来。
+	在最典型的用法中，fork-join对的作用类似于调用（fork）和从并行递归函数返回（join）。与其他形式的递归调用一样，返回（joins）应该首先在最内部执行。例如，a.fork()；b.fork()；b.join()；a.join()；可能比在b之前加入a更有效。
+	任务的执行状态可以从多个详细级别进行查询：如果任务以任何方式完成（包括任务被取消而没有执行），则isDone()为true；如果任务没有取消或遇到异常，则isCompletedNormally()为true；如果任务被取消（在这种情况下，getException()返回CancellationException），则isCancelled()为true；如果任务被取消或遇到异常，在这种情况下，getException()将返回遇到的异常或CancellationException，则isCompletedAbnormally()为true。。
+	ForkJoinTask类通常不是直接的子类。相反，您可以将一个支持特殊类型的fork/join处理的抽象类（对于大多数不返回结果的计算，通常是递归操作）、RecursiveTask（对于返回结果的计算）和CountedCompleter（对于完成的操作触发其他操作的计算，通常是递归操作）子类化。通常，一个具体的ForkJoinTask子类声明包含其在构造函数中建立的参数的字段，然后定义一个计算方法，该方法以某种方式使用这个基类提供的控制方法。
+	方法join()及其变体仅适用于完成依赖项是非循环的情况；也就是说，并行计算可以描述为有向非循环图（DAG）。否则，当任务周期性地相互等待时，执行可能会遇到死锁的形式。但是，此框架支持其他方法和技术（例如使用Phaser、helpQuiesce()和complete(V)），这些方法和技术可能用于为非静态结构为DAG的问题构建自定义子类。为了支持这种用法，ForkJoinTask可以使用setForkJoinTaskTag(short)或compareAndSetForkJoinTaskTag(short, short)原子标记一个short值，并使用getForkJoinTaskTag()进行检查。ForkJoinTask实现不将这些受保护的方法或标记用于任何目的，但它们可能用于构建专门的子类。例如，并行图遍历可以使用提供的方法来避免重新访问已处理的节点/任务。（用于标记的方法名称很大程度上是为了鼓励定义反映其使用模式的方法。）
+	大多数基本支持方法都是final修饰的，以防止覆盖与底层轻量级任务调度框架本质相关的实现。创建新的fork/join处理基本样式的开发人员应至少实现受保护方法exec()、setRawResult(V)和getRawResult()，同时还应引入一个抽象的计算方法，该方法可以在其子类中实现，可能依赖于此类提供的其他受保护方法。
+	ForkJoinTask应执行相对较小的计算量。大任务应该被分割成更小的子任务，通常通过递归分解。作为一个非常粗略的经验法则，一个任务应该执行100到10000个以上的基本计算步骤，并且应该避免无限循环。如果任务太大，那么并行性就不能提高吞吐量。如果太小，那么内存和内部任务维护开销可能会压倒处理。
+	此类为Runnable和Callable提供了适应方法，在将ForkJoinTasks的执行与其他类型的任务混合时可能会用到这些方法。当所有任务都是这种形式时，考虑使用异步模式构建的线程池。
+	ForkJoinTask是可序列化的，它使它们能够在扩展（如远程执行框架）中使用。只在执行之前或之后（而不是执行期间）序列化任务是明智的。在执行过程中不依赖序列化。
+	
+	
+	类定义	：public abstract class ForkJoinTask<V> implements Future<V>, Serializable
+	实现接口	：Future<V>, Serializable
+	直接子类	：CountedCompleter, RecursiveAction, RecursiveTask
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ForkJoinTask()
+			
+Method Summary（方法概要）：
+	adapt(Runnable runnable):static ForkJoinTask<?> 
+		返回一个新的ForkJoinTask，该任务将给定Runnable的run方法作为其操作执行，并在join()时返回null结果。
+	adapt(Runnable runnable, T result):static <T> ForkJoinTask<T> 
+		返回一个新的ForkJoinTask，该任务将给定Runnable的run方法作为其操作执行，并在join()时返回给定的结果result。
+	adapt(Callable<? extends T> callable):static <T> ForkJoinTask<T> 
+		T - callable调用时返回的结果类型
+		返回一个新的ForkJoinTask，该任务将给定Callable对象的调用方法作为其操作执行，并在join()时返回其结果，将遇到的任何选中异常转换为RuntimeException。
+	getPool():static ForkJoinPool 
+		返回承载当前任务执行的池，如果此任务在任何ForkJoinPool之外执行，则返回null值。
+	getQueuedTaskCount():static int 
+		返回当前工作线程分叉但尚未执行的任务数的估计值。这个值对于启发式决策是否分叉其他任务可能很有用。
+	getSurplusQueuedTaskCount():static int 
+		返回当前工作线程所持有的本地排队任务数的估计值，该估计值大于可能窃取它们的其他工作线程数；如果此线程不在ForkJoinPool中运行，则返回零。这个值对于启发式决策是否分叉其他任务可能很有用。在ForkJoinTasks的许多用法中，在稳定状态下，每个工作人员都应致力于保持任务的少量常量盈余（例如，3），并在超过此阈值时本地处理计算。
+	helpQuiesce():static void 
+		可能会执行任务，直到承载当前任务的池处于静止状态。这种方法可以在设计中使用，在设计中许多任务是分叉的，但是没有一个任务是显式连接的，而是在所有任务都被处理之前执行它们。
+	inForkJoinPool():static boolean 
+		如果当前线程是作为ForkJoinPool计算执行的ForkJoinWorkerThread，则返回true。
+	invokeAll(Collection<T> tasks):static <T extends ForkJoinTask<?>> Collection<T> 
+		分叉指定集合中的所有任务，当isDone为每个任务保留或遇到（未选中）异常时返回，在这种情况下，异常被重新引发。如果多个任务遇到异常，则此方法将抛出这些异常中的任何一个。如果任何任务遇到异常，则可以取消其他任务。但是，单个任务的执行状态在异常返回时并不能得到保证。每项任务的状态可通过getException()和相关方法获得，以检查它们是否被取消、正常完成或异常完成或未处理。
+		【Throws】：
+			NullPointerException 如果tasks或者任何元素为null
+	invokeAll(ForkJoinTask<?> t1, ForkJoinTask<?> t2):static void 
+		分叉给定的任务，当isDone为每个任务保留或遇到（未选中）异常时返回，在这种情况下，异常将被重新引发。如果多个任务遇到异常，则此方法将抛出这些异常中的任何一个。如果任何任务遇到异常，则可以取消另一个任务。但是，单个任务的执行状态在异常返回时并不能得到保证。每项任务的状态可通过getException()和相关方法获得，以检查它们是否被取消、正常完成或异常完成或未处理。
+		【Throws】：
+			NullPointerException 如果任何任务为null
+	invokeAll(ForkJoinTask<?>... tasks):static void
+		 分叉给定的任务，当isDone为每个任务保留或遇到（未选中）异常时返回，在这种情况下，异常将被重新引发。如果多个任务遇到异常，则此方法将抛出这些异常中的任何一个。如果任何任务遇到异常，则可以取消其他任务。但是，单个任务的执行状态在异常返回时并不能得到保证。可以使用getException()和相关方法来获取每个任务的状态，以检查它们是否已被取消、正常完成或异常完成或未处理。
+		【Throws】：
+			NullPointerException 如果任何任务为null
+	peekNextLocalTask():protected static ForkJoinTask<?> 
+		返回由当前线程排队但尚未执行的任务（如果任务立即可用），但不取消计划或执行。无法保证此任务将在下次轮询或执行。相反，即使任务存在，但如果不与其他线程争用，则此方法也可能返回null。这种方法主要是为支持扩展而设计的，否则不太可能有用。
+	pollNextLocalTask():protected static ForkJoinTask<?> 
+		如果当前线程在ForkJoinPool中运行，则会在不执行的情况下取消计划并返回当前线程排队但尚未执行的下一个任务。这种方法主要是为支持扩展而设计的，否则不太可能有用。
+	pollTask():protected static ForkJoinTask<?> 
+		如果当前线程在ForkJoinPool中运行，则会在不执行的情况下取消计划并返回由当前线程排队但尚未执行的下一个任务（如果其中一个任务可用，或者如果不可用，则返回由其他线程分叉的任务（如果可用）。可用性可能是暂时的，因此空结果不一定意味着此任务正在运行的池处于静止状态。这种方法主要是为支持扩展而设计的，否则不太可能有用。
+	cancel(boolean mayInterruptIfRunning):boolean 
+		△ 试图取消执行此任务。如果任务已完成或由于其他原因无法取消，则此尝试将失败。如果成功，并且调用cancel时此任务尚未启动，则禁止执行此任务。此方法成功返回后，除非中间调用reinitialize()，否则对isCancelled()、isDone()和cancel的后续调用将返回true，对join()的调用以及相关方法将导致CancellationException异常。
+		此方法可以在子类中被重写，但如果是这样，则必须确保这些属性保持不变。尤其是，cancel方法本身不能引发异常。
+		此方法设计为可由其他任务调用。要终止当前任务，只需从其计算方法返回或引发未检查的异常，或调用completeExceptionally(Throwable)。
+	compareAndSetForkJoinTaskTag(short e, short tag):final boolean 
+		原子地有条件地为此任务设置标记值。在其他应用程序中，标记可以用作在描述操作的任务中的访问标记，如在处理之前检查（task.compareAndSetForkJoinTaskTag((short)0, (short)1)）的方法中，否则退出，因为节点已经被访问。
+	complete(V value):void 
+		完成此任务，如果尚未中止或取消，则在随后调用join和相关操作时返回给定值。此方法可用于为异步任务提供结果，或为无法正常完成的任务提供替代处理。不鼓励在其他情况下使用。此方法是可重写的，但被重写的版本必须调用超类实现来维护保证。
+	completeExceptionally(Throwable ex):void 
+		异常完成此任务，如果尚未中止或取消，则会导致它在jion和相关操作时引发给定的异常。此方法可用于在异步任务中引发异常，或强制完成无法完成的任务。不鼓励在其他情况下使用。此方法是可重写的，但被重写的版本必须调用超类实现来维护保证。
+	exec():protected abstract boolean 
+		★ 立即执行此任务的基本操作，如果从该方法返回时，确保此任务已正常完成，则返回true。否则，此方法可能返回false，以指示此任务不一定完成（或不知道是否完成），例如在需要显式调用完成方法的异步操作中。此方法还可以引发（未选中）异常以指示异常退出。此方法旨在支持扩展，通常不应以其他方式调用。
+	fork():final ForkJoinTask<V> 
+		安排在当前任务正在运行的池中异步执行此任务（如果适用），或者使用ForkJoinPool.commonPool()（如果不是inForkJoinPool()）。虽然不一定强制执行，但如果一个任务多次分叉，则是一个使用错误，除非它已完成并重新初始化。除非前面有join()或相关方法的调用，或者对isDone()的调用返回true，否则执行该任务的线程以外的任何线程都不一定能一致地看到对该任务或其操作的任何数据状态的后续修改。
+	get():final V 
+		△ 如果需要，等待计算完成，然后检索其结果。
+		【Throws】：
+			CancellationException 如果计算被取消
+			ExecutionException 如果计算引发异常
+			InterruptedException 如果当前线程不是ForkJoinPool的成员，并且在等待时被中断
+	get(long timeout, TimeUnit unit):final V 
+		△ 如果需要，最多等待给定的时间以完成计算，然后检索其结果（如果可用）。
+		【Throws】：
+			CancellationException 如果计算被取消
+			ExecutionException 如果计算引发异常
+			InterruptedException 如果当前线程不是ForkJoinPool的成员，并且在等待时被中断
+			TimeoutException 如果等待超时
+	getException():final Throwable 
+		返回基础计算引发的异常，或者如果取消则返回CancellationException，如果没有或方法尚未完成则返回null。		
+	getForkJoinTaskTag():final short 
+		返回此任务的标记。
+	getRawResult():abstract V 
+		★ 返回join()将返回的结果，即使此任务异常完成，或者如果不知道此任务已完成，则返回空值。此方法旨在帮助调试以及支持扩展。不鼓励在任何其他上下文中使用它。
+	invoke():final V 
+		开始执行此任务，必要时等待其完成，并返回其结果，或者如果基础计算执行此任务，则抛出（未选中）RuntimeException或错误。
+	isCancelled():final boolean 
+		△ 如果此任务在正常完成之前被取消，则返回true。
+	isCompletedAbnormally():final boolean 
+		如果此任务引发异常或被取消，则返回true。
+	isCompletedNormally():final boolean 
+		如果此任务完成但未引发异常且未被取消，则返回true。
+	isDone():final boolean 
+		△ 如果此任务完成，则返回true。完成可能是由于正常终止、异常或取消——在所有这些情况下，此方法都将返回true。
+	join():final V 
+		完成计算后返回计算结果。此方法与get()的不同之处在于，异常完成会导致RuntimeException或错误，而不是ExecutionException，并且调用线程的中断不会导致方法通过引发InterruptedException异常而突然返回。
+	quietlyComplete():final void 
+		在不设置值的情况下正常完成此任务。由setRawResult(V)建立的最新值（默认为空）将在随后调用join和相关操作时返回。
+	quietlyInvoke():final void 
+		开始执行此任务，并在必要时等待其完成，而不返回结果或引发异常。
+	quietlyJoin():final void 
+		加入此任务，而不返回其结果或引发异常。当某些任务被取消或已知已中止时，此方法在处理任务集合时可能很有用。
+	reinitialize():void 
+		重置此任务的内部记帐状态，允许后续分叉。此方法允许重复重用此任务，但仅当此任务从未被分叉或被分叉，然后完成，并且此任务的所有未完成join也已完成时，才发生重用。不保证在任何其他使用条件下的效果。在循环中执行子任务的预构造树时，此方法可能很有用。
+		完成此方法后，isDone()报告false，getException()报告null。但是，getRawResult返回的值不受影响。要清除此值，可以调用setRawResult(null)。
+	setForkJoinTaskTag(short tag):final short 
+		自动设置此任务的标记值。
+	setRawResult(V value):abstract void 
+		★ 强制返回给定值。此方法旨在支持扩展，通常不应以其他方式调用。
+	tryUnfork():boolean 
+		尝试取消此任务的执行计划。如果此任务是当前线程最近分叉的任务，并且尚未在另一个线程中开始执行，则此方法通常（但不保证）会成功。在安排可能被窃取但未被窃取的任务的可选本地处理时，此方法可能很有用。
+	
+	
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+		
+		
