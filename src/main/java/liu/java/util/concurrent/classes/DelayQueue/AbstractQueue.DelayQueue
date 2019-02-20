@@ -1,0 +1,130 @@
+-----------------------------------------DelayQueue<E>-------------------------------------------------------------------------------------------------------------
+DelayQueue<E>：延迟队列。【Since:1.5】
+	Delayed元素的一种无边界阻塞队列，其中元素只有在其延迟到期时才能被获取。该队列的头部是延迟期满后保存时间最长的Delayed元素。如果没有延迟到期，则没有头元素，poll将返回null。当元素的getDelay(TimeUnit.NANOSECONDS)方法返回小于或等于零的值时，就会发生过期。即使无法使用take或poll删除未过期的元素，它们也会被视为普通元素。例如，size方法返回过期和未过期元素的计数总和。此队列不允许null元素。
+	这个类及其迭代器实现了Collection和Iterator接口的所有可选方法。方法iterator()中提供的Iterator不能保证以任何特定顺序横跨DelayQueue的元素。
+	该类是Java集合框架的成员。
+	
+	
+	
+	类定义	：public class DelayQueue<E extends Delayed> extends AbstractQueue<E> implements BlockingQueue<E>
+	实现接口	：Iterable<E>,Collection<E>,Queue<E>,BlockingQueue<E>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public DelayQueue()
+		创建最初为空的新DelayQueue。
+	public DelayQueue(Collection<? extends E> c)
+		创建最初包含给定延迟实例集合元素的DelayQueue。
+		【Throws】：
+			NullPointerException 如果指定的collection 或者其任何元素为null
+
+Method Summary（方法概要）：
+	add(E e):boolean 
+		△ 将指定的元素插入此延迟队列。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	clear():void 
+		△ 原子地从这个延迟队列中删除所有元素。此调用返回后，队列将为空。具有未过期延迟的元素不会等待；它们会被简单地从队列中丢弃。
+	drainTo(Collection<? super E> c):int 
+		△ 删除此队列中的所有可用元素并将它们添加到给定集合中。此操作可能比重复轮询（polling）此队列更有效。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	drainTo(Collection<? super E> c, int maxElements):int 
+		△ 最多可以从此队列中删除给定数量的可用元素，并将它们添加到给定集合中。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	iterator():Iterator<E> 
+		△ 返回此队列中所有元素（过期和未过期）的迭代器。迭代器不以任何特定的顺序返回元素。
+		返回的迭代器是弱一致性。
+	offer(E e):boolean 
+		△ 将指定的元素插入此延迟队列。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	offer(E e, long timeout, TimeUnit unit):boolean 
+		timeout -  此参数被忽略，因为该方法从不阻塞
+		unit - timeout参数的时间单位，此参数被忽略，因为方法从不阻塞
+		△ 将指定的元素插入此延迟队列。由于队列是无限的，此方法将永远不会阻塞。
+		【Throws】：
+			NullPointerException 如果指定的元素为null
+	peek():E 
+		△ 检索但不删除此队列的头；如果此队列为空，则返回null。与poll不同，如果队列中没有过期的元素，则此方法返回将在下一个到期的元素（如果存在）。
+	poll():E 
+		△ 检索和删除此队列的头，或者如果此队列没有具有过期延迟的元素，则返回null。
+	poll(long timeout, TimeUnit unit):E 
+		timeout -  放弃前等待多长时间，unit为时间单位
+		unit - timeout参数的时间单位
+		△ 检索并删除此队列的头，必要时等待，直到在此队列上有过期延迟的元素可用或指定的等待时间到期。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	put(E e):void
+		 △ 将指定的元素插入此延迟队列。由于队列是无限的，此方法将永远不会阻塞。
+		 【Throws】：
+			NullPointerException 如果指定的元素为null
+	remainingCapacity():int 
+		△ 始终返回Integer.MAX_VALUE，因为delayqueue不受容量限制。
+	remove(Object o):boolean 
+		△ 从该队列中删除指定元素的单个实例（如果存在），无论该实例是否已过期。
+	size():int 
+		△ 返回此集合中的元素数。如果此集合包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+	take():E 
+		△ 检索并删除此队列的头，必要时等待，直到在此队列上有一个具有过期延迟的元素可用为止
+	toArray():Object[] 
+		△ 返回包含此队列中所有元素的数组。返回的数组元素没有特定的顺序。
+		返回的数组将是“安全的”，因为此队列不维护对它的引用。（换句话说，此方法必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T[] a):<T> T[] 
+		△ 返回包含此队列中所有元素的数组；返回的数组的运行时类型是指定数组的运行时类型。返回的数组元素没有特定的顺序。如果队列适合指定的数组，则会在其中返回。否则，将为新数组分配指定数组的运行时类型和此队列的大小。
+		如果此队列适合具有备用空间的指定数组（即，该数组中的元素多于此队列），则紧跟队列末尾的数组中的元素将设置为空。
+		与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		以下代码可用于将延迟队列转储到新分配的Delayed数组中：
+			Delayed[] a = q.toArray(new Delayed[0]);
+		请注意，toArray(new Object[0])与toArray()功能相同。
+		【Throws】：
+			ArrayStoreException 如果指定数组的运行时类型不是此队列中每个元素的运行时类型的父类型
+			NullPointerException 如果指定的数组为空
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

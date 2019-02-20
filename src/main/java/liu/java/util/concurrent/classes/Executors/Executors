@@ -1,0 +1,114 @@
+----------------------------------------Executors--------------------------------------------------------------------------------------------------------------
+Executors：执行器静态工厂类。【Since:1.5】
+	用于在此包中定义的Executor、ExecutorService、ScheduledExecutorService、ThreadFactory和Callable类的工厂方法和实用程序方法。此类支持以下类型的方法：
+		● 具有创建并返回具有常用配置设置的ExecutorService集合的方法。
+		● 创建和返回具有常用配置设置的ScheduledExecutorService集合的方法。
+		● 具有创建并返回“打包的”ExecutorService，通过使实现特定的方法不可访问来禁用重新配置的方法。
+		● 具有创建并返回将新创建的线程设置为已知状态的ThreadFactory的方法。
+		● 从其他类似于闭包的窗体中创建和返回Callable的方法，因此可以在需要Callable的执行方法中使用这些方法。
+		
+		
+		
+	类定义：public class Executors
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	callable(Runnable task):static Callable<Object> 
+		返回一个Callable对象，该对象在调用时运行给定的任务（task）并返回null。
+		【Throws】：
+			NullPointerException 如果task为null
+	callable(Runnable task, T result):static <T> Callable<T> 
+		返回一个Callable对象，该对象在调用时运行给定的任务并返回给定的结果（result）。这在将需要Callable的方法应用于其他无结果操作时很有用。
+		【Throws】：
+			NullPointerException 如果task为null
+	callable(final PrivilegedAction<?> action):static Callable<Object> 
+		返回一个Callable对象，该对象在调用时运行给定的特权操作(action)并返回其结果。
+		【Throws】：
+			NullPointerException 如果action为null
+	callable(final PrivilegedExceptionAction<?> action):static Callable<Object> 
+		返回一个Callable对象，该对象在调用时运行给定的特权异常操作(action)并返回其结果。
+		【Throws】：
+			NullPointerException 如果action为null
+	defaultThreadFactory():static ThreadFactory 
+		返回用于创建新线程的默认线程工厂。此工厂创建执行器在同一ThreadGroup中使用的所有新线程。如果有SecurityManager，则使用System.getSecurityManager()组，否则使用调用此defaultThreadFactory方法的线程组。每个新线程都创建为一个非守护进程线程，优先级设置为Thread.NORM_PRIORITY中的较小值，线程组中允许的最大优先级。新线程的名称可以通过pool-N-thread-M的Thread.getName()访问，其中n是此工厂的序列号，m是此工厂创建的线程的序列号。
+	newCachedThreadPool():static ExecutorService 
+		创建一个线程池，该线程池根据需要创建新线程，但在先前构建的线程可用时将重用它们。这些池通常会提高执行许多短期异步任务的程序的性能。调用execute将重用以前构造的线程（如果可用）。如果没有现有线程可用，将创建一个新线程并将其添加到池中。未使用60秒的线程将被终止并从缓存中删除。因此，一个足够长时间闲置的池将不会消耗任何资源。请注意，可以使用ThreadPoolExecutor构造函数创建具有类似属性但细节不同（例如超时参数）的池。
+	newCachedThreadPool(ThreadFactory threadFactory):static ExecutorService 
+		创建一个线程池，该线程池根据需要创建新线程，但在先前构建的线程可用时将重用它们，并在需要时使用提供的threadFactory创建新线程。
+		【Throws】：
+			NullPointerException 如果threadFactory为null
+	newFixedThreadPool(int nThreads):static ExecutorService 
+		创建一个线程池，该线程池重用在共享的无边界队列上运行的固定数量的线程。在任何时候，最多第n个线程将是活动的处理任务。如果在所有线程都处于活动状态时提交了其他任务，则它们将在队列中等待，直到有一个线程可用。如果任何线程在关闭之前由于执行过程中的失败而终止，则在需要执行后续任务时，将替换一个新的线程。池中的线程将存在，直到显式关闭为止。
+		【Throws】：
+			IllegalArgumentException 如果nThreads <= 0
+	newFixedThreadPool(int nThreads, ThreadFactory threadFactory):static ExecutorService 
+		创建一个线程池，该线程池重用在共享的无边界队列上运行的固定数量的线程，并在需要时使用提供的线程工厂创建新线程。在任何时候，最多第n个线程将是活动的处理任务。如果在所有线程都处于活动状态时提交了其他任务，则它们将在队列中等待，直到有一个线程可用。如果任何线程在关闭之前由于执行过程中的失败而终止，则在需要执行后续任务时，将替换一个新的线程。池中的线程将存在，直到显式关闭为止。
+		【Throws】：
+			NullPointerException 如果 threadFactory为null
+			IllegalArgumentException 如果nThreads <= 0
+	newScheduledThreadPool(int corePoolSize):static ScheduledExecutorService 
+		创建一个线程池，该线程池可以调度命令在给定延迟后运行，或者定期执行。
+		【Throws】：
+			IllegalArgumentException 如果corePoolSize < 0
+	newScheduledThreadPool(int corePoolSize, ThreadFactory threadFactory):static ScheduledExecutorService 
+		corePoolSize - 要保留在池中的线程数，即使它们是空闲的。
+		threadFactory - 执行器创建新线程时要使用的工厂
+		创建一个线程池，该线程池可以调度命令在给定延迟后运行，或者定期执行。
+		【Throws】：
+			NullPointerException 如果 threadFactory为null
+			IllegalArgumentException 如果corePoolSize < 0
+	newSingleThreadExecutor():static ExecutorService 
+		创建一个执行器，该执行器使用一个工作线程在无边界队列上操作。（但是，请注意，如果在关闭前执行过程中由于失败而终止此单线程，则在需要执行后续任务时将替换新线程。）任务保证按顺序执行，并且在任何给定时间内不会有多个任务处于活动状态。与其他等效的newFixedThreadPool(1)不同，返回的执行器保证不会重新配置为使用其他线程。
+	newSingleThreadExecutor(ThreadFactory threadFactory):static ExecutorService 
+		创建一个执行器，该执行器使用一个从无边界队列操作的工作线程，并在需要时使用提供的ThreadFactory创建一个新线程。与其他等效的newFixedThreadPool(1, threadFactory)不同，返回的执行器保证不会重新配置为使用其他线程。
+		【Throws】：
+			NullPointerException 如果 threadFactory为null
+	newSingleThreadScheduledExecutor():static ScheduledExecutorService 
+		创建一个单线程执行器，该执行器可以调度命令在给定延迟后运行，或者定期执行。（但是，请注意，如果在关闭前执行过程中由于失败而终止此单线程，则在需要执行后续任务时将替换新线程。）任务保证按顺序执行，并且在任何给定时间内不会有多个任务处于活动状态。与其他等效的newScheduledThreadPool(1, threadFactory)不同，返回的执行器保证不会重新配置为使用其他线程。
+	newSingleThreadScheduledExecutor(ThreadFactory threadFactory):static ScheduledExecutorService 
+		创建一个单线程执行器，该执行器可以调度命令在给定延迟后运行，或者定期执行。（但是，请注意，如果在关闭前执行过程中由于失败而终止此单线程，则在需要执行后续任务时将替换新线程。）任务保证按顺序执行，并且在任何给定时间内不会有多个任务处于活动状态。与其他等效的newScheduledThreadPool(1, threadFactory)不同，返回的执行器保证不会重新配置为使用其他线程。
+		【Throws】：
+			NullPointerException 如果 threadFactory为null
+	newWorkStealingPool():static ExecutorService 
+		使用所有可用处理器作为目标并行度级别创建work-stealing(窃取工作)线程池。
+	newWorkStealingPool(int parallelism):static ExecutorService 
+		创建一个线程池，该线程池维护足够的线程以支持给定的并行级别，并且可以使用多个队列来减少争用。并行度级别对应于主动参与或可用参与任务处理的最大线程数。实际线程数可能会动态增长和收缩。work-stealing（窃取工作）池不保证提交任务的执行顺序。
+		【Throws】：
+			IllegalArgumentException 如果parallelism <= 0
+	privilegedCallable(Callable<T> callable):static <T> Callable<T> 
+		T - Callable的结果类型
+		返回一个Callable对象，该对象在调用时将在当前访问控制上下文下执行给定的callable对象。通常应在AccessController.doPrivileged操作中调用此方法，以创建可调用文件，如果可能，将在该操作中的选定权限设置下执行；如果不可能，则引发关联的AccessControlException。
+		【Throws】：
+			NullPointerException 如果 callable为null
+	privilegedCallableUsingCurrentClassLoader(Callable<T> callable):static <T> Callable<T> 
+		返回一个Callable对象，该对象在调用时将在当前访问控制上下文下执行给定的callable对象，当前上下文类加载器作为上下文类加载器。通常应在AccessController.doPrivileged操作中调用此方法，以创建可调用文件，如果可能，将在该操作中的选定权限设置下执行；如果不可能，则引发关联的AccessControlException异常。
+		【Throws】：
+			NullPointerException 如果 callable为null
+	privilegedThreadFactory():static ThreadFactory 
+		返回用于创建与当前线程具有相同权限的新线程的线程工厂。此工厂创建的线程的设置与defaultThreadFactory()相同，另外将新线程的AccessControlContext和contextClassLoader设置为与调用此privilegedThreadFactory方法的线程相同。可以在AccessController.doPrivileged操作中创建新的privilegedThreadFactory，将当前线程的访问控制上下文设置为在该操作中使用选定的权限设置创建线程。
+		请注意，虽然在这些线程中运行的任务将具有与当前线程相同的访问控制和类加载器设置，但它们不需要具有相同的ThreadLocal或InheritableThreadLocal值。如果需要，可以在使用ThreadPoolExecutor.beforeExecute(Thread, Runnable)在ThreadPoolExecutor子类中运行任何任务之前设置或重置线程局部变量的特定值。此外，如果需要初始化工作线程，使其与其他指定线程具有相同的InheritableThreadLocal设置，则可以创建一个自定义ThreadFactory，其中该线程等待，服务请求创建将继承其值的其他线程。
+		【Throws】：
+			AccessControlException 如果当前访问控制上下文没有获取和设置上下文类加载器的权限
+	unconfigurableExecutorService(ExecutorService executor):static ExecutorService 
+		
+	unconfigurableScheduledExecutorService(ScheduledExecutorService executor):static ScheduledExecutorService 
+	
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
