@@ -89,10 +89,13 @@ Method Summary（方法概要）：
 		【Throws】：
 			AccessControlException 如果当前访问控制上下文没有获取和设置上下文类加载器的权限
 	unconfigurableExecutorService(ExecutorService executor):static ExecutorService 
-		
+		返回一个对象，该对象将所有定义的ExecutorService方法委托给给定的executor，但不返回任何其他可以使用强制转换访问的方法。这提供了一种安全地“冻结”配置和不允许对给定的具体实现进行调整的方法。
+		【Throws】：
+			NullPointerException 如果 executor为null
 	unconfigurableScheduledExecutorService(ScheduledExecutorService executor):static ScheduledExecutorService 
-	
-	
+		返回一个对象，该对象将所有定义的ScheduledExecutorService方法委托给给定的执行器（executor），而不是任何其他可能使用casts访问的方法。这提供了一种安全地“冻结”配置和不允许对给定的具体实现进行调整的方法。
+		【Throws】：
+			NullPointerException 如果 executor为null
 	
 	
 	
