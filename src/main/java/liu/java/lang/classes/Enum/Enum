@@ -6,12 +6,12 @@ Enum<E extends Enum<E>>：枚举类。【Since:1.5】
 	类定义	：public abstract class Enum<E extends Enum<E>> implements Comparable<E>, Serializable
 	实现接口	：Comparable<E>, Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-构造器：
+Constructor Summary（构造器概要）：
 	protected Enum(String name, int ordinal)
 		唯一构造器。程序员无法调用此构造函数。它供编译器为响应枚举类型声明而发出的代码使用。
 		name - 此枚举常量的名称，它是用于声明该常量的标识符。
 		ordinal - 此枚举常量的序号（它在枚举声明中的位置，在该声明中，初始常量被指定为序号零）。
-方法：
+Method Summary（方法概要）：
 	valueOf(Class<T> enumType,String name):static <T extends Enum<T>> T 
 		<T> 要返回其常量的枚举类型
 		返回具有指定名称的指定枚举类型的枚举常量。名称必须与用于在此类型中声明枚举常量的标识符完全匹配。（不允许使用外部空白字符。）
@@ -42,4 +42,19 @@ Enum<E extends Enum<E>>：枚举类。【Since:1.5】
 	3、varargs：可变参数
 	4、<E extends Enum<E>>泛型说明：这是一个泛型，使用E作为类型参数。其次，对于E有上界限制，即E必须是Enum<E>的子类。E被识别为Enum的子类，这个情况相当于把一个子类或者自己当成参数，传入到自身，引起一些特别的语法效果。
 	5、enum关键字：创建枚举类型要使用enum关键字，隐含了所创建的类型都是java.lang.Enum类的子类（java.lang.Enum是一个抽象类）。枚举类型符合通用模式（class Enum<E extends Enum<E>>）,而E表示枚举类型的名称。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
