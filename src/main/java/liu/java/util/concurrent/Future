@@ -36,7 +36,7 @@ Future<V>：未来接口【Since:1.5】
 	cancel(boolean mayInterruptIfRunning):boolean 
 		尝试取消执行此任务。如果任务已完成、已取消或由于其他原因无法取消，则此尝试将失败。如果成功，并且调用cancel时此任务尚未启动，则此任务不应运行。如果任务已启动，则mayInterruptIfRunning参数确定执行此任务的线程是否应在尝试停止任务时中断。
 	get():V 
-		此方法返回后，对isDone()的后续调用将始终返回true。如果此方法返回true，对isCancelled()的后续调用将始终返回true。
+		如果需要，等待计算完成，然后检索其结果。
 		【Throws】：
 			CancellationException  如果计算被取消
 			ExecutionException 如果计算抛出异常
