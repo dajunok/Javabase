@@ -1,8 +1,8 @@
 -----------------------------------------TransferQueue<E>-----------------------------------------------------------------------------------------------------------------------------		
 TransferQueue<E>接口：传输队列 【Since:1.7】
 	<E> 集合中保留的元素的类型
-	一种阻塞队列（BlockingQueue），其中生产者可以等待使用者接收元素。例如，在消息传递应用程序中，TransferQueue可能很有用，在消息传递应用程序中，生产者有时（使用方法transfer(E)）等待调用take或poll的使用者接收元素，而在其他时候则不等待接收而将元素排队（通过方法put）。tryTransfer还提供非阻塞和超时版本。还可以通过hasWaitingConsumer()查询TransferQueue是否有线程在等待项目，这与peek操作相反。
-	与其他阻塞队列一样，TransferQueue可能是容量限制的。如果是这样，尝试的传输操作可能首先阻塞等待可用空间，并且/或者随后阻塞等待使用者接收。注意，在容量为零的队列中，例如SynchronousQueue队列，put和transfer实际上是等同的。
+	一种阻塞队列（BlockingQueue），其中生产者可以等待消费者接收元素。例如，在消息传递应用程序中，TransferQueue可能很有用，在消息传递应用程序中，生产者有时（使用方法transfer(E)）等待调用take或poll的消费者接收元素，而在其他时候则不等待接收而将元素排队（通过方法put）。tryTransfer还提供非阻塞和超时版本。还可以通过hasWaitingConsumer()查询TransferQueue是否有线程在等待项目，这与peek操作相反。
+	与其他阻塞队列一样，TransferQueue可能是容量限制的。如果是这样，尝试的传输操作可能首先阻塞等待可用空间，并且/或者随后阻塞等待消费者接收。注意，在容量为零的队列中，例如SynchronousQueue队列，put和transfer实际上是等同的。
 	此接口是Java集合框架的成员。
 	
 	接口定义	：public interface TransferQueue<E> extends BlockingQueue<E>
@@ -10,20 +10,20 @@ TransferQueue<E>接口：传输队列 【Since:1.7】
 	实现类	：LinkedTransferQueue
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	getWaitingConsumerCount():int 
-		返回等待通过BlockingQueue.take()或定时poll接收元素的使用者数数量的估计值。返回值是一个瞬间状态的近似值，如果使用者已经完成或放弃等待，这可能是不准确的。该值可能对监视和启发式方法有用，但不适用于同步控制。这种方法的实现可能明显慢于hasWaitingConsumer()的实现。
+		返回等待通过BlockingQueue.take()或定时poll接收元素的消费者数数量的估计值。返回值是一个瞬间状态的近似值，如果消费者已经完成或放弃等待，这可能是不准确的。该值可能对监视和启发式方法有用，但不适用于同步控制。这种方法的实现可能明显慢于hasWaitingConsumer()的实现。
 	hasWaitingConsumer():boolean 
-		如果至少有一个使用者等待通过BlockingQueue.take()或定时poll接收元素，则返回true。返回值表示暂时的状态
+		如果至少有一个消费者等待通过BlockingQueue.take()或定时poll接收元素，则返回true。返回值表示暂时的状态。
 	transfer(E e):void 
-		将元素传送给使用者，可能需要等待。
-		更准确地说，如果存在等待接收的使用者（在BlockingQueue.take()或定时 poll中），则立即传送指定的元素，否则等待直到使用者接收到该元素。
+		将元素传送给消费者，可能需要等待。
+		更准确地说，如果存在等待接收的消费者（在BlockingQueue.take()或定时 poll中），则立即传送指定的元素，否则等待直到消费者接收到该元素。
 		【Throws】：
 			InterruptedException 如果在等待时中断，则元素不会排队。
 			ClassCastException 如果指定元素的类阻止将其添加到此队列中
 			NullPointerException 如果指定的元素为null
 			IllegalArgumentException 如果指定元素的某些属性阻止将其添加到此队列中
 	tryTransfer(E e):boolean 
-		如果可能，立即将元素传送给等待的使用者。
-		更准确地说，如果存在等待接收的使用者（在BlockingQueue.take()或定时 poll中），则立即传输指定的元素，否则返回false而不将元素排队。
+		如果可能，立即将元素传送给等待的消费者。
+		更准确地说，如果存在等待接收的消费者（在BlockingQueue.take()或定时 poll中），则立即传输指定的元素，否则返回false而不将元素排队。
 		【Throws】：
 			ClassCastException 如果指定元素的类阻止将其添加到此队列中
 			NullPointerException 如果指定的元素为null
@@ -32,8 +32,8 @@ TransferQueue<E>接口：传输队列 【Since:1.7】
 		e - 要传送的元素
 		timeout - 放弃前等待多长时间，单位为指定的unit
 		unit - timeout参数的时间单位
-		如果可以在timeout结束之前将元素传送给使用者，则返回true。
-		更准确地说，如果存在等待接收的使用者（在BlockingQueue.take()或定时 poll中），则立即传送指定的元素，否则等待直到使用者接收到该元素，如果指定的等待时间（timeout）在元素可以传送之前已过，则返回false。
+		如果可以在timeout结束之前将元素传送给消费者，则返回true。
+		更准确地说，如果存在等待接收的消费者（在BlockingQueue.take()或定时 poll中），则立即传送指定的元素，否则等待直到消费者接收到该元素，如果指定的等待时间（timeout）在元素可以传送之前已过，则返回false。
 		【Throws】：
 			InterruptedException 如果在等待时中断，则元素不会排队。
 			ClassCastException 如果指定元素的类阻止将其添加到此队列中

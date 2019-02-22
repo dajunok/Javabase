@@ -1,0 +1,189 @@
+-----------------------------------------Phaser-------------------------------------------------------------------------------------------------------------
+Phaser：阶段器。【Since:1.7】
+	一种可重复使用的同步屏障（barrier），在功能上类似于CyclicBarrier和CountDownLatch，但支持更灵活的使用。	
+	
+	【注册】：与其他屏障的情况不同，在阶段器上注册同步的参与方的数量可能随时间而变化。任务可以在任何时候注册（使用方法register()、bulkRegister(int)或者在构造函数创建时指定初始参与方数量形式），并且可以在任何到达时（使用arriveAndDeregister()）取消注册。与大多数基本同步构造一样，注册和注销只影响内部计数；它们不进一步建立内部记录（bookkeeping），因此任务无法查询它们是否已注册。（但是，您可以通过子类化这个类来引入这种记录（bookkeeping）。）
+	【同步】：像CyclicBarrier一样，Phaser可能会反复等待。方法arriveAndAwaitAdvance()的效果类似于CyclicBarrier.await。每一个阶段器都有一个相关的阶段数量。阶段数量从零开始，当所有各方到达阶段器时向前移动，到达Integer.MAX_VALUE后回到数量0。使用阶段编号可以通过任何注册方的两种方法调用，在到达阶段器和等待其他阶段时独立控制操作：
+		● 抵达（Arrival）。方法arrive()和arriveAndDeregister()记录抵达。这些方法不会阻塞，而是返回一个相关的到达阶段编号；也就是说，抵达阶段器应用到的阶段编号。当给定阶段的最后一方到达时，将执行可选操作并往前推进阶段。这些操作由触发阶段前进吖方执行，并由覆盖方法onAdvance(int, int)调度安排，该方法也控制终止。覆盖此方法类似于，但比为CyclicBarrier提供屏障作用更灵活。
+		● 等待（Waiting）。方法awaitAdvance(int)需要一个指示到达阶段编号的参数，并在阶段器前进到（或已经到达）不同阶段时返回。与使用CyclicBarrier的类似构造器不同，方法awaitAdvance继续等待，即使等待线程被中断。可中断和超时版本也可用，但任务以中断方式等待或超时时遇到的异常不会更改阶段器的状态。如果需要，您可以在这些异常的处理程序中执行任何相关的恢复，通常在调用forceTermination之后。在ForkJoinPool中执行的任务也可以使用阶段器，这将确保在其他任务被阻塞等待阶段前进时有足够的并行性来执行任务。
+	【终止】：阶段器可进入终止状态，可使用方法isTerminated()进行检查。终止后，所有同步方法立即返回，不等待前进，返回值为负值。同样，在终止时尝试注册也没有效果。当onAdvance的调用返回true时触发终止。如果取消注册导致注册方数量变为零，则默认实现返回true。如下描述所示，当相位器以固定的迭代次数控制操作时，通常可以方便地重写此方法，以在当前阶段数量达到阈值时导致终止。方法forceTermination()也可用于突然释放等待线程并允许它们终止。
+	【分层】：阶段器可以分层（即用树结构构造）以减少争用。相反，可以设置具有大量参与方的阶段器，否则会遇到严重的同步争用成本，以便子阶段组共享一个共同的父阶段。这可能会极大地提高吞吐量，即使它会增加每个操作的开销。
+		       在分层阶段树中，自动管理子阶段及其父阶段的注册和注销。当子阶段器的注册方数量变为非零（如Phaser(Phaser,int)构造函数、register()或bulkRegister(int)中所述）时，子阶段器将注册到其父阶段。每当由于arriveAndDeregister()的调用而注册的参与方数量变为零时，子阶段器就会从其父阶段注销。
+	【监控】：虽然同步方法只能由注册方调用，但任何调用方都可以监视阶段器的当前状态。在任何给定时刻，共有getRegisteredParties()个缔约方，其中getArrivedParties()已到达当前阶段（getPhase()）。当剩下的（getUnarrivedParties()）方到达时，阶段就继续往前前进。这些方法返回的值可能反映瞬态状态，因此一般不适用于同步控制。方法toString()以便于非正式监视的形式返回这些状态查询的快照。
+	
+	用法示例：
+	可以使用Phaser代替CountDownLatch来控制为可变数量的当事方提供服务的一次触发动作。典型的习惯用法是将此方法设置为首先注册，然后启动操作，然后取消注册，如下所示：
+		 void runTasks(List<Runnable> tasks) {
+		   final Phaser phaser = new Phaser(1); // "1" to register self
+		   // create and start threads
+		   for (final Runnable task : tasks) {
+		     phaser.register();
+		     new Thread() {
+		       public void run() {
+		         phaser.arriveAndAwaitAdvance(); // await all creation
+		         task.run();
+		       }
+		     }.start();
+		   }
+		
+		   // allow threads to start and deregister self
+		   phaser.arriveAndDeregister();
+		 }	
+		 	
+	使一组线程在给定次数的迭代中重复执行操作的一种方法是重写onAdvance：
+		 void startTasks(List<Runnable> tasks, final int iterations) {
+		   final Phaser phaser = new Phaser() {
+		     protected boolean onAdvance(int phase, int registeredParties) {
+		       return phase >= iterations || registeredParties == 0;
+		     }
+		   };
+		   phaser.register();
+		   for (final Runnable task : tasks) {
+		     phaser.register();
+		     new Thread() {
+		       public void run() {
+		         do {
+		           task.run();
+		           phaser.arriveAndAwaitAdvance();
+		         } while (!phaser.isTerminated());
+		       }
+		     }.start();
+		   }
+		   phaser.arriveAndDeregister(); // deregister self, don't wait
+		 }	
+	如果主任务稍后必须等待终止，则可以重新注册，然后执行类似的循环：
+		   // ...
+		   phaser.register();
+		   while (!phaser.isTerminated())
+		     phaser.arriveAndAwaitAdvance();	
+	相关结构可用于在您确定阶段永远不会围绕Integer.MAX_VALUE的上下文中等待特定的阶段号。例如：	
+		 void awaitPhase(Phaser phaser, int phase) {
+		   int p = phaser.register(); // assumes caller not already registered
+		   while (p < phase) {
+		     if (phaser.isTerminated())
+		       // ... deal with unexpected termination
+		     else
+		       p = phaser.arriveAndAwaitAdvance();
+		   }
+		   phaser.arriveAndDeregister();
+		 }	
+	要使用阶段树创建一组n个任务，可以使用以下形式的代码，假设一个Task类的构造函数接受一个在构造时注册的Phaser。调用build(new Task[n], 0, n, new Phaser())之后，可以启动这些任务，例如通过提交到池：
+		 void build(Task[] tasks, int lo, int hi, Phaser ph) {
+		   if (hi - lo > TASKS_PER_PHASER) {
+		     for (int i = lo; i < hi; i += TASKS_PER_PHASER) {
+		       int j = Math.min(i + TASKS_PER_PHASER, hi);
+		       build(tasks, i, j, new Phaser(ph));
+		     }
+		   } else {
+		     for (int i = lo; i < hi; ++i)
+		       tasks[i] = new Task(ph);
+		       // assumes new Task(ph) performs ph.register()
+		   }
+		 }
+ 	TASKS_PER_PHASER的最佳值主要取决于预期的同步速率。低至4的值可能适用于非常小的每个阶段任务主体（因此，高比率），或者高达数百的值适用于非常大的任务主体。 	
+ 	实现说明：此实现将参与方的最大数量限制为65535。尝试注册其他参与方会导致IllegalStateException异常。但是，您可以并且应该创建分层的阶段器来容纳任意大的参与者集。
+ 	
+ 		
+	
+	类定义：public class Phaser
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public Phaser()
+		创建一个没有初始注册方、没有父级和初始阶段号0的新阶段器。任何使用这个阶段器的线程都需要先注册它。
+	public Phaser(int parties)
+		创建一个具有给定数量的已注册未抵达方、无父级和初始阶段号0的新阶段器。
+		【Throws】：
+			IllegalArgumentException 如果parties小于0或者parties支持的最大数
+	public Phaser(Phaser parent)
+		等效于Phaser(parent, 0)。
+	public Phaser(Phaser parent, int parties)
+		创建具有给定父级和已注册未抵达方数量的新阶段器。当给定的父级为非空且给定的参与方数量大于零时，此子阶段器将向其父级注册。
+		【Throws】：
+			IllegalArgumentException 如果parties小于0或者parties支持的最大数
+				
+Method Summary（方法概要）：
+	arrive():int 
+		抵达这个阶段，不等待其他人抵达。
+		未注册方调用此方法是一个使用错误。但是，此错误可能会导致IllegalStateException异常，如果有的话，只有在对该阶段器进行某些后续操作时才会发生。
+		返回抵达阶段编号，如果终止，则为负值。
+		【Throws】：
+			IllegalStateException 如果没有终止，未抵达方的数量将变为负数。
+	arriveAndAwaitAdvance():int 
+		到达这个阶段，等待其他人。与awaitAdvance(arrive())等效。如果您需要中断或超时等待，您可以使用awaitAdvance方法的其他形式之一，通过类似的构造来调度安排这一过程。如果您需要在到达后注销，请使用awaitAdvance(arriveAndDeregister())。
+		未注册方调用此方法是一个使用错误。但是，此错误可能会导致IllegalStateException异常，如果有的话，只有在对该阶段器进行某些后续操作时才会发生。
+		返回抵达阶段编号，或者返回负数（如果当前阶段终止）
+		【Throws】：
+			IllegalStateException 如果没有终止，未抵达方的数量将变为负数。
+	arriveAndDeregister():int 
+	awaitAdvance(int phase):int 
+	awaitAdvanceInterruptibly(int phase,long timeout, TimeUnit unit):int 
+	bulkRegister(int parties):int 
+	forceTermination():void 
+	getArrivedParties():int 
+	getParent():Phaser 
+	getPhase():final int 
+	getRegisteredParties():int 
+	getRoot():Phaser 
+	getUnarrivedParties():int 
+	isTerminated():boolean 
+	onAdvance(int phase, int registeredParties):protected boolean 
+	register():int 
+		将新的未抵达方添加到此阶段。如果正在进行onAdvance(int, int)的持续调用，则此方法可能会在返回之前等待其完成。如果此阶段器有一个父阶段器，并且此阶段器以前没有注册方，则此子阶段器也在其父阶段器注册。如果此阶段器终止，则尝试注册无效，并返回负值。
+		返回此注册应用的抵达阶段编号。如果该值为负值，则该阶段器已终止，在这种情况下，注册无效。
+		【Throws】：
+			IllegalStateException 如果试图注册的参与方数量超过支持的最大数量。
+	toString():String 
+	
+	
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已被淘汰掉的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
