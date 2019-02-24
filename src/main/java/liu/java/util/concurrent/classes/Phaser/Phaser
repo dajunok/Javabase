@@ -6,7 +6,7 @@ Phaser：阶段器。【Since:1.7】
 	【同步】：像CyclicBarrier一样，Phaser可能会反复等待。方法arriveAndAwaitAdvance()的效果类似于CyclicBarrier.await。每一个阶段器都有一个相关的阶段数量。阶段数量从零开始，当所有各方到达阶段器时向前移动，到达Integer.MAX_VALUE后回到数量0。使用阶段编号可以通过任何注册方的两种方法调用，在到达阶段器和等待其他阶段时独立控制操作：
 		● 抵达（Arrival）。方法arrive()和arriveAndDeregister()记录抵达。这些方法不会阻塞，而是返回一个相关的到达阶段编号；也就是说，抵达阶段器应用到的阶段编号。当给定阶段的最后一方到达时，将执行可选操作并往前推进阶段。这些操作由触发阶段前进吖方执行，并由覆盖方法onAdvance(int, int)调度安排，该方法也控制终止。覆盖此方法类似于，但比为CyclicBarrier提供屏障作用更灵活。
 		● 等待（Waiting）。方法awaitAdvance(int)需要一个指示到达阶段编号的参数，并在阶段器前进到（或已经到达）不同阶段时返回。与使用CyclicBarrier的类似构造器不同，方法awaitAdvance继续等待，即使等待线程被中断。可中断和超时版本也可用，但任务以中断方式等待或超时时遇到的异常不会更改阶段器的状态。如果需要，您可以在这些异常的处理程序中执行任何相关的恢复，通常在调用forceTermination之后。在ForkJoinPool中执行的任务也可以使用阶段器，这将确保在其他任务被阻塞等待阶段前进时有足够的并行性来执行任务。
-	【终止】：阶段器可进入终止状态，可使用方法isTerminated()进行检查。终止后，所有同步方法立即返回，不等待前进，返回值为负值。同样，在终止时尝试注册也没有效果。当onAdvance的调用返回true时触发终止。如果取消注册导致注册方数量变为零，则默认实现返回true。如下描述所示，当相位器以固定的迭代次数控制操作时，通常可以方便地重写此方法，以在当前阶段数量达到阈值时导致终止。方法forceTermination()也可用于突然释放等待线程并允许它们终止。
+	【终止】：阶段器可进入终止状态，可使用方法isTerminated()进行检查。终止后，所有同步方法立即返回，不等待前进，返回值为负值。同样，在终止时尝试注册也没有效果。当onAdvance的调用返回true时触发终止。如果取消注册导致注册方数量变为零，则默认实现返回true。如下描述所示，当阶段器以固定的迭代次数控制操作时，通常可以方便地重写此方法，以在当前阶段数量达到阈值时导致终止。方法forceTermination()也可用于突然释放等待线程并允许它们终止。
 	【分层】：阶段器可以分层（即用树结构构造）以减少争用。相反，可以设置具有大量参与方的阶段器，否则会遇到严重的同步争用成本，以便子阶段组共享一个共同的父阶段。这可能会极大地提高吞吐量，即使它会增加每个操作的开销。
 		       在分层阶段树中，自动管理子阶段及其父阶段的注册和注销。当子阶段器的注册方数量变为非零（如Phaser(Phaser,int)构造函数、register()或bulkRegister(int)中所述）时，子阶段器将注册到其父阶段。每当由于arriveAndDeregister()的调用而注册的参与方数量变为零时，子阶段器就会从其父阶段注销。
 	【监控】：虽然同步方法只能由注册方调用，但任何调用方都可以监视阶段器的当前状态。在任何给定时刻，共有getRegisteredParties()个缔约方，其中getArrivedParties()已到达当前阶段（getPhase()）。当剩下的（getUnarrivedParties()）方到达时，阶段就继续往前前进。这些方法返回的值可能反映瞬态状态，因此一般不适用于同步控制。方法toString()以便于非正式监视的形式返回这些状态查询的快照。
@@ -115,25 +115,60 @@ Method Summary（方法概要）：
 		【Throws】：
 			IllegalStateException 如果没有终止，未抵达方的数量将变为负数。
 	arriveAndDeregister():int 
+		到达该阶段并在不等待其他人抵达情况下从该阶段注销，注销操作减少了在未来阶段前进所需的参与方数量。如果此阶段器有一个父级，并且注销会导致此阶段器没有参与方，则此阶段器也会从其父级注销。
+		未注册方调用此方法是一个使用错误。但是，此错误可能会导致IllegalStateException异常，如果有的话，只有在对该阶段器进行某些后续操作时才会发生。
+		【Throws】：
+			IllegalStateException 如果没有终止，未抵达方的数量将变为负数。
 	awaitAdvance(int phase):int 
+		phase - 抵达阶段编号，如果终止，则为负值；此参数通常是前一个抵达调用或arriveAndDeregister返回的值。
+		等待此阶段器的阶段从给定阶段值前进，如果当前阶段不等于给定阶段值或此阶段器终止，则立即返回。
+		返回下一个抵达阶段，或者返回参数值（如果为负数），或者负数（如果当前阶段终止）。
 	awaitAdvanceInterruptibly(int phase,long timeout, TimeUnit unit):int 
-	bulkRegister(int parties):int 
+		phase - 抵达阶段编号，如果终止，则为负值；此参数通常是前一个arrive调用或arriveAndDeregister返回的值。
+		等待此阶段器的阶段从给定的阶段值前进，如果在等待时中断，则抛出InterruptedException，或者如果当前阶段不等于给定的阶段值或此阶段器已终止，则立即返回。
+		返回下一个抵达阶段，或者如果参数为负返回参数值，如果当前阶段终止返回负数。
+		【Throws】：
+			InterruptedException 如果线程在等待时中断
+	bulkRegister(int parties):int 		
+		将给定数量的新未抵达方添加到此阶段器。如果正在进行对onAdvance(int, int)的调用，则此方法可能在返回之前等待其完成。如果此阶段器有一个父阶段，并且给定的参与方数大于零，并且此阶段器以前没有注册的参与方，则此子阶段器也在其父阶段器中注册。如果此阶段器终止，则尝试注册无效，并返回负值。
+		返回适合此注册的抵达阶段编号。如果该值为负值，则该阶段器已终止，在这种情况下，注册无效。
+		【Throws】：
+			IllegalStateException 如果试图注册的参与方数量超过支持的最大数量
+			IllegalArgumentException 如果parties < 0			
 	forceTermination():void 
+		强制此阶段器进入终止状态。注册方的数量不受影响。如果此阶段是一组分层阶段的成员，则该组中的所有阶段都将终止。如果此阶段器已终止，则此方法无效。此方法对于在一个或多个任务遇到意外异常后协调恢复可能很有用。
 	getArrivedParties():int 
+		返回到达此阶段器当前阶段的已注册参与方数量。如果此阶段器已终止，则返回的值是无意义的和随意的。
 	getParent():Phaser 
-	getPhase():final int 
+		返回此阶段器的父级，如果没有，则返回null。
+	getPhase():final int
+		返回当前阶段数量。最大相数为Integer.MAX_VALUE，到达这个最大数之后以零重新启动。终止时，返回阶段数量为负数，在这种情况下，终止前的主要阶段可通过getPhase() + Integer.MIN_VALUE获得。
 	getRegisteredParties():int 
+		返回在此阶段注册的参与方数量。
 	getRoot():Phaser 
+		返回此阶段器的根祖先，如果没有父级，则与此阶段器相同。
 	getUnarrivedParties():int 
+		返回尚未抵达此阶段器当前阶段的已注册参与方数量。如果此阶段器已终止，则返回的值是无意义的和随意的。
 	isTerminated():boolean 
+		如果此阶段器已终止，则返回“true”。
 	onAdvance(int phase, int registeredParties):protected boolean 
+		phase - 在这个阶段器被推进之前，这个方法入口的当前阶段编号
+		registeredParties - 当前注册方数量	
+		可覆盖的方法，在即将到来的阶段前进时执行的操作，并控制终止。此方法在推进此阶段器的一方到达时调用（当所有其他等待方都处于休眠状态时）。如果此方法返回true，则此阶段器将在前进时设置为最终终止状态，随后对isTerminated()的调用将返回true。此方法调用引发的任何（未选中的）异常或错误都将传播给试图推进此阶段器的一方，在这种情况下不会发生前进。
+		此方法的参数提供当前转换的主要阶段器状态。从onAdvance中调用arrival、registration和waiting方法对这个阶段器的影响是未知的，不应该依赖于它。
+		如果此阶段器是一组分层阶段器的成员，那么onAdvance仅在每次推进时为其根阶段器调用。
+		为了支持最常见的用例，当调用arriveAndDeregister的一方的注册方数量变为零时，此方法的默认实现将返回true。通过重写此方法以始终返回false，可以禁用此行为，从而在将来注册时启用继续：
+			 Phaser phaser = new Phaser() {
+			   protected boolean onAdvance(int phase, int parties) { return false; }
+			 }	
+		如果此阶段器终止，则为返回true。
 	register():int 
 		将新的未抵达方添加到此阶段。如果正在进行onAdvance(int, int)的持续调用，则此方法可能会在返回之前等待其完成。如果此阶段器有一个父阶段器，并且此阶段器以前没有注册方，则此子阶段器也在其父阶段器注册。如果此阶段器终止，则尝试注册无效，并返回负值。
 		返回此注册应用的抵达阶段编号。如果该值为负值，则该阶段器已终止，在这种情况下，注册无效。
 		【Throws】：
 			IllegalStateException 如果试图注册的参与方数量超过支持的最大数量。
 	toString():String 
-	
+		返回一个标识此阶段器及其状态的字符串。括号中的状态包括字符串“phase=”后跟阶段号，“parties=”后跟已注册参与方的数量，“arrized=”后跟已到达参与方的数量。
 	
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------
