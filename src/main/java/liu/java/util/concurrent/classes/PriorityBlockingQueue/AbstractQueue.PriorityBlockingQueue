@@ -1,0 +1,185 @@
+-----------------------------------------PriorityBlockingQueue<E>-------------------------------------------------------------------------------------------------------------
+PriorityBlockingQueue<E>：优先级阻塞队列。【Since:1.5】
+	<E> 此集合中容纳的元素的类型
+	使用与类PriorityQueue相同的排序规则并提供阻塞检索操作的无边界阻塞队列。虽然此队列在逻辑上没有极限，但由于资源耗尽（导致OutOfMemoryError内存不足错误），尝试的添加可能会失败。此类不允许null元素。依赖自然排序的优先级队列也不允许插入不可比较的对象（这样做会导致ClassCastException异常）。
+	这个类及其迭代器实现Collection和Iterator接口的所有可选方法。方法iterator()中提供的迭代器不能保证以任何特定顺序遍历PriorityBlockingQueue的元素。如果需要有序遍历，请考虑使用Arrays.sort(pq.toArray())。另外，方法drainTo可以用于按优先级顺序删除一些或所有元素，并将它们放在另一个集合中。
+	此类上的操作不能保证具有相同优先级的元素的顺序。如果需要强制执行排序，可以定义自定义类或比较器，这些类或比较器使用辅助键来断开主优先级值中的关系。例如，这里有一个类，它将先进先出的连接打断应用于可比较的元素。要使用它，您需要插入一个新的FIFOEntry(anEntry)，而不是一个普通的entry对象。
+		 class FIFOEntry<E extends Comparable<? super E>>
+		     implements Comparable<FIFOEntry<E>> {
+		   static final AtomicLong seq = new AtomicLong(0);
+		   final long seqNum;
+		   final E entry;
+		   public FIFOEntry(E entry) {
+		     seqNum = seq.getAndIncrement();
+		     this.entry = entry;
+		   }
+		   public E getEntry() { return entry; }
+		   public int compareTo(FIFOEntry<E> other) {
+		     int res = entry.compareTo(other.entry);
+		     if (res == 0 && other.entry != this.entry)
+		       res = (seqNum < other.seqNum ? -1 : 1);
+		     return res;
+		   }
+		 }	
+	该类是Java集合框架的成员。
+	
+	
+	
+	类定义	：public class PriorityBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable
+	实现接口	：Iterable<E>,Collection<E>,Queue<E>,BlockingQueue<E>,java.io.Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public PriorityBlockingQueue()
+		创建具有默认初始容量（11）的PriorityBlockingQueue，该容量根据元素的自然顺序对其进行排序。
+	public PriorityBlockingQueue(int initialCapacity)
+		创建具有指定初始容量的PriorityBlockingQueue，该队列根据元素的自然顺序对其进行排序。
+		【Throws】：
+			IllegalArgumentException 如果initialCapacity小于1
+	public PriorityBlockingQueue(int initialCapacity,Comparator<? super E> comparator)
+		创建具有指定初始容量的PriorityBlockingQueue，该队列根据指定的比较器对其元素排序。
+		【Throws】：
+			IllegalArgumentException 如果initialCapacity小于1
+	public PriorityBlockingQueue(Collection<? extends E> c)
+		创建包含指定集合中的元素的PriorityBlockingQueue。如果指定的集合是SortedSet或PriorityQueue，则此优先级队列将按照相同的顺序排序。否则，该优先级队列将根据其元素的自然顺序进行排序。	
+		【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素相互比较
+			NullPointerException 如果指定的集合或其任何元素为null	
+		
+		
+		
+Method Summary（方法概要）：
+	add(E e):boolean 
+		△ 将指定的元素插入此优先级队列。
+		【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定的元素与当前在优先级队列中的元素进行比较
+			NullPointerException 如果指定的元素为null		
+	clear():void 
+		△ 原子地从这个队列中删除所有元素。此调用返回后，队列将为空。		
+	comparator():Comparator<? super E> 
+		△ 返回用于排序此队列中元素的比较器，如果此队列使用其元素的自然顺序，则返回null。
+	contains(Object o):boolean 
+		△ 如果此队列包含指定的元素，则返回true。更正式地说，如果并且仅当此队列包含至少一个元素e（如o.equals(e)），则返回true。		
+	drainTo(Collection<? super E> c):int 
+		△  删除此队列中的所有可用元素并将它们添加到给定集合中。此操作可能比重复轮询（polling）此队列更有效。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	drainTo(Collection<? super E> c, int maxElements):int 
+		△ 最多可以从此队列中删除给定数量的可用元素，并将它们添加到给定集合中。尝试将元素添加到集合c时遇到错误，在引发关联的异常时，可能会导致元素既不在队列中，也不在指定集合中。尝试将队列排入（drain）自身会导致IllegalArgumentException异常。此外，如果在操作过程中修改了指定的集合，则此操作的行为不确定。
+		【Throws】：
+			UnsupportedOperationException 如果指定的集合不支持添加元素
+			ClassCastException  如果指定元素的类阻止将其添加到此队列中
+			NullPointerException 如果指定的集合为null。
+			IllegalArgumentException 如果指定的集合是此队列本身，或此队列元素的某些属性阻止将其添加到指定的集合中。
+	iterator():Iterator<E> 
+		△ 返回此队列中元素的迭代器。迭代器不以任何特定的顺序返回元素。
+		返回的迭代器是弱一致性的。
+	offer(E e):boolean 
+		△ 将指定的元素插入此优先级队列。由于队列无极限，因此此方法永远不会返回false。
+		【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素与当前在优先级队列中的元素进行比较。
+			NullPointerException 如果指定的集合或其任何元素为null	
+	offer(E e, long timeout, TimeUnit unit):boolean
+		timeout - 放弃前等待多长时间，unit为单位（由于队列无限边界，此参数没有实际意义）
+		unit - timeout参数的时间单位
+		△  将指定的元素插入此优先级队列。由于队列无极限，因此此方法永远不会阻塞或返回false。
+		 【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素与当前在优先级队列中的元素进行比较。
+			NullPointerException 如果指定的集合或其任何元素为null	
+	peek():E 
+		△ 检索但不删除此队列的头；如果此队列为空，则返回null。
+	poll():E 
+		△ 检索并删除此队列的头，如果此队列为空，则返回null。
+	poll(long timeout, TimeUnit unit):E 
+		△ timeout - 放弃前等待多长时间，unit为单位（由于队列无限边界，此参数没有实际意义）
+		unit - timeout参数的时间单位
+		检索并删除此队列的头，如果需要，可等待指定的等待时间以使元素可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	put(E e):void
+		△  将指定的元素插入此优先级队列。由于队列无极限，因此此方法永远不会阻塞。
+		 【Throws】：
+			ClassCastException 如果无法根据优先级队列的顺序将指定集合的元素与当前在优先级队列中的元素进行比较。
+			NullPointerException 如果指定的集合或其任何元素为null	
+	remainingCapacity():int
+	 	△ 总是返回Integer.MAX_VALUE，因为PriorityBlockingQueue不受容量限制。
+	remove(Object o):boolean 
+		△ 从该队列中删除指定元素的单个实例（如果存在）。更正式地说，如果此队列包含一个或多个这样的元素（如o.equals（e）），则删除元素e。仅当此队列包含指定元素时返回true（或者，如果此队列由于调用而更改，则返回等效值）。
+	size():int 
+		△ 返回此集合中的元素数。如果此集合包含超过Integer.MAX_VALUE元素，则返回Integer.MAX_VALUE。
+	spliterator():Spliterator<E> 
+		△ 返回此队列中元素的拆分器。
+		返回的拆分器是弱一致性的。
+		spliterator报告reports Spliterator.SIZED和Spliterator.NONNULL。
+		拆分器额外报告Spliterator.SUBSIZED。
+	take():E 
+		△ 检索并删除此队列的头，必要时等待元素变为可用。
+		【Throws】：
+			InterruptedException 如果在等待时中断
+	toArray():Object[] 
+		△ 返回包含此队列中所有元素的数组。返回的数组元素没有特定的顺序。
+		返回的数组将是“安全的”，因为此队列不维护对它的引用。（换句话说，此方法必须分配一个新数组）。因此，调用者可以自由修改返回的数组。
+		此方法充当基于数组和基于集合的API之间的桥梁。
+	toArray(T[] a):<T> T[] 
+		△ 返回包含此队列中所有元素的数组；返回的数组的运行时类型是指定数组的运行时类型。返回的数组元素没有特定的顺序。如果队列适合指定的数组，则会在其中返回。否则，将为新数组分配指定数组的运行时类型和此队列的大小。
+		如果此队列适合具有备用空间的指定数组（即，该数组中的元素多于此队列），则紧跟队列末尾的数组中的元素将设置为空。
+		与toArray()方法一样，此方法充当基于数组和基于集合的API之间的桥梁。此外，此方法允许对输出数组的运行时类型进行精确控制，并且可以在某些情况下用于节省分配成本。
+		假设x是一个已知只包含字符串的队列。以下代码可用于将队列转储到新分配的字符串数组中：
+			String[] y = x.toArray(new String[0]);
+		请注意，toArray(new Object[0])在功能上与toArray()相同。
+	toString():String 
+		△ 返回此集合的字符串表示形式。字符串表示形式由集合元素的列表组成，这些元素按迭代器返回的顺序排列，用方括号（"[]"）括起来。相邻元素由字符“,”（逗号和空格）分隔。元素按String.valueOf(Object)转换为字符串。
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已被淘汰掉的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
