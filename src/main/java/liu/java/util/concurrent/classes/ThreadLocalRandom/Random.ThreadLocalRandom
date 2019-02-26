@@ -1,0 +1,173 @@
+-------------------------------ThreadLocalRandom-----------------------------------------------------------------------------------------------------------------------
+ThreadLocalRandom：线程局部随机数。【since 1.7】
+	与当前线程隔离的随机数生成器。与Math类使用的全局随机生成器一样，ThreadLocalRandom是用内部生成的种子初始化的，不得修改该种子。如果适用，在并发程序中使用ThreadLocalRandom而不是共享Random对象通常会遇到更少的开销和争用。当多个任务（例如，每个ForkJoinTask）在线程池中并行使用随机数时，特别适合使用ThreadLocalRandom。
+	此类的用法通常应为：ThreadLocalRandom.current().nextX(...) （其中X是int、long等）。当所有的用法都是这种形式时，永远不可能在多个线程之间意外地共享一个ThreadLocalRandom。
+	此类还提供其他常用的有界随机数生成方法。
+	threadLocalRandom的实例在密码学上不安全。考虑在安全敏感的应用程序中使用SecureRandom。此外，除非系统属性java.util.SecureRandomSeed设置为true，否则默认构造的实例不使用加密随机种子。
+	
+	
+	类定义	：public class ThreadLocalRandom extends Random
+	实现接口	：Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Method Summary（方法概要）：
+	current():static ThreadLocalRandom 
+		返回当前线程的ThreadLocalRandom。
+	doubles():DoubleStream 
+		△ 返回一个有效的不受限制的伪随机double值流，每个值介于0（包含）和1（不包含）之间。
+		此方法实现为等效于doubles(Long.MAX_VALUE)
+	doubles(double randomNumberOrigin, double randomNumberBound):DoubleStream 
+		△ 返回一个有效的不受限制的伪随机double值流，每个值都符合给定的起点（包含）和界限（不包含）。
+		此方法实现为等效于doubles(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)。
+		【Throws】：
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。
+	doubles(long streamSize):DoubleStream 
+		△ 返回产生给定流大小streamSize的伪随机double值的流，每个值介于0（包含）和1（不包含）之间。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于0。
+	doubles(long streamSize, double randomNumberOrigin,double randomNumberBound):DoubleStream 
+		△ 返回产生给定流大小streamSize的伪随机double值的流，每个值都符合给定的起点（包含）和界限（不包含）。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于0。
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。
+	ints():IntStream 
+		△ 返回一个有效的不受限制的伪随机int值流。
+		此方法实现为等效于ints(Long.MAX_VALUE)。
+	ints(int randomNumberOrigin, int randomNumberBound):IntStream 
+		△ 返回一个有效的不受限制的伪随机int值流，每个值都符合给定的起点（包含）和界限（不包含）。
+		此方法实现为等效于ints(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)。
+		【Throws】：
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。
+	ints(long streamSize):IntStream 
+		△ 返回产生给定streamSize数量的伪随机int值的流。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于0。
+	ints(long streamSize, int randomNumberOrigin,int randomNumberBound):IntStream 
+		△ 返回产生给定streamSize数量的伪随机int值的流，每个值都符合给定的起点（包含）和界限（不包含）。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于0，或者randomNumberOrigin大于或等于randomNumberBound。
+	longs():LongStream 
+		△ 返回一个有效的不受限制的伪随机long值流。
+		此方法实现为等效于longs(Long.MAX_VALUE)。
+	longs(long streamSize):LongStream 
+		△ 返回产生给定streamSize数量的伪随机long值的流。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于0。
+	longs(long randomNumberOrigin, long randomNumberBound):LongStream 
+		△ 返回一个有效的不受限制的伪随机long值流，每个值都符合给定的起点（包含）和界限（不包含）。
+		此方法实现为等效于longs(Long.MAX_VALUE, randomNumberOrigin, randomNumberBound)。
+		【Throws】：
+			IllegalArgumentException 如果randomNumberOrigin大于或等于randomNumberBound。
+	longs(long streamSize, long randomNumberOrigin,long randomNumberBound):LongStream 
+		△ 返回产生给定streamSize数量的伪随机long值的流，每个值都符合给定的起点（包含）和界限（不包含）。
+		【Throws】：
+			IllegalArgumentException 如果streamSize小于0，或者randomNumberOrigin大于或等于randomNumberBound。
+	next(int bits):protected int 
+		△ 生成下一个伪随机数。子类应该覆盖它，因为它被所有其他方法使用。
+		next的一般约定是返回一个int值，如果参数位在1到32之间（包括1和32），那么返回值的许多低阶位将是（大约）独立选择的位值，每个位（大约）都可能是0或1。next方法由类随机通过原子更新种子来实现：
+			(seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1)
+		然后返回
+			(int)(seed >>> (48 - bits))
+		这是一个线性同余伪随机数发生器，由D.H.Lehmer定义，Donald E.Knuth在《计算机编程技术》第3卷：半数值算法第3.2.1节中描述。
+	nextBoolean():boolean 
+		返回伪随机布尔值。
+	nextDouble():double 
+		△ 返回介于0（包含）和1（不包含）之间的伪随机double值。
+	nextDouble(double bound):double 
+		返回介于0.0（含）和指定界限（不含）之间的伪随机double值。
+		【Throws】：
+			IllegalArgumentException 如果bound不是正的。		
+	nextDouble(double origin, double bound):double 
+		返回指定起点（包含）和界限（不包含）之间的伪随机double值。
+	nextFloat():float 
+		△ 返回介于0（包含）和1（不包含）之间的伪随机浮点值float。
+	nextGaussian():double 
+		△ 返回下一个伪随机高斯分布的双精度值，平均值为0.0，标准偏差为1.0。
+		nextGaussian的总原则是从（近似）平均值为0.0，标准差为1.0的正态分布中选择一个双值，伪随机生成并返回。
+		方法nextGaussian是通过类Random实现的，就像通过以下的线程安全版本实现的一样：
+			 private double nextNextGaussian;
+			 private boolean haveNextNextGaussian = false;
+			
+			 public double nextGaussian() {
+			   if (haveNextNextGaussian) {
+			     haveNextNextGaussian = false;
+			     return nextNextGaussian;
+			   } else {
+			     double v1, v2, s;
+			     do {
+			       v1 = 2 * nextDouble() - 1;   // between -1.0 and 1.0
+			       v2 = 2 * nextDouble() - 1;   // between -1.0 and 1.0
+			       s = v1 * v1 + v2 * v2;
+			     } while (s >= 1 || s == 0);
+			     double multiplier = StrictMath.sqrt(-2 * StrictMath.log(s)/s);
+			     nextNextGaussian = v2 * multiplier;
+			     haveNextNextGaussian = true;
+			     return v1 * multiplier;
+			   }
+			 }		
+		这使用了G.E.P.Box、M.E.Muller和G.Marsalgia的极坐标法，如Donald E.Knuth在《计算机编程技术》第3卷：半数值算法第3.4.1节C小节算法P中所述。注意，它生成两个独立值，只需调用StrictMath.log和调用StrictMath.sqrt一次。
+	nextInt():int 
+		△ 返回伪随机int值。
+	nextInt(int bound):int 
+		△ 生成下一个伪随机数。子类应该覆盖它，因为它被所有其他方法使用。
+		next的一般约定是返回一个int值，如果参数位在1到32之间（包括1和32），那么返回值的许多低阶位将是（大约）独立选择的位值，每个位（大约）都可能是0或1。next方法由类随机通过原子更新种子来实现：
+			(seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1)
+		然后返回
+			(int)(seed >>> (48 - bits))
+		这是一个线性同余伪随机数发生器，由D.H.Lehmer定义，Donald E.Knuth在《计算机编程技术》第3卷：半数值算法第3.2.1节中描述。
+	nextInt(int origin, int bound):int 
+		返回指定起点（包含）和界限（不包含）之间的伪随机int值。
+		【Throws】：
+			IllegalArgumentException 如果origin大于等于bound。	
+	nextLong():long 
+		△ 返回伪随机long值。
+	nextLong(long bound):long 
+		返回介于0（包含零）和指定界限（不包含）之间的伪随机long值。
+		【Throws】：
+			IllegalArgumentException 如果bound不是正的。	
+	nextLong(long origin, long bound):long 
+		返回指定起点（包含）和界限（不包含）之间的伪随机long值。
+		【Throws】：
+			IllegalArgumentException 如果origin大于等于bound。	
+	setSeed(long seed):void 
+		△ 抛出UnsupportedOperationException异常。不支持在此生成器中设置种子。
+	
+	
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已被淘汰掉的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+	11、线程“公平”与“饥饿”：如果一个线程因为CPU时间全部被其他线程抢走而得不到CPU运行时间，这种状态被称之为“饥饿”。而该线程被“饥饿致死”正是因为它得不到CPU运行时间的机会。解决饥饿的方案被称之为“公平性” – 即所有线程均能公平地获得运行机会。		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

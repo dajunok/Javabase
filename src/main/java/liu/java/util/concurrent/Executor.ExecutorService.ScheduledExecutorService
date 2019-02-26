@@ -40,14 +40,22 @@ ScheduledExecutorService：预定执行器服务接口 【Since:1.5】
 			RejectedExecutionException 如果任务无法调度执行
 			NullPointerException 如果callable为null
 	scheduleAtFixedRate(Runnable command,long initialDelay,long period,TimeUnit unit):ScheduledFuture<?> 
+		command - 执行的任务
+		initialDelay  - 首次执行的延迟时间
+		period - 连续执行之间的时间间隔（即周期）
 		unit - initialDelay和period参数的时间单位
-		创建并执行一个定期操作，该操作首先在给定的初始延迟（initialDelay）之后启用，然后在给定的时间段（period）内启用；即，执行将在initialDelay之后开始，然后在initialDelay+period之后开始，然后在initialDelay+2*period之后开始，依此类推。如果任务的任何执行遇到异常，将禁止后续执行。否则，任务只能通过取消或终止执行器来终止。如果此任务的任何执行时间长于其周期，则后续执行可能会延迟开始，但不会同时执行。
+		创建并执行一个定期动作，该动作首先在给定的初始延迟（initialDelay）之后激活，然后在给定的周期（period）内激活；即，执行将在initialDelay之后开始，然后在initialDelay+period之后开始，然后在initialDelay+2*period之后开始，依此类推。如果任务的任何执行遇到异常，将禁止后续执行。否则，任务只能通过取消或终止执行器来终止。如果此任务的任何执行时间长于其周期，则后续执行可能会延迟开始，但不会同时执行。
 		【Throws】：
 			RejectedExecutionException 如果任务无法调度执行
 			NullPointerException 如果command为null
 			IllegalArgumentException 如果周期小于或等于零
 	scheduleWithFixedDelay(Runnable command,long initialDelay,long delay,TimeUnit unit):ScheduledFuture<?>
-		 创建并执行一个定期操作，该操作在给定的初始延迟（initialDelay）之后首先启用，然后在一个执行终止和下一个执行开始之间具有给定的延迟（delay）。如果任务的任何执行遇到异常，将禁止后续执行。否则，任务只能通过取消或终止执行器来终止。
+		command - 执行的任务
+		initialDelay  - 首次执行的延迟时间
+		delay - 一次执行终止与下一次执行开始之间的延迟
+		period - 连续执行之间的时间间隔（即周期）
+		unit - initialDelay和period参数的时间单位 
+		 创建并执行一个定期动作，该动作在给定的初始延迟（initialDelay）之后首先启用，然后在一个执行终止和下一个执行开始之间具有给定的延迟（delay）。如果任务的任何执行遇到异常，将禁止后续执行。否则，任务只能通过取消或终止执行器来终止。
 		【Throws】：
 			RejectedExecutionException 如果任务无法调度执行
 			NullPointerException 如果command为null

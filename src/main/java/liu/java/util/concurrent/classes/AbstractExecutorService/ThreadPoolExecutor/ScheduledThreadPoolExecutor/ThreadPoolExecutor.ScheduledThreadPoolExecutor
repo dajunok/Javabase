@@ -1,0 +1,175 @@
+-------------------------------------ScheduledThreadPoolExecutor-----------------------------------------------------------------------------------------------------------------------------------
+ScheduledThreadPoolExecutor：调度线程池执行器。【since 1.5】
+	一种ThreadPoolExecutor，它可以另外调度命令在给定的延迟后运行，或定期执行。当需要多个工作线程时，或者当需要ThreadPoolExecutor的额外灵活性或功能（此类扩展）时，该类比计时器(Timer)更可取。
+	延迟的任务在激活后立即执行，但对激活后何时开始没有任何实时保证。在提交的先进先出（FIFO）顺序中激活执行时间完全相同的调度任务。
+	当提交的任务在运行前被取消时，执行将被取消。默认情况下，这样一个被取消的任务不会自动从工作队列中删除，直到其延迟结束。虽然这可以进一步检查和监控，但也可能导致取消的任务被无限保留。要避免这种情况，请将setRemoveOnCancelPolicy(boolean)设置为true，这将导致在取消任务时立即从工作队列中删除任务。
+	通过scheduleAtFixedRate或scheduleWithFixedDelay调度的任务的连续执行不重叠。虽然不同的执行可能由不同的线程执行，但是先前执行的影响比后面执行的影响要早。
+	虽然这个类继承自ThreadPoolExecutor，但一些继承的调优方法对它不有用。特别是，因为它使用corePoolSize线程和无边界队列作为固定大小的池，所以对maximumPoolSize的调整没有任何有用的效果。此外，将corePoolSize设置为零或使用allowCoreThreadTimeOut几乎不是一个好主意，因为这样可能会使池在有资格运行任务时没有线程来处理任务。
+	扩展说明：此类重写execute和submit方法以生成内部ScheduledFuture对象，以控制每个任务的延迟和调度。为了保留功能，子类中这些方法的任何进一步重写都必须调用超类(父类)版本，这将有效地禁用额外的任务自定义。但是，此类提供了可选的protected扩展方法decorateTask（针对Runnable和Callable的每一个版本），可用于自定义用于执行输入命令的具体任务类型，通过execute、submit、schedule、scheduleAtFixedRate和scheduleWithFixedDelay。默认情况下，ScheduledThreadPoolExecutor使用扩展FutureTask的任务类型。但是，可以使用子类的形式修改或替换：
+		 public class CustomScheduledExecutor extends ScheduledThreadPoolExecutor {
+		
+		   static class CustomTask<V> implements RunnableScheduledFuture<V> { ... }
+		
+		   protected <V> RunnableScheduledFuture<V> decorateTask(
+		                Runnable r, RunnableScheduledFuture<V> task) {
+		       return new CustomTask<V>(r, task);
+		   }
+		
+		   protected <V> RunnableScheduledFuture<V> decorateTask(
+		                Callable<V> c, RunnableScheduledFuture<V> task) {
+		       return new CustomTask<V>(c, task);
+		   }
+		   // ... add constructors, etc.
+		 }	
+		 
+	
+	
+	
+	类定义	：public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements ScheduledExecutorService
+	实现接口	：Executor,ExecutorService,ScheduledExecutorService
+	内部类	：ThreadPoolExecutor.AbortPolicy,ThreadPoolExecutor.CallerRunsPolicy,ThreadPoolExecutor.DiscardOldestPolicy,ThreadPoolExecutor.DiscardPolicy
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：	
+	public ScheduledThreadPoolExecutor(int corePoolSize)
+		创建具有给定核心池大小的新ScheduledThreadPoolExecutor。
+		【Throws】：
+			IllegalArgumentException 如果corePoolSize < 0
+	public ScheduledThreadPoolExecutor(int corePoolSize,RejectedExecutionHandler handler)
+		corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+		handler - 由于达到线程边界和队列容量而阻止执行时要使用的处理程序（处理器）。
+		使用给定的初始参数创建新的scheduledThreadPoolExecutor。
+		【Throws】：
+			IllegalArgumentException 如果corePoolSize < 0
+			NullPointerException 如果handler为null。
+	public ScheduledThreadPoolExecutor(int corePoolSize,ThreadFactory threadFactory)
+		corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+		threadFactory  - 执行器创建新线程时要使用的工厂。
+		使用给定的初始参数创建新的scheduledThreadPoolExecutor。
+		【Throws】：
+			IllegalArgumentException 如果corePoolSize < 0
+			NullPointerException 如果threadFactory为null。
+	public ScheduledThreadPoolExecutor(int corePoolSize,ThreadFactory threadFactory,RejectedExecutionHandler handler)
+		corePoolSize - 除非设置了allowCoreThreadTimeOut，否则要保留在池中的线程数，即使它们是空闲的。
+		handler - 由于达到线程边界和队列容量而阻止执行时要使用的处理程序（处理器）。
+		threadFactory  - 执行器创建新线程时要使用的工厂。
+		使用给定的初始参数创建新的scheduledThreadPoolExecutor。
+		【Throws】：
+			IllegalArgumentException 如果corePoolSize < 0
+			NullPointerException 如果threadFactory或handler为null。
+
+
+Method Summary（方法概要）：
+	decorateTask(Runnable runnable, RunnableScheduledFuture<V> task):protected <V> RunnableScheduledFuture<V> 
+		<V> - 任务task返回的类型
+		runnable - 提交的Runnable
+		task - 	为执行Runnable而创建的任务
+		修改或替换用于执行可运行文件的任务。此方法可用于重写具体类管理内部任务。默认实现只返回给定的任务task。
+	decorateTask(Callable<V> callable, RunnableScheduledFuture<V> task):protected <V> RunnableScheduledFuture<V> 
+		<V> - 任务task返回的类型
+		callable  - 提交的Callable
+		task - 	为执行callable而创建的任务
+		修改或替换用于执行可调用文件的任务。此方法可用于重写具体类管理内部任务。默认实现只返回给定的任务task。
+	execute(Runnable command):void 
+		零延迟执行命令。其效果等同于schedule(command, 0, anyUnit)。注意，检查队列和shutdownNow返回的列表将访问零延迟ScheduledFuture，而不是命令本身。
+		使用ScheduledFuture对象的结果是，即使命令突然终止，也始终使用第二个参数Throwable为null调用afterExecute。相反，这种任务抛出的Throwable可以通过Future.get()获得。
+		【Throws】：
+			RejectedExecutionException 
+			NullPointerException - if command is null
+	getContinueExistingPeriodicTasksAfterShutdownPolicy():boolean 
+		获取有关是否继续执行现有定期任务（即使此执行器已关闭）的策略。在这种情况下，这些任务将仅在shutdownNow时终止，或者在已经关闭时将策略设置为false后终止。默认情况下，该值为false。
+		如果关闭后继续，则返回true。
+	getExecuteExistingDelayedTasksAfterShutdownPolicy():boolean 
+		获取有关是否执行现有延迟任务（即使此执行器已关闭）的策略。在这种情况下，这些任务将仅在立即关闭（shutdown）时终止，或者在已关闭时将策略设置为false之后终止。默认情况下，该值为true。
+		如果在关闭后执行，则返回true。
+	getQueue():BlockingQueue<Runnable> 
+		返回此执行器使用的任务队列。此队列的每个元素都是一个ScheduledFuture，包括使用execute提交的用于调度目的的任务，这些任务用作零延迟ScheduledFuture的基础。在此队列上的迭代不能保证按任务的执行顺序遍历任务。
+	getRemoveOnCancelPolicy():boolean 
+		获取有关取消任务时是否应立即从工作队列中删除的策略。默认情况下，该值为false。
+		如果取消的任务立即从队列中删除，则返回true。
+	schedule(Runnable command,long delay,TimeUnit unit):ScheduledFuture<?> 
+		command - 执行的任务
+		delay - 从现在到执行的延迟时间
+		unit - delay参数的时间单位
+		创建并执行一个在给定延迟后激活的一次性操作。
+		【Throws】：
+			RejectedExecutionException 如果任务无法调度执行
+			NullPointerException 如果command为null
+	schedule(Callable<V> callable,long delay,TimeUnit unit):<V> ScheduledFuture<V> 
+		callable - 要执行的函数
+		delay - 从现在到执行的延迟时间
+		unit - delay参数的时间单位
+		创建并执行在给定延迟后激活的ScheduledFuture。
+		【Throws】：
+			RejectedExecutionException 如果任务无法调度执行
+			NullPointerException 如果callable为null
+	scheduleAtFixedRate(Runnable command,long initialDelay,long period,TimeUnit unit):ScheduledFuture<?>
+		command - 执行的任务
+		initialDelay  - 首次执行的延迟时间
+		period - 连续执行之间的时间间隔（即周期）
+		unit - initialDelay和period参数的时间单位
+		创建并执行一个定期动作，该动作首先在给定的初始延迟（initialDelay）之后激活，然后在给定的周期（period）内激活；即，执行将在initialDelay之后开始，然后在initialDelay+period之后开始，然后在initialDelay+2*period之后开始，依此类推。如果任务的任何执行遇到异常，将禁止后续执行。否则，任务只能通过取消或终止执行器来终止。如果此任务的任何执行时间长于其周期，则后续执行可能会延迟开始，但不会同时执行。
+		【Throws】：
+			RejectedExecutionException 如果任务无法调度执行
+			NullPointerException 如果command为null
+			IllegalArgumentException 如果周期小于或等于零
+	scheduleWithFixedDelay(Runnable command,long initialDelay,long delay,TimeUnit unit):ScheduledFuture<?>
+		command - 执行的任务
+		initialDelay  - 首次执行的延迟时间
+		delay - 一次执行终止与下一次执行开始之间的延迟
+		period - 连续执行之间的时间间隔（即周期）
+		unit - initialDelay和period参数的时间单位 
+		 创建并执行一个定期动作，该动作在给定的初始延迟（initialDelay）之后首先启用，然后在一个执行终止和下一个执行开始之间具有给定的延迟（delay）。如果任务的任何执行遇到异常，将禁止后续执行。否则，任务只能通过取消或终止执行器来终止。
+		【Throws】：
+			RejectedExecutionException 如果任务无法调度执行
+			NullPointerException 如果command为null
+			IllegalArgumentException 如果delay小于或等于零
+	setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean value):void 
+		设置是否继续执行现有定期任务的策略，即使此执行器已关闭。在这种情况下，这些任务将仅在立即关闭时终止，或者在已关闭时将策略设置为false之后终止。默认情况下，该值为false。
+	setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean value):void 
+		设置是否执行现有延迟任务的策略，即使此执行器已关闭。在这种情况下，这些任务将仅在立即关闭时终止，或者在已关闭时将策略设置为false之后终止。默认情况下，该值为true。
+	setRemoveOnCancelPolicy(boolean value):void 
+		设置取消任务时是否应立即从工作队列中删除的策略。默认情况下，该值为false。
+	shutdown():void 
+		启动有序关闭，在该关闭中执行以前提交的任务，但不接受新任务。如果已经关闭，则调用没有其他效果。
+		此方法不等待以前提交的任务完成执行。使用awaitTermination来完成此操作。
+		如果ExecuteExistingDelayedTasksAfterShutdownPolicy设置为false，则会取消尚未经过延迟的现有延迟任务。并且除非将ContinueExistingPeriodicTasksAfterShutdownPolicy策略设置为true，否则将取消将来对现有定期任务的执行。
+	shutdownNow():List<Runnable> 
+	submit(Runnable task):Future<?> 
+	submit(Runnable task, T result):<T> Future<T> 
+	submit(Callable<T> task):<T> Future<T> 
+	
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、work-stealing：工作窃取算法。是指某个线程从其队列里窃取任务来执行。一个大任务分割为若干个互不依赖的子任务，为了减少线程间的竞争，把这些子任务分别放到不同的队列里，并未每个队列创建一个单独的线程来执行队列里的任务，线程和队列一一对应。比如线程1负责处理1队列里的任务，2线程负责2队列的。但是有的线程会先把自己队列里的任务干完，而其他线程对应的队列里还有任务待处理。干完活的线程与其等着，不如帮其他线程干活，于是它就去其他线程的队列里窃取一个任务来执行。而在这时它们可能会访问同一个队列，所以为了减少窃取任务线程和被窃取任务线程之间的竞争，通常会使用双端队列，被窃取任务线程永远从双端队列的头部拿任务执行，而窃取任务线程永远从双端队列的尾部拿任务执行。
+		优点：充分利用线程进行并行计算，减少线程间的竞争。
+		缺点：在某些情况下还是会存在竞争，比如双端队列里只有一个任务时。并且该算法会消耗更多的系统资源， 比如创建多个线程和多个双端队列。
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
