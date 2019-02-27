@@ -1,0 +1,71 @@
+----------------------------------------Package java.util.concurrent.atomic--------------------------------------------------------------------------------------------------------------
+													【Since 1.5】
+Package Description（包描述说明）：
+	一个很小的类工具箱，支持对单个变量进行无锁线程安全编程。本质上，此包中的类将可变值、字段和数组元素的概念扩展到那些还提供原子条件更新操作形式的元素：
+		boolean compareAndSet(expectedValue, updateValue);
+	此方法（在不同类的参数类型中有所不同）自动将变量设置为updateValue，前提是它当前持有expectedValue，并在成功时报告为true。该包中的类还包含获取和无条件设置值的方法，以及下面描述的弱条件原子更新操作weakCompareAndSet。
+	这些方法的规范使实现能够使用现代处理器上可用的高效机器级原子指令。然而，在某些平台上，支持可能需要某种形式的内部锁定。因此，不能严格保证方法是非阻塞的——线程在执行操作之前可能会暂时阻塞。
+	AtomicBoolean、AtomicInteger、AtomicLong 和 AtomicReference 类的实例都提供对相应类型的单个变量的访问和更新。每个类还为该类型提供适当的实用方法。例如，AtomicLong和AtomicInteger类提供原子增量方法。一个生成序列号的应用程序，如：
+		 class Sequencer {
+		   private final AtomicLong sequenceNumber
+		     = new AtomicLong(0);
+		   public long next() {
+		     return sequenceNumber.getAndIncrement();
+		   }
+		 }	
+	定义新的实用函数很简单，就像getAndIncrement一样，将函数原子地应用于一个值。例如，给定一些转换
+		long transform(long input)
+	编写实用方法如下：
+		 long getAndTransform(AtomicLong var) {
+		   long prev, next;
+		   do {
+		     prev = var.get();
+		     next = transform(prev);
+		   } while (!var.compareAndSet(prev, next));
+		   return prev; // return next; for transformAndGet
+		 }	
+	原子访问和更新的内存效应通常遵循挥发物规则，如Java语言规范（17.4内存模型）中所述：
+		● get具有读取volatile变量的内存效果。
+		● set具有写入（分配）volatile变量的内存效果。
+		● lazySet具有写入（分配）volatile变量的内存效果，但它允许使用后续（但不是以前的）内存操作重新排序，这些操作本身不会对普通非volatile写入施加重新排序约束。在其他使用上下文中，lazySet可能会在为了垃圾收集而取消一个永远不会被访问的引用时应用。
+		● weakCompareAndSet以原子方式读取和有条件地写入变量，但不会在排序之前创建任何东西，因此对于weakCompareAndSet目标之外的任何变量的先前或后续读取和写入不提供任何保证。
+		● compareAndSet和所有其他读取和更新操作（如getAndIncrement）都具有读取和写入volatile变量的内存效果。
+	除了表示单个值的类之外，此包还包含Updater类，可用于在任何选定类的任何选定volatile字段上获取compareAndSet操作。AtomicReferenceFieldUpdater、AtomicIntegerFieldUpdater和AtomicLongFieldUpdater是基于反射的实用程序，提供对关联字段类型的访问。这些主要用于原子数据结构，其中同一节点的几个volatile字段（例如，树节点的链接）独立地接受原子更新。这些类能够在如何和何时使用原子更新方面实现更大的灵活性，代价是基于反射的设置更加笨拙，使用更加不方便，保证也更加薄弱。                               
+	AtomicIntegerArray、AtomicLongArray和AtomicReferenceArray类进一步将原子操作支持扩展到这些类型的数组。这些类在为数组元素提供volatile访问语义方面也很重要，而普通数组不支持这种语义。
+	原子类还支持weakCompareAndSet方法，这种方法的适用性有限。在某些平台上，在正常情况下，weak版本可能比compareAndSet更有效，但不同之处在于，weakCompareandset方法的任何给定调用都可能错误地返回false（也就是说，没有明显的原因）。返回false意味着只有在需要时才可以重试操作，这依赖于重复调用的保证，当变量保持expectedValue并且没有其他线程试图设置变量时最终将成功。（例如，这种虚假故障可能是由于内存争用效应，而这些效应与预期值和当前值是否相等无关。）此外，weakCompareAndSet不提供同步控制通常需要的排序保证。但是，当这些更新与另一个更新无关时，该方法可能对更新计数器和统计信息很有用，而这是在程序排序之前发生的。当线程看到weakCompareAndSet导致的原子变量更新时，它不一定看到weakCompareAndSet之前发生的任何其他变量的更新。例如，当更新性能统计信息时，这也许是可以接受的，但很少这样。
+	AtomicMarkableReference类将单个布尔值与引用关联。例如，这个位可以在数据结构中使用，以表示被引用的对象已被逻辑删除。AtomicStampedReference类将整数值与引用关联。例如，它可以用来表示与一系列更新相对应的版本号。
+	原子类主要设计为实现非阻塞数据结构和相关基础设施类的构建块。compareAndSet方法不是锁定的一般替代方法。它仅在对象的关键更新仅限于单个变量时适用。
+	原子类不是java.lang.Integer和相关类的通用替代。它们不定义equals、hashCode和compareTo等方法。（因为预计原子变量会发生变化，所以对于哈希表键来说，它们是糟糕的选择。）此外，类只提供给那些在预期应用程序中通常有用的类型。例如，没有用于表示字节的原子类。在那些您希望这样做的罕见情况下，您可以使用AtomicInteger来保存字节值，并进行适当的强制转换。您还可以使用Float.floatToRawIntBits(float)和Float.intBitsToFloat(int)转换来保持float，使用Double.doubleToRawLongBits(double)和Double.longBitsToDouble(long)转换来实现double。
+	
+
+
+Class Summary（类概要）
+	AtomicBoolean	
+	AtomicInteger	
+	AtomicIntegerArray	
+	AtomicIntegerFieldUpdater<T>
+	AtomicLong	
+	AtomicLongArray	
+	AtomicLongFieldUpdater<T>	
+	AtomicMarkableReference<V>
+	AtomicReference<V>	
+	AtomicReferenceArray<E>	
+	AtomicReferenceFieldUpdater<T,V>	
+	AtomicStampedReference<V>
+	DoubleAccumulator
+	DoubleAdder	
+	LongAccumulator
+	LongAdder
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	
+	
+	
+	
+		
+		
