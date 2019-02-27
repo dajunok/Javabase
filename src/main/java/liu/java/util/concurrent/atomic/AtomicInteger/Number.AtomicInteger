@@ -1,40 +1,39 @@
-----------------------------------------AtomicBoolean--------------------------------------------------------------------------------------------------------------
-AtomicBoolean：原子布尔值。【Since:1.5】
-	可以原子更新的布尔值。原子变量属性的描述见java.util.concurrent.atomic包规范。AtomicBoolean用于原子更新标志等应用程序，不能用作布尔值的替换。
-	
+----------------------------------------AtomicInteger--------------------------------------------------------------------------------------------------------------
+AtomicInteger：原子整数。【Since:1.5】
+	可以原子更新的int值。有关原子变量属性的描述，请参阅java.util.concurrent.atomic包规范。AtomicInteger用于原子递增计数器等应用程序，不能用作整数的替换。然而，这个类确实扩展了Number以允许处理基于数字的类的工具和实用程序统一访问。
 
-	类定义	：public class AtomicBoolean implements java.io.Serializable
+
+	类定义	：public class AtomicInteger extends Number implements java.io.Serializable 
 	实现接口	：java.io.Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	public AtomicBoolean()
-		创建初始值为false的新AtomicBoolean。
-	public AtomicBoolean(boolean initialValue)
-		使用给定的初始值创建新的AtomicBoolean。
-			
+	public AtomicInteger()
+		创建初始值为0的新AtomicInteger。
+	public AtomicInteger(int initialValue)
+		使用给定的初始值创建新AtomicInteger。
 			
 Method Summary（方法概要）：
-	compareAndSet(boolean expect, boolean update):final boolean 
-		expect - 预期值
-		update - 更新值
-		如果当前值==预期值expect，则自动将该值设置为给定的更新值update。
-		如果成功，则返回true。false返回表示实际值不等于预期值。
-	get():final boolean 
-		返回当前值。
-	getAndSet(boolean newValue):final boolean 
-		自动设置为给定值并返回上一个值。
-	lazySet(boolean newValue):final void 
-		最终设置为给定值。
-	set(boolean newValue):final void 
-		无条件设置为给定值newValue。
+	accumulateAndGet(int x,IntBinaryOperator accumulatorFunction):final int 
+	addAndGet(int delta):final int 
+	compareAndSet(int expect, int update):final boolean 
+	decrementAndGet():final int 
+	doubleValue():double 
+	floatValue():float 
+	get():final int 
+	getAndAccumulate(int x,IntBinaryOperator accumulatorFunction):final int 
+	getAndAdd(int delta):final int 
+	getAndDecrement():final int 
+	getAndIncrement():final int 
+	getAndSet(int newValue):final int 
+	getAndUpdate(IntUnaryOperator updateFunction):final int 
+	incrementAndGet():final int 
+	intValue():int 
+	lazySet(int newValue):final void 
+	longValue():long 
+	set(int newValue):final void 
 	toString():String 
-		△ 返回当前值的字符串表示形式。
-	weakCompareAndSet(boolean expect, boolean update):boolean 
-		expect - 预期值
-		update - 更新值
-		如果当前值==预期值，则自动将该值设置为给定的更新值。
-		可能会错误地失败，并且不提供顺序保证，因此compareAndSet很少有适当的替代方案。
-		如果成功，则返回true。
+	updateAndGet(IntUnaryOperator updateFunction):final int 
+	weakCompareAndSet(int expect, int update):final boolean 
 	
 	
 	

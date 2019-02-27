@@ -1,0 +1,160 @@
+----------------------------------------Package java.util--------------------------------------------------------------------------------------------------------------
+包含集合框架、遗留集合类、事件模型、日期和时间设施、国际化和其他实用程序类（字符串标记器、随机数生成器和位数组）。【Since JDK1.0】
+											 
+Package Description（包说明描述）：
+	包含集合框架、遗留集合类、事件模型、日期和时间设施、国际化和其他实用程序类（字符串标记器、随机数生成器和位数组）。
+
+
+Interface Summary（接口概要）：
+	Collection
+	Comparator
+	Deque
+	Enumeration
+	EventListener
+	Formattable
+	Iterator
+	List
+	ListIterator
+	Map
+	Map.Entry
+	NavigableMap
+	NavigableSet
+	Observer
+	PrimitiveIterator
+	PrimitiveIterator.OfDouble
+	PrimitiveIterator.OfInt
+	PrimitiveIterator.OfLong
+	Queue
+	RandomAccess
+	Set
+	SortedMap
+	SortedSet
+	Spliterator
+	Spliterator.OfDouble
+	Spliterator.OfInt
+	Spliterator.OfLong
+	Spliterator.OfPrimitive
+
+
+
+Class Summary（类概要）：
+	AbstractCollection
+	AbstractList
+	AbstractMap
+	AbstractMap.SimpleEntry
+	AbstractMap.SimpleImmutableEntry
+	AbstractQueue
+	AbstractSequentialList
+	AbstractSet
+	ArrayDeque
+	ArrayList
+	Arrays
+	Base64
+	Base64.Decoder
+	Base64.Encoder
+	BitSet
+	Calendar
+	Calendar.Builder
+	Collections
+	Currency
+	Date
+	Dictionary
+	DoubleSummaryStatistics
+	EnumMap
+	EnumSet
+	EventListenerProxy
+	EventObject
+	FormattableFlags
+	Formatter
+	GregorianCalendar
+	HashMap
+	HashSet
+	Hashtable
+	IdentityHashMap
+	IntSummaryStatistics
+	LinkedHashMap
+	LinkedHashSet
+	LinkedList
+	ListResourceBundle
+	Locale
+	Locale.Builder
+	Locale.LanguageRange
+	LongSummaryStatistics
+	Objects
+	Observable
+	Optional
+	OptionalDouble
+	OptionalInt
+	OptionalLong
+	PriorityQueue
+	Properties
+	PropertyPermission
+	PropertyResourceBundle
+	Random
+	ResourceBundle
+	ResourceBundle.Control
+	Scanner
+	ServiceLoader
+	SimpleTimeZone
+	Spliterators
+	Spliterators.AbstractDoubleSpliterator
+	Spliterators.AbstractIntSpliterator
+	Spliterators.AbstractLongSpliterator
+	Spliterators.AbstractSpliterator
+	SplittableRandom
+	Stack
+	StringJoiner
+	StringTokenizer
+	Timer
+	TimerTask
+	TimeZone
+	TreeMap
+	TreeSet
+	UUID
+	Vector
+	WeakHashMap
+
+
+
+Enum Summary（枚举概要）
+	Formatter.BigDecimalLayoutForm
+	Locale.Category
+	Locale.FilteringMode
+	
+Exception Summary（异常概要）
+	ConcurrentModificationException
+	DuplicateFormatFlagsException
+	EmptyStackException
+	FormatFlagsConversionMismatchException
+	FormatterClosedException
+	IllegalFormatCodePointException
+	IllegalFormatConversionException
+	IllegalFormatException
+	IllegalFormatFlagsException
+	IllegalFormatPrecisionException
+	IllegalFormatWidthException
+	IllformedLocaleException
+	InputMismatchException
+	InvalidPropertiesFormatException
+	MissingFormatArgumentException
+	MissingFormatWidthException
+	MissingResourceException
+	NoSuchElementException
+	TooManyListenersException
+	UnknownFormatConversionException
+	UnknownFormatFlagsException
+
+Error Summary（错误概要）
+	ServiceConfigurationError
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	
+	
+	
+	
+		
+		
