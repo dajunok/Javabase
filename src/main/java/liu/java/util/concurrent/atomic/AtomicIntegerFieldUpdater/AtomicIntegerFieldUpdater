@@ -1,40 +1,34 @@
-----------------------------------------AtomicBoolean--------------------------------------------------------------------------------------------------------------
-AtomicBoolean：原子布尔值。【Since:1.5】
-	可以原子更新的布尔值。原子变量属性的描述见java.util.concurrent.atomic包规范。AtomicBoolean用于原子更新标志等应用程序，不能用作布尔值的替换。
-	
+----------------------------------------AtomicIntegerFieldUpdater<T>--------------------------------------------------------------------------------------------------------------
+AtomicIntegerFieldUpdater<T>：原子整数字段更新器。【Since:1.5】
+	<T> 包含可更新字段的对象的类型
+	一种基于反射的实用程序，可以对指定类的指定【volatile int】修饰的字段进行原子更新。此类设计用于原子数据结构，其中同一节点的几个字段独立地接受原子更新。
+	注意，这个类中compareAndset方法比其他原子类中的原子性保证要弱。因为这个类不能确保字段的所有使用都适合原子访问，所以它只能保证仅与CompareAndSet其他调用有关的原子性，并且在同一个更新器（updater）上设置。
+	前面讲的两个AtomicInteger和AtomicIntegerArray，这两个都是在最初设计编码时候就已经考虑到了需要保证原子性。但是往往有很多情况就是，由于需求的更改，原子性需要在后面加入，类似于我不要求你这整个类操作具有原子性，我只要求你里面一个字段操作具有原子性。没错，concurrent.atomic包下AtomicIntegerFieldUpdater就是这个作用的。
 
-	类定义	：public class AtomicBoolean implements java.io.Serializable
-	实现接口	：java.io.Serializable
+
+	类定义	：public abstract class AtomicIntegerFieldUpdater<T>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	public AtomicBoolean()
-		创建初始值为false的新AtomicBoolean。
-	public AtomicBoolean(boolean initialValue)
-		使用给定的初始值创建新的AtomicBoolean。
-			
+	protected AtomicIntegerFieldUpdater()
 			
 Method Summary（方法概要）：
-	compareAndSet(boolean expect, boolean update):final boolean 
-		expect - 预期值
-		update - 更新值
-		如果当前值==预期值expect，则自动将该值设置为给定的更新值update。
-		如果成功，则返回true。false返回表示实际值不等于预期值。
-	get():final boolean 
-		返回当前值。
-	getAndSet(boolean newValue):final boolean 
-		按原子将当前值设置为给定值，并返回旧值。
-	lazySet(boolean newValue):final void 
-		最终设置为给定值。
-	set(boolean newValue):final void 
-		无条件设置为给定值newValue。
-	toString():String 
-		△ 返回当前值的字符串表示形式。
-	weakCompareAndSet(boolean expect, boolean update):boolean 
-		expect - 预期值
-		update - 更新值
-		如果当前值==预期值，则按原子将该值设置为给定的更新值。
-		可能会错误地失败，并且不提供顺序保证，因此compareAndSet很少有适当的替代方案。
-		如果成功，则返回true。
+	newUpdater(Class<U> tclass,String fieldName):static <U> AtomicIntegerFieldUpdater<U> 
+	accumulateAndGet(T obj, int x,IntBinaryOperator accumulatorFunction):final int 
+	addAndGet(T obj, int delta):int 
+	compareAndSet(T obj, int expect, int update):abstract boolean 
+	decrementAndGet(T obj):int 
+	get(T obj):abstract int 
+	getAndAccumulate(T obj, int x,IntBinaryOperator accumulatorFunction):final int 
+	getAndAdd(T obj, int delta):int 
+	getAndDecrement(T obj):int 
+	getAndIncrement(T obj):int 
+	getAndSet(T obj, int newValue):int 
+	getAndUpdate(T obj, IntUnaryOperator updateFunction):final int 
+	incrementAndGet(T obj):int 
+	lazySet(T obj, int newValue):abstract void 
+	set(T obj, int newValue):abstract void 
+	updateAndGet(T obj, IntUnaryOperator updateFunction):final int 
+	weakCompareAndSet(T obj, int expect, int update):abstract boolean 
 	
 	
 	
@@ -58,7 +52,12 @@ Method Summary（方法概要）：
 	11、Atomic（原子性）：是指一个操作是不可中断的。即使是在多个线程一起执行的时候，一个操作一旦开始，就不会被其它线程干扰。 
 	12、Visibility(可见性）：是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。 Java提供了volatile关键字来保证可见性。 
 	13、Orderly（有序性）：指程序执行的顺序按照代码的先后顺序执行。在Java里面，可以通过volatile关键字来保证一定的“有序性”（具体原理在下一节讲述）。另外可以通过synchronized和Lock来保证有序性，很显然，synchronized和Lock保证每个时刻是有一个线程执行同步代码，相当于是让线程顺序执行同步代码，自然就保证了有序性
-	14、CAS操作:指的是compareAndSet操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
-
-		
-		
+	14、CAS操作:指的是compareAndSwap操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
+	15、基元类型：编译器直接支持的数据类型称为基元类型(Primitive type)
+	16、AtomicIntegerFieldUpdater：是用来更新某一个实例对象里面的int属性的。	它的用法规则如下：
+		● 字段必须是volatile类型的，在线程之间共享变量时保证立即可见
+		● 字段的描述类型（修饰符public/protected/default/private）是与调用者与操作对象字段的关系一致。也就是说调用者能够直接操作对象字段，那么就可以反射进行原子操作。
+		● 对于父类的字段，子类是不能直接操作的，尽管子类可以访问父类的字段。
+		● 只能是实例变量，不能是类变量，也就是说不能加static关键字。
+		● 只能是可修改变量，不能使final变量，因为final的语义就是不可修改。
+		● 对于AtomicIntegerFieldUpdater和AtomicLongFieldUpdater只能修改int/long类型的字段，不能修改其包装类型（Integer/Long）。如果要修改包装类型就需要使用AtomicReferenceFieldUpdater。

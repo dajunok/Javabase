@@ -14,27 +14,71 @@ Constructor Summary（构造器概要）：
 			
 Method Summary（方法概要）：
 	accumulateAndGet(int x,IntBinaryOperator accumulatorFunction):final int 
+		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicInteger的当前值。
+		accumulatorFunction - 两个参数的无副作用函数
+		按原子更新当前值，将当前值和给定值应用于函数accumulatorFunction并计算更新值，并且返回更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。给定函数的第一个参数是当前值，第二个参数是给定的x。
+		返回更新值（即accumulatorFunction计算后的值）
 	addAndGet(int delta):final int 
+		原子的将给定值添加到（内存）当前值。
+		返回更新后的值。
 	compareAndSet(int expect, int update):final boolean 
-	decrementAndGet():final int 
+		expect - 预期值
+		update - 更新值
+		如果当前值==预期值，则按原子将该值设置为给定的更新值。
+		如果成功，则返回true。false返回表示实际值不等于预期值。
+	decrementAndGet():final int
+		按原子将当前值递减1。 
+		返回更新后的值（即递减后的值）
 	doubleValue():double 
+		△ 在加宽的基元转换之后，以double形式返回此AtomicInteger的值。
+		返回此对象在转换为类型double后表示的数值。
 	floatValue():float 
+		△ 在加宽的基元转换之后，以float形式返回此AtomicInteger的值。
+		返回此对象在转换为类型float后表示的数值。
 	get():final int 
+		获取当前值。
 	getAndAccumulate(int x,IntBinaryOperator accumulatorFunction):final int 
+		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicInteger的当前值。
+		accumulatorFunction - 两个参数的无副作用函数
+		按原子更新当前值，将当前值和给定值x应用于accumulatorFunction函数并计算更新值，并且返回上一个值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是当前值，第二个参数是给定的x。
+		返回上一个值（即更新前的值）。
 	getAndAdd(int delta):final int 
+		按原子将给定值添加到当前值。
+		返回上一个值（即添加给定值之前的值）。
 	getAndDecrement():final int 
+		按原子将当前值递减1。 
+		返回上一个值（即递减之前的值）。
 	getAndIncrement():final int 
+		按原子将当前值递增1。 
+		返回上一个值（即递增之前的值）。
 	getAndSet(int newValue):final int 
+		按原子将当前值设置为给定值，并返回旧值。
 	getAndUpdate(IntUnaryOperator updateFunction):final int 
+		按原子更新当前值，并返回上一个值。给定的函数以当前值为参数计算更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
+		返回旧值（即更新前的值）。
 	incrementAndGet():final int 
+		按原子将当前值递增1.
+		返回更新后的值（即递增后的值）
 	intValue():int 
+		△ 以int形式返回此AtomicInteger的值。
+		返回转换为int类型后此对象表示的数值。
 	lazySet(int newValue):final void 
+		最终设置为给定值。
 	longValue():long 
+		△ 以long形式返回此AtomicInteger的值。
+		返回转换为long类型后此对象表示的数值。
 	set(int newValue):final void 
+		设置为给定的值。
 	toString():String 
+		△ 返回当前值的字符串表示形式。
 	updateAndGet(IntUnaryOperator updateFunction):final int 
+		将当前值作为给定函数的参数计算更新值，并按原子更新当前值，并且返回更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
 	weakCompareAndSet(int expect, int update):final boolean 
-	
+		expect - 预期值
+		update - 更新值
+		如果当前值==预期值，则按原子将该值设置为给定的更新值。
+		可能会错误地失败，并且不提供顺序保证，因此compareAndSet很少有适当的替代方案。
+		如果成功，则返回true。
 	
 	
 	
@@ -57,7 +101,7 @@ Method Summary（方法概要）：
 	11、Atomic（原子性）：是指一个操作是不可中断的。即使是在多个线程一起执行的时候，一个操作一旦开始，就不会被其它线程干扰。 
 	12、Visibility(可见性）：是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。 Java提供了volatile关键字来保证可见性。 
 	13、Orderly（有序性）：指程序执行的顺序按照代码的先后顺序执行。在Java里面，可以通过volatile关键字来保证一定的“有序性”（具体原理在下一节讲述）。另外可以通过synchronized和Lock来保证有序性，很显然，synchronized和Lock保证每个时刻是有一个线程执行同步代码，相当于是让线程顺序执行同步代码，自然就保证了有序性
-	14、CAS操作:指的是compareAndSet操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
-
+	14、CAS操作:指的是compareAndSwap操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
+	15、基元类型：编译器直接支持的数据类型称为基元类型(Primitive type)
 		
 		
