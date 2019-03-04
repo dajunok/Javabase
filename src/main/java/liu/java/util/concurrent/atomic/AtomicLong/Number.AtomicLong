@@ -1,82 +1,89 @@
-----------------------------------------AtomicInteger--------------------------------------------------------------------------------------------------------------
-AtomicInteger：原子整数。【Since:1.5】
-	可以按原子更新的int值。有关原子变量属性的描述，请参阅java.util.concurrent.atomic包规范。AtomicInteger用于原子递增计数器等应用程序，不能用作整数的替换。然而，这个类确实扩展了Number以允许处理基于数字的类的工具和实用程序统一访问。
+----------------------------------------AtomicLong--------------------------------------------------------------------------------------------------------------
+AtomicLong：原子长整数。【Since:1.5】
+	可以按原子更新的long值。有关原子变量属性的描述，请参阅java.util.concurrent.atomic包规范。AtomicLong用于原子递增序列号等应用程序中，不能用作long的替换。然而，这个类确实扩展了Number以允许处理基于数字的类的工具和实用程序统一访问。	
 
 
-	类定义	：public class AtomicInteger extends Number implements java.io.Serializable 
+	类定义	：public class AtomicLong extends Number implements java.io.Serializable 
 	实现接口	：java.io.Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	public AtomicInteger()
-		创建初始值为0的新AtomicInteger。
-	public AtomicInteger(int initialValue)
-		使用给定的初始值创建新AtomicInteger。
+	public AtomicLong()
+		创建初始值为0的新AtomicLong。
+	public AtomicLong(long initialValue)
+		使用给定的初始值创建新的AtomicLong。
 			
 Method Summary（方法概要）：
-	accumulateAndGet(int x,IntBinaryOperator accumulatorFunction):final int 
-		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicInteger的当前值。
-		accumulatorFunction - 两个参数的无副作用函数
-		按原子更新当前值，将当前值和给定值应用于函数accumulatorFunction并计算更新值，并且返回更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。给定函数的第一个参数是当前值，第二个参数是给定的x。
+	accumulateAndGet(long x,LongBinaryOperator accumulatorFunction):final long 
+		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicLong的当前值。
+		accumulatorFunction - 带两个参数的无副作用函数
+		按原子更新当前值，将给定函数应用于当前值和给定值，并返回更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是当前值，第二个参数是给定的更新。
 		返回更新值（即accumulatorFunction计算后的值）
-	addAndGet(int delta):final int 
-		原子的将给定值添加到（内存）当前值。
+	addAndGet(long delta):final long 
+		delta - 要添加的值
+		按原子将给定值delta添加到当前值。
 		返回更新后的值。
-	compareAndSet(int expect, int update):final boolean 
+	compareAndSet(long expect, long update):final boolean 
 		expect - 预期值
 		update - 更新值
 		如果当前值==预期值，则按原子将该值设置为给定的更新值。
 		如果成功，则返回true。false返回表示实际值不等于预期值。
-	decrementAndGet():final int
+	decrementAndGet():final long 
 		按原子将当前值递减1。 
 		返回更新后的值（即递减后的值）
 	doubleValue():double 
-		△ 在加宽的基元转换之后，以double形式返回此AtomicInteger的值。
+		△ 在加宽的基元转换之后，以double形式返回此AtomicLong的值。
 		返回此对象在转换为类型double后表示的数值。
 	floatValue():float 
-		△ 在加宽的基元转换之后，以float形式返回此AtomicInteger的值。
+		△ 在加宽的基元转换之后，以float形式返回此AtomicLong的值。
 		返回此对象在转换为类型float后表示的数值。
-	get():final int 
+	get():final long 
 		获取当前值。
-	getAndAccumulate(int x,IntBinaryOperator accumulatorFunction):final int 
-		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicInteger的当前值。
-		accumulatorFunction - 两个参数的无副作用函数
-		按原子更新当前值，将当前值和给定值x应用于accumulatorFunction函数并计算更新值，并且返回上一个值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是当前值，第二个参数是给定的x。
+	getAndAccumulate(long x,LongBinaryOperator accumulatorFunction):final long 
+		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicLong的当前值。
+		accumulatorFunction - 带两个参数的无副作用函数
+		按原子更新当前值，将给定函数应用于当前值和给定值，并且返回上一个值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是当前值，第二个参数是给定的x。
 		返回上一个值（即更新前的值）。
-	getAndAdd(int delta):final int 
-		按原子将给定值添加到当前值。
+    getAndAdd(long delta):final long 
+    	delta - 要添加的值
+    	按原子将给定值添加到当前值。
 		返回上一个值（即添加给定值之前的值）。
-	getAndDecrement():final int 
-		按原子将当前值递减1。 
+    getAndDecrement():final long 
+    	按原子将当前值递减1。 
 		返回上一个值（即递减之前的值）。
-	getAndIncrement():final int 
-		按原子将当前值递增1。 
+    getAndIncrement():final long 
+    	按原子将当前值递增1。 
 		返回上一个值（即递增之前的值）。
-	getAndSet(int newValue):final int 
-		按原子将当前值设置为给定值，并返回旧值。
-	getAndUpdate(IntUnaryOperator updateFunction):final int 
-		按原子更新当前值，并返回上一个值。给定的函数以当前值为参数计算更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
-		返回旧值（即更新前的值）。
-	incrementAndGet():final int 
-		按原子将当前值递增1.
+    getAndSet(long newValue):final long 
+    	newValue - 新值
+    	按原子将当前值设置为给定值，并返回旧值。
+    	返回旧值（即设置前的值）。
+    getAndUpdate(LongUnaryOperator updateFunction):final long
+    	updateFunction - 无副作用更新函数
+    	按原子更新当前值，并返回上一个值。将给定函数应用于当前值和给定值，并且返回旧值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
+		返回旧值（即更新前的值）。 
+    incrementAndGet():final long 
+    	按原子将当前值递增1.
 		返回更新后的值（即递增后的值）
-	intValue():int 
-		△ 以int形式返回此AtomicInteger的值。
+    intValue():int 
+    	△ 以int形式返回此AtomicLong的值。
 		返回转换为int类型后此对象表示的数值。
-	lazySet(int newValue):final void 
-		最终设置为给定值。
-	longValue():long 
-		△ 以long形式返回此AtomicInteger的值。
+    lazySet(long newValue):final void 
+    	newValue - 新值
+    	最终设置为给定值。
+    longValue():long 
+    	△ 将此atomiclong的值作为long返回。
 		返回转换为long类型后此对象表示的数值。
-	set(int newValue):final void 
-		设置为给定的值。
-	toString():String 
-		△ 返回当前值的字符串表示形式。
-	updateAndGet(IntUnaryOperator updateFunction):final int 
-		updateFunction - 无副作用更新函数
+    set(long newValue):final void 
+    	newValue - 新值
+    	设置为给定的值。
+    toString():String 
+    	△ 返回当前值的字符串表示形式。
+    updateAndGet(LongUnaryOperator updateFunction):final long 
+    	updateFunction - 无副作用更新函数
     	应用给定函数按原子更新当前值，并返回更新的值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
     	返回更新值（即更新后的值）。
-	weakCompareAndSet(int expect, int update):final boolean 
-		expect - 预期值
+    weakCompareAndSet(long expect, long update):final boolean 
+    	expect - 预期值
 		update - 更新值
 		如果当前值==预期值，则按原子将该值设置为给定的更新值。
 		可能会错误地失败，并且不提供顺序保证，因此compareAndSet很少有适当的替代方案。

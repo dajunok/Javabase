@@ -1,18 +1,20 @@
-----------------------------------------AtomicIntegerFieldUpdater<T>--------------------------------------------------------------------------------------------------------------
-AtomicIntegerFieldUpdater<T>：原子整数字段更新器。【Since:1.5】
+----------------------------------------AtomicLongFieldUpdater<T>--------------------------------------------------------------------------------------------------------------
+AtomicLongFieldUpdater<T>：原子整数字段更新器。【Since:1.5】
 	<T> 包含可更新字段的对象的类型
-	一种基于反射的实用程序，可以对指定类的指定【volatile int】修饰的字段进行原子更新。此类设计用于原子数据结构，其中同一节点的几个字段独立地接受原子更新。
+	一种基于反射的实用程序，可以对指定类的指定【volatile long】修饰的字段进行原子更新。此类设计用于原子数据结构，其中同一节点的几个字段独立地接受原子更新。
 	注意，这个类中compareAndset方法比其他原子类中的原子性保证要弱。因为这个类不能确保字段的所有使用都适合原子访问，所以它只能保证仅与CompareAndSet其他调用有关的原子性，并且在同一个更新器（updater）上设置。
-	前面讲的两个AtomicInteger和AtomicIntegerArray，这两个都是在最初设计编码时候就已经考虑到了需要保证原子性。但是往往有很多情况就是，由于需求的更改，原子性需要在后面加入，类似于我不要求你这整个类操作具有原子性，我只要求你里面一个字段操作具有原子性。没错，concurrent.atomic包下AtomicIntegerFieldUpdater就是这个作用的。
+	前面讲的两个AtomicLong和AtomicLongArray，这两个都是在最初设计编码时候就已经考虑到了需要保证原子性。但是往往有很多情况就是，由于需求的更改，原子性需要在后面加入，类似于我不要求你这整个类操作具有原子性，我只要求你里面一个字段操作具有原子性。没错，concurrent.atomic包下AtomicIntegerFieldUpdater就是这个作用的。
 
 
-	类定义	：public abstract class AtomicIntegerFieldUpdater<T>
+	类定义	：public abstract class AtomicLongFieldUpdater<T>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	protected AtomicIntegerFieldUpdater()
+	protected AtomicLongFieldUpdater()
 		protected do-nothing构造函数，供子类使用。
+
+
 Method Summary（方法概要）：
-	newUpdater(Class<U> tclass,String fieldName):static <U> AtomicIntegerFieldUpdater<U> 
+	newUpdater(Class<U> tclass,String fieldName):static <U> AtomicLongFieldUpdater<U> 
 		U - tclass实例的类型
 		tclass - 包含字段的对象的类。
 		fieldName - 要更新的字段的名称
@@ -20,18 +22,18 @@ Method Summary（方法概要）：
 		【Throws】：
 			IllegalArgumentException 如果字段不是volatile整数类型
 			RuntimeException 如果类不包含该字段或者是错误类型，则使用嵌套的基于反射的异常，或者根据Java语言访问控制，该字段不能被调用方访问。
-	accumulateAndGet(T obj, int x,IntBinaryOperator accumulatorFunction):final int 
+	accumulateAndGet(T obj, long x,LongBinaryOperator accumulatorFunction):final long 
 		obj - 要获取和设置其字段的对象
 		x - accumulatorFunction的一个计算参数，它的另一个参数是obj的当前值。
 		accumulatorFunction - 带两个参数的无副作用函数
 		按原子更新此更新器管理的给定对象的字段，将给定函数accumulatorFunction应用于obj当前值和给定值x，并返回更新的值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是obj当前值，第二个参数是给定的x。
 		返回更新后的值。
-	addAndGet(T obj, int delta):int 
+	addAndGet(T obj, long delta):long
 		obj - 要获取和设置其字段的对象
 		delta - 要添加的值
 		按原子将给定值delta添加到此更新器管理的给定对象obj的字段的当前值。
 		返回更新后的值。
-	compareAndSet(T obj, int expect, int update):abstract boolean 
+	compareAndSet(T obj, long expect, long update):abstract boolean 
 		obj - 要获取和设置其字段的对象
 		expect - 预期值
 		update - 更新值
@@ -39,60 +41,60 @@ Method Summary（方法概要）：
 		如果成功，则返回true。
 		【Throws】：
 			ClassCastException 如果obj不是拥有在构造函数中建立的字段的类的实例	
-	decrementAndGet(T obj):int 
+	decrementAndGet(T obj):long 
 		obj - 要获取和设置其字段的对象
 		按原子将此更新器管理的给定对象的字段的当前值递减1。
 		返回更新值（即递减后的值）
-	get(T obj):abstract int 
+	get(T obj):abstract long 
 		obj - 要获取和设置其字段的对象
 		★ 获取此更新器管理的给定对象的字段中保存的当前值。	
 		返回obj的当前值
-	getAndAccumulate(T obj, int x,IntBinaryOperator accumulatorFunction):final int 
+	getAndAccumulate(T obj, long x,LongBinaryOperator accumulatorFunction):final long
 		obj - 要获取和设置其字段的对象
 		x - accumulatorFunction的一个计算参数，它的另一个参数是obj的当前值。
 		accumulatorFunction - 带两个参数的无副作用函数
 		按原子更新此更新器管理的给定对象的字段，将给定函数accumulatorFunction应用于obj当前值和给定值x，并返上一个值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是obj当前值，第二个参数是给定的x。
 		返回上一个值（即更新前的值）。
-	getAndAdd(T obj, int delta):int 
+	getAndAdd(T obj, long delta):long 
 		obj - 要获取和设置其字段的对象
 		delta - 要添加的值
 		按原子将给定值添加到当前值。
 		返回上一个值（即添加前的值）。
-	getAndDecrement(T obj):int 
+	getAndDecrement(T obj):long 
 		obj - 要获取和设置其字段的对象
 		按原子地将此更新器管理的给定对象的字段的当前值递减1。
 		返回上一个值（即递减前的值）。
-	getAndIncrement(T obj):int 
+	getAndIncrement(T obj):long 
 		obj - 要获取和设置其字段的对象
 		以原子方式将此更新器管理的给定对象的字段的当前值递增1。
 		返回上一个值（即递增前的值）。
-	getAndSet(T obj, int newValue):int 
+	getAndSet(T obj, long newValue):long 
 		obj - 要获取和设置其字段的对象
 		按原子将此更新器管理的给定对象的字段设置为给定值并返回旧值。
 		返回旧值（即设置前的值）。
-	getAndUpdate(T obj, IntUnaryOperator updateFunction):final int 
+	getAndUpdate(T obj, LongUnaryOperator updateFunction):final long 
 		obj - 要获取和设置其字段的对象
 		updateFunction - 无副作用更新函数
 		应用给定函数按原子方式更新此更新器管理的给定对象的字段，并返回上一个值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
 		返回上一个值（即更新前的值）。
-	incrementAndGet(T obj):int 
+	incrementAndGet(T obj):long 
 		obj - 要获取和设置其字段的对象
 		以原子方式将此更新器管理的给定对象的字段的当前值递增1。
 		返回更新值（即递增后的值）。
-	lazySet(T obj, int newValue):abstract void 
+	lazySet(T obj, long newValue):abstract void 
 		obj - 要获取和设置其字段的对象
 		newValue - 新值
 		★ 最终将此更新器管理的给定对象的字段设置为给定的更新值。		
-	set(T obj, int newValue):abstract void 
+	set(T obj, long newValue):abstract void 
 		obj - 要获取和设置其字段的对象
 		newValue - 新值
 		★ 将此更新器管理的给定对象的字段设置为给定的更新值。对于随后调用compareAndSet，此操作保证作为volatile存储。
-	updateAndGet(T obj, IntUnaryOperator updateFunction):final int 
+	updateAndGet(T obj, LongUnaryOperator updateFunction):final long 
 		obj - 要获取和设置其字段的对象
 		updateFunction - 无副作用更新函数
 		应用给定函数按原子方式更新此更新器管理的给定对象的字段，并返回更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
 		返回更新值（即更新后的值）。
-	weakCompareAndSet(T obj, int expect, int update):abstract boolean 
+	weakCompareAndSet(T obj, long expect, long update):abstract boolean 
 		obj - 要获取和设置其字段的对象
 		expect - 预期值
 		update - 更新值
