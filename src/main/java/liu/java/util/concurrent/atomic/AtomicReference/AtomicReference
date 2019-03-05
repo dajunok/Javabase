@@ -1,48 +1,64 @@
-----------------------------------------AtomicMarkableReference<V>--------------------------------------------------------------------------------------------------------------
-AtomicMarkableReference<V>：原子标记引用。【Since:1.5】
+----------------------------------------AtomicReference<V>--------------------------------------------------------------------------------------------------------------
+AtomicReference<V>：原子引用。【Since:1.5】
 	<V> 此引用引用的对象类型
-	AtomicMarkableReference维护带有标记位的对象引用，可以按原子方式对其进行更新。
-	实现注意事项。通过创建表示“已装箱”的 [reference, boolean] 对的内部对象，此实现维持可标记的引用。
+	可以按原子更新的对象引用。有关原子变量属性的描述，请参阅java.util.concurrent.atomic包规范。
+		
 	
-	
-	类定义	：public class AtomicMarkableReference<V>
+	类定义	：public class AtomicReference<V> implements java.io.Serializable
+	实现接口	：java.io.Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	public AtomicMarkableReference(V initialRef, boolean initialMark)
-		initialRef - 初始引用
-		initialMark - 初始标记
-		使用给定的初始值创建新的AtomicMarkableReference。	
+	public AtomicReference()
+		创建初始值为null的新AtomicReference。
+	public AtomicReference(V initialValue)
+		使用给定的初始值创建新的AtomicReference。
+		
 Method Summary（方法概要）：
-	attemptMark(V expectedReference, boolean newMark):boolean 
-		expectedReference - 预期引用值		
-		newMark - 标记的新值
-		如果当前引用等于预期引用，则按原子将标记的值设置为给定的更新值。此操作的任何给定调用都可能会错误地失败（返回false），但当当前值保持预期值且没有其他线程也试图设置该值时，重复调用最终将成功。
-		成功返回true。
-	compareAndSet(V expectedReference,V newReference,boolean expectedMark,boolean newMark):boolean 
-		expectedReference - 预期引用值
-		newReference - 引用的新值
-		expectedMark - 标记的预期值
-		newMark - 标记的新值
-		如果当前引用等于预期引用且当前标记等于预期标记，则按原子方式将引用和标记的值设置为给定的更新值。
-		成功返回true。
-	get(boolean[] markHolder):V 
-		markHolder - 大小至少为一个的数组。返回时，markHolder[0]将保存标记的值。
-		返回引用和标记的当前值。典型的用法是：boolean[1] holder; ref = v.get(holder); 
-	getReference():V 
-		返回引用的当前值。
-	isMarked():boolean 
-		返回标记的当前值。
-	set(V newReference, boolean newMark):void 
-		newReference - 引用的新值
-		newMark - 标记的新值
-		无条件地设置引用和标记的值。
-	weakCompareAndSet(V expectedReference,V newReference,boolean expectedMark,boolean newMark):boolean 
-		expectedReference - 预期引用值
-		newReference - 引用的新值
-		expectedMark - 标记的预期值
-		newMark - 标记的新值
-		如果当前引用等于预期引用且当前标记等于预期标记，则按将引用和标记的值设置为给定的更新值。
-		可能会错误地失败，并且不提供订购保证，因此很少是compareAndSet的适当替代方案。		
+	accumulateAndGet(V x,BinaryOperator<V> accumulatorFunction):final V 
+		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicLong的当前值。
+		accumulatorFunction - 带两个参数的无副作用函数
+		按原子更新当前值，将给定函数应用于当前值和给定值，并返回更新值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是当前值，第二个参数是给定的更新。
+		返回更新值（即accumulatorFunction计算后的值）
+	compareAndSet(V expect, V update):final boolean 
+		expect - 预期值
+		update - 更新值
+		如果当前值==预期值，则按原子将该值设置为给定的更新值。
+		如果成功，则返回true。false返回表示实际值不等于预期值。
+	get():final V 
+		获取当前值。
+	getAndAccumulate(V x,BinaryOperator<V> accumulatorFunction):final V 
+		x - accumulatorFunction的一个计算参数，它的另一个参数是AtomicLong的当前值。
+		accumulatorFunction - 带两个参数的无副作用函数
+		按原子更新当前值，将给定函数应用于当前值和给定值，并且返回上一个值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。函数的第一个参数是当前值，第二个参数是给定的x。
+		返回上一个值（即更新前的值）。
+	getAndSet(V newValue):final V 
+		newValue - 新值
+    	按原子将当前值设置为给定值，并返回旧值。
+    	返回旧值（即设置前的值）。
+	getAndUpdate(UnaryOperator<V> updateFunction):final V 
+		updateFunction - 无副作用更新函数
+    	按原子更新当前值，并返回上一个值。将给定函数应用于当前值和给定值，并且返回旧值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
+		返回旧值（即更新前的值）。
+	lazySet(V newValue):final void 
+		newValue - 新值
+    	最终设置为给定值。
+	set(V newValue):final void 
+		newValue - 新值
+    	设置为给定的值。
+	toString():String 
+		△ 返回当前值的字符串表示形式。
+	updateAndGet(UnaryOperator<V> updateFunction):final V 
+		updateFunction - 无副作用更新函数
+    	应用给定函数按原子更新当前值，并返回更新的值。该函数应该是无副作用的，因为当尝试的更新由于线程间的争用而失败时，它可能会被重新应用。
+    	返回更新值（即更新后的值）。
+	weakCompareAndSet(V expect, V update):final boolean 
+		expect - 预期值
+		update - 更新值
+		如果当前值==预期值，则按原子将该值设置为给定的更新值。
+		可能会错误地失败，并且不提供顺序保证，因此compareAndSet很少有适当的替代方案。
+		如果成功，则返回true。
+	
+		
 	
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		

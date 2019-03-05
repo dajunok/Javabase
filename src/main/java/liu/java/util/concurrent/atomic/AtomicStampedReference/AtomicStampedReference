@@ -1,48 +1,30 @@
 ----------------------------------------AtomicMarkableReference<V>--------------------------------------------------------------------------------------------------------------
 AtomicMarkableReference<V>：原子标记引用。【Since:1.5】
 	<V> 此引用引用的对象类型
-	AtomicMarkableReference维护带有标记位的对象引用，可以按原子方式对其进行更新。
-	实现注意事项。通过创建表示“已装箱”的 [reference, boolean] 对的内部对象，此实现维持可标记的引用。
+	AtomicMarkableReference维护一个对象引用和一个整数“stamp”，它可以按原子更新。
+	实现注意事项。通过创建表示“已装箱”的 [reference, integer] 对的内部对象来维护标记引用。
 	
 	
 	类定义	：public class AtomicMarkableReference<V>
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	public AtomicMarkableReference(V initialRef, boolean initialMark)
-		initialRef - 初始引用
-		initialMark - 初始标记
-		使用给定的初始值创建新的AtomicMarkableReference。	
+	public AtomicStampedReference(V initialRef, int initialStamp)
+		initialRef  初始引用
+		initialStamp - 初始stamp
+		使用给定的初始值创建新的AtomicMarkableReference。
+	
+	
 Method Summary（方法概要）：
-	attemptMark(V expectedReference, boolean newMark):boolean 
-		expectedReference - 预期引用值		
-		newMark - 标记的新值
-		如果当前引用等于预期引用，则按原子将标记的值设置为给定的更新值。此操作的任何给定调用都可能会错误地失败（返回false），但当当前值保持预期值且没有其他线程也试图设置该值时，重复调用最终将成功。
-		成功返回true。
-	compareAndSet(V expectedReference,V newReference,boolean expectedMark,boolean newMark):boolean 
-		expectedReference - 预期引用值
-		newReference - 引用的新值
-		expectedMark - 标记的预期值
-		newMark - 标记的新值
-		如果当前引用等于预期引用且当前标记等于预期标记，则按原子方式将引用和标记的值设置为给定的更新值。
-		成功返回true。
-	get(boolean[] markHolder):V 
-		markHolder - 大小至少为一个的数组。返回时，markHolder[0]将保存标记的值。
-		返回引用和标记的当前值。典型的用法是：boolean[1] holder; ref = v.get(holder); 
+	attemptStamp(V expectedReference, int newStamp):boolean 
+		expectedReference 引用的预期值
+		newStamp stamp的新值
+	compareAndSet(V   expectedReference,V   newReference,int expectedStamp,int newStamp):boolean 
+	get(int[] stampHolder):V 
 	getReference():V 
-		返回引用的当前值。
-	isMarked():boolean 
-		返回标记的当前值。
-	set(V newReference, boolean newMark):void 
-		newReference - 引用的新值
-		newMark - 标记的新值
-		无条件地设置引用和标记的值。
-	weakCompareAndSet(V expectedReference,V newReference,boolean expectedMark,boolean newMark):boolean 
-		expectedReference - 预期引用值
-		newReference - 引用的新值
-		expectedMark - 标记的预期值
-		newMark - 标记的新值
-		如果当前引用等于预期引用且当前标记等于预期标记，则按将引用和标记的值设置为给定的更新值。
-		可能会错误地失败，并且不提供订购保证，因此很少是compareAndSet的适当替代方案。		
+	getStamp():int 
+	set(V newReference, int newStamp):void 
+	weakCompareAndSet(V   expectedReference,V   newReference,int expectedStamp,int newStamp):boolean 
+	
 	
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
