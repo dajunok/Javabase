@@ -1,0 +1,40 @@
+----------------------------------------Package java.util.concurrent.locks--------------------------------------------------------------------------------------------------------------
+													【Since 1.5】
+Package Description（包描述说明）：
+	接口和类为锁定和等待条件（与内置同步和监视器不一样）提供了框架。该框架允许在使用锁和条件时具有更大的灵活性，而代价是使用更笨拙的语法。
+	Lock接口支持不同语义（可重入、公平等等）的锁规则，可以用于非块状结构（non-block-structured）的上下文，包括移交（hand-over-hand）和锁重新排序算法。主要实现是ReentrantLock。
+	ReadWriteLock接口类似地定义了可以在阅读器（reader）之间共享但由编写器（writer）独占的锁。只提供了一个ReentrantReadWriteLock实现，因为它涵盖了大多数标准使用上下文。但是程序员可以创建自己的实现来覆盖非标准需求。
+	Condition接口描述可能与锁关联的条件变量。这些在用法上与使用Object.wait访问的隐式监控器相似，但提供了扩展功能。尤其是，多个Condition对象可以与单个Lock关联。为了避免兼容性问题，Condition方法的名称与相应的Object版本不同。
+	AbstractQueuedSynchronizer类用作定义锁和其他依赖于排队阻塞线程的同步器的有用超类。AbstractQueuedLongSynchronizer类提供了相同的功能，但扩展了对64位同步状态的支持。这两个类都扩展了类AbstractOwnableSynchronizer，这是一个简单的类，帮助记录当前保持独占同步的线程。LockSupport类提供了较低级别的阻塞和解除阻塞支持，这对于实现自己定制的锁类的开发人员非常有用。
+
+
+Interface Summary（接口概要）
+	Condition
+	Lock
+	ReadWriteLock
+
+
+Class Summary（类概要）
+	AbstractOwnableSynchronizer
+	AbstractQueuedLongSynchronizer
+	AbstractQueuedSynchronizer
+	LockSupport
+	ReentrantLock
+	ReentrantReadWriteLock
+	ReentrantReadWriteLock.ReadLock
+	ReentrantReadWriteLock.WriteLock
+	StampedLock
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、block-structured：块状结构。块状结构(block-like construct)指的是一个类，方法或构造函数的主体。 需要注意的是，数组初始化中的初始值可被选择性地视为块状结构。
+
+	
+	
+	
+	
+		
+		

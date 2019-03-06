@@ -1,50 +1,42 @@
-----------------------------------------AtomicMarkableReference<V>--------------------------------------------------------------------------------------------------------------
-AtomicMarkableReference<V>：原子标记引用。【Since:1.5】
-	<V> 此引用引用的对象类型
-	AtomicMarkableReference维护一个对象引用和一个整数“stamp”，它可以按原子更新。
-	实现注意事项。通过创建表示“已装箱”的 [reference, integer] 对的内部对象来维护标记引用。
+----------------------------------------DoubleAdder--------------------------------------------------------------------------------------------------------------
+DoubleAdder：double加法器。【Since:1.8】
+	一个或多个变量一起维持初始为0的double总数值。当更新（方法add(double)）在线程间争用时，变量集可能会动态增长以减少争用。方法sum()（或等效的doubleValue()）返回在保持sum的变量之间组合的当前总数。不能保证线程内或线程间的累积顺序。因此，如果需要数值稳定性，特别是当结合具有明显不同数量级的值时，这个类可能不适用。
+	当多个线程更新用于诸如经常更新但不经常读取的摘要统计信息等目的的公共值时，此类通常比其他选项更可取。
+	此类扩展了Number，但不定义equals、hashCode和compareTo等方法，因为实例需要可变，因此不能用作集合键。
 	
 	
-	类定义	：public class AtomicMarkableReference<V>
+	类定义	：public class DoubleAdder extends Striped64 implements Serializable
+	实现接口	：Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	public AtomicStampedReference(V initialRef, int initialStamp)
-		initialRef  初始引用
-		initialStamp - 初始stamp
-		使用给定的初始值创建新的AtomicMarkableReference。
-	
+	public DoubleAdder()
+		创建初始和为零的新加法器。
 	
 Method Summary（方法概要）：
-	attemptStamp(V expectedReference, int newStamp):boolean 
-		expectedReference - 引用的预期值
-		newStamp - 标记（stamp）的新值
-		如果当前引用==预期引用，则按原子方式将标记的值设置为给定的更新值。此操作的任何给定调用都可能会错误地失败（返回false），但当当前值保持预期值且没有其他线程也试图设置该值时，重复调用最终将成功。
-	compareAndSet(V   expectedReference,V   newReference,int expectedStamp,int newStamp):boolean 
-		expectedReference - 引用的预期值
-		newReference - 引用的新值
-		expectedStamp - 标记（stamp）的预期值
-		newStamp - 标记（stamp）的新值
-		如果当前引用等于预期引用并且当前标志等于预期标志（stamp），则按原子方式将引用和标志（stamp）的值设置为给定的更新值。
-		成功返回true。	
-	get(int[] stampHolder):V 
-		stampHolder - 大小至少为一的数组。返回时，stampholder[0]将保留标记（stamp）的值。
-		返回引用和标记（stamp）的当前值。典型用法是：int[1] holder; ref = v.get(holder);
-	getReference():V 
-		返回引用的当前值。
-	getStamp():int 
-		返回标记的当前值。
-	set(V newReference, int newStamp):void 
-		newReference - 引用的新值
-		newStamp - 标记（stamp）的新值
-		无条件地设置引用和戳记的值。
-	weakCompareAndSet(V   expectedReference,V   newReference,int expectedStamp,int newStamp):boolean 
-		expectedReference - 引用的预期值
-		newReference - 引用的新值
-		expectedStamp - 标记（stamp）的预期值
-		newStamp - 标记（stamp）的新值
-		如果当前引用==预期引用且当前标记（stamp）等于预期标记（stamp），则自动将引用和标记（stamp）的值设置为给定的更新值。
-		可能会错误地失败，并且不提供订购保证，因此很少是compareAndSet的适当替代方案。	
-		如果成功，返回true。
+	add(double x):void 
+		x - 要添加的值
+		添加给定值。
+	doubleValue():double 
+		△ 等效于sum()。
+		返回总和。
+	floatValue():float 
+		△ 在收缩基元转换后以float形式返回sum()。
+		转换为float类型后此对象表示的数值。
+	intValue():int 
+		△ 在收缩基元转换后以int形式返回sum()。
+		转换为int类型后此对象表示的数值。
+	longValue():long 
+		△ 在收缩基元转换后以long形式返回sum()。
+		转换为long类型后此对象表示的数值。
+	reset():void 
+		重置保持总和为零的变量。这个方法可能是创建新的加法器的一个有用的替代方法，但只有在没有并发更新的情况下才有效。因为这个方法本质上是racy的，所以只有当知道没有线程同时更新时才应该使用它。
+	sum():double 
+		返回当前总和。返回的值不是原子快照；在没有并发更新的情况下调用会返回准确的结果，但是在计算总和时发生的并发更新可能不会被合并。此外，由于浮点运算不具有严格的关联性，因此返回的结果不必与在对单个变量进行连续一系列更新时获得的值相同。
+	sumThenReset():double 
+		等效于sum()，后跟reset()。例如，该方法可以应用于多线程计算之间的静态点。如果有与此方法同步的更新，则返回的值不保证是重置前发生的最终值。
+	toString():String 
+		△ 返回sum()的字符串表示形式。
+	
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
@@ -67,5 +59,5 @@ Method Summary（方法概要）：
 	13、Orderly（有序性）：指程序执行的顺序按照代码的先后顺序执行。在Java里面，可以通过volatile关键字来保证一定的“有序性”（具体原理在下一节讲述）。另外可以通过synchronized和Lock来保证有序性，很显然，synchronized和Lock保证每个时刻是有一个线程执行同步代码，相当于是让线程顺序执行同步代码，自然就保证了有序性
 	14、CAS操作:指的是compareAndSwap操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
 	15、基元类型：编译器直接支持的数据类型称为基元类型(Primitive type)
-		
+	16、DoubleAccumulator、LongAccumulator、DoubleAdder、LongAdder是JDK1.8新增的部分，是对AtomicLong等类的改进。比如LongAccumulator与LongAdder在高并发环境下比AtomicLong更高效。	
 		
