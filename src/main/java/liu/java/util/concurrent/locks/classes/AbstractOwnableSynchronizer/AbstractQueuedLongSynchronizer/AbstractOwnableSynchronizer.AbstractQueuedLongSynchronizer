@@ -7,9 +7,259 @@ AbstractQueuedLongSynchronizer：抽象队列Long同步器。【Since:1.6】
 	实现接口	：Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
-	
+	protected AbstractQueuedLongSynchronizer()
+		创建初始同步状态为零的新AbstractQueuedLongSynchronizer实例。
 	
 Method Summary（方法概要）：
+	Method Summary（方法概要）：
+	acquire(long arg):final void 
+		arg - 获取参数。这个值被传递给tryAcquire(int)，但不被解释，可以表示任何你喜欢的东西。
+		以独占模式获取，忽略中断。通过调用至少一次tryAcquire(int)来实现，并在成功时返回。否则，线程会排队，可能会重复阻塞和取消阻塞，调用tryAcquire(int)直到成功。此方法可用于实现方法Lock.lock()。
+	acquireInterruptibly(long arg):final void 
+		arg - 获取参数。这个值被传递给tryAcquire(long)，但不被解释，可以表示任何你喜欢的东西。
+		以独占模式获取，如果中断将中止。通过首先检查中断状态，然后至少调用一次tryAcquire(long)来实现，并在成功时返回。否则，线程将排队，可能会重复阻塞和取消阻塞，调用tryAcquire(long)直到成功或线程被中断。此方法可用于实现方法Lock.lockInterruptibly()。
+		【Throws】：
+			InterruptedException 如果当前线程被中断
+	acquireShared(long arg):final void
+		arg - 获取参数。这个值被传递给tryAcquire(long)，但不被解释，可以表示任何你喜欢的东西。 
+		在共享模式下获取，忽略中断。通过首先调用至少一次tryAcquireShared(long)来实现，并在成功时返回。否则，线程会排队，可能会重复阻塞和取消阻塞，调用tryAcquireShared(long)直到成功。
+	acquireSharedInterruptibly(long arg):final void 
+		arg - 获取参数。这个值被传递给tryAcquire(long)，但不被解释，可以表示任何你喜欢的东西。 
+		在共享模式下获取，如果中断将中止。通过首先检查中断状态，然后至少调用一次tryAcquire(long)来实现，并在成功时返回。否则，线程将排队，可能会重复阻塞和取消阻塞，调用tryAcquireShared(long)，直到成功或线程被中断。
+		【Throws】：
+			InterruptedException 如果当前线程被中断
+	compareAndSetState(long expect, long update):protected final boolean 
+		如果当前状态值等于预期值，则按原子将同步状态设置为给定的更新值。此操作具有volatile读写的内存语义。
+		expect - 预期值
+		update - 更新值
+		如果成功，则返回true。false返回表示实际值不等于预期值。		
+	getExclusiveQueuedThreads():final Collection<Thread> 
+		返回包含在独占模式下等待获取的线程的集合。它与getQueuedThreads()具有相同的属性，只是它只返回由于独占获取而等待的线程。
+	getFirstQueuedThread():final Thread 
+		返回队列中的第一个（等待时间最长）线程，如果当前没有线程排队，则返回null。
+		在这个实现中，这个操作通常以恒定的时间返回，但如果其他线程同时修改队列，则可能在争用时迭代。
+	getQueuedThreads():final Collection<Thread> 
+		返回包含可能正在等待获取的线程的集合。由于实际线程集在构造此结果时可能会动态更改，因此返回的集合只是一个尽量估计。返回集合的元素没有特定的顺序。这种方法的设计是为了方便子类的构建，这些子类提供了更广泛的监控设施。
+	getQueueLength():final int 
+		返回等待获取的线程数的估计值。该值只是一个估计值，因为当该方法遍历内部数据结构时，线程数可能会动态更改。该方法设计用于监控系统状态，不用于同步控制。
+		返回等待获取的线程的估计数
+	getSharedQueuedThreads():final Collection<Thread> 
+		返回包含在共享模式下可能等待获取的线程的集合。它与getQueuedThreads()具有相同的属性，只是它只返回由于共享获取而等待的线程。
+	getState():protected final long 
+		返回同步状态的当前值。此操作具有volatile读取的内存语义。
+		返回当前状态值。
+	getWaitingThreads(ConditionObject condition):final Collection<Thread> 
+		返回一个集合，该集合包含那些可能正在等待与此同步器关联的给定条件的线程。由于实际线程集在构造此结果时可能会动态更改，因此返回的集合只是一个尽量估计。返回集合的元素没有特定的顺序。
+		【Throws】：
+			IllegalMonitorStateException 如果不保持独占同步
+			IllegalArgumentException 如果给定条件与此同步器无关
+			NullPointerException 如果condition为null
+	getWaitQueueLength(ConditionObject condition):final int 
+		返回在与此同步器关联的给定条件下等待的线程数的估计值。请注意，由于超时和中断可能随时发生，因此估计值仅作为实际等待者数量的上限。此方法设计用于监视系统状态，而不是同步控制。
+		【Throws】：
+			IllegalMonitorStateException 如果不保持独占同步
+			IllegalArgumentException 如果给定条件与此同步器无关
+			NullPointerException 如果condition为null
+	hasContended():final boolean 
+		查询是否有任何线程曾试图获取此同步器；也就是说，如果某个获取方法曾经被阻止过。
+		在这个实现中，这个操作在固定时间内返回。
+		如果有过竞争，则返回true。
+	hasQueuedPredecessors():final boolean 
+		查询是否有任何线程等待获取的时间超过了当前线程。
+		此方法的调用等价于（但可能比）：
+		 	getFirstQueuedThread() != Thread.currentThread() &&  hasQueuedThreads()
+		请注意，取消可能由于中断和超时随时发生，因此真正的返回并不保证某些其他线程将在当前线程之前获取。同样，由于队列为空，在该方法返回false之后，另一个线程可能赢得排队竞争。
+		这种方法是为避免barging而设计的。如果同步器的tryAcquire(long)方法返回true（除非这是可重入获取），则该同步器的tryAcquire(long)方法应返回false，其tryAcquireShared(long)方法应返回负值。例如，公平、可重入、独占模式同步器的tryAcquire方法可能如下所示：
+			 protected boolean tryAcquire(long arg) {
+			   if (isHeldExclusively()) {
+			     // A reentrant acquire; increment hold count
+			     return true;
+			   } else if (hasQueuedPredecessors()) {
+			     return false;
+			   } else {
+			     // try to acquire normally
+			   }
+			 }	
+		如果当前线程前面有一个排队线程，则返回true；如果当前线程位于队列的头或队列为空，则返回false。			
+	hasQueuedThreads():final boolean 
+		查询是否有任何线程正在等待获取。请注意，由于中断和超时而导致的取消可能在任何时候发生，因此真正的返回并不保证任何其他线程都将获得。
+		在这个实现中，这个操作在固定时间内返回。
+		如果有其他线程等待获取，则返回true。
+	hasWaiters(ConditionObject condition):final boolean 
+		查询是否有任何线程正在等待与此同步器关联的给定条件。请注意，由于超时和中断可能在任何时候发生，因此真正的返回并不保证将来的信号将唤醒任何线程。此方法主要用于监视系统状态。
+		【Throws】：
+			IllegalMonitorStateException 如果不保持独占同步
+			IllegalArgumentException 如果给定条件与此同步器无关
+			NullPointerException 如果condition为null
+	isHeldExclusively():protected boolean 
+		如果同步仅限于当前（调用）线程，则返回true。每次调用非等待的AbstractQueuedSynchronizer.ConditionObject方法时都会调用此方法。（等待方法改为调用release(long)。）
+		默认实现是抛出UnsupportedOperationException。此方法仅在AbstractQueuedSynchronizer.ConditionObject方法内部调用，因此，如果不使用条件，则无需定义此方法。
+		如果以独占方式保持同步，则返回true；否则返回false。
+		【Throws】：
+			UnsupportedOperationException 如果不支持条件
+	isQueued(Thread thread):final boolean 
+		如果给定线程当前已排队，则返回true。
+		此实现遍历队列以确定给定线程的存在。
+		如果给定线程在队列中，则返回true。
+		【Throws】：
+			NullPointerException 如果thread为null。
+	owns(ConditionObject condition):final boolean 
+		查询给定ConditionObject是否使用此同步器作为它的锁。
+		如果拥有则返回true。
+		【Throws】：
+			NullPointerException 如果condition为null。
+	release(long arg):final boolean 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		以独占模式释放。如果tryRelease(long)返回true，则通过取消阻止一个或多个线程来实现。此方法可用于实现方法Lock.unlock()。
+		从tryRelease(long)返回的值。
+	releaseShared(long arg):final boolean 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		以共享模式发布。如果tryReleaseShared(long)返回true，则通过取消阻止一个或多个线程来实现。
+		返回从tryReleaseShared(long)返回的值。
+	setState(long newState):protected final void 
+		newState - 新的状态值
+		设置同步状态的值。此操作具有volatile写入的内存语义。
+	toString():String 
+		返回标识此同步器及其状态的字符串。括号中的状态包括字符串“state=”后跟getState()的当前值，以及“nonEmpty”或“empty”，具体取决于队列是否为空。
+		返回标识此同步器及其状态的字符串。
+	tryAcquire(long arg):protected boolean 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		尝试以独占模式获取。此方法应该查询对象的状态是否允许以独占模式获取它，以及是否允许以独占模式获取它。
+		执行获取的线程始终调用此方法。如果此方法报告失败，则acquire方法可能会对线程进行排队（如果尚未排队），直到其他线程发出释放信号为止。这可用于实现方法Lock.tryLock()。
+		默认实现是抛出UnsupportedOperationException异常。
+		如果成功，则返回true。一旦成功，这个对象就被获取了。
+		【Throws】：
+			IllegalMonitorStateException - 如果获取将使此同步器处于非法状态。为了使同步正常工作，必须以一致的方式引发此异常。
+			UnsupportedOperationException - 如果不支持独占模式
+	tryAcquireNanos(long arg, long nanosTimeout):final boolean 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		nanosTimeout - 等待的最大纳秒数
+		尝试以独占模式获取，如果被中断则中止，如果给定的超时时间结束则失败。通过首先检查中断状态，然后至少调用一次tryAcquire(long)来实现，并成功返回。否则，线程将排队，可能会重复阻塞和取消阻塞，调用tryAcquire(long)，直到成功或线程被中断或超时结束。此方法可用于实现方法Lock.tryLock(long, TimeUnit)。
+		获取则返回true；超时则返回false。
+		【Throws】：
+			InterruptedException 如果当前线程被中断
+	tryAcquireShared(long arg):protected int 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		尝试在共享模式下获取。这个方法应该查询对象的状态是否允许在共享模式下获取它，以及是否允许在共享模式下获取它。
+		执行获取的线程始终调用此方法。如果此方法报告失败，则获取（acquire）方法可能会对线程进行排队（如果尚未排队），直到其他线程发出释放信号为止。
+		默认实现引发UnsupportedOperationException异常。
+		【Throws】：
+			IllegalMonitorStateException - 如果获取将使此同步器处于非法状态。为了使同步正常工作，必须以一致的方式引发此异常。
+			UnsupportedOperationException - 如果不支持共享模式
+	tryAcquireSharedNanos(long arg, long nanosTimeout):final boolean 
+		arg - 释放参数。这个值被传递到tryRelease(int)，但不被解释，可以表示任何你喜欢的东西。
+		nanosTimeout - 等待的最大纳秒数
+		尝试在共享模式下获取，如果中断则中止，如果给定超时时间结束则失败。通过首先检查中断状态，然后至少调用一次tryAcquireShared(long)来实现，并在成功时返回。否则，线程将排队，可能会重复阻塞和取消阻塞，调用tryAcquireShared(long)，直到成功或线程被中断或超时结束。
+		如果获取则返回true；超时返回false。
+		【Throws】：
+			InterruptedException 如果当前线程被中断
+	tryRelease(long arg):protected boolean 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		尝试将状态设置为以独占模式反射释放。
+		执行释放的线程始终调用此方法。
+		默认实现引发UnsupportedOperationException异常。
+		如果此对象现在处于完全释放状态，则为true，以便任何等待线程都可能尝试获取；否则为false。
+		【Throws】：
+			IllegalMonitorStateException 如果释放会使同步器处于非法状态。为了使同步正常工作，必须以一致的方式引发此异常。
+			UnsupportedOperationException 如果不支持独占模式
+	tryReleaseShared(long arg):protected boolean 
+		arg - 释放参数。这个值被传递到tryRelease(long)，但不被解释，可以表示任何你喜欢的东西。
+		尝试设置状态以反射共享模式下的释放。
+		执行释放的线程始终调用此方法。
+		默认实现引发UnsupportedOperationException异常。
+		如果此共享模式的释放允许等待获取（共享或独占）成功，则为true；否则为false。
+		【Throws】：
+			IllegalMonitorStateException 如果释放会使同步器处于非法状态。为了使同步正常工作，必须以一致的方式引发此异常。
+			UnsupportedOperationException 如果不支持共享模式
+----------------------------------------AbstractQueuedSynchronizer$ConditionObject--------------------------------------------------------------------------------------------------------------
+1、ConditionObject：条件对象。【Since:1.7】	
+
+
+	类定义	：public class AbstractQueuedSynchronizer.ConditionObject implements Condition, java.io.Serializable
+	实现接口	：Condition,Serializable	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	public ConditionObject()
+		创建新的ConditionObject实例。
+		
+Method Summary（方法概要）：	
+	await():final void 
+		实现可中断条件等待。
+		1、如果当前线程被中断，则引发InterruptedException。
+		2、AbstractQueuedSynchronizer.getState()返回的保存锁状态。
+		3、使用保存的状态作为参数调用AbstractQueuedSynchronizer.release(long)，如果失败，则引发IllegalMonitorStateException异常。
+		4、锁定，直到发出信号或中断。
+		5、通过将保存状态作为参数调用AbstractQueuedSynchronizer.acquire(long)的专用版本来重新获取。
+		6、如果在步骤4阻塞时中断，则抛出InterruptedException异常。
+		【Throws】：
+			InterruptedException 如果当前线程被中断（并且支持中断线程暂停）。
+	await(long time, TimeUnit unit):final boolean 
+		time - 最长等待时间
+		unit - time参数的时间单位
+		实现定时条件等待。
+		1、如果当前线程被中断，则引发InterruptedException。
+		2、AbstractQueuedSynchronizer.getState()返回的保存锁状态。
+		3、使用保存的状态作为参数调用AbstractQueuedSynchronizer.release(long)，如果失败，则引发IllegalMonitorStateException异常。
+		4、锁定，直到发出信号、中断或者超时。
+		5、通过将保存状态作为参数调用AbstractQueuedSynchronizer.acquire(long)的专用版本来重新获取。
+		6、如果在步骤4阻塞时中断，则抛出InterruptedException异常。
+		7、如果在步骤4中被阻止时超时，则返回false，否则返回true。
+		如果在从方法返回之前检测到等待时间已过，则返回false，否则返回true。
+		【Throws】：
+			InterruptedException 如果当前线程被中断（并且支持中断线程暂停）。
+	awaitNanos(long nanosTimeout):final long 
+		nanosTimeout - 等待的最长时间，以纳秒为单位
+		实现定时条件等待。
+		1、如果当前线程被中断，则引发InterruptedException。
+		2、AbstractQueuedSynchronizer.getState()返回的保存锁状态。
+		3、使用保存的状态作为参数调用AbstractQueuedSynchronizer.release(long)，如果失败，则引发IllegalMonitorStateException异常。
+		4、锁定，直到发出信号、中断或者超时。
+		5、通过将保存状态作为参数调用AbstractQueuedSynchronizer.acquire(long)的专用版本来重新获取。
+		6、如果在步骤4阻塞时中断，则抛出InterruptedException异常。
+		返回nanosTimeout值的估计值减去等待此方法返回所花费的时间。可以使用正值作为对该方法的后续调用的参数，以完成等待所需时间的操作。小于或等于零的值表示没有时间了。
+		【Throws】：
+			InterruptedException 如果当前线程被中断（并且支持中断线程暂停）。
+	awaitUninterruptibly():final void 
+		实现不间断条件等待。
+		1、AbstractQueuedSynchronizer.getState()返回的保存锁状态。
+		2、使用保存的状态作为参数调用AbstractQueuedSynchronizer.release(long)，如果失败，则引发IllegalMonitorStateException异常。
+		3、锁定，直到发出信号。
+		4、通过将保存状态作为参数调用AbstractQueuedSynchronizer.acquire(long)的专用版本来重新获取。
+	awaitUntil(Date deadline):final boolean 
+		deadline - 等待的绝对时间
+		实现绝对定时条件等待。
+		1、如果当前线程被中断，则引发InterruptedException。
+		2、AbstractQueuedSynchronizer.getState()返回的保存锁状态。
+		3、使用保存的状态作为参数调用AbstractQueuedSynchronizer.release(long)，如果失败，则引发IllegalMonitorStateException异常。
+		4、锁定，直到发出信号、中断或者超时。
+		5、通过将保存状态作为参数调用AbstractQueuedSynchronizer.acquire(long)的专用版本来重新获取。
+		6、如果在步骤4阻塞时中断，则抛出InterruptedException异常。
+		7、如果在步骤4中被阻塞时超时，则返回false，否则返回true。
+		如果返回时截止日期已过，则为false，否则为true。
+		【Throws】：
+			InterruptedException 如果当前线程被中断（并且支持中断线程暂停）。
+	getWaitingThreads():protected final Collection<Thread> 
+		返回一个集合，该集合包含可能正在等待此条件的线程。实现AbstractQueuedSynchronizer.getWaitingThreads(ConditionObject)。
+		【Throws】：
+			IllegalMonitorStateException 如果AbstractQueuedSynchronizer.isHeldExclusively()返回false。
+	getWaitQueueLength():protected final int 
+		返回在此条件下等待的线程数的估计值。实现AbstractQueuedSynchronizer.getWaitQueueLength(ConditionObject)。
+		返回估计的等待线程数。
+		【Throws】：
+			IllegalMonitorStateException 如果AbstractQueuedSynchronizer.isHeldExclusively()返回false。
+	hasWaiters():protected final boolean 
+		查询是否有任何线程在此条件下等待。实现AbstractQueuedSynchronizer.hasWaiters(ConditionObject)。
+		如果有任何等待线程，则返回true。
+		【Throws】：
+			IllegalMonitorStateException 如果AbstractQueuedSynchronizer.isHeldExclusively()返回false。
+	signal():final void 
+		将最长等待线程（如果存在）从该条件的等待队列移动到拥有锁的等待队列。
+		【Throws】：
+			IllegalMonitorStateException 如果AbstractQueuedSynchronizer.isHeldExclusively()返回false。
+	signalAll():final void 
+		将此条件的所有线程从等待队列移动到拥有锁的等待队列。
+		【Throws】：
+			IllegalMonitorStateException 如果AbstractQueuedSynchronizer.isHeldExclusively()返回false。
 	
 	
 	
