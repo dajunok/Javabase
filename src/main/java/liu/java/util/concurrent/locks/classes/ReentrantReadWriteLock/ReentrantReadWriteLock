@@ -1,0 +1,290 @@
+----------------------------------------ReentrantReadWriteLock--------------------------------------------------------------------------------------------------------------
+ReentrantReadWriteLock：可重入读写锁。【Since:1.5】
+	ReadWriteLock接口的一种实现，支持与ReentrantLock相似的语义。
+	此类具有以下属性：
+		1、Acquisition order（获取顺序）：
+			此类不会对锁访问强制使用读取器或写入器首选项顺序。但是，它支持可选的公平策略。
+			● 非公平模式（默认）
+				当构造为不公平（默认）模式时，读锁或者写锁的条目顺序未指定，受制于可重入限制。持续争用的非公平锁可能无限期地推迟一个或多个读取或者写入线程，但通常具有比普通锁更高的吞吐量。
+			● 公平模式（Fair）
+				当构造为公平策略时，线程使用近似“抵达顺序”策略争用条目。当释放当前持有的锁时，将为等待时间最长的单个写入器线程分配写锁，或者如果有一组读取器线程等待时间长于所有等待的写入器线程，则将为该组分配读锁。
+				试图获取公平读取锁（不可重入）的线程将在持有写入锁或存在等待写入线程时阻塞。在当前等待时间最长的写入线程获取并释放写锁之前，线程将不会获取读锁。当然，如果一个等待的写入器放弃了它的等待，留下一个或多个读线程作为空闲写锁队列中最长的等待线程，那么这些读线程将被分配读锁。	
+				除非读锁和写锁都是空闲的（这意味着没有等待线程），否则试图获取公平写入锁（不可重入）的线程将被阻塞。（请注意，非阻塞ReentrantReadWriteLock.ReadLock.tryLock()和ReentrantReadWriteLock.WriteLock.tryLock()方法不支持此公平策略设置，并且将在可能的情况下立即获取锁，无论等待的线程如何。）
+		2、Reentrancy（可重入）：
+			这个锁允许读取器或写入器以ReentrantLock的方式重新获取读锁或写锁。在释放写入线程持有的所有写入锁之前，不允许使用不可重入读取器。
+			此外，写入器可以获取读锁，反之亦然。在其他应用程序中，当调用或回调方法在读取锁下执行读取时持有写锁时，可重入性非常有用。如果读取器试图获取写锁，它将永远不会成功。
+		3、Lock downgrading（锁降级）：
+			可重入性还允许从写锁降级为读锁，方法是获取写锁，然后获取读锁，然后释放写锁。但是，无法从读锁升级到写锁。
+		4、Interruption of lock acquisition（中断锁获取）：
+			读锁和写锁都支持在锁获取期间中断。
+		5、Condition support（条件支持）：
+			对于写锁，写锁提供的Condition实现的行为方式与ReentrantLock.newCondition()提供的Condition实现对ReentrantLock的行为方式相同。当然，这个Condition只能与写锁一起使用。
+			读取锁不支持Condition和readLock().newCondition()。将引发UnsupportedOperationException异常。
+		6、Instrumentation（监测设施）：
+			这个类支持方法来确定是持有锁还是争用锁。这些方法设计用于监视系统状态，而不是同步控制。
+	此类的序列化与内置锁的行为方式相同：反序列化锁处于未锁定状态，与序列化时的状态无关。
+	
+	使用案例。下面是一个代码描述，展示了如何在更新缓存后执行锁降级（以非嵌套方式处理多个锁时，异常处理特别困难）：	
+		 class CachedData {
+		   Object data;
+		   volatile boolean cacheValid;
+		   final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+		
+		   void processCachedData() {
+		     rwl.readLock().lock();
+		     if (!cacheValid) {
+		       // Must release read lock before acquiring write lock
+		       rwl.readLock().unlock();
+		       rwl.writeLock().lock();
+		       try {
+		         // Recheck state because another thread might have
+		         // acquired write lock and changed state before we did.
+		         if (!cacheValid) {
+		           data = ...
+		           cacheValid = true;
+		         }
+		         // Downgrade by acquiring read lock before releasing write lock
+		         rwl.readLock().lock();
+		       } finally {
+		         rwl.writeLock().unlock(); // Unlock write, still hold read
+		       }
+		     }
+		
+		     try {
+		       use(data);
+		     } finally {
+		       rwl.readLock().unlock();
+		     }
+		   }
+		 }	
+	ReentrantReadWriteLock可用于改善某些集合的某些使用中的并发性。只有当集合很大，读线程访问的次数比写线程多，并且需要开销大于同步开销的操作时，这通常才是值得的。例如，这里有一个使用TreeMap的类，它应该是大型的，并且是并发访问的。
+		 class RWDictionary {
+		   private final Map<String, Data> m = new TreeMap<String, Data>();
+		   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+		   private final Lock r = rwl.readLock();
+		   private final Lock w = rwl.writeLock();
+		
+		   public Data get(String key) {
+		     r.lock();
+		     try { return m.get(key); }
+		     finally { r.unlock(); }
+		   }
+		   public String[] allKeys() {
+		     r.lock();
+		     try { return m.keySet().toArray(); }
+		     finally { r.unlock(); }
+		   }
+		   public Data put(String key, Data value) {
+		     w.lock();
+		     try { return m.put(key, value); }
+		     finally { w.unlock(); }
+		   }
+		   public void clear() {
+		     w.lock();
+		     try { m.clear(); }
+		     finally { w.unlock(); }
+		   }
+		 }	
+	实现注意：
+	此锁最多支持65535个递归写入锁和65535个读取锁。尝试超过这些限制会导致锁定方法引发错误。
+	
+	
+	
+	类定义	：public class ReentrantReadWriteLock implements ReadWriteLock, java.io.Serializable
+	实现接口	：ReadWriteLock, java.io.Serializable
+	嵌套类	：ReadLock,WriteLock
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ReentrantReadWriteLock()
+		使用默认（非公平策略）排序属性创建新的ReentrantReadWriteLock。
+	public ReentrantReadWriteLock(boolean fair)
+		使用给定的公平性策略创建新的ReentrantReadWriteLock。
+	
+Method Summary（方法概要）：
+	getOwner():protected Thread 
+		返回当前拥有写锁的线程，如果写锁不被任何该线程所持有，则返回null。当非所有者的线程调用此方法时，返回值反映当前锁状态的最佳估计值。例如，即使有线程试图获取锁，但尚未获取锁，所有者也可能暂时为null。这种方法的设计是为了方便子类的构建，这些子类提供了更广泛的锁监控设施。
+	getQueuedReaderThreads():protected Collection<Thread> 
+		返回包含可能正在等待获取读取锁的线程的集合。由于实际线程集在构造此结果时可能会动态更改，因此返回的集合只是一个最佳估计值。返回集合的元素没有特定的顺序。这种方法的设计是为了方便子类的构建，这些子类提供了更广泛的锁监控设施。
+	getQueuedThreads():protected Collection<Thread> 
+		返回包含可能正在等待获取读或写锁的线程的集合。由于实际线程集在构造此结果时可能会动态更改，因此返回的集合只是一个最佳估计值。返回集合的元素没有特定的顺序。这种方法的设计是为了方便子类的构建，这些子类提供了更广泛的监控设施。
+	getQueuedWriterThreads():protected Collection<Thread> 
+		返回包含可能正在等待获取写锁的线程的集合。由于实际线程集在构造此结果时可能会动态更改，因此返回的集合只是一个最佳估计值。返回集合的元素没有特定的顺序。这种方法的设计是为了方便子类的构建，这些子类提供了更广泛的锁监控设施。
+	getQueueLength():final int 
+		返回等待获取读锁或写锁的线程数的估计值。该值只是一个估计值，因为当该方法遍历内部数据结构时，线程数可能会动态更改。此方法设计用于监视系统状态，而不是同步控制。
+	getReadHoldCount():int 
+		查询当前线程对此锁的可重入读取持有数量。读取器线程为每个不匹配解锁操作的锁定操作持有一个锁。
+		返回当前线程持有读锁的次数，如果当前线程不持有读锁，则为零。
+	getReadLockCount():int 
+		查询持有该锁的读取锁数量。该方法设计用于监控系统状态，不用于同步控制。
+		返回持有读取锁的数量。
+	getWaitingThreads(Condition condition):protected Collection<Thread> 
+		返回一个集合，该集合包含那些可能正在等待与写锁关联的给定条件的线程。由于实际线程集在构造此结果时可能会动态更改，因此返回的集合只是一个最佳估计值。返回集合的元素没有特定的顺序。这种方法的设计是为了方便子类的构建，这些子类提供了更广泛的状态监测设施。
+		【Throws】：
+			IllegalMonitorStateException 如果这个锁没有被持有（即没有被独占）
+			IllegalArgumentException 如果给定条件与此锁不关联
+			NullPointerException 如果condition为null
+	getWaitQueueLength(Condition condition):int 
+		返回在与写锁关联的给定条件下等待的线程数的估计值。请注意，由于超时和中断可能随时发生，因此估计值仅作为实际等待者数量的上限。此方法设计用于监视系统状态，而不是同步控制。
+		返回估计的等待线程数。
+		【Throws】：
+			IllegalMonitorStateException 如果这个锁没有被持有（即没有被独占）
+			IllegalArgumentException 如果给定条件与此锁不关联
+			NullPointerException 如果condition为null
+	getWriteHoldCount():int 
+		查询当前线程对此锁的可重入写入持有数量。对于每个不匹配解锁操作的锁定操作，写入器线程都持有一个锁。
+		返回当前线程对写锁的持有数量，或者如果当前线程不持有写锁，则返回零。
+	hasQueuedThread(Thread thread):final boolean 
+		查询给定线程是否正在等待获取读锁或写锁。请注意，由于取消可能在任何时候发生，因此返回true并不保证该线程将永远获取锁。此方法主要用于监视系统状态。
+		如果给定线程排队等待此锁，则返回true。
+	hasQueuedThreads():final boolean 
+		查询是否有任何线程正在等待获取读锁或写锁。请注意，由于取消可能在任何时候发生，因此返回true并不保证任何其他线程都将获得锁。此方法主要用于监视系统状态。
+		如果可能有其他线程正在等待获取锁，则返回true。
+	hasWaiters(Condition condition):boolean 
+		查询是否有任何线程正在等待与写锁关联的给定条件。请注意，由于超时和中断可能在任何时候发生，因此返回true并不保证将来的信号将唤醒任何线程。此方法主要用于监视系统状态。
+		如果有任何等待线程，则返回true。
+		【Throws】：
+			IllegalMonitorStateException 如果这个锁没有被持有（即没有被独占）
+			IllegalArgumentException 如果给定条件与此锁不关联
+			NullPointerException 如果condition为null
+	isFair():final boolean 
+		如果此锁的公平策略性设置为true，则返回true。
+	isWriteLocked():boolean 
+		查询任何线程是否持有写锁。该方法设计用于监控系统状态，不用于同步控制。
+		如果任何线程持有写锁，则返回true，否则返回false。
+	isWriteLockedByCurrentThread():boolean 
+		查询当前线程是否持有写锁。
+		如果当前线程持有写锁，则返回true，否则返回false。
+	readLock():ReentrantReadWriteLock.ReadLock  
+		△ 返回用于读取的锁。
+	toString():String 
+		△ 返回一个标识此锁及其锁状态的字符串。括号中的状态包括字符串“Write locks =”后跟可重入保持的写锁数量，字符串“Read locks =”后跟保持的读锁数量。
+	writeLock():ReentrantReadWriteLock.WriteLock 
+		△ 返回用于写入的锁。
+
+----------------------------------------ReentrantReadWriteLock$ReadLock--------------------------------------------------------------------------------------------------------------
+1、ReadLock：读取锁。【Since:1.5】	
+	ReentrantReadWriteLock.readLock()方法返回的锁。
+
+	类定义	：public static class ReadLock implements Lock, java.io.Serializable
+	实现接口	：Lock,Serializable	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	protected ReadLock(ReentrantReadWriteLock lock)
+		子类使用的构造函数
+Method Summary（方法概要）：
+	lock():void 
+		获取读取锁。
+		如果写锁未被另一个线程持有，则获取读锁并立即返回。
+		如果写锁被另一个线程持有，那么当前线程将出于线程调度目的被禁用，并处于休眠状态，直到获得读锁为止。
+	lockInterruptibly():void 
+		获取读取锁，除非当前线程被中断。
+		如果写锁未被另一个线程持有，则获取读锁并立即返回。
+		如果写锁由另一个线程持有，则出于线程调度目的，当前线程将被禁用，并处于休眠状态，直到发生以下两种情况之一：
+			● 读锁由当前线程获取；或
+			● 其他线程中断当前线程，并且支持中断锁获取。
+		如果当前线程：
+			● 在进入此方法时是否设置了中断状态；或
+			● 在获取读取锁时中断，
+		然后抛出InterruptedException，并清除当前线程的中断状态。
+		在此实现中，由于这个方法是一个显式的中断点，所以优先考虑响应中断而不是对锁的正常或可重入获取。
+		【Throws】：
+			InterruptedException 如果当前线程在获取锁时中断（并且支持锁获取中断）。
+	newCondition():Condition 
+		由于ReadLock不支持条件，引发UnsupportedOperationException。
+		【Throws】：
+			UnsupportedOperationException 总是抛出此异常。
+	toString():String 
+		返回一个标识此锁及其锁状态的字符串。括号中的状态包括字符串“Read locks=”和保留的读取锁的数量。
+	tryLock():boolean 
+		只有在调用时其他线程没有持有写锁时，才获取读锁。
+		如果写锁未被其他线程持有，则获取读锁，并立即返回值为true。即使将该锁设置为使用公平排序策略，如果该锁可用，则对tryLock()的调用将立即获取该读锁，无论其他线程当前是否正在等待该读锁。这种“barging”行为在某些情况下是有用的，即使它破坏了公平策略。如果您想为这个锁执行公平性策略设置，那么使用tryLock(0, TimeUnit.SECONDS)，它几乎是等效的（它还检测到中断）。
+		如果写锁被另一个线程持有，那么此方法将立即返回false。
+		如果获取了读取锁，则返回true。
+	tryLock(long timeout, TimeUnit unit):boolean 
+		time - 等待锁的最长时间
+		unit - time参数时间单位
+		如果在给定的等待时间内另一线程没有持有写锁，并且当前线程没有被中断，则获取读锁。
+		如果写锁未被其他线程持有，则获取读锁，并立即返回值为true。如果该锁已设置为使用公平排序策略，那么如果有任何其他线程正在等待该锁，则不会获取可用的锁。这与tryLock()方法相反。如果您想要一个允许在公平锁上进行“barging”的定时测试，那么将定时和非定时形式组合在一起：
+			 if (lock.tryLock() ||
+			     lock.tryLock(timeout, unit)) {
+			   ...
+			 }	
+		如果写锁被另一个线程持有，则出于线程调度目的，当前线程将被禁用，并处于休眠状态，直到发生以下三种情况之一：
+			● 读锁由当前线程获取；或
+			● 其他线程中断当前线程；或
+			● 指定的等待时间已过。	
+		如果获取了读锁，则返回值true。
+		如果当前线程：
+			● 在进入此方法时是否设置了中断状态；或
+			● 在获取读取锁时中断，
+		然后抛出InterruptedException异常，并清除当前线程的中断状态。
+		如果指定的等待时间已过，则返回值false。如果时间小于或等于零，该方法将根本不等待。
+		在此实现中，由于这个方法是一个显式的中断点，所以优先考虑在正常或可重入获取锁时响应中断，并过度报告等待时间的推移。
+		如果获取了读取锁，则返回true。
+	unlock():void 
+		尝试释放此锁。
+		如果读取器的数量现在为零，则该锁可用于写锁尝试。
+		
+----------------------------------------ReentrantReadWriteLock$WriteLock--------------------------------------------------------------------------------------------------------------
+2、WriteLock：写入锁。【Since:1.5】	
+	ReentrantReadWriteLock.writeLock()方法返回的锁。
+	
+	类定义	：public static class WriteLock implements Lock, java.io.Serializable
+	实现接口	：Lock,Serializable	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+Constructor Summary（构造器概要）：
+	protected WriteLock(ReentrantReadWriteLock lock)
+		子类使用的构造函数
+Method Summary（方法概要）：
+	getHoldCount():int 
+	isHeldByCurrentThread():boolean 
+	lock():void 
+	lockInterruptibly():void 
+	newCondition():Condition 
+	toString():String 
+	tryLock():boolean 
+	tryLock(long timeout, TimeUnit unit):boolean 
+	unlock():void 
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+	
+	11、Atomic（原子性）：是指一个操作是不可中断的。即使是在多个线程一起执行的时候，一个操作一旦开始，就不会被其它线程干扰。 
+	12、Visibility(可见性）：是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。 Java提供了volatile关键字来保证可见性。 
+	13、Orderly（有序性）：指程序执行的顺序按照代码的先后顺序执行。在Java里面，可以通过volatile关键字来保证一定的“有序性”（具体原理在下一节讲述）。另外可以通过synchronized和Lock来保证有序性，很显然，synchronized和Lock保证每个时刻是有一个线程执行同步代码，相当于是让线程顺序执行同步代码，自然就保证了有序性
+	14、CAS操作:指的是compareAndSwap操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
+	15、基元类型：编译器直接支持的数据类型称为基元类型(Primitive type)
+	16、DoubleAccumulator、LongAccumulator、DoubleAdder、LongAdder是JDK1.8新增的部分，是对AtomicLong等类的改进。比如LongAccumulator与LongAdder在高并发环境下比AtomicLong更高效。
+	17、reentrant lock：重入锁（递归锁）。就是在同一线程上该锁是可重入的（锁定多次），对于不同线程则相当于普通的互斥锁。
+	18、Mutex lock：互斥锁。用于控制多个线程对他们之间共享资源互斥访问的一个信号量。也就是说是为了避免多个线程在某一时刻同时操作一个共享资源。例如线程池中的有多个空闲线程和一个任务队列。任何是一个线程都要使用互斥锁互斥访问任务队列，以避免多个线程同时访问任务队列以发生错乱。在某一时刻，只有一个线程可以获取互斥锁，在释放互斥锁之前其他线程都不能获取该互斥锁。如果其他线程想要获取这个互斥锁，那么这个线程只能以阻塞方式进行等待。
+	19、condition lock：条件锁。就是所谓的条件变量，某一个线程因为某个条件为满足时可以使用条件变量使改程序处于阻塞状态。一旦条件满足以“信号量”的方式唤醒一个因为该条件而被阻塞的线程。最为常见就是在线程池中，起初没有任务时任务队列为空，此时线程池中的线程因为“任务队列为空”这个条件处于阻塞状态。一旦有任务进来，就会以信号量的方式唤醒一个线程来处理这个任务。
+	20、Spin lock：自旋锁。是一种busy-waiting的锁。也就是说，如果T1正在使用自旋锁，而T2也去申请这个自旋锁，此时T2肯定得不到这个自旋锁。与互斥锁相反的是，此时运行T2的处理器core2会一直不断地循环检查锁是否可用（自旋锁请求），直到获取到这个自旋锁为止。从“自旋锁”的名字也可以看出来，如果一个线程想要获取一个被使用的自旋锁，那么它会一致占用CPU请求这个自旋锁使得CPU不能去做其他的事情，直到获取这个锁为止，这就是“自旋”的含义。当发生阻塞时，互斥锁可以让CPU去处理其他的任务；而自旋锁让CPU一直不断循环请求获取这个锁。通过两个含义的对比可以我们知道“自旋锁”是比较耗费CPU的。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
