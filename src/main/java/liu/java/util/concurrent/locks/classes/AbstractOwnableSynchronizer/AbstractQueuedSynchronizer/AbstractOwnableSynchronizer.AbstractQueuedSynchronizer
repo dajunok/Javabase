@@ -285,7 +285,9 @@ Method Summary（方法概要）：
 			UnsupportedOperationException 如果不支持共享模式
 ----------------------------------------AbstractQueuedSynchronizer$ConditionObject--------------------------------------------------------------------------------------------------------------
 1、ConditionObject：条件对象。【Since:1.7】	
-
+	AbstractQueuedSynchronizer的Condition实现用作Lock实现的基础。
+	这个类的方法文档从Lock和Condition用户的角度描述技术，而不是行为规范。通常，此类的导出版本需要附带描述依赖于关联的AbstractQueuedSynchronizer的条件语义的文档。
+	此类是可序列化的（Serializable），但所有字段都是临时的，因此反序列化条件没有等待程序。
 
 	类定义	：public class AbstractQueuedSynchronizer.ConditionObject implements Condition, java.io.Serializable
 	实现接口	：Condition,Serializable	

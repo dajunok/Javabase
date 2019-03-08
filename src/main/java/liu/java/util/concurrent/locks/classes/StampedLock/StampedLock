@@ -1,0 +1,142 @@
+----------------------------------------StampedLock--------------------------------------------------------------------------------------------------------------
+StampedLock：标记锁。【Since:1.8】
+	一种基于功能的锁，有三种模式控制读/写访问。StampedLock的状态由版本和模式组成。Lock获取方法返回一个标记，该标记表示和控制对锁定状态的访问；“try”版本的这些方法可能会返回特殊值零，以表示获取访问失败。锁释放和转换方法需要标记作为参数，如果它们与锁的状态不匹配，则会失败。三种模式是：
+		● 写入（Writing）：方法writeLock()可能会阻塞等待独占访问，返回可在方法unlockWrite(long)中用于释放锁的标记。还提供tryWriteLock的非定时和定时版本。当锁保持在写模式时，不能获得读锁，所有乐观读验证都将失败。
+		● 读取（Reading）：方法readLock()可能会阻塞等待非独占访问，返回可在方法unlockRead(long)中用于释放锁的标记。还提供tryReadLock的非定时和定时版本。
+		● 乐观读（Optimistic Reading）：方法tryOptimisticRead()仅在锁当前未处于写模式时返回非零标记。如果在获取给定的标记之后，未在写入模式下获取锁，则方法validate(long)返回true。这种模式可以被认为是读锁的一个非常弱的版本，写入器可以随时打破它。对短只读代码段使用乐观模式通常会减少争用并提高吞吐量。然而，其使用本身是脆弱的。乐观读取部分应该只读取字段，并将它们保存在局部变量中，以便在验证之后使用。在乐观模式下读取的字段可能非常不一致，因此只有当您足够熟悉数据表示以检查一致性和/或重复调用方法validate()时，才能应用此用法。例如，当首先读取对象或数组引用，然后访问其字段、元素或方法之一时，通常需要执行这些步骤。
+	此类还支持在三种模式之间有条件地提供转换的方法。例如，方法tryConvertToWriteLock(long)尝试“升级”模式，如果（1）已经处于写入模式（2）处于读取模式且没有其他读卡器，或者（3）处于乐观模式且锁可用，则返回有效的写入戳。这些方法的形式旨在帮助减少一些代码膨胀，否则会在基于重试的设计中发生。
+	Stampedlock设计用于开发线程安全组件的内部实用程序。它们的使用依赖于对所保护的数据、对象和方法的内部属性的了解。它们是不可重入的，所以被锁定的主体不应该调用其他可能尝试重新获取锁的未知方法（尽管您可以将一个标记传递给其他可以使用或转换它的方法）。读锁模式的使用依赖于相关的代码部分没有副作用。未验证的乐观读取部分无法调用已知不允许潜在不一致的方法。标记使用有限的表示，并不是加密安全的（即，有效的标记可能是可猜测的）。标记价值可在（不早于）连续运行一年后循环使用。未经使用或验证而持有超过此期限的标记可能无法正确验证。StampedLock是可序列化的，但总是反序列化为初始解锁状态，因此它们对远程锁定不有用。
+	Stampedlock的调度策略并不总是倾向于读取器而不是写入器，反之亦然。所有“try”方法都是尽最大努力的，不一定符合任何调度或公平性策略。用于获取或转换锁的任何“try”方法返回的零不会包含有关锁状态的任何信息；后续调用可能会成功。
+	因为它支持跨多个锁模式的协调使用，所以此类不直接实现Lock或ReadWriteLock接口。但是，在仅需要相关功能集的应用程序中，StampedLock可以被视为asReadLock()、asWriteLock()或asReadWriteLock()。
+	案例使用。下面说明了类中维护简单二维点的一些用法习惯。示例代码说明了一些try/catch约定，尽管这里并不严格需要它们，因为它们的主体中不会发生异常。
+		 class Point {
+		   private double x, y;
+		   private final StampedLock sl = new StampedLock();
+		
+		   void move(double deltaX, double deltaY) { // an exclusively locked method
+		     long stamp = sl.writeLock();
+		     try {
+		       x += deltaX;
+		       y += deltaY;
+		     } finally {
+		       sl.unlockWrite(stamp);
+		     }
+		   }
+		
+		   double distanceFromOrigin() { // A read-only method
+		     long stamp = sl.tryOptimisticRead();
+		     double currentX = x, currentY = y;
+		     if (!sl.validate(stamp)) {
+		        stamp = sl.readLock();
+		        try {
+		          currentX = x;
+		          currentY = y;
+		        } finally {
+		           sl.unlockRead(stamp);
+		        }
+		     }
+		     return Math.sqrt(currentX * currentX + currentY * currentY);
+		   }
+		
+		   void moveIfAtOrigin(double newX, double newY) { // upgrade
+		     // Could instead start with optimistic, not read mode
+		     long stamp = sl.readLock();
+		     try {
+		       while (x == 0.0 && y == 0.0) {
+		         long ws = sl.tryConvertToWriteLock(stamp);
+		         if (ws != 0L) {
+		           stamp = ws;
+		           x = newX;
+		           y = newY;
+		           break;
+		         }
+		         else {
+		           sl.unlockRead(stamp);
+		           stamp = sl.writeLock();
+		         }
+		       }
+		     } finally {
+		       sl.unlock(stamp);
+		     }
+		   }
+		 }	
+	
+	
+	
+	类定义	：public class StampedLock implements java.io.Serializable
+	实现接口	：Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public StampedLock()
+		
+Method Summary（方法概要）：
+	asReadLock():Lock 
+	asReadWriteLock():ReadWriteLock 
+	asWriteLock():Lock 
+	getReadLockCount():int 
+	isReadLocked():boolean 
+	isWriteLocked():boolean 
+	readLock():long 
+	readLockInterruptibly():long 
+	toString():String 
+	tryConvertToOptimisticRead(long stamp):long 
+	tryConvertToReadLock(long stamp):long 
+	tryConvertToWriteLock(long stamp):long 
+	tryOptimisticRead():long 
+	tryReadLock():long 
+	tryReadLock(long time, TimeUnit unit):long 
+	tryUnlockRead():boolean 
+	tryUnlockWrite():boolean 
+	tryWriteLock():long 
+	tryWriteLock(long time, TimeUnit unit):long 
+	unlock(long stamp):void 
+	unlockRead(long stamp):void 
+	unlockWrite(long stamp):void 
+	validate(long stamp):boolean 
+	writeLock():long 
+	writeLockInterruptibly():long
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+	
+	11、Atomic（原子性）：是指一个操作是不可中断的。即使是在多个线程一起执行的时候，一个操作一旦开始，就不会被其它线程干扰。 
+	12、Visibility(可见性）：是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。 Java提供了volatile关键字来保证可见性。 
+	13、Orderly（有序性）：指程序执行的顺序按照代码的先后顺序执行。在Java里面，可以通过volatile关键字来保证一定的“有序性”（具体原理在下一节讲述）。另外可以通过synchronized和Lock来保证有序性，很显然，synchronized和Lock保证每个时刻是有一个线程执行同步代码，相当于是让线程顺序执行同步代码，自然就保证了有序性
+	14、CAS操作:指的是compareAndSwap操作。如果V（当前值）等于E（表示预期值），则将V的值设为N（表示新值）。若V值和E值不同，则说明已经有其他线程做了更新，则当前线程什么都不做。通俗的理解就是CAS操作需要我们提供一个期望值，当期望值与当前线程的变量值相同时，说明还没线程修改该值，当前线程可以进行修改，也就是执行CAS操作，但如果期望值与当前线程不符，则说明该值已被其他线程修改，此时不执行更新操作，但可以选择重新读取该变量再尝试再次修改该变量，也可以放弃操作。
+	15、基元类型：编译器直接支持的数据类型称为基元类型(Primitive type)
+	16、DoubleAccumulator、LongAccumulator、DoubleAdder、LongAdder是JDK1.8新增的部分，是对AtomicLong等类的改进。比如LongAccumulator与LongAdder在高并发环境下比AtomicLong更高效。
+	17、reentrant lock：重入锁（递归锁）。就是在同一线程上该锁是可重入的（锁定多次），对于不同线程则相当于普通的互斥锁。
+	18、Mutex lock：互斥锁。用于控制多个线程对他们之间共享资源互斥访问的一个信号量。也就是说是为了避免多个线程在某一时刻同时操作一个共享资源。例如线程池中的有多个空闲线程和一个任务队列。任何是一个线程都要使用互斥锁互斥访问任务队列，以避免多个线程同时访问任务队列以发生错乱。在某一时刻，只有一个线程可以获取互斥锁，在释放互斥锁之前其他线程都不能获取该互斥锁。如果其他线程想要获取这个互斥锁，那么这个线程只能以阻塞方式进行等待。
+	19、condition lock：条件锁。就是所谓的条件变量，某一个线程因为某个条件为满足时可以使用条件变量使改程序处于阻塞状态。一旦条件满足以“信号量”的方式唤醒一个因为该条件而被阻塞的线程。最为常见就是在线程池中，起初没有任务时任务队列为空，此时线程池中的线程因为“任务队列为空”这个条件处于阻塞状态。一旦有任务进来，就会以信号量的方式唤醒一个线程来处理这个任务。
+	20、Spin lock：自旋锁。是一种busy-waiting的锁。也就是说，如果T1正在使用自旋锁，而T2也去申请这个自旋锁，此时T2肯定得不到这个自旋锁。与互斥锁相反的是，此时运行T2的处理器core2会一直不断地循环检查锁是否可用（自旋锁请求），直到获取到这个自旋锁为止。从“自旋锁”的名字也可以看出来，如果一个线程想要获取一个被使用的自旋锁，那么它会一致占用CPU请求这个自旋锁使得CPU不能去做其他的事情，直到获取这个锁为止，这就是“自旋”的含义。当发生阻塞时，互斥锁可以让CPU去处理其他的任务；而自旋锁让CPU一直不断循环请求获取这个锁。通过两个含义的对比可以我们知道“自旋锁”是比较耗费CPU的。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
