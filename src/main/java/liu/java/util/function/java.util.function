@@ -1,0 +1,80 @@
+----------------------------------------Package java.util.function--------------------------------------------------------------------------------------------------------------
+													【Since 1.8】
+Package Description（包描述说明）：
+	Functional接口为lambda表达式和方法引用提供目标类型。每个函数接口都有一个单独的抽象方法，称为该函数接口的函数方法，lambda表达式的参数和返回类型与之匹配或适应。Functional接口可以在多个上下文中提供目标类型，例如分配上下文、方法调用或强制转换上下文：
+	     // Assignment context
+	     Predicate<String> p = String::isEmpty;
+	
+	     // Method invocation context
+	     stream.filter(e -> e.getSize() > 10)...
+	
+	     // Cast context
+	     stream.map((ToIntFunction) e -> e.getSize())...
+	这个包中的接口是JDK使用的通用函数接口，用户代码也可以使用。虽然它们不能识别lambda表达式可能适用的一组完整的函数情况，但它们提供的功能足以满足公共需求。为特定目的而提供的其他函数接口（如FileFilter）在使用它们的包中定义。
+	此包中的接口用FunctionalInterface进行注释。此注释不要求编译器将接口识别为函数接口，而只是帮助捕获设计意图并获得编译器在识别意外违反设计意图方面的帮助。
+	函数接口通常表示抽象概念，如函数、动作或谓词。在记录函数接口或引用类型为函数接口的变量时，通常直接引用这些抽象概念，例如使用“this function”而不是“由该对象表示的函数”。当一个API方法被称为以这种方式接受或返回一个函数接口时，例如“将所提供的函数应用于…”，这就意味着对实现适当函数接口的对象的非空（non-null）引用，除非明确指定了潜在的null引用。
+	此包中的功能接口遵循可扩展的命名约定，如下所示：
+		● 有几个基本的函数形式，包括Function（从T到R的一元函数）、Consumer（消费者)（从T到void的一元函数）、Predicate（谓词）（从T到boolean的一元函数）和Supplier（提供者）（从R到nilary函数）。
+		● Function形式根据其最常用的方式具有自然的实参性。基本形式可以通过arity前缀进行修改，以指示不同的arity，例如BiFunction（从T和U到R的二进制函数）。
+		● 还有其他派生函数形式，用于扩展基本函数形式，包括UnaryOperator（扩展于Function）和BinaryOperator（扩展于BiFunction）。
+		● 函数接口的类型参数可以专用于带有附加类型前缀的原语。为了专门化具有泛型返回类型和泛型参数的类型的返回类型，我们在ToIntFunction中为ToXxx加前缀。否则，类型参数是从左到右专门化的，如在DoubleConsumer或ObjIntConsumer中。（类型前缀Obj用于指示我们不想专门化此参数，但要继续使用下一个参数，如ObjIntConsumer中的参数。）可以组合这些方案，如IntToDoubleFunction中的方案。
+		● 如果所有参数都有专门化前缀，那么可以省略arity前缀（如ObjIntConsumer中的前缀）。 
+	
+Interface Summary（接口概要）
+	BiConsumer
+	BiFunction
+	BinaryOperator
+	BiPredicate
+	BooleanSupplier
+	Consumer
+	DoubleBinaryOperator
+	DoubleConsumer
+	DoubleFunction
+	DoublePredicate
+	DoubleSupplier
+	DoubleToIntFunction
+	DoubleToLongFunction
+	DoubleUnaryOperator
+	Function
+	IntBinaryOperator
+	IntConsumer
+	IntFunction
+	IntPredicate
+	IntSupplier
+	IntToDoubleFunction
+	IntToLongFunction
+	IntUnaryOperator
+	LongBinaryOperator
+	LongConsumer
+	LongFunction
+	LongPredicate
+	LongSupplier
+	LongToDoubleFunction
+	LongToIntFunction
+	LongUnaryOperator
+	ObjDoubleConsumer
+	ObjIntConsumer
+	ObjLongConsumer
+	Predicate
+	Supplier
+	ToDoubleBiFunction
+	ToDoubleFunction
+	ToIntBiFunction
+	ToIntFunction
+	ToLongBiFunction
+	ToLongFunction
+	UnaryOperator
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、block-structured：块状结构。块状结构(block-like construct)指的是一个类，方法或构造函数的主体。 需要注意的是，数组初始化中的初始值可被选择性地视为块状结构。
+
+	
+	
+	
+	
+		
+		

@@ -68,33 +68,88 @@ StampedLock：标记锁。【Since:1.8】
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
 	public StampedLock()
-		
+		创建一个新的锁，最初处于解锁状态。
+
 Method Summary（方法概要）：
 	asReadLock():Lock 
-	asReadWriteLock():ReadWriteLock 
+		返回此StampedLock的普通Lock视图，其中Lock.lock()方法映射到readLock()，其他方法也类似。返回的Lock不支持Condition；方法Lock.newCondition()引发UnsupportedOperationException异常。
+	asReadWriteLock():ReadWriteLock
+		返回此StampedLock的ReadWriteLock视图，其中ReadWriteLock.readLock()方法映射到asReadLock()，ReadWriteLock.writeLock()映射到asWriteLock()。 
 	asWriteLock():Lock 
+		返回此StampedLock的普通Lock视图，其中Lock.lock()方法映射到writeLock()，其他方法也是如此。返回的锁不支持Condition；方法Lock.newCondition()引发UnsupportedOperationException异常。
 	getReadLockCount():int 
+		查询为该锁持有的读锁数量。该方法设计用于监控系统状态，不用于同步控制。
 	isReadLocked():boolean 
+		如果锁当前以非独占方式持有（即读锁），则返回true。
 	isWriteLocked():boolean 
+		如果当前以独占方式持有锁（即写锁），则返回true。
 	readLock():long 
+		非独占获取锁，必要时阻塞直到可用。
+		返回可用于解锁或转换模式的标记。
 	readLockInterruptibly():long 
+		非独占获取锁（即读锁），必要时阻塞，直到可用或当前线程中断。中断下的行为与为方法Lock.lockInterruptibly()指定的行为匹配。
+		返回可用于解锁或转换模式的标记。
 	toString():String 
+		返回一个标识此锁及其锁状态的字符串。括号中的状态包括字符串“Unlocked”或字符串“Write-locked”或字符串“Read-locks:”，后跟当前持有的读锁数量。
 	tryConvertToOptimisticRead(long stamp):long 
+		如果锁定状态与给定的标记匹配，那么如果标记表示持有一个锁，则释放它并返回一个观察标记。或者，如果是乐观读取，则在验证后返回。在所有其他情况下，此方法返回零，因此作为“tryUnlock”的形式可能很有用。
+		返回有效的乐观读取标记，或失败时返回零。
 	tryConvertToReadLock(long stamp):long 
+		如果锁定状态与给定的标记匹配，则执行以下操作之一。如果标记表示持有写锁，则释放它并获取读锁。或者，如果是读锁，则返回它。或者，如果是乐观读取，则获取读取锁并仅在立即可用时返回读取标记。在所有其他情况下，此方法返回零。
+		返回有效的读取标记，或失败时返回零。
 	tryConvertToWriteLock(long stamp):long 
+		如果锁定状态与给定的标记匹配，则执行以下操作之一。如果标记表示持有写锁，则返回它。或者，如果读锁，如果写锁可用，则释放读锁并返回写标记。或者，如果是乐观读取，则仅在立即可用时返回写标记。在所有其他情况下，此方法返回零。
 	tryOptimisticRead():long 
+		返回一个稍后可以验证的标记，如果以独占方式锁定，则返回零。
 	tryReadLock():long 
+		如果锁立即可用，则非独占获取该锁。
+		可用于解锁或转换模式的标记，如果锁不可用，则为零。
 	tryReadLock(long time, TimeUnit unit):long 
+		time - 等待锁的最长时间
+		unit - time参数的时间单位	
+		如果在给定时间内可用且当前线程未被中断，则以非独占获取锁。超时和中断下的行为与为方法Lock.tryLock(long,TimeUnit)指定的行为匹配。
+		返回可用于解锁或转换模式的标记，如果锁不可用，则为零。
+		【Throws】：
+			InterruptedException 如果当前线程在获取锁之前被中断
 	tryUnlockRead():boolean 
+		如果读锁被持有，则释放一个持有，而不需要标记值。此方法可能对错误后的恢复有用。
+		如果持有读取锁，则返回true，否则返回false。
 	tryUnlockWrite():boolean 
+		如果持有写锁，则释放它，而不需要标记值。此方法可能对错误后的恢复有用。
+		如果锁被持有，则返回true，否则返回false。
 	tryWriteLock():long 
+		如果立即可用，则以独占模式获取锁。
 	tryWriteLock(long time, TimeUnit unit):long 
+		time - 等待锁的最长时间
+		unit - time参数的时间单位
+		如果在给定时间内可用并且当前线程未被中断，则以独占获取锁。超时和中断下的行为与为方法Lock.tryLock(long,TimeUnit)指定的行为匹配。
+		可用于解锁或转换模式的标记，如果锁不可用，则为零。
+		【Throws】：
+			InterruptedException 如果当前线程在获取锁之前被中断
 	unlock(long stamp):void 
+		stamp - 由锁操作返回的一种标记。
+		如果锁定状态与给定的标记匹配，则释放相应的锁定模式。
+		【Throws】：
+			IllegalMonitorStateException 如果标记与此锁的当前状态不匹配。
 	unlockRead(long stamp):void 
+		stamp - 由锁操作返回的一种标记。
+		如果锁状态与给定的标记匹配，则释放非独占锁。
+		【Throws】：
+			IllegalMonitorStateException 如果标记与此锁的当前状态不匹配。
 	unlockWrite(long stamp):void 
+		stamp - 由锁操作返回的一种标记。
+		如果锁状态与给定的标记匹配，则释放独占锁。
+		【Throws】：
+			IllegalMonitorStateException 如果标记与此锁的当前状态不匹配。
 	validate(long stamp):boolean 
+		stamp - 由锁操作返回的一种标记。
+		如果在发布给定的标记后没有以独占方式获取锁，则返回true。如果标记为零，则始终返回false。如果标记表示当前持有的锁，则始终返回true。使用不是从tryOptimisticRead()获取的值或此锁的锁定方法调用此方法没有定义的效果或结果。
+		如果在颁发给定的标记后未独占获取锁，则返回true；否则返回false。
 	writeLock():long 
+		以独占方式获取锁，必要时阻塞直到可用。
+		返回可用于解锁或转换模式的标记。
 	writeLockInterruptibly():long
+		以独占方式获取锁，必要时阻塞，直到可用或当前线程中断。中断下的行为与为方法Lock.lockInterruptibly()指定的行为匹配。
 	
 	
 	
