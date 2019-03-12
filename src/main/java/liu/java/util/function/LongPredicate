@@ -1,0 +1,24 @@
+-----------------------------------------LongPredicate-----------------------------------------------------------------------------------------------------------------------------		
+LongPredicate：long参数谓词。 【Since:1.8】
+	表示一个long值参数的谓词（布尔值函数）。这是原始类型专门化的long消费者Predicate。
+	这是一个函数接口，其函数方法是test(long)。
+	
+	接口定义	：@FunctionalInterface public interface LongPredicate
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	and(LongPredicate other):default LongPredicate
+		other - 一个谓词，它将与此谓词进行逻辑与运算。
+		返回表示此谓词和另一个谓词的进行逻辑与运算的复合谓词。当计算组合谓词时，如果此谓词为false，则不计算另一个谓词。
+		在对任一谓词进行计算期间引发的任何异常都将中继到调用方；如果对该谓词进行计算会引发异常，则不会对另一个谓词进行计算。
+		【Throws】：
+			NullPointerException 如果other为null
+	negate():default LongPredicate 
+		返回表示此谓词逻辑非的谓词。
+	or(LongPredicate other):default LongPredicate 
+		other - 一个谓词，它将与此谓词进行逻辑与运算。
+		返回表示此谓词和另一个谓词的逻辑或运算的复合谓词。当计算组合谓词时，如果该谓词为true，则不计算另一个谓词。
+		在对任一谓词进行计算期间引发的任何异常都将中继到调用方；如果对该谓词进行计算会引发异常，则不会对另一个谓词进行计算。
+		【Throws】：
+			NullPointerException 如果other为null
+	test(long value):boolean 
+		根据给定参数计算此谓词。
+		如果输入参数与谓词匹配，则返回true，否则返回false。

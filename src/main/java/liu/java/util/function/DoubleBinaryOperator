@@ -1,5 +1,5 @@
 -----------------------------------------DoubleBinaryOperator-----------------------------------------------------------------------------------------------------------------------------		
-DoubleBinaryOperator：double值运算器。【Since:1.8】
+DoubleBinaryOperator：double值二元运算器。【Since:1.8】
 	这是一个函数接口，因此可以用作lambda表达式或方法引用的赋值目标。
 	表示对两个double值操作数执行的操作，并生成double值结果。这是用于double的原始类型专门化的BinaryOperator。
 	这是一个函数接口，其函数方法是applyAsDouble(double, double)。

@@ -1,0 +1,39 @@
+----------------------------------------Package java.util.jar--------------------------------------------------------------------------------------------------------------
+													【Since 1.2】
+Package Description（包描述说明）：
+	提供用于读取和编写JAR（Java文档）文件格式的类，该文件格式基于标准的ZIP文件格式，并具有可选的manifest文件。manifest存储关于JAR文件内容的基元信息，还用于对JAR文件进行签名。
+	
+Package Specification（包规范）：
+	java.util.jar包基于以下规范：
+		● Info-ZIP文件格式 		JAR格式基于INFO ZIP文件格式。请参见java.util.zip包说明。在JAR文件中，所有文件名都必须使用UTF-8编码。
+		● manifest和签名规范	
+
+Interface Summary（接口概要）
+	Pack200.Packer
+	Pack200.Unpacker
+
+Class Summary(类概要)
+	Attributes
+	Attributes.Name
+	JarEntry
+	JarFile
+	JarInputStream
+	JarOutputStream
+	Manifest
+	Pack200	
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、block-structured：块状结构。块状结构(block-like construct)指的是一个类，方法或构造函数的主体。 需要注意的是，数组初始化中的初始值可被选择性地视为块状结构。
+	2、manifest文件：描述Jar文件的打包、运行信息。
+
+	
+	
+	
+	
+		
+		

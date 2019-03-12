@@ -1,0 +1,23 @@
+-----------------------------------------IntUnaryOperator-----------------------------------------------------------------------------------------------------------------------------		
+IntUnaryOperator：int参数一元运算器。【Since:1.8】
+	这是一个函数接口，因此可以用作lambda表达式或方法引用的赋值目标。
+	表示对生成int值结果的单int值操作数的操作。这是int原始类型专门化的UnaryOperator。
+	这是一个函数接口，其函数方法是applyAsInt(int)。
+	
+	接口定义	：@FunctionalInterface public interface IntUnaryOperator
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	identity():static IntUnaryOperator 
+		返回一元运算器，该运算器始终返回其输入参数。
+	andThen(IntUnaryOperator after):default IntUnaryOperator 
+		after - 应用此运算器之后要应用的运算器。
+		返回一个组合运算器，该运算器首先将此运算器应用于其输入，然后将after运算器应用于结果。如果对任何一个运算器的计算引发异常，则将它中继到组合运算器的调用方。
+		【Throws】：
+			NullPointerException 如果after为null
+	applyAsDouble(int operand):int 
+		将此运算器应用于给定的操作数。
+		返回运算器结果。
+	compose(IntUnaryOperator before):default IntUnaryOperator 
+		before - 应用此运算器之前要应用的运算器
+		返回一个组合运算器，该运算器首先将before运算器应用于其输入，然后将此运算器应用于结果。如果对任何一个运算器的计算引发异常，则将它中继到组合运算器的调用方。
+		【Throws】：
+			NullPointerException 如果before为null

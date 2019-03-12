@@ -1,0 +1,47 @@
+-----------------------------------------Pack200$Unpacker-----------------------------------------------------------------------------------------------------------------------------		
+Unpacker：解包器 【Since:1.5】
+	解包引擎将打包流转换为JAR文件。可以使用Pack200.newUnpacker()获取引擎的实例。
+	此引擎生成的每个JAR文件都将包含字符串“PACK200”作为zip文件注释。这允许部署人员检测JAR文档是否被打包和解包。
+	注意：除非另有说明，否则将null参数传递给此类中的构造函数或方法将导致引发NullPointerException异常。
+	此版本的解包程序与所有以前的版本兼容。
+
+	接口定义	：public static interface Pack200.Unpacker
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	DEFLATE_HINT
+	FALSE
+	KEEP
+	PROGRESS
+	TRUE
+
+Method Summary（方法概要）：
+	addPropertyChangeListener(PropertyChangeListener listener):default void 
+	properties():SortedMap<String,String> 
+	removePropertyChangeListener(PropertyChangeListener listener):default void 
+	unpack(File in, JarOutputStream out):void  throws IOException
+	unpack(InputStream in, JarOutputStream out):void  throws IOException
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

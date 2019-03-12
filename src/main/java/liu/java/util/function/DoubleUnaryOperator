@@ -1,0 +1,23 @@
+-----------------------------------------DoubleUnaryOperator-----------------------------------------------------------------------------------------------------------------------------		
+DoubleUnaryOperator：double参数一元运算器。【Since:1.8】
+	这是一个函数接口，因此可以用作lambda表达式或方法引用的赋值目标。
+	表示对生成double值结果的单double值操作数的操作。这是double原始类型专门化的UnaryOperator。
+	这是一个函数接口，其函数方法是applyAsDouble(double)。
+	
+	接口定义	：@FunctionalInterface public interface DoubleUnaryOperator
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	identity():static DoubleUnaryOperator 
+		返回一元运算器，该运算器始终返回其输入参数。
+	andThen(DoubleUnaryOperator after):default DoubleUnaryOperator 
+		after - 应用此运算器之后要应用的运算器。
+		返回一个组合运算器，该运算器首先将此运算器应用于其输入，然后将after运算器应用于结果。如果对任何一个运算器的计算引发异常，则将它中继到组合运算器的调用方。
+		【Throws】：
+			NullPointerException 如果after为null
+	applyAsDouble(double operand):double 
+		将此运算器应用于给定的操作数。
+		返回运算器结果。
+	compose(DoubleUnaryOperator before):default DoubleUnaryOperator 
+		before - 应用此运算器之前要应用的运算器
+		返回一个组合运算器，该运算器首先将before运算器应用于其输入，然后将此运算器应用于结果。如果对任何一个运算器的计算引发异常，则将它中继到组合运算器的调用方。
+		【Throws】：
+			NullPointerException 如果before为null

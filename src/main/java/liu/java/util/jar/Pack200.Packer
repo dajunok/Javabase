@@ -1,0 +1,161 @@
+-----------------------------------------Pack200$Packer-----------------------------------------------------------------------------------------------------------------------------		
+Packer：打包器 【Since:1.5】
+	打包器引擎将各种转换应用于输入JAR文件，使压缩程序（如gzip或zip）对包流进行高度压缩。可以使用Pack200.newPacker()获取引擎的实例。高度压缩是通过使用JSR 200规范中描述的一些技术实现的。其中一些技术是对常量池进行排序、重新排序和共同定位。
+	打包引擎被初始化为初始状态，如下面的属性所述。初始状态可以通过获取引擎属性（使用properties()）并将修改后的属性存储在map映射中进行操作。传递时对资源文件不进行任何更改。类文件将不包含相同的字节，因为解包程序可以自由地更改较小的类文件功能，如常量池顺序。但是，类文件在语义上是相同的，如Java虚拟机规范中所指定的。
+	默认情况下，打包器不会更改JAR元素的顺序。另外，每个jar元素的修改时间和压缩提示都是不变的。（任何其他zip存档信息，例如提供Unix文件权限的额外属性都将丢失。）
+	注意，打包和解包JAR通常会改变JAR中类文件的字节内容。这意味着打包和解包通常会使依赖JAR元素的两个图像的任何数字签名失效。为了对jar进行签名和打包，必须首先打包并解包JAR以“规范化”它，然后在解包的jar元素上计算签名，最后重新打包已签名的JAR。两个打包步骤都应该使用完全相同的选项，并且段限制也可能需要设置为“-1”，以防止类文件大小稍有变化时段边界的意外变化。
+	（这就是为什么这样做：打包器对任何类文件结构所做的任何重新排序都是等幂的，因此第二个打包不会更改第一个打包产生的顺序。此外，JSR 200规范还保证解包程序（unpacker）能够为任何给定的归档元素传输顺序生成特定的字节图像。）
+	为了保持向后兼容性，包文件的版本被设置为适应输入JAR文件中存在的类文件。换句话说，如果类文件是最新的，则包文件版本将是最新的；反之，如果类文件版本也是最旧的，则包文件版本将是最旧的。对于中间类文件版本，将使用相应的包文件版本。例如：如果输入JAR文件仅由1.5（或更小）类文件组成，则会生成1.5兼容的包文件。对于没有类文件的档案来说，也是如此。如果输入jar文件包含1.6类文件，那么pack文件版本将设置为1.6。
+	注意：除非另有说明，否则将null参数传递给此类中的构造函数或方法将导致引发NullPointerException异常。
+	
+
+	接口定义	：public static interface Pack200.Packer
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	CLASS_ATTRIBUTE_PFX
+		与类属性名称连接时，使用JSR 200规范中指定的布局语言指示该属性的格式。
+		例如，这个选项的效果是内置的：pack.class.attribute.SourceFile=RUH。
+		还允许使用特殊字符串ERROR、STRIP和PASS，其含义与UNKNOWN_ATTRIBUTE相同。这为用户提供了一种请求拒绝、剥离或按位传递特定属性的方法（不进行类压缩）。
+		类似这样的代码可以用于支持JCOV的属性：
+		     Map p = packer.properties();
+		     p.put(CODE_ATTRIBUTE_PFX+"CoverageTable",       "NH[PHHII]");
+		     p.put(CODE_ATTRIBUTE_PFX+"CharacterRangeTable", "NH[PHPOHIIH]");
+		     p.put(CLASS_ATTRIBUTE_PFX+"SourceID",           "RUH");
+		     p.put(CLASS_ATTRIBUTE_PFX+"CompilationID",      "RUH");
+		这样的代码可以用来去除调试属性：
+		     Map p = packer.properties();
+		     p.put(CODE_ATTRIBUTE_PFX+"LineNumberTable",    STRIP);
+		     p.put(CODE_ATTRIBUTE_PFX+"LocalVariableTable", STRIP);
+		     p.put(CLASS_ATTRIBUTE_PFX+"SourceFile",        STRIP);				
+	CODE_ATTRIBUTE_PFX
+		与代码属性名称连接时，指示该属性的格式。例如，此选项的效果内置于：pack.code.attribute.LocalVariableTable=NH[PHOHRUHRSHH]。还允许使用特殊字符串ERROR、STRIP和PASS。
+	DEFLATE_HINT
+		如果此属性设置为TRUE或FALSE，打包程序将在输出存档中相应地设置压缩提示，并且不会传输存档元素的单个压缩提示。
+		如果将此属性设置为特殊的字符串KEEP，打包程序将尝试为输入存档的每个可用元素确定独立的压缩提示，并单独发送此提示。
+		默认值为KEEP，它保留输入信息，但可能会导致传输的存档文件大于必需的文件。
+		解包器实现根据提示采取行动，适当地压缩结果被解压的JAR元素。
+		ZIP或JAR元素的压缩提示指示该元素是压缩的还是直接存储的。
+	EFFORT
+		如果将此属性设置为一个十进制数字，打包器将使用指定的工作量压缩存档。级别1可能产生更大的包大小和更快的压缩速度，而级别9将花费更长的时间，但可能产生更好的压缩。
+		特殊值0指示打包程序直接通过原始JAR文件进行复制，而不进行压缩。JSR 200标准要求任何解包程序都要将这个特殊情况理解为整个文档的传递。
+		默认值为5，花费适当的时间来产生合理的压缩。
+	ERROR
+		字符串“error”，特定属性的可能值。
+	FALSE
+		字符串“false”，特定属性的可能值。
+	FIELD_ATTRIBUTE_PFX
+		与字段属性名称连接时，指示该属性的格式。例如，此选项的效果内置于：pack.field.attribute.Deprecated=。还允许使用特殊字符串ERROR、STRIP和PASS。
+	KEEP
+		字符串“keep”，特定属性的可能值。
+	KEEP_FILE_ORDER
+		如果此属性设置为TRUE，打包程序将在源存档中按原始顺序传输所有元素。
+		如果将其设置为FALSE，则打包器可以重新排序元素，也可以移除JAR目录条目，而这些目录条目对Java应用程序没有任何有用的信息。（通常这可以实现更好的压缩。）
+		默认值为“TRUE”，它保留输入信息，但可能会导致传输的存档文件大于必需的文件。
+	LATEST
+		字符串“latest”，特定属性的可能值。
+	METHOD_ATTRIBUTE_PFX
+		与方法属性名称连接时，指示该属性的格式。例如，此选项的效果内置于：pack.method.attribute.Exceptions=NH[RCH]。还允许使用特殊字符串ERROR、STRIP和PASS。
+	MODIFICATION_TIME
+		如果此属性设置为特殊字符串“LATEST”，打包程序将尝试确定原始存档中所有可用条目中的最近修改时间，或每个段中所有可用条目的最进修改时间。此单个值将作为段的一部分传输，并应用于每个段中的所有条目，段\限制。
+		这样可以略微减小存档文件的传输大小，但代价是将所有已安装的文件都设置为一个日期。
+		如果将此属性设置为特殊的字符串“KEEP”，打包器将为每个输入元素发送单独的修改时间。
+		默认值为KEEP，它保留输入信息，但可能会导致传输的存档文件大于必需的文件。
+		由解包程序实现来采取行动，适当地设置输出文件中每个元素的修改时间。
+	PASS
+		字符串“pass”，特定属性的可能值。
+	PASS_FILE_PFX
+		指示文件应通过bytewise传递，而不进行压缩。可以通过指定附加了不同字符串的附加属性来指定多个文件，以形成具有公共前缀的属性系列。
+		除了系统文件分隔符被JAR文件分隔符“/”替换之外，没有路径名转换。
+		结果文件名必须与JAR文件中出现的字符串完全匹配。
+		如果属性值是目录名，则该目录下的所有文件也将被传递。
+		案例:		
+		     Map p = packer.properties();
+		     p.put(PASS_FILE_PFX+0, "mutants/Rogue.class");
+		     p.put(PASS_FILE_PFX+1, "mutants/Wolverine.class");
+		     p.put(PASS_FILE_PFX+2, "mutants/Storm.class");
+		     # Pass all files in an entire directory hierarchy:
+		     p.put(PASS_FILE_PFX+3, "police/");		
+	PROGRESS
+		解包程序的进度以百分比表示，由解包程序定期更新。0-100的值是正常的，并且-1表示暂停。可以通过轮询此属性的值来监视进度。
+		解包程序在包操作开始时必须将进度设置为0，在结束时必须将进度设置为100。
+	SEGMENT_LIMIT
+		此属性是一个数字，给出每个存储段的估计目标大小N（以字节为单位）。如果一个输入文件需要大于N个字节，它将被赋予自己的存档段。
+		作为一种特殊情况，值-1将生成一个包含所有输入文件的大段，而值0将为每个类生成一个段。较大的存档段会导致较少的碎片和更好的压缩，但处理它们需要更多的内存。
+		通过计算要在段中传输的每个输入文件的大小，以及其名称和其他传输属性的大小，估计每个段的大小。
+		默认值为-1，这意味着打包机将始终创建单个段输出文件。在生成非常大的输出文件的情况下，强烈建议用户使用分段或将输入文件分解为较小的JAR。
+		没有这个限制的10MB的JAR包通常打包约10%更小，但打包器可能需要更大的Java堆（约十倍的段限制）。
+	STRIP
+		字符串“strip”，特定属性的可能值。	
+	TRUE
+		字符串“true”，特定属性的可能值。
+	UNKNOWN_ATTRIBUTE
+		指示遇到包含未知属性的类文件时要采取的操作。可能的值是字符串ERROR、STRIP和PASS。
+		字符串“ERROR”意味着整个包操作将失败，IOException类型的异常。字符串“STRIP”意味着属性将被删除。字符串“PASS”意味着整个类文件将在不压缩的情况下传递（就像它是一个资源文件一样），并带有适当的警告。这是此属性的默认值。
+		案例:	
+		     Map p = pack200.getProperties();
+		     p.put(UNKNOWN_ATTRIBUTE, ERROR);
+		     p.put(UNKNOWN_ATTRIBUTE, STRIP);
+		     p.put(UNKNOWN_ATTRIBUTE, PASS);
+		 		
+
+
+
+
+Method Summary（方法概要）：
+	addPropertyChangeListener(PropertyChangeListener listener):default void 
+		listener - 当属性更改时要调用的对象。
+		✘ 已淘汰。对PropertyChangeListener的依赖性对Java平台的将来模块化造成了很大的阻碍。此方法将在将来的版本中删除。需要监视打包程序进度的应用程序可以轮询PROGRESS属性的值。
+		在属性映射上注册属性更改事件的侦听器。这通常由应用程序用于更新进度条。
+		此方法的默认实现不做任何事情，也没有副作用。
+		警告：在不包含java.beans包的Java SE的所有子集配置文件中的接口声明中省略了此方法。
+	pack(JarFile in, OutputStream out):void  throws IOException
+		in - JAR文件
+		out - OutputStream流
+		获取JAR文件并将其转换为Pack200文档。
+		关闭其输入，但不关闭其输出。（可附加Pack200文档。）
+		【Throws】：
+			IOException - 如果遇到错误。		
+	pack(JarInputStream in, OutputStream out):void  throws IOException
+		in - JarInputStream流
+		out - OutputStream流	
+		获取JarInputStream并将其转换为Pack200文档。
+		关闭其输入，但不关闭其输出。（可附加Pack200文档。）
+		对于JAR manifest文件及其包含目录，修改时间和压缩提示属性不可用。
+		【Throws】：
+			IOException - 如果遇到错误。	
+	properties():SortedMap<String,String> 
+		获取此引擎的属性集。此集合是一个“实时视图”，因此更改其内容会立即影响打包器（Packer）引擎，并且从引擎更改（如进度指示）会立即在Map映射中可见。
+		属性映射可以包含预定义的特定于实现的属性和默认属性。在修改现有属性之前，鼓励用户阅读信息并充分理解其含义。
+		特定于实现的属性以与实现者关联的包名称作为前缀，以com开头。或类似的前缀。所有以pack.和unpack.开头的属性名。保留供此API使用。
+		未知属性可能会被忽略或拒绝，并出现未指定的错误，无效条目可能会导致引发未指定的错误。
+		返回的映射实现所有可选的SortedMap操作。
+	removePropertyChangeListener(PropertyChangeListener listener):default void 
+		✘ 已淘汰。对PropertyChangeListener的依赖性对Java平台的将来模块化造成了很大的阻碍。此方法将在将来的版本中删除。
+		删除AdvyTychange事件的侦听器，由AdjRealTyPrimeListInter（Java.Bebean，PropertyChangeListener）添加。
+		删除addPropertyChangeListener(java.beans.PropertyChangeListener)添加的PropertyChange事件侦听器。
+		警告：在不包含java.beans包的Java SE的所有子集配置文件中的接口声明中省略了此方法。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
