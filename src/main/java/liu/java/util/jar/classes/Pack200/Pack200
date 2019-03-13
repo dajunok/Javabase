@@ -1,0 +1,86 @@
+----------------------------------------Pack200--------------------------------------------------------------------------------------------------------------
+Pack200：【Since:1.8】
+	以Pack200格式将JAR文件转换为打包流或从打包流转换为打包流。请参阅http://jcp.org/aboutJava/communityprocess/review/jsr200/index.html上的网络传输格式JSR 200规范。	
+	通常，打包器引擎由应用程序开发人员用于在网站上部署或宿主JAR文件。部署应用程序使用解包器引擎将字节流转换回JAR格式。
+	以下是使用打包器和解包器的示例：
+	    import java.util.jar.Pack200;
+	    import java.util.jar.Pack200.*;
+	    ...
+	    // Create the Packer object
+	    Packer packer = Pack200.newPacker();
+	
+	    // Initialize the state by setting the desired properties
+	    Map p = packer.properties();
+	    // take more time choosing codings for better compression
+	    p.put(Packer.EFFORT, "7");  // default is "5"
+	    // use largest-possible archive segments (>10% better compression).
+	    p.put(Packer.SEGMENT_LIMIT, "-1");
+	    // reorder files for better compression.
+	    p.put(Packer.KEEP_FILE_ORDER, Packer.FALSE);
+	    // smear modification times to a single value.
+	    p.put(Packer.MODIFICATION_TIME, Packer.LATEST);
+	    // ignore all JAR deflation requests,
+	    // transmitting a single request to use "store" mode.
+	    p.put(Packer.DEFLATE_HINT, Packer.FALSE);
+	    // discard debug attributes
+	    p.put(Packer.CODE_ATTRIBUTE_PFX+"LineNumberTable", Packer.STRIP);
+	    // throw an error if an attribute is unrecognized
+	    p.put(Packer.UNKNOWN_ATTRIBUTE, Packer.ERROR);
+	    // pass one class file uncompressed:
+	    p.put(Packer.PASS_FILE_PFX+0, "mutants/Rogue.class");
+	    try {
+	        JarFile jarFile = new JarFile("/tmp/testref.jar");
+	        FileOutputStream fos = new FileOutputStream("/tmp/test.pack");
+	        // Call the packer
+	        packer.pack(jarFile, fos);
+	        jarFile.close();
+	        fos.close();
+	
+	        File f = new File("/tmp/test.pack");
+	        FileOutputStream fostream = new FileOutputStream("/tmp/test.jar");
+	        JarOutputStream jostream = new JarOutputStream(fostream);
+	        Unpacker unpacker = Pack200.newUnpacker();
+	        // Call the unpacker
+	        unpacker.unpack(f, jostream);
+	        // Must explicitly close the output.
+	        jostream.close();
+	    } catch (IOException ioe) {
+	        ioe.printStackTrace();
+	    }
+	用gzip压缩的Pack200文件可以托管在HTTP/1.1web服务器上。部署应用程序可以使用“Accept-Encoding=pack200-gzip”。这向服务器表明，客户机应用程序需要使用pack200编码并进一步使用gzip压缩的文件版本。更多细节和技术请参考Java部署指南。
+	除非另有说明，否则将null参数传递给此类中的构造函数或方法将导致引发NullPointerException异常。	
+	
+	类定义	：public abstract class Pack200
+	嵌套接口	：Packer,Unpacker
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	newPacker():synchronized static Packer 
+		获取实现打包器类的新实例。
+			● 如果定义了系统属性java.util.jar.Pack200.Packer，则该值被视为具体实现类的完全限定名，具体实现类必须实现Packer。此类已加载并实例化。如果此过程失败，则会引发未指定的错误。
+			● 如果未使用System属性指定实现，则实例化系统默认实现类，并返回结果。
+		注意：如果多个线程同时使用返回的对象，则不能保证它正确运行。多线程应用程序应该分配多个打包机引擎，或者序列化使用一个带有锁的引擎。
+	newUnpacker():static Unpacker 
+		获取实现解包器类的新实例。
+			● 如果定义了系统属性java.util.jar.Pack200，则该值被视为具体实现类的完全限定名，具体实现类必须实现Unpacker。类被加载并实例化。如果此过程失败，则会引发未指定的错误。
+			● 如果未使用System属性指定实现，则实例化系统默认实现类，并返回结果。
+		注意：如果多个线程同时使用返回的对象，则不能保证它正确运行。多线程应用程序应该分配多个解包器引擎，或者使用一个带有锁的引擎进行序列化。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

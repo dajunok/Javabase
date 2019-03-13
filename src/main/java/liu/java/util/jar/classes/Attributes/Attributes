@@ -1,0 +1,163 @@
+----------------------------------------Attributes--------------------------------------------------------------------------------------------------------------
+Attributes：属性【Since:1.2】
+	Attributes类将Manifest属性名映射到关联的字符串值。有效的属性名不区分大小写，仅限于集合[0-9a-zA-Z_-]中的ASCII字符，长度不能超过70个字符。属性值可以包含任何字符，并将在写入输出流时进行UTF8编码。有关有效属性名和值的更多信息，请参见JAR文件规范。
+	
+	
+	类定义	：public class Attributes implements Map<Object,Object>, Cloneable
+	实现接口	：Map<Object,Object>, Cloneable
+	嵌套类	：Name
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	map:protected  Map<Object,Object> 
+		属性name-value映射。
+Constructor Summary（构造器概要）：
+	public Attributes()
+		使用默认大小构造新的空属性对象。
+	public Attributes(int size)
+		使用指定的初始大小构造新的空属性对象。
+	public Attributes(Attributes attr)
+		使用与指定属性中相同的属性名值映射构造新的属性对象。
+	
+	
+Method Summary（方法概要）：
+	clear():void 
+		△ 删除此映射中的所有属性。
+	clone():Object 
+		△ 由于属性名和值本身是不可变的，因此可以安全地修改返回的属性，而不会影响原始属性。
+		返回此实例的克隆。
+	containsKey(Object name):boolean 
+		name - 属性名称（键）
+		△ 如果此映射包含指定的属性名（键），则返回true。
+	containsValue(Object value):boolean 
+		如果此映射将一个或多个属性名（键）映射到指定值value，则返回true。
+	entrySet():Set<Map.Entry<Object,Object>> 
+		△ 返回此映射中包含的属性名值映射的集合视图。
+	equals(Object o):boolean 
+		△ 比较指定的属性对象与此映射是否相等。如果给定对象也是属性的实例，并且两个属性对象表示相同的映射，则返回true。
+	get(Object name):Object 
+		△ 返回指定属性名的值，如果找不到属性名，则返回null。
+	getValue(String name):String 
+		返回指定属性名的值，指定为字符串，如果找不到该属性，则返回null。属性名不区分大小写。
+		此方法定义为：
+			return (String)get(new Attributes.Name((String)name));
+		【Throws】：
+			IllegalArgumentException 如果属性名无效。
+	getValue(Name name):String
+		name - Attributes.Name对象
+		返回指定Attributes.Name的值，如果找不到该属性，则返回null。
+		此方法定义为：
+			return (String)get(name);
+		返回指定Attribute.Name的字符串值，如果找不到，则为空。
+	hashCode():int 
+		△ 返回此映射的哈希代码值。
+	isEmpty():boolean 
+		△ 如果此映射不包含属性，则返回true。
+	keySet():Set<Object> 
+		△ 返回此映射中包含的属性名（键）的集合视图。
+	put(Object name, Object value):Object 
+		name - 属性名称
+		value - 属性值
+		△ 将指定的值与此映射中的指定属性名（键）关联。如果映射之前包含属性名称的映射，则将替换旧值。
+		返回属性的前一个值（旧值），如果没有，则为null。
+		【Throws】：
+			ClassCastException 如果名称不是属性。名称或值不是字符串。
+	putAll(Map<?,?> attr):void 
+		attr - 要存储在此映射中的属性
+		将指定属性的所有属性名值映射复制到此映射。将替换重复的映射。
+		【Throws】：
+			ClassCastException 如果attr不是Attributes。
+	putValue(String name, String value):String 
+		name - 作为字符串的属性名
+		value - 属性值
+		将指定的值与指定的属性名（指定为字符串）关联。属性名不区分大小写。如果映射之前包含属性名称的映射，则将替换旧值。
+		此方法定义为：
+			return (String)put(new Attributes.Name(name), value);
+		【Throws】：
+			IllegalArgumentException 如果属性名无效。
+	remove(Object name):Object 
+		name - 属性名称
+		△ 从此映射中删除具有指定名称（键）的属性。返回上一个属性值，如果没有，则返回null。
+		返回属性的前一个值（旧值），如果没有，则为null。
+	size():int 
+		△ 返回此映射中的属性数量。
+	values():Collection<Object> 
+		△ 返回此映射中包含的属性值的集合视图。
+----------------------------------------Attributes$Name--------------------------------------------------------------------------------------------------------------
+1、Name：属性名称。【Since:1.2】
+	Attributes.Name类表示存储在此映射中的属性名。有效的属性名不区分大小写，仅限于集合[0-9a-zA-Z_-]中的ASCII字符，长度不能超过70个字符。属性值可以包含任何字符，并将在写入输出流时进行UTF8编码。有关有效属性名和值的更多信息，请参见JAR文件规范。
+	
+	
+	类定义	：public static class Name
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	CLASS_PATH
+		Class-Path的manifest属性的Name对象。捆绑扩展可以使用这个属性来查找包含所需类的其他JAR文件。
+	CONTENT_TYPE
+		Content-Type的manifest属性的Name对象。
+	EXTENSION_INSTALLATION
+		✘ 已淘汰。在将来的版本中将删除扩展机制。改用类路径。
+		用于声明已安装扩展的依赖项的Extension-Name的manifest属性的Name对象。
+	EXTENSION_LIST
+		用于声明已安装扩展的依赖项的Extension-List的manifest属性的Name对象。
+	EXTENSION_NAME
+		用于声明已安装扩展的依赖项的Extension-Name的manifest属性的Name对象。
+	IMPLEMENTATION_TITLE
+		用于包版本控制的Implementation-Title的manifest属性的Name对象。
+	IMPLEMENTATION_URL
+		✘ 已淘汰。在将来的版本中将删除扩展机制。改用类路径。
+		用于包版本控制的实现URL清单属性的名称对象。
+	IMPLEMENTATION_VENDOR
+		用于包版本控制的Implementation-Vendor的manifest属性的Name对象。		
+	IMPLEMENTATION_VENDOR_ID
+		✘ 已淘汰。在将来的版本中将删除扩展机制。改用类路径。
+		用于包版本控制的Implementation-Vendor-Id的manifest属性的Name对象。
+	IMPLEMENTATION_VERSION
+		用于包版本控制的Implementation-Version的manifest属性的Name对象。
+	MAIN_CLASS
+		用于启动JAR文件中打包的应用程序的Main-Class的manifest属性的名称对象。Main-Class属性与Java应用程序启动器的-jar命令行选项一起使用。
+	MANIFEST_VERSION
+		Manifest-Version的manifest属性的Name对象。此属性指示JAR文件所符合的manifest标准的版本号。
+	SEALED
+		用于密封的Sealed的manifest属性的Name对象。
+	SIGNATURE_VERSION
+		签名JAR文件时使用的Signature-Version的manifest属性的Name对象。
+	SPECIFICATION_TITLE
+		用于包版本控制的Specification-Title的manifest属性的Name对象。
+	SPECIFICATION_VENDOR
+		用于包版本控制的Specification-Vendor的manifest属性的Name对象。
+	SPECIFICATION_VERSION	
+		用于包版本控制的Specification-Version的manifest属性的Name对象。
+	
+Constructor Summary（构造器概要）：	
+	public Name(String name)
+		使用给定的字符串名称构造新的属性名。
+		【Throws】：
+			IllegalArgumentException 如果属性名无效。
+			NullPointerException 如果属性名为null。
+Method Summary（方法概要）：
+	equals(Object o):boolean 
+		比较此属性名与另一个属性名是否相等。
+	hashCode():int 
+		计算此属性名的哈希值。
+	toString():String 
+		以字符串形式返回属性名。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

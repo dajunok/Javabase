@@ -9,22 +9,55 @@ Unpacker：解包器 【Since:1.5】
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）：
 	DEFLATE_HINT
+		属性，指示解包程序应忽略DEFLATE_HINT的所有传输值，将其替换为给定值（TRUE 或 FALSE）。默认值是特殊的字符串KEEP，它要求解包程序保留所有传输的压缩提示。
 	FALSE
+		字符串“false”，特定属性的可能值。
 	KEEP
+		字符串“keep”，特定属性的可能值。
 	PROGRESS
+		解包程序的进度以百分比表示，由解包程序定期更新。0-100的值是正常的，并且-1表示暂停。可以通过轮询此属性的值来监视进度。
+		解包程序在包操作开始时必须将进度设置为0，在结束时必须将进度设置为100。
 	TRUE
+		字符串“true”，特定属性的可能值。
 
 Method Summary（方法概要）：
 	addPropertyChangeListener(PropertyChangeListener listener):default void 
+		listener - 当属性更改时要调用的对象。
+		✘ 已淘汰。对PropertyChangeListener的依赖性对Java平台的将来模块化造成了很大的阻碍。此方法将在将来的版本中删除。需要监视打包程序进度的应用程序可以轮询PROGRESS属性的值。
+		在属性映射上注册属性更改事件的侦听器。这通常由应用程序用于更新进度条。
+		此方法的默认实现不做任何事情，也没有副作用。
+		警告：在不包含java.beans包的Java SE的所有子集配置文件中的接口声明中省略了此方法。
 	properties():SortedMap<String,String> 
+		获取此引擎的属性集。此集合是一个“实时视图”，因此更改其内容会立即影响打包器（Packer）引擎，并且从引擎更改（如进度指示）会立即在Map映射中可见。
+		属性映射可以包含预定义的特定于实现的属性和默认属性。在修改现有属性之前，鼓励用户阅读信息并充分理解其含义。
+		特定于实现的属性以与实现者关联的包名称作为前缀，以com开头。或类似的前缀。所有以pack.和unpack.开头的属性名。保留供此API使用。
+		未知属性可能会被忽略或拒绝，并出现未指定的错误，无效条目可能会导致引发未指定的错误。
+		返回的映射实现所有可选的SortedMap操作。
 	removePropertyChangeListener(PropertyChangeListener listener):default void 
+		✘ 已淘汰。对PropertyChangeListener的依赖性对Java平台的将来模块化造成了很大的阻碍。此方法将在将来的版本中删除。
+		删除AdvyTychange事件的侦听器，由AdjRealTyPrimeListInter（Java.Bebean，PropertyChangeListener）添加。
+		删除addPropertyChangeListener(java.beans.PropertyChangeListener)添加的PropertyChange事件侦听器。
+		警告：在不包含java.beans包的Java SE的所有子集配置文件中的接口声明中省略了此方法。
 	unpack(File in, JarOutputStream out):void  throws IOException
-	unpack(InputStream in, JarOutputStream out):void  throws IOException
+		in - 文件。
+		out - JarOutputStream输出流。
+		读取Pack200文档，并将编码的JAR写入JarOutputStream输出流。
+		不关闭其输出。（输出可以累积更多元素。）
+		【Throws】：
+			IOException - 如果遇到错误。	
+	unpack(InputStream in, JarOutputStream out):void  throws IOException 
+		in - InputStream输入流。
+		out - JarOutputStream输出流。      
+		读取Pack200文档，并将编码的JAR写入JarOutputStream输出流。     
+		不关闭其输出。（输出可以累积更多元素。）
+		【Throws】：
+			IOException - 如果遇到错误。                
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
-	2、manifest文件：描述Jar文件的打包、运行信息。
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
 	
 
 
