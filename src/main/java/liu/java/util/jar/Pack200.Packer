@@ -116,8 +116,8 @@ Method Summary（方法概要）：
 		【Throws】：
 			IOException - 如果遇到错误。		
 	pack(JarInputStream in, OutputStream out):void  throws IOException
-		in - JarInputStream流
-		out - OutputStream流	
+		in - JarInputStream输入流
+		out - OutputStream输出流	
 		获取JarInputStream并将其转换为Pack200文档。
 		关闭其输入，但不关闭其输出。（可附加Pack200文档。）
 		对于JAR manifest文件及其包含目录，修改时间和压缩提示属性不可用。

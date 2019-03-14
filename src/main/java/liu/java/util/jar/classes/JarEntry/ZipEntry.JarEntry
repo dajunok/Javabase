@@ -1,0 +1,50 @@
+----------------------------------------JarEntry--------------------------------------------------------------------------------------------------------------
+JarEntry：【Since:1.2】
+	此类用于表示JAR文件条目。
+	
+	类定义	：public class JarEntry extends ZipEntry
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public JarEntry(String name)
+		为指定的JAR文件条目名称创建新的JarEntry。
+		【Throws】：
+			NullPointerException 如果条目名称为null。
+			IllegalArgumentException 如果条目名称超过0xFFFF字节。
+	public JarEntry(JarEntry je)
+		使用从指定的JarEntry对象中获取的字段创建新的JarEntry。
+	public JarEntry(ZipEntry ze)
+		使用从指定的ZipEntry对象中获取的字段创建新的JarEntry。
+		
+		
+Method Summary（方法概要）：
+	getAttributes():Attributes 
+		返回此项的Manifest属性，如果没有，则返回null。
+		【Throws】：
+			IOException 如果发生I/O错误
+	getCertificates():Certificate[] 
+		返回此条目（entry）的Certificate（证书）对象，如果没有，则返回null。只有当JarEntry通过从条目输入流读取完全验证后，才能调用此方法，直到到达流的末尾。否则，此方法将返回null。
+		返回的证书数组包含用于验证此条目的所有签名者证书。每个签名者证书后面都有其支持证书链（可能为空）。每个签名者证书及其支持的证书链都是自下而上排列的（即，首先排列签名者证书，最后排列（根）证书颁发机构）。
+	getCodeSigners():CodeSigner[] 
+		返回此条目的CodeSigner对象，如果没有则返回null。只有当JarEntry通过从条目输入流读取完全验证后，才能调用此方法，直到到达流的末尾。否则，此方法将返回null。
+		返回的数组包含已对此条目签名的所有代码签名者。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

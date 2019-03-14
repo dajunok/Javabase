@@ -1,0 +1,46 @@
+----------------------------------------JarOutputStream--------------------------------------------------------------------------------------------------------------
+JarOutputStream：【Since:1.2】
+	JarOutputStream类用于将JAR文件的内容写入任何输出流。它扩展了类java.util.zip.ZipOutputStream，并支持编写可选的清单项。清单可用于指定有关JAR文件及其条目（entry）的元信息。
+	
+	
+	类定义	：public class JarOutputStream extends ZipOutputStream 
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public JarOutputStream(OutputStream out)
+		out - 实际输出流
+		创建没有manifest的新JarOutputStream。
+		【Throws】：
+			IOException 如果发生I/O错误
+	public JarOutputStream(OutputStream out, Manifest man)
+		out - 实际输出流
+		man - 可选项Manifest
+		使用指定的Manifest创建新的JarOutputStream。Manifest作为输出流的第一个条目写入。
+			
+Method Summary（方法概要）：
+	putNextEntry(ZipEntry ze):public void
+		ze - 要写入的ZIP/JAR条目
+		△ 开始写入新的JAR文件条目（entry），并将流定位到条目数据的开头。此方法还将关闭任何以前的条目。如果没有为条目指定压缩方法，将使用默认的压缩方法。如果条目没有设置修改时间，将使用当前时间。
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+		
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

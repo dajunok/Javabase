@@ -1,0 +1,71 @@
+----------------------------------------JarInputStream--------------------------------------------------------------------------------------------------------------
+JarInputStream：【Since:1.2】
+	JarInputStream类用于从任何输入流读取JAR文件的内容。它扩展了类java.util.zip.ZipInputStream，并支持读取可选Manifest条目（entry）。Manifest可用于存储有关JAR文件及其条目的元信息。
+	
+	类定义	：public class JarInputStream extends ZipInputStream 
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public JarInputStream(InputStream in)
+		in - 实际输入流
+		创建新的JarInputStream并读取可选manifest。如果存在manifest，还将尝试验证JarInputStream是否签名。
+		【Throws】：
+			IOException 如果发生I/O错误
+	public JarInputStream(InputStream in, boolean verify)
+		in - 实际输入流
+		verify - 是否对JarInputStream进行签名验证。
+		创建新的JarInputStream并读取可选manifest。如果manifest存在并且verify为true，那么如果JarInputStream已签名，也将尝试验证签名。
+		【Throws】：
+			IOException 如果发生I/O错误	
+			
+Method Summary（方法概要）：
+	createZipEntry(String name):protected ZipEntry 
+		name - JAR/ZIP文件项（entry）的名称。
+		为指定的JAR文件条目名称（entry）创建新的JarEntry(ZipEntry)。指定JAR文件条目名称的manifest属性将复制到新的JarEntry。
+	getManifest():Manifest 
+		返回此JAR文件的Manifest，如果没有，则返回null。
+	getNextEntry():ZipEntry 
+		读取下一个ZIP文件条目并将流定位在条目数据的开头。如果已启用验证，则在为下一个条目定位流时检测到的任何无效签名都将导致异常。
+		【Throws】：
+			ZipException 如果发生zip文件错误
+			IOException 如果发生I/O错误
+			SecurityException 如果任何JAR文件条目的签名不正确。
+	getNextJarEntry():JarEntry 
+		读取下一个JAR文件条目并将流定位在条目数据的开头。如果已启用验证，则在为下一个条目定位流时检测到的任何无效签名都将导致异常。
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+			SecurityException 如果任何JAR文件条目的签名不正确。
+	read(byte[] b, int off, int len):int 
+		b - 读取数据的缓冲区
+		off - 目标数组b中的起始偏移量
+		len - 要读取的最大字节数
+		从当前JAR文件条目读取到字节数组中。如果len不是零，则方法将一直阻塞，直到某些输入可用；否则，将不读取任何字节，并返回0。如果已启用验证，则在到达条目结尾之前的某个时间点，将报告当前条目上的任何无效签名。
+		【Throws】：
+			NullPointerException 如果b为null。
+			IndexOutOfBoundsException 如果off为负数, len为负数, 或者 len > (b.length - off)
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+			SecurityException 如果任何JAR文件条目的签名不正确。
+		
+		
+		
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
