@@ -1,0 +1,76 @@
+----------------------------------------StreamHandler--------------------------------------------------------------------------------------------------------------
+StreamHandler：流处理器。	【Since:1.4】
+	基于流的日志记录处理器（Handler）。
+	这主要是作为基类或支持类，用于实现其他日志处理器。
+	日志记录（LogRecord）发布到给定的java.io.OutputStream。
+	配置：默认情况下，使用以下LogManager配置属性初始化每个StreamHandler，其中<handler-name>引用处理器的完全限定类名。如果未定义属性（或属性值无效），则使用指定的默认值。
+		● <handler-name>.level     指定处理器的默认级别（默认为Level.INFO）。
+		● <handler-name>.filter    指定要使用的Filter类的名称（默认没有Filter）。
+		● <handler-name>.formatter 指定要使用的Formatter类的名称（默认为java.util.logging.SimpleFormatter）。
+		● <handler-name>.encoding  要使用的字符集编码的名称（默认为默认平台编码）。
+	例如，StreamHandler的属性为：
+		● java.util.logging.StreamHandler.level=INFO
+		● java.util.logging.StreamHandler.formatter=java.util.logging.SimpleFormatter
+	对于自定义处理程序，例如com.foo.MyHandler，属性为：
+		● com.foo.MyHandler.level=INFO
+		● com.foo.MyHandler.formatter=java.util.logging.SimpleFormatter
+	
+	
+	类定义	：public class StreamHandler extends Handler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public StreamHandler()
+		创建一个没有当前输出流的StreamHandler。
+	public StreamHandler(OutputStream out, Formatter formatter)
+		out - 目标输出流
+		formatter - 用于格式化输出的格式化程序
+		使用给定的Formatter和输出流创建StreamHandler。
+
+
+Method Summary（方法概要）：
+	close():synchronized void 
+		关闭当前输出流。
+		Formatter的“tail”字符串在关闭前写入流。此外，如果格式化程序的“head”字符串尚未写入流，则将在“tail”字符串之前写入。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	flush():synchronized void 
+		刷新所有缓冲消息。
+	isLoggable(LogRecord record):boolean 
+		检查此Handler是否实际记录给定的日志记录。
+		此方法检查LogRecord是否具有适当的级别以及是否满足任何过滤器。如果尚未分配输出流或LogRecord为null，则返回false。
+	publish(LogRecord record):synchronized void 
+		格式化并发布日志记录（LogRecord）。
+		StreamHandler首先检查是否有输出流，以及给定的日志记录是否至少具有所需的日志级别。如果不是，它会安静地返回。如果是这样，它会调用任何关联的Filter来检查是否应该发布记录。如果是这样，它调用Formatter来格式化记录，然后将结果写入当前输出流。
+		如果这是要写入给定输出流（OutputStream）的第一个LogRecord，格式化程序（Formatter）的“head”字符串将在写入日志记录之前写入流。
+	setEncoding(String encoding):synchronized void 
+		设置（或更改）此Handler使用的字符集编码。
+		应该在将任何日志记录（LogRecord）写入Handler之前设置编码。
+		【Throws】：
+			SecurityException  如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			UnsupportedEncodingException 如果不支持命名编码。
+	setOutputStream(OutputStream out):protected synchronized void 
+		更改输出流。
+		如果存在当前输出流，则写入格式化程序的“tail”字符串，并刷新和关闭该流。然后输出流替换为新的输出流。
+		【Throws】：
+			SecurityException  如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

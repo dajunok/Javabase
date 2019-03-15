@@ -1,0 +1,116 @@
+----------------------------------------FileHandler--------------------------------------------------------------------------------------------------------------
+FileHandler：文件处理器。	【Since:1.4】
+	简单文件日志记录处理器。
+	FileHandler可以写入指定的文件，也可以写入一组循环使用的文件。
+	对于一组循环文件，当每个文件达到给定的大小限制时，将关闭、旋转并打开一个新文件。通过将“0”、“1”、“2”等添加到基础文件名中，依次命名较旧的文件。
+	默认情况下，IO库中启用了缓冲，但每个日志记录完成后都会被清除。
+	默认情况下，XMLFormatter类用于格式化。
+	配置：默认情况下，使用以下LogManager配置属性初始化每个FileHandler，其中<handler name>引用处理器的完全限定类名。如果未定义属性（或属性值无效），则使用指定的默认值。
+		● <handler-name>.level		指定处理器的默认级别（默认为Level.INFO）。
+		● <handler-name>.filter		指定要使用的Filter类的名称（默认没有Filter）。
+		● <handler-name>.formatter	指定要使用的Formatter类的名称（默认为java.util.logging.SimpleFormatter）。
+		● <handler-name>.encoding	要使用的字符集编码的名称（默认为默认平台编码）。
+		● <handler-name>.limit		指定写入任意一个文件的大约最大值（字节）。如果是零，那么就没有限制。（默认为无限制）
+		● <handler-name>.count		指定要循环使用的输出文件数（默认值为1）。		
+		● <handler-name>.pattern	指定用于生成输出文件名的模式。详情见下文。（默认为“%h/java%u.log”）。
+		● <handler-name>.append		指定FileHandler是否应附加到任何现有文件上（默认值为false）。
+	例如，FileHandler的属性为：
+		● java.util.logging.FileHandler.level=INFO
+		● java.util.logging.FileHandler.formatter=java.util.logging.SimpleFormatter
+	对于自定义处理程序，例如com.foo.MyHandler，属性为：
+		● com.foo.MyHandler.level=INFO
+		● com.foo.MyHandler.formatter=java.util.logging.SimpleFormatter
+	模式由一个字符串组成，该字符串包含将在运行时替换的以下特殊组件：
+		● "/"	本地路径名分隔符
+		● "%t"	系统临时目录
+		● "%h"	“user.home”系统属性的值
+		● "%g"	用于区分旋转日志的生成编号
+		● "%u"	用于解决冲突的唯一数字
+		● "%%"	转换为单个百分号“%”
+	如果未指定任何“%g”字段，并且文件计数大于1，则生成号将添加到生成文件名的末尾，位于一个点之后。
+	因此，例如“%t/java%g.log”的计数为2的模式通常会导致日志文件在Solaris到/var/tmp/java0.log和/var/tmp/java1.log上被写入，而在Windows 95上，它们通常被写到C:\TEMP\java0.log和C:\TEMP\java1.log。
+	生成编号遵循序列0、1、2等。
+	通常，“%u”唯一字段设置为0。但是，如果FileHandler试图打开文件名，并发现另一个进程当前正在使用该文件，它将增加“唯一编号”字段，然后重试。这将重复，直到FileHandler找到当前未使用的文件名。如果有冲突，并且没有指定“%u”字段，则将在文件名末尾的点后面添加该字段。（这将在任何自动添加的生成编号之后进行。）
+	因此，如果三个进程都试图记录到fred%u.%g.txt，那么它们最终可能会使用fred0.0.txt、fred1.0.txt、fred2.0.txt作为其旋转序列中的第一个文件。
+	请注意，只有在使用本地磁盘文件系统时，才能保证使用唯一的ID来避免冲突。
+	
+	
+	类定义	：public class FileHandler extends StreamHandler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public FileHandler()
+		建造一个默认FileHandler。这将完全由LogManager属性（或其默认值）配置。
+		【Throws】：
+			IOException 如果打开文件时出现IO问题。
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			NullPointerException 如果pattern属性是空字符串。
+	public FileHandler(String pattern)
+		初始化FileHandler以写入给定的文件名。
+		FileHandler是基于LogManager属性（或其默认值）配置的，但给定的pattern参数用作文件名模式，文件限制设置为无限制，文件数量设置为1。
+		对于可以写入的数据量没有限制，因此请小心使用。
+		【Throws】：
+			IOException 如果打开文件时出现IO问题。
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			NullPointerException 如果pattern属性是空字符串。
+	public FileHandler(String pattern, boolean append)
+		初始化FileHandler以写入给定的文件名，并使用可选的append。
+		FileHandler是基于LogManager属性（或其默认值）配置的，除了将给定的pattern参数用作文件名模式、将文件限制设置为无限制、将文件数量设置为1以及将追加模式设置为给定的追加参数。
+		对于可以写入的数据量没有限制，因此请小心使用。
+		【Throws】：
+			IOException 如果打开文件时出现IO问题。
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			NullPointerException 如果pattern属性是空字符串。
+	public FileHandler(String pattern, int limit, int count)
+		初始化FileHandler以写入一组文件。当（大约）给定的限制已写入一个文件时，将打开另一个文件。输出将循环通过一组计数文件。
+		FileHandler是基于LogManager属性（或其默认值）配置的，但给定的模式参数用作文件名模式，文件限制设置为限制参数，文件计数设置为给定的计数参数。
+		count必须至少为1。
+		【Throws】：
+			IOException 如果打开文件时出现IO问题。
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			IllegalArgumentException 如果limit < 0  或者 count < 1。
+			NullPointerException 如果pattern属性是空字符串。
+	public FileHandler(String pattern, int limit, int count, boolean append)
+		初始化FileHandler以使用可选的append写入一组文件。当（大约）给定的限制已写入一个文件时，将打开另一个文件。输出将循环通过一组计数文件。
+		文件处理程序是基于LogManager属性（或其默认值）配置的，但给定的pattern参数用作文件名模式，文件限制设置为limit参数，文件计数设置为给定的count参数，附加模式设置为给定的append参数。
+		count必须至少为1。
+		【Throws】：
+			IOException 如果打开文件时出现IO问题。
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			IllegalArgumentException 如果limit < 0  或者 count < 1。
+			NullPointerException 如果pattern属性是空字符串。
+		
+	
+
+
+Method Summary（方法概要）：
+	close():synchronized void 
+		关闭所有文件。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	publish(LogRecord record):synchronized void 
+		格式化并发布日志记录（LogRecord）。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+		
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

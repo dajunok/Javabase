@@ -1,0 +1,83 @@
+----------------------------------------MemoryHandler--------------------------------------------------------------------------------------------------------------
+MemoryHandler：内存处理器。	【Since:1.4】
+	在内存的循环缓冲区中缓冲请求的处理器。
+	通常，此处理器只将传入的日志记录（LogRecord）存储到其内存缓冲区中，并丢弃早期的记录。这种缓冲非常便宜，避免了格式化成本。在某些触发条件下，MemoryHandler会将当前的缓冲区内容推送到目标处理器，目标处理器通常会将其发布到外部世界。
+	触发缓冲区推送的主要模型有三种：
+		● 传入的日志记录的类型大于预定义的pushLevel。
+		● 外部类显式调用push方法。
+		● 子类将覆盖log方法，并扫描每个传入的日志记录（LogRecord），如果记录符合某些所需的条件，则调用push。
+	配置：默认情况下，使用以下LogManager配置属性初始化每个MemoryHandler，其中<handler name>引用处理器的完全限定类名。如果未定义属性（或属性值无效），则使用指定的默认值。如果未定义默认值，则引发RuntimeException。
+		● <handler-name>.level		指定处理器的默认级别（默认为Level.ALL）。
+		● <handler-name>.filter		指定要使用的Filter类的名称（默认没有Filter）。
+		● <handler-name>.size		定义缓冲区大小（默认值为1000）。
+		● <handler-name>.push		定义pushLevel（默认为level.SEVERE）。
+		● <handler-name>.target		指定目标处理器类的名称。（没有默认）。
+	例如，MemoryHandler的属性为：
+		● java.util.logging.MemoryHandler.level=INFO
+		● java.util.logging.MemoryHandler.formatter=java.util.logging.SimpleFormatter
+	对于自定义处理程序，例如com.foo.MyHandler，属性为：
+		● com.foo.MyHandler.level=INFO
+		● com.foo.MyHandler.formatter=java.util.logging.SimpleFormatter
+		
+	
+	类定义	：public class MemoryHandler extends Handler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public MemoryHandler()
+		创建一个MemoryHandler并基于LogManager配置属性对其进行配置。
+	public MemoryHandler(Handler target, int size, Level pushLevel)
+		target - 要向其发布输出的处理程器。
+		size - 要缓冲的日志记录数（必须大于零）
+		pushLevel - 要推送的消息级别
+		创建一个MemoryHandler。
+		除了使用给定的pushLevel参数和缓存size参数外，MemoryHandler是基于LogManager属性（或其默认值）配置的。
+		【Throws】：
+			IllegalArgumentException 如果size<= 0
+	
+
+Method Summary（方法概要）：
+	close():void 
+		关闭处理器，并释放所有关联的资源。这也将关闭目标处理器。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	flush():void 
+		在目标处理器上引发刷新。
+		请注意，没有写出MemoryHandler缓冲区的当前内容。这需要一个“push”。
+	getPushLevel():Level 
+		获取pushLevel。
+	isLoggable(LogRecord record):boolean 
+		检查此处理器是否将给定的LogRecord实际记录到其内部缓冲区中。
+		此方法检查日志记录（LogRecord）是否具有适当的级别以及是否满足任何过滤器。但是，它不检查LogRecord是否会导致缓冲区内容被“push”。如果日志记录为null，则返回false。
+	publish(LogRecord record):synchronized void 
+		将日志记录（LogRecord）存储在内部缓冲区中。
+		如果存在过滤器，则调用其isLoggable方法来检查给定的日志记录（record）是否可记录。如果不是我们就返回。否则，给定的记录将被复制到内部循环缓冲区中。然后将记录的级别属性与pushLevel进行比较。如果给定的级别大于或等于pushLevel，则调用push将所有缓冲记录写入目标输出处理器。
+	push():synchronized void 
+		将任何缓冲输出推送到目标处理器。
+		然后清除缓冲区。
+	setPushLevel(Level newLevel):synchronized void 
+		设置pushLevel。将日志记录复制到内部缓冲区后，如果日志记录的级别大于或等于pushLevel，则将调用push。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

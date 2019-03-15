@@ -1,0 +1,92 @@
+----------------------------------------Handler--------------------------------------------------------------------------------------------------------------
+Handler：处理器。	【Since:1.4】
+	Handler对象从Logger获取日志消息并将其导出。例如，它可以将它们写入控制台或将它们写入文件，或者将它们发送到网络日志记录服务，或者将它们转发到操作系统日志或其他任何内容。
+	Handler可以通过执行setLevel(Level.OFF)来禁用，也可以通过执行具有适当级别的setLevel来重新启用。
+	Handler类通常使用LogManager属性为Handler的过滤器（Filter）、格式化程序(Formatter)和级别（Level）设置默认值。请参见每个具体Handler类的特定文档。
+	
+	
+	类定义	：public abstract class Handler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected Handler()
+		默认构造函数。结果Handler的日志级别为Level.ALL，没有Formatter，也没有Filter。默认的ErrorManager实例安装为ErrorManager。
+
+Method Summary（方法概要）：
+	close():abstract void
+		 关闭Handler并释放所有关联的资源。
+		close方法将执行刷新，然后关闭Handler。调用close之后，不应再使用此Handler。方法调用可以被静默忽略，也可以引发运行时异常。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	flush():abstract void 
+		刷新任何缓冲输出。
+	getEncoding():String 
+		返回此处理程序的字符编码。
+		返回编码名称。可以为空，这表示应使用默认编码。
+	getErrorManager():ErrorManager 
+		为此Handler定义一个错误管理器（ErrorManager）。
+		如果在使用此ErrorManager时发生任何错误，将调用ErrorManager的“error”方法。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	getFilter():Filter 
+		获取此Handler的当前过滤器（Filter）。
+	getFormatter():Formatter 
+		获取此Handler的格式化程序（Formatter）。
+	getLevel():Level 
+		获取指定此Handler将记录哪些消息的日志级别。低于此级别的消息级别将被丢弃。
+	isLoggable(LogRecord record):boolean 
+		检查此Handler是否实际记录给定的日志记录。
+		此方法检查LogRecord是否具有适当的级别以及是否满足任何Filter。它还可以进行其他特定于Handler的检查，以防止处理器记录LogRecord。如果LogRecord为null，则返回false。
+	publish(LogRecord record):abstract void 
+		发布日志记录（LogRecord）。
+		日志记录请求最初是向一个Logger对象发出的，该对象初始化了LogRecord并将其转发到此处。
+		当需要时，Handler负责格式化消息。格式化应该包括本地化。
+	reportError(String msg, Exception ex, int code):protected void 
+		msg - 描述性字符串（可以为null）
+		ex - 异常(可以为null)
+		code - ErrorManager中定义的错误代码（CLOSE_FAILURE、FLUSH_FAILURE、FORMAT_FAILURE、GENERIC_FAILURE、OPEN_FAILURE、WRITE_FAILURE）。
+		用于向此Handler的ErrorManager报告错误的protected修饰的便利方法。请注意，此方法在不进行安全检查的情况下检索并使用ErrorManager。因此，它可以在调用者可能没有特权的环境中使用。
+	setEncoding(String encoding):synchronized void
+		设置此处Handler使用的字符编码。
+		应该在将任何LogRecord写入Handler之前设置编码。 
+		【Throws】：
+			SecurityException  如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			UnsupportedEncodingException 如果不支持命名编码。
+	setErrorManager(ErrorManager em):synchronized void 
+		为此Handler定义一个ErrorManager。
+		如果在使用此Handler时发生任何错误，将调用ErrorManager的“error”方法。
+		【Throws】：
+			SecurityException  如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	setFilter(Filter newFilter):synchronized void 
+		设置Filter以控制此Handler的输出。
+		对于每次调用publish，Handler都将调用这个Filter（如果它不是null）来检查日志记录是否应该被发布或丢弃。
+		【Throws】：
+			SecurityException  如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	setFormatter(Formatter newFormatter):synchronized void 
+		设置Formatter。此Formatter将用于格式化Handler的日志记录。
+		某些Handler可能不使用Formatter，在这种情况下，Formatter将被记住，但不会被使用。
+		【Throws】：
+			SecurityException  如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	setLevel(Level newLevel):synchronized void 
+		设置日志级别，指定此Handler将记录哪些消息级别。低于此值的消息级别将被丢弃。
+		其目的是允许开发人员打开大量的日志记录，但限制发送到特定Handler的消息。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
