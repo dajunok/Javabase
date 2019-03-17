@@ -1,0 +1,147 @@
+----------------------------------------Logger--------------------------------------------------------------------------------------------------------------
+Logger：日志记录器。	【Since:1.4】
+	Logger对象用于记录特定系统或应用程序组件的消息。日志记录器通常使用分层的点分隔名称空间来命名。记录器名称可以是任意字符串，但通常应基于所记录组件的包名称或类名，如java.net或javax.swing。此外，还可以创建不存储在Logger命名空间中的“匿名”记录器。
+	可以通过调用getLogger工厂方法之一来获取Logger对象。这将创建一个新的Logger或返回一个合适的现有Logger。需要注意的是，如果不保留对Logger的强引用，则由getLogger工厂方法之一返回的Logger可能在任何时候都会被垃圾回收。
+	日志消息将转发到注册的处理器（Handler）对象，该对象可以将消息转发到各种目标，包括控制台、文件、操作系统日志等。
+	每个记录器（Logger）都跟踪一个“父”记录器，它是记录器命名空间中最接近的现有祖先。
+	每个记录器都有一个与其关联的“Level”。这反映了这个记录器关注的最低级别。如果记录器的级别设置为null，那么它的有效级别将从其父级继承，而父级又可以从其父级递归地获取它，依此类推。
+	可以根据日志配置文件中的属性配置日志级别，如LogManager类的描述中所述。但是，它也可以通过对Logger.setLevel方法的调用进行动态更改。如果记录器的级别被更改，则更改也可能影响子记录器，因为任何将null作为其级别的子记录器都将从其父级继承其有效级别。
+	在每次日志记录调用中，Logger首先根据日志记录器（Logger）的有效日志级别对请求级别（例如，严重（SEVERE）或详细（FINE））执行廉价检查。如果请求级别低于日志级别，则日志调用将立即返回。
+	在通过这个初始（廉价）测试之后，Logger将分配一个LogRecord来描述日志消息。然后它将调用一个过滤器（Filter）（如果存在）来更详细地检查是否应该发布记录。如果通过，则会将LogRecord发布到其输出处理器。默认情况下，日志记录器也会发布到其父处理器，递归地向上发布。
+	每个Logger可以有一个与其相关的ResourceBundle。ResourceBundle可以通过名称、使用getLogger（java.lang.String、java.lang.String）工厂方法或值（使用setResourceBundle方法）来指定。这个包将用于本地化日志消息。如果Logger没有自己的ResourceBundle或资源绑定名称，那么它将从其父级继承ResourceBundle或资源绑定名称，递归地向上到树顶。
+	大多数记录器输出方法采用“msg”参数。此msg参数可以是原始值，也可以是本地化键。在格式化期间，如果记录器具有（或继承）本地化ResourceBundle，并且ResourceBundle具有msg字符串的映射，那么msg字符串将替换为本地化值。否则将使用原始msg字符串。通常，格式化程序使用java.text.MessageFormat样式的格式化来格式化参数，例如，格式化字符串“{0} {1}”将两个参数格式化为字符串。
+	一组方法或者采用“msgSupplier”而不是“msg”参数。这些方法采用一个Supplier<String>函数，仅当消息实际要基于有效日志级别进行日志记录时，才调用该函数来构造所需的日志消息，从而消除了不必要的消息构造。例如，如果开发人员希望记录系统运行状况以进行诊断，使用字符串接受版本，则代码如下所示：
+	   class DiagnosisMessages {
+	     static String systemHealthStatus() {
+	       // collect system health information
+	       ...
+	     }
+	   }
+	   ...
+	   logger.log(Level.FINER, DiagnosisMessages.systemHealthStatus());	
+	使用上述代码，即使禁用了日志级别FINER，也会不必要地收集运行状况状态。供应商接受版本如下，只有在启用了日志级别FINER时才会收集状态。
+		logger.log(Level.FINER, DiagnosisMessages::systemHealthStatus);
+	当查找ResourceBundle时，记录器将首先查看是否使用ResourceBundle指定了包，然后只查看是否通过getLogger工厂方法指定了资源包名称。如果找不到ResourceBundle或没有资源束名称，那么它将使用从其父树继承的最近的ResourceBundle或资源绑定名称。
+	当ResourceBundle通过setResourceBundle方法继承或指定时，将使用ResourceBundle。否则，如果记录器只具有或继承了资源绑定名称，则该资源绑定名称将使用日志记录时的默认区域设置（Locale）映射到ResourceBundle对象。
+	将资源绑定名称映射到ResourceBundle对象时，记录器将首先尝试使用线程的上下文类加载器将给定的资源束名称映射到ResourceBundle。如果线程上下文类加载器为null，它将改为尝试系统类加载器。如果仍然找不到ResourceBundle，它将使用getLogger工厂方法的第一个调用方的类加载器。
+	格式化（包括本地化）是输出处理程序的责任，它通常会调用格式化程序（Formatter）。
+	请注意，格式化不需要同步进行。它可能会延迟，直到日志记录（LogRecord）实际写入外部接收器。
+	记录方法分五大类：
+		● 有一组“log”方法，它们采用日志级别、消息字符串和消息字符串的一些可选参数。
+		● 有一组“logp”方法（用于“log precise”），类似于“log”方法，但也采用显式的源类名和方法名。
+		● 有一组“logrb”方法（对于“log with resource bundle”），类似于“logp”方法，但也有一个显式的资源绑定对象用于本地化日志消息。
+		● 有一些方便的方法可以跟踪方法条目（“entering”方法）、方法返回（“exiting”方法）和引发异常（“throwing”方法）。
+		● 最后，在最简单的情况下，当开发人员只想在给定的日志级别记录一个简单字符串时，可以使用一组方便的方法。这些方法是以标准Level名称命名的（“severe”、“warning”、“info”等），并采用单个参数、消息字符串。
+	对于不使用显式源名称和方法名称的方法，日志框架将“尽最大努力”确定调用日志方法的类和方法。然而，重要的是要认识到，这种自动推断的信息可能只是近似的（甚至可能是完全错误的！）.允许虚拟机在抖动时进行广泛的优化，并可能完全移除栈帧，从而无法可靠地定位调用类和方法。
+	记录器上的所有方法都是多线程安全的。
+	子类化信息：请注意，LogManager类可以为命名空间中的任何点提供自己的命名记录器实现。因此，Logger的任何子类（除非它们与新的LogManager类一起实现）应该注意从LogManager类获取一个Logger实例，并且应该将诸如“isLoggable”和“log(LogRecord)”之类的操作委托给该实例。注意，为了截获所有的日志输出，子类只需要重写log(LogRecord)方法。所有其他日志记录方法都是作为此log(LogRecord)方法上的调用实现的。
+	
+	
+	
+	类定义	：public class Logger
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	global
+		✘已淘汰。此字段的初始化容易出现死锁。该字段必须通过记录器类初始化进行初始化，这可能导致LogManager类初始化死锁。在这种情况下，两个类初始化会等待对方完成。获取全局记录器对象的首选方法是通过调用Logger.getGlobal()。要与Logger.getGlobal()不可用的旧JDK版本兼容，请调用Logger.getLogger(Logger.GLOBAL_LOGGER_NAME)或Logger.getLogger("global")。
+		“global” Logger对象是为了方便那些随意使用日志包的开发人员而提供的。认真使用日志包（例如在产品中）的开发人员应该创建并使用自己的Logger对象，并使用适当的名称，以便在适当的每个日志程序粒度上控制日志记录。开发人员还需要保持对其记录器对象的强引用，以防止它们被垃圾回收。
+	GLOBAL_LOGGER_NAME
+		全局记录器的名称。
+		
+Constructor Summary（构造器概要）：
+	protected Logger(String name, String resourceBundleName)
+		name - 记录器的名称。这应该是一个点分隔的名称，通常应该基于子系统的包名或类名，如java.net或javax.swing。匿名记录器可能为空。	
+		resourceBundleName - 用于本地化此记录器消息的ResourceBundle的名称。如果没有任何消息需要本地化，则可能为null。
+		为指定子系统构造记录器的protected方法。
+		记录器最初将配置为null级别（Level），并将useParentHandlers设置为true。
+		【Throws】：
+			MissingResourceException - 如果resourceBundleName非空，并且找不到相应的资源。
+			
+Method Summary（方法概要）：
+	getAnonymousLogger():static Logger 
+		创建匿名记录器（Logger）。新创建的记录器未在LogManager命名空间中注册。不会对记录器的更新进行访问检查。
+		此工厂方法主要用于小程序。因为返回的记录器是匿名的，所以创建类可以将其保持为私有。这就不需要进行正常的安全检查，而安全检查又允许不受信任的小程序（applet）代码更新记录器的控制状态。例如，小程序可以在匿名记录器上执行setLevel或addHandler。
+		尽管新的记录器是匿名的，但它被配置为将根（root）记录器（""）作为其父级。这意味着默认情况下，它从根记录器继承其有效级别和处理器。通过setParent方法更改其父级仍然需要该方法指定的安全权限。
+	getAnonymousLogger(String resourceBundleName):static Logger 
+		
+	Logger getGlobal():static final 
+	getLogger(String name):static Logger 
+	getLogger(String name, String resourceBundleName):static Logger 
+	addHandler(Handler handler):void 
+	config(String msg):void 
+	config(Supplier<String> msgSupplier):void 
+	entering(String sourceClass, String sourceMethod):void 
+	entering(String sourceClass, String sourceMethod, Object param1):void 
+	entering(String sourceClass, String sourceMethod, Object params[]):void 
+	exiting(String sourceClass, String sourceMethod):void 
+	exiting(String sourceClass, String sourceMethod, Object result):void 
+	fine(String msg):void 
+	fine(Supplier<String> msgSupplier):void 
+	finer(String msg):void 
+	finer(Supplier<String> msgSupplier):void 
+	finest(String msg):void 
+	finest(Supplier<String> msgSupplier):void 
+	getFilter():Filter 
+	getHandlers():Handler[] 
+	getLevel():Level 
+	getName():String 
+	getParent():Logger 
+	getResourceBundle():ResourceBundle 
+	getResourceBundleName():String 
+	getUseParentHandlers():boolean 
+	info(String msg):void 
+	info(Supplier<String> msgSupplier):void 
+	isLoggable(Level level):boolean 
+	log(Level level, String msg):void 
+	log(Level level, String msg, Object param1):void 
+	log(Level level, String msg, Object params[]):void 
+	log(Level level, String msg, Throwable thrown):void 
+	log(Level level, Throwable thrown, Supplier<String> msgSupplier):void 
+	log(Level level, Supplier<String> msgSupplier):void 
+	log(LogRecord record):void 
+	logp(Level level, String sourceClass, String sourceMethod, String msg):void 
+	logp(Level level, String sourceClass, String sourceMethod,String msg, Object param1):void
+	logp(Level level, String sourceClass, String sourceMethod,String msg, Object params[]):void
+	logp(Level level, String sourceClass, String sourceMethod,String msg, Throwable thrown):void 
+	logp(Level level, String sourceClass, String sourceMethod,Throwable thrown, Supplier<String> msgSupplier):void 
+	logp(Level level, String sourceClass, String sourceMethod,Supplier<String> msgSupplier):void 
+    logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg):void                  
+	logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg, Object param1):void 
+	logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg, Object params[]):void 
+	logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg, Throwable thrown):void 
+	logrb(Level level, String sourceClass, String sourceMethod,ResourceBundle bundle, String msg, Object... params):void 
+	logrb(Level level, String sourceClass, String sourceMethod,ResourceBundle bundle, String msg, Throwable thrown):void 
+	removeHandler(Handler handler):void 
+	setFilter(Filter newFilter):void 
+	setLevel(Level newLevel):void 
+	setParent(Logger parent):void 
+	setResourceBundle(ResourceBundle bundle):void 
+	setUseParentHandlers(boolean useParentHandlers):void 
+	severe(String msg):void 
+	severe(Supplier<String> msgSupplier):void 
+	throwing(String sourceClass, String sourceMethod, Throwable thrown):void 
+	warning(String msg):void 
+	warning(Supplier<String> msgSupplier):void 
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

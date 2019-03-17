@@ -1,0 +1,65 @@
+----------------------------------------SocketHandler--------------------------------------------------------------------------------------------------------------
+SocketHandler：Socket处理器。	【Since:1.4】
+	简单网络日志记录处理器。
+	日志记录（LogRecord）发布到网络流连接。默认情况下，XMLFormatter类用于格式化。
+	配置：默认情况下，使用以下LogManager配置属性初始化每个SocketHandler，其中<handler name>引用处理器的完全限定类名。如果未定义属性（或属性值无效），则使用指定的默认值。
+		● <handler-name>.level		指定处理器的默认级别（默认为Level.INFO）。
+		● <handler-name>.filter		指定要使用的Filter类的名称（默认没有Filter）。
+		● <handler-name>.formatter	指定要使用的Formatter类的名称（默认为java.util.logging.SimpleFormatter）。
+		● <handler-name>.encoding	要使用的字符集编码的名称（默认为默认平台编码）。
+	例如，SocketHandler的属性为：
+		● java.util.logging.SocketHandler.level=INFO
+		● java.util.logging.SocketHandler.formatter=java.util.logging.SimpleFormatter
+	对于自定义处理程序，例如com.foo.MyHandler，属性为：
+		● com.foo.MyHandler.level=INFO
+		● com.foo.MyHandler.formatter=java.util.logging.SimpleFormatter
+	输出IO流被缓冲，但在写入每个日志记录（LogRecord）后被刷新。
+	
+	
+	类定义	：public class SocketHandler extends StreamHandler
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public SocketHandler()
+		仅使用LogManager属性（或其默认值）创建SocketHandler。
+		【Throws】：
+			IllegalArgumentException 如果主机（host）或端口（port）无效或未指定为日志管理器（LogManager）属性。
+			IOException 如果我们无法连接到目标主机（host）和端口（port）。
+	public SocketHandler(String host, int port)
+		host - 目标主机
+		port - 目标端口
+		使用指定的主机和端口构造SocketHandler。除了使用给定的目标主机和端口参数外，SocketHandler是基于LogManager属性（或其默认值）配置的。如果主机参数为空，但不是空字符串，则使用localhost。
+		【Throws】：
+			IllegalArgumentException 如果主机（host）或端口（port）无效或未指定为日志管理器（LogManager）属性。
+			IOException 如果我们无法连接到目标主机（host）和端口（port）。
+			
+			
+			
+Method Summary（方法概要）：
+	close():synchronized void 
+		关闭输出流。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	publish(LogRecord record):synchronized void 
+		record - 日志事件的描述。null记录将被静默忽略，并且不会发布。
+		格式化并发布日记记录（LogRecord）。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
