@@ -54,74 +54,357 @@ Constructor Summary（构造器概要）：
 		为指定子系统构造记录器的protected方法。
 		记录器最初将配置为null级别（Level），并将useParentHandlers设置为true。
 		【Throws】：
-			MissingResourceException - 如果resourceBundleName非空，并且找不到相应的资源。
+			MissingResourceException 如果resourceBundleName非空，并且找不到相应的资源。
 			
 Method Summary（方法概要）：
 	getAnonymousLogger():static Logger 
 		创建匿名记录器（Logger）。新创建的记录器未在LogManager命名空间中注册。不会对记录器的更新进行访问检查。
-		此工厂方法主要用于小程序。因为返回的记录器是匿名的，所以创建类可以将其保持为私有。这就不需要进行正常的安全检查，而安全检查又允许不受信任的小程序（applet）代码更新记录器的控制状态。例如，小程序可以在匿名记录器上执行setLevel或addHandler。
+		此工厂方法主要用于小程序（applet）。因为返回的记录器是匿名的，所以创建类可以将其保持为私有。这就不需要进行正常的安全检查，而安全检查又允许不受信任的小程序（applet）代码更新记录器的控制状态。例如，小程序可以在匿名记录器上执行setLevel或addHandler。
 		尽管新的记录器是匿名的，但它被配置为将根（root）记录器（""）作为其父级。这意味着默认情况下，它从根记录器继承其有效级别和处理器。通过setParent方法更改其父级仍然需要该方法指定的安全权限。
 	getAnonymousLogger(String resourceBundleName):static Logger 
-		
-	Logger getGlobal():static final 
-	getLogger(String name):static Logger 
+		resourceBundleName - 用于本地化此记录器消息的ResourceBundle的名称。如果没有任何消息需要本地化，则可能为null。
+		创建匿名记录器（Logger）。新创建的记录器未在LogManager命名空间中注册。不会对记录器的更新进行访问检查。
+		此工厂方法主要用于小程序（applet）。因为返回的记录器是匿名的，所以创建类可以将其保持为私有。这就不需要进行正常的安全检查，而安全检查又允许不受信任的小程序（applet）代码更新记录器的控制状态。例如，小程序可以在匿名记录器上执行setLevel或addHandler。
+		尽管新的记录器是匿名的，但它被配置为将根（root）记录器（""）作为其父级。这意味着默认情况下，它从根记录器继承其有效级别和处理器。通过setParent方法更改其父级仍然需要该方法指定的安全权限。
+		【Throws】：
+			MissingResourceException - 如果resourceBundleName非空，并且找不到相应的资源。
+	getGlobal():static final Logger 
+		返回名为Logger.GLOBAL_LOGGER_NAME的全局记录器对象。
+	getLogger(String name):static Logger
+		name - 记录器的名称。这应该是一个点分隔的名称，通常应该基于子系统的包名或类名，如java.net或javax.swing。
+		查找或创建命名子系统的记录器。如果已使用给定名称创建了记录器，则返回该记录器。否则将创建一个新的记录器。 
+		如果创建了一个新的记录器，它的日志级别将根据LogManager配置进行配置，并且它还将配置为将日志输出发送到其父级的处理程序。它将在LogManager全局命名空间中注册。
+		注意：日志管理器（LogManager）只能保留对新创建的记录器（Logger）的弱引用。重要的是要理解，如果没有对记录器的强引用，那么以前创建的具有给定名称的记录器可能随时被垃圾收集。特别是，这意味着两个背靠背调用，如getLogger("MyLogger").log(...)可以使用不同的名为“MyLogger”的Logger对象，如果在程序的其他地方没有对名为“MyLogger”的Logger的强引用。
+		【Throws】：
+			NullPointerException 如果name为null。
 	getLogger(String name, String resourceBundleName):static Logger 
+		name - 记录器的名称。这应该是一个点分隔的名称，通常应该基于子系统的包名或类名，如java.net或javax.swing。
+		resourceBundleName - 用于本地化此记录器消息的ResourceBundle的名称。如果没有任何消息需要本地化，则可能为null。
+		查找或创建命名子系统的记录器。如果已使用给定名称创建了记录器，则返回该记录器。否则将创建一个新的记录器。 
+		如果创建了一个新的记录器，它的日志级别将根据LogManager配置进行配置，并且它还将配置为将日志输出发送到其父级的处理程序。它将在LogManager全局命名空间中注册。
+		注意：日志管理器（LogManager）只能保留对新创建的记录器（Logger）的弱引用。重要的是要理解，如果没有对记录器的强引用，那么以前创建的具有给定名称的记录器可能随时被垃圾收集。特别是，这意味着两个背靠背调用，如getLogger("MyLogger").log(...)可以使用不同的名为“MyLogger”的Logger对象，如果在程序的其他地方没有对名为“MyLogger”的Logger的强引用。
+		如果已命名的记录器（Logger）已经存在，并且还没有本地化资源绑定，则使用给定的资源绑定名称。如果已命名的记录器已存在并且具有不同的资源绑定名称，则将引发IllegalArgumentException异常。		
+		【Throws】：
+			MissingResourceException 如果resourceBundleName非空，并且找不到相应的资源。
+			IllegalArgumentException 如果记录器已存在并使用不同的资源绑定名称；或者如果资源绑定名称为null，但命名的记录器具有资源绑定集。
+			NullPointerException 如果name为null。
 	addHandler(Handler handler):void 
+		handler - 日志处理器
+		添加日志处理器以接收日志消息。
+		默认情况下，记录器还将其输出发送到其父记录器。通常，根（root）记录器配置了一组处理器，这些处理器本质上充当所有记录器的默认处理程序。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
 	config(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录CONFIG消息。
+		如果记录器当前为CONFIG消息级别启用，那么给定的消息将转发到所有已注册的输出处理器（Handler）对象。
 	config(Supplier<String> msgSupplier):void 
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条CONFIG消息，只有当日志级别使消息实际被记录时，才能构造该消息。
+		如果记录器当前为CONFIG消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器（Handler）对象。		
 	entering(String sourceClass, String sourceMethod):void 
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod -正在登记进入的方法的名称
+		登记一个方法条目。
+		这是一种方便的方法，可用于记录方法的条目。将记录一条日志记录（LogRecord），其中包含消息“ENTRY”、日志级别FINER以及给定的sourceMethod和sourceClass。
 	entering(String sourceClass, String sourceMethod, Object param1):void 
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod -正在登记进入的方法的名称
+		param1 - 正在登记进入的方法的参数
+		登记一个方法条目，使用一个参数。
+		这是一种方便的方法，可用于记录方法的条目。将记录一条日志记录（LogRecord），其中包含消息“ENTRY {0}”、日志级别FINER以及给定的sourceMethod、sourceClass和参数。
 	entering(String sourceClass, String sourceMethod, Object params[]):void 
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod -正在登记进入的方法的名称
+		params - 正在登记进入的方法的参数数组
+		登记一个方法条目，使用一个参数数组。
+		这是一种方便的方法，可用于记录方法的条目。一条日志记录（LogRecord），其中包含消息“ENTRY”（后跟参数数组中每个条目的格式 {N}指示器）、日志级别FINER以及给定的sourceMethod、sourceClass和参数。
 	exiting(String sourceClass, String sourceMethod):void 
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod -正在登记进入的方法的名称
+		记录方法返回。
+		这是一个方便的方法，可以用来记录从方法返回的日志。将记录一条日志记录（LogRecord），其中包含消息“RETURN”、日志级别FINER以及给定的sourceMethod和sourceClass。		
 	exiting(String sourceClass, String sourceMethod, Object result):void 
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod -正在登记进入的方法的名称
+		result - 正在返回的对象（Object）。
+		记录方法返回，使用result对象。
+		这是一个方便的方法，可以用来记录从方法返回的日志。将记录一条日志记录（LogRecord），其中包含消息“RETURN {0}”、日志级别FINER以及给定的sourceMethod、sourceClass和result对象。			
 	fine(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录FINE消息。
+		如果记录器当前为FINE消息级别启用，那么给定消息将转发到所有已注册的输出处理器（Handler）对象。	
 	fine(Supplier<String> msgSupplier):void 
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条FINE消息，只有当日志记录级别达到实际记录消息的级别时，才能构造该消息。
+		如果记录器当前为FINE消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
 	finer(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录FINER消息。
+		如果记录器当前为FINER消息级别启用，那么给定消息将转发到所有已注册的输出处理器（Handler）对象。
 	finer(Supplier<String> msgSupplier):void 
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条FINER消息，只有当日志记录级别达到实际记录消息的级别时，才能构造该消息。
+		如果记录器当前为FINER消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
 	finest(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录FINEST消息。
+		如果记录器当前为FINEST消息级别启用，那么给定消息将转发到所有已注册的输出处理器（Handler）对象。
 	finest(Supplier<String> msgSupplier):void 
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条FINEST消息，只有当日志记录级别达到实际记录消息的级别时，才能构造该消息。
+		如果记录器当前为FINEST消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
 	getFilter():Filter 
+		获取此记录器的当前过滤器。
+		返回一个过滤器对象（可以为null）。
 	getHandlers():Handler[] 
+		获取与此记录器关联的处理器（Handler）。
+		返回所有已注册处理器的数组。
 	getLevel():Level 
+		获取为此记录器指定的日志级别（Level）。结果可能为空，这意味着此记录器的有效级别将从其父级继承。
 	getName():String 
+		获取此记录器的名称。
+		返回记录器名称。对于匿名记录器将为null。
 	getParent():Logger 
+		返回此记录器的父级。
+		此方法返回命名空间中最近的现有父级。因此，如果记录器被称为“a.b.c.d”，并且已创建了一个名为“a.b”的记录器，但不存在记录器“a.b.c”，则对记录器“a.b.c.d”调用getParent将返回记录器“a.b”。
+		如果在命名空间中的根（root）记录器上调用结果，则结果将为null。
+		返回最近的现有父记录器。
 	getResourceBundle():ResourceBundle 
+		检索此记录器的本地化资源绑定。此方法将返回由setResourceBundle方法设置或通过当前默认区域设置（locale）的getLogger工厂方法从资源绑定名称集映射的ResourceBundle。
+		请注意，如果结果为null，则记录器将使用从其父级继承的资源绑定或资源绑定名称。
+		返回本地化绑定（可能为null）。
 	getResourceBundleName():String 
+		检索此记录器的本地化资源绑定名称。这是通过getLogger工厂方法指定的名称，或者是通过setResourceBundle方法设置的ResourceBundle的基础名称。
+		请注意，如果结果为null，则记录器将使用从其父级继承的资源绑定或资源绑定名称。
+		返回本地化绑定名称（可能为null）。
 	getUseParentHandlers():boolean 
+		发现此记录器是否正在将其输出发送到其父记录器。
+		如果输出要发送到记录器的父级，则返回true。
 	info(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录INFO消息。
+		如果记录器当前为INFO消息级别启用，那么给定的消息将转发到所有已注册的输出处理器对象。
 	info(Supplier<String> msgSupplier):void 
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条INFO消息，只有当日志记录级别达到实际记录消息的级别时，才能构造该消息。
+		如果记录器当前为INFO消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
 	isLoggable(Level level):boolean 
+		level - 消息记录级别。
+		检查此记录器是否实际记录给定级别的消息。此检查基于记录器的有效级别，该级别可以从其父级继承。
+		如果当前正在记录给定的消息级别，则返回true。
 	log(Level level, String msg):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		msg - 字符串消息（或消息目录中的键）
+		记录一条没有参数的消息。
+		如果记录器当前为给定的消息级别（Level）启用，那么给定的消息将转发到所有已注册的输出处理器对象。
 	log(Level level, String msg, Object param1):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		msg - 字符串消息（或消息目录中的键）
+		param1 - 消息的参数
+		使用一个对象参数记录一条消息。
+		如果记录器当前为给定的消息级别（Level）启用，则会创建相应的日志记录（LogRecord），并将转发到所有已注册的输出处理器对象。
 	log(Level level, String msg, Object params[]):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		msg - 字符串消息（或消息目录中的键）
+		params - 消息的参数数组
+		使用对象参数数组记录一条消息。
+		如果记录器当前为给定的消息级别（Level）启用，则会创建相应的日志记录（LogRecord），并将转发到所有已注册的输出处理器对象。
 	log(Level level, String msg, Throwable thrown):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		msg - 字符串消息（或消息目录中的键）
+		thrown - 与日志消息关联可丢弃的信息。
+		记录一条带有相关可丢弃信息的消息。
+		如果记录器当前为给定的消息级别（Level）启用，那么给定的参数将存储在一个日志记录（LogRecord）中，该日志记录将转发到所有已注册的输出处理器对象。
+		请注意，thrown参数存储在LogRecord的thrown属性中，而不是LogRecord的parameters属性中。因此，它是由输出格式化程序（Formatter）专门处理的，不被视为LogRecord信息（message）属性的格式化参数。
 	log(Level level, Throwable thrown, Supplier<String> msgSupplier):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		thrown - 与日志消息关联可丢弃的信息。
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一个延迟构造的消息，以及相关的可丢弃信息。
+		如果当前为给定消息级别启用了记录器，则通过调用提供的供应商函数来构造消息。然后，消息和给定的throwable存储在一个日志记录（LogRecord）中，该日志记录被转发到所有注册的输出处理器对象。
+		请注意，thrown参数存储在LogRecord的thrown属性中，而不是LogRecord的parameters属性中。因此，它是由输出格式化程序（Formatter）专门处理的，不被视为LogRecord信息（message）属性的格式化参数。
 	log(Level level, Supplier<String> msgSupplier):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条消息，只有当日志记录级别使消息实际被记录时，才能构造该消息。
+		如果当前为给定消息级别启用了记录器，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。		
 	log(LogRecord record):void 
+		record - 要发布的日志记录。
+		记录一条日志记录（LogRecord）。
+		此类中的所有其他日志记录方法都通过此方法调用，以实际执行任何日志记录。子类可以重写这个方法来捕获所有日志活动。
 	logp(Level level, String sourceClass, String sourceMethod, String msg):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		记录一条消息，指定源类和方法，不带参数。
+		如果记录器当前为给定的消息级别启用，那么给定的消息将转发到所有已注册的输出处理器对象。
 	logp(Level level, String sourceClass, String sourceMethod,String msg, Object param1):void
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		param1 - 日志消息的参数。
+		使用日志消息的单个对象参数记录消息，指定源类和方法。	
+		如果当前为给定消息级别启用了记录器，则会创建相应的日志记录（LogRecord），并将其转发到所有已注册的输出处理器对象。
 	logp(Level level, String sourceClass, String sourceMethod,String msg, Object params[]):void
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		params - 消息的参数数组
+		用对象参数数组记录消息，指定源类和方法。
+		如果当前为给定消息级别启用了记录器，则会创建相应的日志记录（LogRecord），并将其转发到所有已注册的输出处理器对象。		
 	logp(Level level, String sourceClass, String sourceMethod,String msg, Throwable thrown):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		thrown - 与日志消息关联可丢弃的信息。
+		记录一条消息，指定源类和方法，以及相关的可丢弃信息。
+		如果当前为给定的消息级别启用了记录器，那么给定的参数将存储在一个日志记录（LogRecord）中，该日志记录将转发到所有已注册的输出处理器。	
+		请注意，thrown参数存储在LogRecord的thrown属性中，而不是LogRecord的parameters属性中。因此，它是由输出格式化程序（Formatter）专门处理的，不被视为LogRecord信息（message）属性的格式化参数。
 	logp(Level level, String sourceClass, String sourceMethod,Throwable thrown, Supplier<String> msgSupplier):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		thrown - 与日志消息关联可丢弃的信息。
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条延迟构造的消息，指定源类和方法，以及相关的可丢弃信息。
+		如果当前为给定消息级别启用了记录器，则通过调用提供的供应商函数来构造消息。然后，消息和给定的throwable存储在一个日志记录（LogRecord）中，该日志记录被转发到所有注册的输出处理器。	
 	logp(Level level, String sourceClass, String sourceMethod,Supplier<String> msgSupplier):void 
-    logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg):void                  
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条延迟构造的消息，指定源类和方法，不带参数。
+		如果当前为给定消息级别启用了记录器，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
+    logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg):void  
+    	level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		bundleName - 要本地化消息的资源绑定的名称，不能为null。
+		✘ 已淘汰。改为使用logrb(java.util.logging.Level, java.lang.String, java.lang.String, java.util.ResourceBundle, java.lang.String, java.lang.Object...)。
+    	记录消息，指定不带参数的源类、方法和资源绑定名称。             
+    	如果记录器当前为给定的消息级别启用，那么给定的消息将转发到所有已注册的输出处理器对象。
+    	msg字符串使用命名的资源绑定进行本地化。如果资源绑定名称为null、空字符串或无效，则消息字符串不本地化。
 	logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg, Object param1):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		bundleName - 要本地化消息的资源绑定的名称，不能为null。
+		param1 - 日志消息的参数。
+		✘ 已淘汰。改为使用logrb(java.util.logging.Level, java.lang.String, java.lang.String, java.util.ResourceBundle, java.lang.String, java.lang.Object...)。
+		使用日志消息的单个对象参数记录消息，指定源类、方法和资源绑定名称。
+		如果当前为给定消息级别启用了记录器，则会创建相应的日志记录（LogRecord），并将其转发到所有已注册的输出处理器对象。
+		msg字符串使用命名的资源绑定进行本地化。如果资源绑定名称为null、空字符串或无效，则消息字符串不本地化。
 	logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg, Object params[]):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		msg - 字符串消息（或消息目录中的键）
+		bundleName - 要本地化消息的资源绑定的名称，不能为null。
+		params - 消息的参数数组
+		✘ 已淘汰。改为使用logrb(java.util.logging.Level, java.lang.String, java.lang.String, java.util.ResourceBundle, java.lang.String, java.lang.Object...)。
+		用对象参数数组记录消息，指定源类、方法和资源绑定名称。
+		如果当前为给定消息级别启用了记录器，则会创建相应的日志记录（LogRecord），并将其转发到所有已注册的输出处理器对象。
+		msg字符串使用命名的资源绑定进行本地化。如果资源绑定名称为null、空字符串或无效，则消息字符串不本地化。
 	logrb(Level level, String sourceClass, String sourceMethod,String bundleName, String msg, Throwable thrown):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		bundleName - 要本地化消息的资源绑定的名称，不能为null。
+		msg - 字符串消息（或消息目录中的键）
+		thrown - 与日志消息关联可丢弃的信息。
+		✘ 已淘汰。改为使用 logrb(java.util.logging.Level, java.lang.String, java.lang.String, java.util.ResourceBundle, java.lang.String, java.lang.Throwable)。
+		记录一条消息，指定源类、方法和资源绑定名称，以及相关的可丢弃信息。
+		如果当前为给定的消息级别启用了记录器，那么给定的参数将存储在一个日志记录（LogRecord）中，该日志记录将转发到所有已注册的输出处理器。
+		msg字符串使用命名的资源绑定进行本地化。如果资源绑定名称为null、空字符串或无效，则消息字符串不本地化。
+		请注意，thrown参数存储在LogRecord的thrown属性中，而不是LogRecord的parameters属性中。因此，它是由输出格式化程序（Formatter）专门处理的，不被视为LogRecord信息（message）属性的格式化参数。
 	logrb(Level level, String sourceClass, String sourceMethod,ResourceBundle bundle, String msg, Object... params):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		bundle - 要本地化消息的资源绑定，不能为null。
+		msg - 字符串消息（或消息目录中的键）
+		params - 消息的参数数组
+		用可选的消息参数列表记录消息，指定源类、方法和资源绑定。
+		如果当前为给定消息级别启用了记录器，则会创建相应的日志记录（LogRecord），并将其转发到所有已注册的输出处理器对象。
+		msg字符串使用命名的资源绑定进行本地化。如果资源绑定名称为null、空字符串或无效，则消息字符串不本地化。
 	logrb(Level level, String sourceClass, String sourceMethod,ResourceBundle bundle, String msg, Throwable thrown):void 
+		level - 一种消息级别标识符，例如，SEVERE（严重）。
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		bundle - 要本地化消息的资源绑定，不能为null。
+		msg - 字符串消息（或消息目录中的键）
+		thrown - 与日志消息关联可丢弃的信息。
+		记录一条消息，指定源类、方法和资源绑定，以及相关的可丢弃信息。
+		如果当前为给定的消息级别启用了记录器，那么给定的参数将存储在一个日志记录（LogRecord）中，该日志记录将转发到所有已注册的输出处理器。
+		msg字符串使用命名的资源绑定进行本地化。如果资源绑定名称为null、空字符串或无效，则消息字符串不本地化。
+		请注意，thrown参数存储在LogRecord的thrown属性中，而不是LogRecord的parameters属性中。因此，它是由输出格式化程序（Formatter）专门处理的，不被视为LogRecord信息（message）属性的格式化参数。
 	removeHandler(Handler handler):void 
+		handler - 日志处理器。
+		删除指定日志处理器。
+		如果给定的处理器未找到或为null，则静默返回。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。	
 	setFilter(Filter newFilter):void 
+		newFilter - 过滤器对象（可能为空）。
+		设置一个过滤器以控制此记录器上的输出。
+		在通过初始“级别”检查之后，日志记录器将调用此过滤器来检查是否确实应该发布日志记录。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
 	setLevel(Level newLevel):void 
+		newLevel - 日志级别的新值（可能为空）
+		设置日志级别，指定此记录器将记录哪些消息级别。低于此值的消息级别将被丢弃。级别值Level.OFF可用于关闭日志记录。
+		如果新级别为null，则意味着该节点应使用特定（非空）级别值从最近的祖先继承其级别。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
 	setParent(Logger parent):void 
+		parent - 新的父记录器。
+		设置此记录器的父级。日志管理器（LogManager）使用此方法在命名空间更改时更新日志记录器。
+		不应该从应用程序代码调用它。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
 	setResourceBundle(ResourceBundle bundle):void 
+		bundle - 此记录器应使用的资源绑定。
+		在此记录器上设置资源绑定。对于特定的区域设置（locale），将使用给定的资源绑定记录所有消息。
+		【Throws】：
+			NullPointerException 如果给定的bundle为null。
+			IllegalArgumentException 如果给定的bundle没有基础名称，或者如果此记录器已经设置了资源绑定，但给定的bundle具有不同的基础名称。
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
 	setUseParentHandlers(boolean useParentHandlers):void 
+		useParentHandlers - 如果输出要发送到记录器的父级，则为true。
+		指定此记录器是否应将其输出发送到其父记录器（Logger）。这意味着任何日志记录也将以递归方式写入父级的处理器（Handler），并可能写入其父级的命名空间。
+		【Throws】：
+			SecurityException SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
 	severe(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录SEVERE消息。
+		如果记录器当前为SEVERE消息级别启用，那么给定消息将转发到所有已注册的输出处理器（Handler）对象。
 	severe(Supplier<String> msgSupplier):void 
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条SEVERE消息，只有当日志记录级别达到实际记录消息的级别时，才能构造该消息。
+		如果记录器当前为SEVERE消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
 	throwing(String sourceClass, String sourceMethod, Throwable thrown):void 
+		sourceClass - 发出日志记录请求的类的名称
+		sourceMethod - 发出日志记录请求的方法的名称
+		thrown - 被丢弃的信息。
+		记录引发异常的信息。
+		这是一个便利的方法，可以记录某个方法正在通过引发异常而终止。日志记录是使用FINER级别完成的。
+		如果当前为给定的消息级别启用了记录器，那么给定的参数将存储在一个日志记录（Logger）中，该日志记录将转发到所有已注册的输出处理器。日志记录（LogRecord）的消息设置为“THROW”。
+		请注意，thrown参数存储在LogRecord的thrown属性中，而不是LogRecord的parameters属性中。因此，它是由输出格式化程序（Formatter）专门处理的，不被视为LogRecord信息（message）属性的格式化参数。
 	warning(String msg):void 
+		msg - 字符串消息（或消息目录中的键）
+		记录WARNING消息。
+		如果记录器当前为WARNING消息级别启用，那么给定消息将转发到所有已注册的输出处理器（Handler）对象。
 	warning(Supplier<String> msgSupplier):void 
-	
+		msgSupplier - 一种函数，当被调用时，它产生所需的日志信息。
+		记录一条WARNING消息，只有当日志记录级别达到实际记录消息的级别时，才能构造该消息。
+		如果记录器当前为WARNING消息级别启用，则通过调用提供的supplier函数构造消息，并将其转发到所有已注册的输出处理器对象。
 	
 	
 	
