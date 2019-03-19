@@ -1,0 +1,9 @@
+-----------------------------------------PreferenceChangeListener-----------------------------------------------------------------------------------------------------------------------------		
+PreferenceChangeListener：首选项更改事件侦听器。 【Since:1.4】
+	用于接收首选项更改事件的侦听器。
+	
+	接口定义	：@FunctionalInterface public interface PreferenceChangeListener extends java.util.EventListener
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	preferenceChange(PreferenceChangeEvent evt):void 
+		evt - 描述事件源和已更改的首选项的PreferenceChangeEvent对象。
+		当添加、删除首选项或更改其值时，将调用此方法。

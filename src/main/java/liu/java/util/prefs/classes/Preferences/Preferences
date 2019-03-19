@@ -1,0 +1,200 @@
+----------------------------------------Preferences--------------------------------------------------------------------------------------------------------------
+Preferences：首选项。	【Since:1.4】
+	首选项数据分层集合中的节点。此类允许应用程序存储和检索用户和系统首选项以及配置数据。此数据永久存储在依赖于实现的备份存储中。典型的实现包括平面（flat）文件、操作系统特定的注册表、目录服务器和SQL数据库。这个类的用户不需要关心后备存储器的细节。
+	有两个单独的首选项节点树，一个用于用户首选项，另一个用于系统首选项。每个用户都有一个单独的用户首选项树，并且给定系统中的所有用户共享相同的系统首选项树。“user”和“system”的精确描述将因实施而异。存储在用户首选项树中的典型信息可能包括字体选择、颜色选择或特定应用程序的首选窗口位置和大小。存储在系统首选项树中的典型信息可能包括应用程序的安装配置数据。
+	首选项树中的节点的命名方式与分层文件系统中的目录类似。首选项树中的每个节点都有一个节点名（不一定是唯一的）、一个唯一的绝对路径名和一个相对于每个祖先（包括其自身）的路径名。
+	根节点的节点名为空字符串（""）。其他每个节点都有一个任意的节点名，在创建时指定。对此名称的唯一限制是它不能是空字符串，并且不能包含斜杠字符（"/"）。
+	根节点的绝对路径名为“/”。根节点的子节点的绝对路径名为“/”+<node name>。所有其他节点的绝对路径名都是<父绝对路径名>+“/”+<node name>。请注意，所有绝对路径名都以斜线字符开头。
+	节点n相对于其祖先a的路径名只是一个字符串，必须附加到a的绝对路径名之后，才能形成n的绝对路径名，并删除初始斜杠字符（如果存在）。注意：
+		● 没有以斜杠字符开头的相对路径名。
+		● 每个节点相对于自身的路径名都是空字符串。
+		● 每个节点相对于其父节点的路径名都是其节点名（根（root）节点除外，根节点没有父节点）。
+		● 每个节点相对于根（root）的路径名都是其绝对路径名，删除了初始斜杠字符。
+	最后要注意：
+		● 没有路径名包含多个连续斜杠字符。
+		● 除了根（root）的绝对路径名之外，没有路径名以斜杠字符结尾。
+		● 任何符合这两个规则的字符串都是有效的路径名。
+	所有修改首选项数据的方法都允许异步操作；它们可能会立即返回，并且更改最终会传输到具有依赖于实现的延迟的持久后备存储。可以使用flush方法同步强制更新到后备存储。Java虚拟机的正常终止不会导致挂起的更新丢失————终止时不需要显式刷新调用，以确保挂起的更新被持久化。
+	从Preferences对象读取首选项的所有方法都需要调用程序提供默认值。如果以前没有设置值，或者备份存储不可用，则返回默认值。其目的是允许应用程序运行，尽管功能略有下降，甚至后备存储变得不可用。一些方法（如flush）具有可以防止在后备存储不可用时操作它们语义。普通应用程序不需要调用这些方法中的任何一个，这些方法可以通过声明为抛出BackingStoreException异常来标识。
+	此类中的方法可以由单个JVM中的多个线程并发调用，而无需进行外部同步，结果相当于一些串行执行。如果多个将其首选项数据存储在同一个备份存储中的JVM同时使用该类，则数据存储不会损坏，但不会对首选项数据的一致性做出其他保证。
+	此类包含一个导出/导入工具，允许将首选项“导出”到XML文档，以及表示要“导入”到系统中的首选项的XML文档。此工具可用于备份首选项树的全部或部分，然后从备份中还原。
+	XML文档具有以下doctype声明：
+		<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+	请注意，导出或导入首选项时不访问系统URI（http://java.sun.com/dtd/preferences.dtd）；它仅用作唯一标识DTD的字符串，即：
+	    <?xml version="1.0" encoding="UTF-8"?>
+	
+	    <!-- DTD for a Preferences tree. -->
+	
+	    <!-- The preferences element is at the root of an XML document
+	         representing a Preferences tree. -->
+	    <!ELEMENT preferences (root)>
+	
+	    <!-- The preferences element contains an optional version attribute,
+	          which specifies version of DTD. -->
+	    <!ATTLIST preferences EXTERNAL_XML_VERSION CDATA "0.0" >
+	
+	    <!-- The root element has a map representing the root's preferences
+	         (if any), and one node for each child of the root (if any). -->
+	    <!ELEMENT root (map, node*) >
+	
+	    <!-- Additionally, the root contains a type attribute, which
+	         specifies whether it's the system or user root. -->
+	    <!ATTLIST root
+	              type (system|user) #REQUIRED >
+	
+	    <!-- Each node has a map representing its preferences (if any),
+	         and one node for each child (if any). -->
+	    <!ELEMENT node (map, node*) >
+	
+	    <!-- Additionally, each node has a name attribute -->
+	    <!ATTLIST node
+	              name CDATA #REQUIRED >
+	
+	    <!-- A map represents the preferences stored at a node (if any). -->
+	    <!ELEMENT map (entry*) >
+	
+	    <!-- An entry represents a single preference, which is simply
+	          a key-value pair. -->
+	    <!ELEMENT entry EMPTY >
+	    <!ATTLIST entry
+	              key   CDATA #REQUIRED
+	              value CDATA #REQUIRED >	
+	每个Preferences实现都必须具有关联的PreferencesFactory实现。每一个Java（TM）SE实现都必须提供一些特定的方法来指定哪个PreferencesFactory实现用于生成根首选项节点。这允许管理员用可选的实现替换默认的首选项实现。
+	实现注意：在Sun的JRE中，PrefencesFactory实现位置如下：
+		1、如果定义了系统属性java.util.prefs.PreferencesFactory，则它被视为实现PreferencesFactory接口的类的完全限定名。类将被加载并实例化；如果此过程失败，则会引发未指定的错误。
+		2、如果在系统类加载器可见的JAR文件中安装了PreferencesFactory实现类文件，并且该JAR文件包含资源目录META-INF/services中名为java.util.prefs.prefencesFactor的提供程序配置文件，则采用该文件中指定的第一个类名。如果提供了多个这样的JAR文件，将使用找到的第一个。类将被加载并实例化；如果此过程失败，则会引发未指定的错误。
+		3、最后，如果既没有提供上述系统属性，也没有提供扩展jar文件，那么将加载并实例化底层平台的系统范围默认PreferencesFactory实现。
+	
+	
+	
+	
+	类定义	：public abstract class Preferences
+	实现接口	：Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	MAX_KEY_LENGTH
+		允许作为键的字符串的最大长度（80个字符）。
+	MAX_NAME_LENGTH
+		节点名的最大长度（80个字符）。
+	MAX_VALUE_LENGTH
+		允许作为值的字符串的最大长度（8192个字符）。
+
+Constructor Summary（构造器概要）：
+	protected Preferences()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+			
+Method Summary（方法概要）：
+	importPreferences(InputStream is):static void 
+		is - 从中读取XML文档的输入流。
+		导入指定输入流上XML文档表示的所有首选项。文档可以表示用户首选项或系统首选项。如果它表示用户首选项，则首选项将导入调用用户的首选项树（即使它们最初来自不同用户的首选项树）。如果文档描述的任何首选项驻留不存在的首选项节点，则将创建这些节点。
+		XML文档必须具有以下DOCTYPE声明：
+			 <!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+		（此方法设计用于与exportNode(OutputStream)和exportSubtree(OutputStream)一起使用）。
+		这个方法是一般规则的一个例外，这个类中并发执行多个方法的结果产生的结果相当于一些串行执行。该方法的行为就像是在这个类中的其他公共方法（特别是node(String)和put(String, String)上实现的一样。
+		【Throws】：
+			IOException 如果从指定的输入流读取会导致IOException。
+			InvalidPreferencesFormatException 输入流上的数据不构成具有强制文档类型的有效XML文档。
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
+	systemNodeForPackage(Class<?> c):static Preferences 
+		c - 包所需要系统首选项节点的类。
+		从与指定类的包关联（按约定）的系统首选项树返回首选项节点。约定如下：节点的绝对路径名是完全限定的包名，前面有一个斜杠（“/”），每个句点（“.”）都被斜杠替换。例如，与类com.acme.widget.Foo关联的节点的绝对路径名是/com/acme/widget。
+		此约定不适用于关联的首选项节点为<unnamed>的未命名包。此节点不是为了长期使用，而是为了方便早期开发还不属于包的程序，以及“一次性”程序。有价值的数据不应该存储在这个节点上，因为它由所有使用它的程序共享。
+		希望访问与其包相关的首选项的类Foo可以获得如下的首选项节点：
+			static Preferences prefs = Preferences.systemNodeForPackage(Foo.class);
+		这个习惯消除了使用字符串描述首选项节点的需要，并降低了运行时失败的可能性。（如果类名拼写错误，通常会导致编译时错误。）
+		如果返回的节点及其祖先不存在，则调用此方法将导致创建它们。如果返回的节点在此调用之前不存在，则在对返回的节点（或其祖先或后代之一）调用flush方法之前，此节点和由此调用创建的任何祖先都不能保证成为永久的。
+		【Throws】：
+			NullPointerException 如果c为null。
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。			
+	systemRoot():static Preferences 
+		返回系统的根（root）首选项节点。
+		【Throws】：
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
+	userNodeForPackage(Class<?> c):static Preferences 
+		c - 其包所需要的用户首选项节点的类。
+		从调用用户的首选项树返回与指定类的包关联的首选项节点（按约定）。约定如下：节点的绝对路径名是完全限定的包名，前面有一个斜杠（“/”），每个period ('.')都被斜杠替换。例如，与类com.acme.widget.Foo关联的节点的绝对路径名是/com/acme/widget。
+		此约定不适用于关联的首选项节点为<unnamed>的未命名包。此节点不是为了长期使用，而是为了方便早期开发还不属于包的程序，以及“一次性”程序。有价值的数据不应该存储在这个节点上，因为它由所有使用它的程序共享。
+		希望访问与其包相关的首选项的类Foo可以获得如下的首选项节点：
+			static Preferences prefs = Preferences.userNodeForPackage(Foo.class);
+		这个习惯消除了使用字符串描述首选项节点的需要，并降低了运行时失败的可能性。（如果类名拼写错误，通常会导致编译时错误。）
+		如果返回的节点及其祖先不存在，则调用此方法将导致创建它们。如果返回的节点在此调用之前不存在，则在对返回的节点（或其祖先或后代之一）调用flush方法之前，此节点和由此调用创建的任何祖先都不能保证成为永久的。
+		【Throws】：
+			NullPointerException 如果c为null。
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。	
+	userRoot():static Preferences 
+		返回调用用户的根（root）首选项节点。
+		【Throws】：
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
+	absolutePath():abstract String 
+		返回此首选项节点的绝对路径名。
+	addNodeChangeListener(NodeChangeListener ncl):abstract void 
+		ncl - 要添加的NodeChangeListener。
+		注册指定的侦听器以接收此节点的节点更改事件。将子节点添加到此节点或从中删除子节点时，将生成节点更改事件。（单个removeNode()调用会导致多个节点更改事件，每个节点对应于根位于已删除节点的子树中的每个节点。）
+		事件仅保证在注册的侦听器所在的同一个JVM中所做的更改，尽管某些实现可能会为在此JVM之外所做的更改生成事件。在更改成为永久更改之前，可能会生成事件。添加或删除此节点的间接后代时，不会生成事件；需要此类事件的调用方必须向每个后代注册。
+		对于节点创建，几乎没有什么保证。由于节点是在访问时隐式创建的，因此在访问之前，实现可能无法确定备份存储中是否存在子节点（例如，因为无法访问备份存储或缓存信息已过期）。在这些情况下，实现既不需要生成节点更改事件，也不禁止这样做。
+		【Throws】：
+			NullPointerException 如果ncl为null。
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
+	addPreferenceChangeListener:abstract void 
+	childrenNames():abstract String[] 
+	clear():abstract void 
+	exportNode(OutputStream os):abstract void 
+	exportSubtree(OutputStream os):abstract void 
+	flush():abstract void 
+	get(String key, String def):abstract String 
+	getBoolean(String key, boolean def):abstract boolean 
+	getByteArray(String key, byte[] def):abstract byte[] 
+	getDouble(String key, double def):abstract double 
+	getFloat(String key, float def):abstract float 
+	getInt(String key, int def):abstract int 
+	getLong(String key, long def):abstract long 
+	isUserNode():abstract boolean 
+	keys():abstract String[] 
+	name():abstract String 
+	node(String pathName):abstract Preferences 
+	nodeExists(String pathName):abstract boolean 
+	parent():abstract Preferences 
+	put(String key, String value):abstract void 
+	putBoolean(String key, boolean value):abstract void 
+	putByteArray(String key, byte[] value):abstract void 
+	putDouble(String key, double value):abstract void 
+	putFloat(String key, float value):abstract void 
+	putInt(String key, int value):abstract void 
+	putLong(String key, long value):abstract void 
+	remove(String key):abstract void 
+	removeNode():abstract void 
+	removeNodeChangeListener(NodeChangeListener ncl):abstract void 
+	removePreferenceChangeListener(PreferenceChangeListener pcl):abstract void 
+	sync():abstract void 
+	toString():abstract String 
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、数据的一致性：
+		a、严格一致性（linearizability, strict/atomic Consistency）：读出的数据始终为最近写入的数据。这种一致性只有全局时钟存在时才有可能，在分布式网络环境不可能实现。
+		b、顺序一致性（sequential consistency）：所有使用者以同样的顺序看到对同一数据的操作，但是该顺序不一定是实时的。
+		c、因果一致性（causal consistency）：只有存在因果关系的写操作才要求所有使用者以相同的次序看到，对于无因果关系的写入则并行进行，无次序保证。因果一致性可以看做对顺序一致性性能的一种优化，但在实现时必须建立与维护因果依赖图，是相当困难的。
+		d、管道一致性（PRAM/FIFO consistency）：在因果一致性模型上的进一步弱化，要求由某一个使用者完成的写操作可以被其他所有的使用者按照顺序的感知到，而从不同使用者中来的写操作则无需保证顺序，就像一个一个的管道一样。 相对来说比较容易实现。
+		e、弱一致性（weak consistency）：只要求对共享数据结构的访问保证顺序一致性。对于同步变量的操作具有顺序一致性，是全局可见的，且只有当没有写操作等待处理时才可进行，以保证对于临界区域的访问顺序进行。在同步时点，所有使用者可以看到相同的数据。
+		f、 释放一致性（release consistency）：弱一致性无法区分使用者是要进入临界区还是要出临界区， 释放一致性使用两个不同的操作语句进行了区分。需要写入时使用者acquire该对象，写完后release，acquire-release之间形成了一个临界区，提供 释放一致性也就意味着当release操作发生后，所有使用者应该可以看到该操作。
+		g、最终一致性（eventual consistency）：当没有新更新的情况下，更新最终会通过网络传播到所有副本点，所有副本点最终会一致，也就是说使用者在最终某个时间点前的中间过程中无法保证看到的是新写入的数据。可以采用最终一致性模型有一个关键要求：读出陈旧数据是可以接受的。
+		h、delta consistency：系统会在delta时间内达到一致。这段时间内会存在一个不一致的窗口，该窗口可能是因为log shipping的过程导致。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
