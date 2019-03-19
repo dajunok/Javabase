@@ -1,0 +1,120 @@
+----------------------------------------LogManager--------------------------------------------------------------------------------------------------------------
+LogManager：日志管理器。	【Since:1.4】
+	一个全局日志管理器（LogManager）对象，用于维护一组关于日志记录器和日志服务的共享状态。
+	LogManager对象：
+		● 管理记录器（Logger）对象的分层命名空间。所有已命名的记录器都存储在此命名空间中。
+		● 管理一组日志记录控件属性。这些是简单的键值对，处理器和其他日志记录对象可以使用它们来配置自己。
+	全局LogManager对象可以使用LogManager.getLogManager()获取。LogManager对象是在类初始化期间创建的，因此不能随后更改。
+	启动时，使用java.util.logging.manager系统属性定位LogManager类。
+	LogManager定义了两个可选的系统属性，这些属性允许控制初始配置：
+		● "java.util.logging.config.class"
+		● "java.util.logging.config.file"
+	这两个属性可以在命令行上指定为“java”命令，或者当系统属性定义传递给JNI_CreateJavaVM 时。
+	如果设置了“java.util.logging.config.class”属性，则将属性值视为类名。将加载给定的类，实例化一个对象，该对象的构造函数负责在初始配置中读取。（该对象可以使用其他系统属性来控制其配置。）备用配置类可以使用readConfiguration(InputStream)在LogManager中定义属性。
+	如果没有设置“java.util.logging.config.class”属性，则可以使用“java.util.logging.config.file”系统属性来指定属性文件（用java.util.Properties格式）。将从此文件读取初始日志配置。
+	如果这两个属性都没有定义，那么LogManager将使用其默认配置。默认配置通常是从Java安装目录中的属性文件“lib/logging.properties”加载的。
+	记录器和处理器的属性的名称将以处理器或记录器的点分隔名称开头。
+	全局日志属性可以包括：
+		● 属性“handlers”。这为要在根Logger（名为""的记录器）上加载和注册为处理器类的处理器类定义了一个空白或逗号分隔的类名列表。每个类名必须用于具有默认构造函数的Handler类。请注意，这些处理器在首次使用时可能会被延迟创建。
+		● 属性“<logger>.handlers”。这定义了一个空白或逗号分隔的类名列表，用于将处理器类加载并注册为指定记录器（logger）的处理器。每个类名必须用于具有默认构造函数的Handler类。请注意，这些处理器在首次使用时可能会被延迟创建。
+		● 属性“<logger>.useParentHandlers”。这定义了一个布尔值。默认情况下，除了处理日志消息本身之外，每个日志记录器都调用其父级，这通常也会导致根日志记录器处理消息。当将此属性设置为false时，需要为此记录器配置一个处理器，否则不会传递日志消息。
+		● 属性“config”。此属性用于允许运行任意配置代码。属性定义类名称的空白或逗号分隔列表。将为每个命名类创建一个新实例。每个类的默认构造函数可以执行任意代码来更新日志配置，例如设置日志记录器级别、添加处理器、添加过滤器等。
+	注意，在LogManager配置期间加载的所有类都首先在系统类路径上搜索，然后再搜索任何用户类路径。其中包括LogManager类、任何配置类和任何处理器类。
+	记录器根据其点分隔的名称组织成一个命名层次结构。因此，“a.b.c”是“a.b”的孩子，而“a.b1”和“a.b2”是同等的。
+	所有名称以“.level”结尾的属性都假定为记录器（Logger）定义日志级别。因此，“foo.level”为名为“foo”的记录器定义了一个日志级别，并且（递归地）为其命名层次结构中的任何子级定义了日志级别。日志级别按属性文件中定义的顺序应用。因此，树中子节点的级别设置应位于其父节点的设置之后。属性名“.level”可用于设置树根的级别。
+	LogManager对象上的所有方法都是多线程安全的。
+	
+	
+	类定义	：public class LogManager
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	LOGGING_MXBEAN_NAME
+		日志工具管理接口的ObjectName的字符串表示形式。
+		
+		
+Constructor Summary（构造器概要）：
+	protected LogManager()
+		protected修饰的构造函数。这是受保护的，这样容器应用程序（如J2EE容器）就可以对对象进行子类化。它是非公共的，因为它的目的是只有一个LogManager对象，其值通过调用LogManager.getLogManager来获取。
+			
+Method Summary（方法概要）：
+	getLoggingMXBean():static synchronized LoggingMXBean 
+		返回用于管理记录器的LoggingMXBean。另一种管理记录器的方法是通过PlatformLoggingMXBean接口，该接口可以通过调用以下命令获得：
+			PlatformLoggingMXBean logging = ManagementFactory.getPlatformMXBean(PlatformLoggingMXBean.class);
+		返回LoggingMXBean对象。
+	getLogManager():static LogManager 
+		返回全局日志管理器对象。
+	addLogger(Logger logger):boolean 
+		添加（即注册）命名记录器。如果已注册具有相同名称的记录器，则此操作不执行任何操作并返回false。
+		记录器工厂方法调用此方法来注册每个新创建的记录器。
+		应用程序应该保留自己对Logger对象的引用，以避免被垃圾回收。LogManager只能保留弱引用。
+		如果成功注册参数指定的记录器，则返回true；如果该名称的记录器已存在，则返回false。
+		【Throws】：
+			NullPointerException 如果记录器名称为null。
+	addPropertyChangeListener(PropertyChangeListener l):void 
+		✘ 已淘汰。对PropertyChangeListener的依赖性对Java平台未来的模块化造成了很大的阻碍。此方法将在将来的版本中删除。全局LogManager可以通过覆盖readConfiguration方法来检测对日志配置的更改。
+		添加要在重新读取日志属性时调用的事件侦听器。添加同一事件侦听器的多个实例会导致属性事件侦听器表中出现多个条目。
+		警告：在不包含java.beans包的Java SE的所有子集配置文件中，此类方法被省略。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	checkAccess():void 
+		检查当前上下文是否受信任以修改日志配置。这需要LoggingPermission("control")权限。
+		如果检查失败，我们将抛出SecurityException异常，否则我们将正常返回。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			NullPointerException 如果PropertyChangeListener为null。
+	getLogger(String name):Logger 
+		查找命名记录器。
+		请注意，由于不受信任的代码可能会创建具有任意名称的记录器，因此不应依赖此方法来查找安全敏感日志记录的记录器。还需要注意的是，如果没有对记录器的强引用，那么与字符串名称相关联的记录器随时都可能被垃圾回收。此方法的调用方必须检查返回值是否为null，以便正确处理记录器被垃圾收集的情况。
+		返回匹配记录器，如果未找到，则为null。
+	getLoggerNames():Enumeration<String> 
+		获取已知记录器名称的枚举类。
+		注意：可以在加载新类时动态添加记录器。此方法只报告当前注册的记录器。还需要注意的是，此方法只返回记录器的名称，而不是对记录器本身的强引用。返回的字符串不会阻止记录器被垃圾回收。特别是，如果返回的名称被传递给LogManager.getLogger()，那么调用方必须检查LogManager.getLogger()的返回值是否为null，以正确处理日志程序在该方法返回其名称后被垃圾回收的情况。
+	getProperty(String name):String 
+		获取日志属性的值。如果找不到属性，则方法返回null。
+	readConfiguration():void 
+		重新初始化日志属性并重新读取日志配置。
+		用于定位配置属性的规则与启动时使用的规则相同。因此，通常情况下，日志属性将从启动时使用的同一文件中重新读取。
+		如果目标记录器存在，则将使用Logger.setLevel()应用新配置文件中的任何日志级别定义。
+		读取属性后将激发PropertyChangeEvent事件。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			IOException 如果读取配置时出现IO问题。
+	readConfiguration(InputStream ins):void 
+		ins - 从中读取属性的流
+		重新初始化日志属性，并从给定流重新读取日志配置，该流应采用java.util.Properties格式。读取属性后将激发PropertyChangeEvent事件。
+		如果目标记录器存在，则将使用Logger.setLevel()应用新配置文件中的任何日志级别定义。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+			IOException 如果读取配置时出现IO问题。
+	removePropertyChangeListener(PropertyChangeListener l):void 
+		✘ 已淘汰。对PropertyChangeListener的依赖性对Java平台未来的模块化造成了很大的阻碍。此方法将在将来的版本中删除。全局LogManager可以通过覆盖readConfiguration方法来检测对日志配置的更改。
+		删除属性更改事件的事件侦听器。如果通过多次调用addPropertyChangeListener将同一侦听器实例添加到侦听器表中，则需要等量的removePropertyChangeListener调用才能从侦听器表中删除该侦听器的所有实例。
+		如果找不到给定的侦听器，则静默返回。
+		警告：在不包含java.beans包的Java SE的所有子集配置文件中，此类方法被省略。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且调用方没有LoggingPermission("control")权限。
+	reset():void 
+		重置日志配置。
+		对于所有命名的记录器，重置操作将删除并关闭所有处理器，并将级别设置为null（根记录器除外）。根记录器的级别设置为Level.INFO。
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

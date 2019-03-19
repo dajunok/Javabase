@@ -1,0 +1,41 @@
+----------------------------------------LoggingPermission--------------------------------------------------------------------------------------------------------------
+LoggingPermission：日志记录权限。	【Since:1.4】
+	当使用SecurityManager运行的代码调用某个日志控制方法（如Logger.setLevel）时，SecurityManager将检查的权限。
+	当前只有一个名为LoggingPermission的。这是“control”，它授予控制日志配置的能力，例如通过添加或删除Handler、添加或删除Filter或更改日志级别。
+	程序员通常不会直接创建LoggingPermission对象。相反，它们是由安全策略代码基于读取安全策略文件创建的。
+	
+	
+	类定义	：public final class LoggingPermission extends java.security.BasicPermission
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public LoggingPermission(String name, String actions)
+		name - 权限名称。必须是“control”。
+		actions - 必须为null或空字符串。
+		创建新的LoggingPermission对象。
+		【Throws】：
+			NullPointerException 如果name为null。
+			IllegalArgumentException 如果name为空或参数无效。
+
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -1,0 +1,35 @@
+----------------------------------------Package java.util.prefs--------------------------------------------------------------------------------------------------------------
+											【Since 1.4】
+Package Description（包描述说明）：
+	此包允许应用程序存储和检索用户和系统首选项以及配置数据。此数据永久存储在依赖于实现的备份存储中。有两个单独的首选项节点树，一个用于用户首选项，另一个用于系统首选项。
+	
+	
+
+	
+Interface Summary（接口概要）
+	NodeChangeListener
+	PreferenceChangeListener
+	PreferencesFactory	
+
+Class Summary(类概要)
+	AbstractPreferences
+	NodeChangeEvent
+	PreferenceChangeEvent
+	Preferences
+
+Exception Summary（异常概要）
+	BackingStoreException
+	InvalidPreferencesFormatException
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、block-structured：块状结构。块状结构(block-like construct)指的是一个类，方法或构造函数的主体。 需要注意的是，数组初始化中的初始值可被选择性地视为块状结构。
+	2、manifest文件：描述Jar文件的打包、运行信息。
+
+	
+	
+	
+	
+		
+		

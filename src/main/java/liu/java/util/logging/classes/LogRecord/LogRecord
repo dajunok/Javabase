@@ -1,0 +1,121 @@
+----------------------------------------LogRecord--------------------------------------------------------------------------------------------------------------
+LogRecord：日志记录。	【Since:1.4】
+	LogRecord对象用于在日志框架和单个日志处理器（Handler）之间传递日志记录请求。
+	当日志记录被传递到日志框架中时，它在逻辑上属于框架，并且不应该再被客户机应用程序使用或更新。
+	注意，如果客户机应用程序没有指定显式的源方法名和源类名，那么LogRecord类将在第一次访问它们时（由于对getSourceMethodName或getSourceClassName的调用）通过分析调用栈自动推断它们。因此，如果日志记录处理器希望将日志记录传递给另一个线程，或通过RMI传输日志记录，并且如果它希望随后获得方法名或类名信息，则应调用getSourceClassName或getSourceMethodName中的一个来强制填充值。
+	序列化说明：
+		● LogRecord类是可序列化的。
+		● 因为参数数组中的对象可能不可序列化，所以在序列化过程中，参数数组中的所有对象都将写入相应的字符串（使用Object.toString）。
+		● ResourceBundle不作为序列化形式的一部分传输，但资源绑定名称是，并且接受者对象的readObject方法将尝试查找合适的资源绑定。  
+	
+	类定义	：public class LogRecord implements java.io.Serializable
+	实现接口	：Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public LogRecord(Level level, String msg)
+		level - 日志级别值
+		msg - 原始非本地化日志记录消息（可能为空）
+		用给定的级别和消息值构造一个日志记录。
+		序列属性将用新的唯一值初始化。这些序列值在VM中按递增顺序分配。
+		millis属性将初始化为当前时间。
+		线程ID属性将用当前线程的唯一ID初始化。
+		所有其他属性将初始化为“null”。
+			
+Method Summary（方法概要）：
+	getLevel():Level 
+		获取日志记录消息级别，例如 Level.SEVERE。
+	getLoggerName():String 
+		获取源记录器的名称。
+	getMessage():String 
+		在本地化或格式化之前获取“原始”日志消息。
+		可以为空，这相当于空字符串""。
+		此消息可以是最终文本，也可以是本地化密钥。
+		在格式化期间，如果源记录器具有本地化ResourceBundle，并且该ResourceBundle具有此消息字符串的条目，则消息字符串将替换为本地化值。
+		返回原始消息字符串。
+	getMillis():long 
+		返回自1970年以来的毫秒数（即当前时间换算的毫秒数）。
+	getParameters():Object[] 
+		获取日志消息的参数。
+		返回日志消息参数的数组。如果没有参数，则可能为null。
+	getResourceBundle():ResourceBundle 
+		获取本地化资源绑定。
+		这是应在格式化消息字符串之前用于本地化该字符串的ResourceBundle。如果消息不可本地化，或者没有合适的ResourceBundle可用，则结果可能为null。
+	getResourceBundleName():String 
+		获取本地化资源绑定名称。
+		这是在格式化消息字符串之前应用于本地化消息字符串的ResourceBundle的名称。如果消息不可本地化，则结果可能为null。
+	getSequenceNumber():long 
+		获取序列号。
+		序列号通常在LogRecord构造函数中分配，它按递增顺序为每个新的日志记录分配唯一的序列号。
+	getSourceClassName():String 
+		获取（按照描述）发出日志记录请求的类的名称。
+		请注意，此sourceClassName未经验证，可能被欺骗。这些信息可能是作为日志调用的一部分提供的，也可能是由日志框架自动推断出来的。在后一种情况下，信息可能只是近似的，实际上可能描述了对栈帧的早期调用。
+		如果无法获取信息，则可能为null。
+	getSourceMethodName():String 
+		获取（据称）发出日志记录请求的方法的名称。
+		请注意，此sourceMethodName未经验证，可能被欺骗。这些信息可能是作为日志调用的一部分提供的，也可能是由日志框架自动推断出来的。在后一种情况下，信息可能只是近似的，实际上可能描述了对堆栈帧的早期调用。
+		如果无法获取信息，则可能为null。
+	getThreadID():int 
+		获取消息来源线程的标识符。
+		这是Java VM中的线程标识符，可以映射到任何操作系统ID，也可以不映射到任何操作系统。
+	getThrown():Throwable 
+		获取与日志记录关联的任何可丢弃的信息。
+		如果事件涉及异常，这将是异常对象。否则为null。
+	setLevel(Level level):void 
+		level - 日志消息级别。
+		设置日志消息级别，例如Level.SEVERE。
+	setLoggerName(String name):void 
+		name - 源记录器名称（可以为null）
+		设置源记录器的名称。
+	setMessage(String message):void 
+		message - 原始消息字符串（可以为null）
+		在本地化或格式化之前设置“原始”日志消息。
+	setMillis(long millis):void 
+		millis - 1970年以来的事件时间（毫秒数）
+		设置事件时间。
+	setParameters(Object parameters[]):void 
+		parameters - 日志消息参数。（可以为null）
+		将参数设置为日志消息。
+	setResourceBundle(ResourceBundle bundle):void 
+		bundle - 本地化资源绑定（可以为null）
+		设置本地化资源绑定。
+	setResourceBundleName(String name):void 
+		name - 本地化资源绑定名称（可以为null）
+		设置本地化资源绑定名称。
+	setSequenceNumber(long seq):void 
+		seq - the sequence number
+		设置序列号。
+		序列号通常在LogRecord构造函数中分配，因此通常不需要使用此方法。
+	setSourceClassName(String sourceClassName):void 
+		sourceClassName - 源类名（可以为null）
+		设置（据称）发出日志记录请求的类的名称。		
+	setSourceMethodName(String sourceMethodName):void 
+		sourceMethodName - 源方法名（可以为null）
+		设置（据称）发出日志记录请求的方法的名称。
+	setThreadID(int threadID):void 
+		threadID - 线程ID
+		为产生消息的线程设置标识符。
+	setThrown(Throwable thrown):void 
+		thrown - 可丢弃信息（可以为null）
+		设置与日志事件关联的可丢弃信息。
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
