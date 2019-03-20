@@ -126,48 +126,241 @@ Method Summary（方法概要）：
 		【Throws】：
 			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
 	absolutePath():abstract String 
-		返回此首选项节点的绝对路径名。
+		★ 返回此首选项节点的绝对路径名。
 	addNodeChangeListener(NodeChangeListener ncl):abstract void 
 		ncl - 要添加的NodeChangeListener。
-		注册指定的侦听器以接收此节点的节点更改事件。将子节点添加到此节点或从中删除子节点时，将生成节点更改事件。（单个removeNode()调用会导致多个节点更改事件，每个节点对应于根位于已删除节点的子树中的每个节点。）
+		★ 注册指定的侦听器以接收此节点的节点更改事件。将子节点添加到此节点或从中删除子节点时，将生成节点更改事件。（单个removeNode()调用会导致多个节点更改事件，每个节点对应于根位于已删除节点的子树中的每个节点。）
 		事件仅保证在注册的侦听器所在的同一个JVM中所做的更改，尽管某些实现可能会为在此JVM之外所做的更改生成事件。在更改成为永久更改之前，可能会生成事件。添加或删除此节点的间接后代时，不会生成事件；需要此类事件的调用方必须向每个后代注册。
 		对于节点创建，几乎没有什么保证。由于节点是在访问时隐式创建的，因此在访问之前，实现可能无法确定备份存储中是否存在子节点（例如，因为无法访问备份存储或缓存信息已过期）。在这些情况下，实现既不需要生成节点更改事件，也不禁止这样做。
 		【Throws】：
 			NullPointerException 如果ncl为null。
 			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
-	addPreferenceChangeListener:abstract void 
+	addPreferenceChangeListener(PreferenceChangeListener pcl):abstract void 
+		pcl - 要添加的首选项更改侦听器。
+		★ 注册指定的侦听器，以接收此首选项节点的首选项更改事件。当将首选项添加到此节点、从此节点删除首选项或更改与首选项关联的值时，将生成首选项更改事件。(首选项更改事件不是由removeNode()方法生成的，该方法生成节点更改事件。首选项更改事件由clear方法生成。)
+		事件只针对注册侦听器在相同JVM中所做的更改提供保证，尽管一些实现可能会为在此JVM之外所做的更改生成事件。事件可以在更改被持久化之前生成。在此节点的后代中修改首选项时不会生成事件;调用者想要这样的事件必须向每个后代注册。
+		【Throws】：
+			NullPointerException 如果pcl为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	childrenNames():abstract String[] 
+		★ 返回此首选项节点的子节点的名称。(如果该节点没有子节点，则返回的数组大小为零。)
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。		
 	clear():abstract void 
+		★ 删除此首选项节点中的所有首选项（键值关联）。此调用不影响此节点的任何后代。
+		如果此实现支持存储的默认值，并且首选项层次结构中的此节点包含任何此类默认值，则此调用将“公开”存储的默认值，即通过后续的get调用返回这些默认值。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	exportNode(OutputStream os):abstract void 
+		os - 要在其上发出XML文档的输出流。
+		★ 在指定的输出流上发出一个XML文档，表示此节点中包含的所有首选项（但不是其后代）。实际上，此XML文档是节点的脱机备份。
+		XML文档将具有以下doctype声明：
+			<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+		将使用UTF-8字符编码。
+		这个方法是一般规则的一个例外，这个类中并发执行多个方法的结果产生的结果相当于一些串行执行。如果此节点上的首选项与此方法的调用同时修改，则导出的首选项包含节点中包含的首选项的“模糊快照”；某些并发修改可能会反映在导出的数据中，而其他的可能不会。
+		【Throws】：
+			IOException 如果写入指定的输出流会导致IOException。
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	exportSubtree(OutputStream os):abstract void 
+		os - 要在其上发出XML文档的输出流。
+		★ 发出一个XML文档，表示此节点及其所有子节点中包含的所有首选项。实际上，这个XML文档是根节点的子树的脱机备份。
+		XML文档将具有以下doctype声明：			
+			 <!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+		将使用UTF-8字符编码。
+		这个方法是一般规则的一个例外，这个类中并发执行多个方法的结果产生的结果相当于一些串行执行。如果在此节点上根的子树中的首选项或节点与此方法的调用同时修改，则导出的首选项包含子树的“模糊快照”；某些并发修改可能会反映在导出的数据中，而其他的可能不会。
+		【Throws】：
+			IOException 如果写入指定的输出流会导致IOException。
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	flush():abstract void 
+		★ 强制将此首选项节点及其子节点的内容更改为永久存储。一旦这个方法成功返回，就可以安全地假定在方法调用之前在这个节点上根（root）的子树中所做的所有更改都是永久的。
+		实现可以随时自由地将更改刷新到持久存储中。它们不需要等待调用此方法。
+		当刷新发生在新创建的节点上时，它将保持不变，任何尚未保持不变的祖先（和后代）也是如此。但是请注意，祖先中的任何首选项值更改都不能保证是持久的。
+		如果在使用removeNode()方法移除的节点上调用此方法，则在该节点上调用flushSpi()，但在其他节点上则不调用。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
 	get(String key, String def):abstract String 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，则要返回的值。
+		★ 返回与此首选项节点中的指定键关联的值。如果没有与键关联的值，或者备份存储不可访问，则返回指定的默认值。
+		有些实现可能在其后备存储器中存储默认值。如果没有与指定键关联的值，但存在这样一个存储的默认值，则会优先返回指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null（允许def为null值）。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	getBoolean(String key, boolean def):abstract boolean 
+		key - 其关联值将作为布尔值返回的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为布尔值，或者后备存储不可访问，则要返回的值。
+		★ 返回由与此首选项节点中的指定键关联的字符串表示的布尔值。有效字符串是“true”(表示true)和“false”(表示false)。这种情况被忽略，因此，例如，“TRUE”和“False”也是有效的。此方法用于与putBoolean(java.lang.String, boolean)结合使用。
+		返回指定的默认值，如果没有与键关联的值，则无法访问备份存储，或者如果关联值不是“TRUE”或“False”，则忽略大小写。
+		如果实现支持存储的默认值，并且这种默认值存在并且可以访问，那么它将优先使用指定的默认值，除非存储的默认值不是“true”或“false”，否则忽略这种情况，在这种情况下使用指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null（允许def为null值）。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	getByteArray(String key, byte[] def):abstract byte[] 
+		key - 其关联值将作为布尔值返回的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为字节数组，或者备份存储不可访问，则要返回的值。
+		★ 返回与此首选项节点中的指定键关联的字符串表示的字节数组值。有效的字符串是Base64编码的二进制数据，如RFC 2045第6.8节中所定义的，但有一个微小的变化：字符串必须仅由Base64字母表中的字符组成；不允许使用换行字符或外来字符。此方法用于与putByteArray(java.lang.String, byte[])结合使用。
+		如果没有与键关联的值、后备存储器不可访问或关联的值不是有效的Base64编码字节数组（如上所定义），则返回指定的默认值。
+		如果实现支持存储的默认值，并且这样的默认值存在并且可以访问，则优先使用指定的默认值，除非存储的默认值不是有效的Base64编码字节数组（如上所定义），在这种情况下使用指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null（允许def为null值）。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	getDouble(String key, double def):abstract double 
+		key - 其关联值将作为double返回的键。
+		def - 如果此首选项节点没有与键关联的值，或关联值不能解释为double，或后备存储不可访问，则要返回的值。
+		★ 返回此首选项节点中与指定键关联的字符串所表示的double值。字符串被Double.parseDouble(String)转换为整数。如果没有与键关联的值、后备存储不可访问或如果传递了关联的值，Double.parseDouble(String)将引发NumberFormatException异常，则返回指定的默认值。此方法与putDouble(java.lang.String, double)结合使用。
+		如果实现支持存储的默认值，并且存在这样的默认值，并且可以访问，并且可以使用Double.parseDouble转换为double，则返回此double，而不是指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	getFloat(String key, float def):abstract float 
+		key - 其关联值将作为float返回的键。
+		def - 如果此首选项节点没有与key关联的值，或者关联的值不能解释为float，或者后备存储不可访问，则要返回的值。
+		★ 返回由与此首选项节点中的指定键关联的字符串表示的float。该字符串被Float.parseFloat(string)转换为整数。如果没有与键关联的值、后备存储不可访问或如果传递了关联的值，Float.parseFloat(String)将引发NumberFormatException异常，则返回指定的默认值。此方法与putInt(java.lang.String, int)结合使用。
+		如果实现支持存储的默认值，并且存在这样的默认值，并且可以访问，并且可以使用Float.parseFloat(string)转换为float，则返回此float，而不是指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	getInt(String key, int def):abstract int 
+		key - 其关联值将作为int返回的键。
+		def - 如果此首选项节点没有与key关联的值，或者关联的值不能解释为int，或者后备存储不可访问，则要返回的值。
+		★ 返回由与此首选项节点中的指定键关联的字符串表示的int值。该字符串被Integer.parseInt(String)转换为整数。如果没有与键关联的值、后备存储不可访问或如果传递了关联的值，Integer.parseInt(String)将引发NumberFormatException异常，则返回指定的默认值。此方法与Integer.parseInt(String)结合使用。
+		如果实现支持存储的默认值，并且这样的默认值存在，并且可以访问，并且可以转换为Integer.parseInt的int，那么将优先返回该int，而不是指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	getLong(String key, long def):abstract long 
+		key - 其关联值将作为long返回的键。
+		def - 如果此首选项节点没有与key关联的值，或者关联的值不能解释为long，或者后备存储不可访问，则要返回的值。
+		★ 返回由与此首选项节点中的指定键关联的字符串表示的long值。该字符串被Long.parseLong(String)转换为long。如果没有与键关联的值、后备存储不可访问或如果传递了关联的值，Long.parseLong(String)将引发NumberFormatException异常，则返回指定的默认值。此方法与putLong(java.lang.String, long)结合使用。
+		如果实现支持存储的默认值，并且这样的默认值存在，并且可以访问，并且可以转换为Long.parseLong的long，那么将优先返回该long，而不是指定的默认值。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	isUserNode():abstract boolean 
+		★ 如果该首选项节点位于用户首选项树中，则返回true;如果该节点位于系统首选项树中，则返回false。
 	keys():abstract String[] 
+		★ 返回在此首选项节点中具有关联值的所有键。（如果此节点没有首选项，则返回的数组大小为零。）
+		如果实现支持存储的默认值，并且此节点上有任何未被显式首选项覆盖的默认值，则除了显式首选项之外，还会在数组中返回默认值。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	name():abstract String 
+		★ 返回此首选项节点的名称(相对于其父节点)。
 	node(String pathName):abstract Preferences 
+		pathName - 要返回的首选项节点的路径名。
+		★ 返回与此节点位于同一树中的命名首选项节点，如果该节点及其任何祖先不存在，则创建该节点及其任何祖先节点。接受相对或绝对路径名。相对路径名（不以斜线字符（“/”）开头）相对于此首选项节点进行解释。
+		如果返回的节点在此调用之前不存在，则在对返回的节点（或其祖先或后代之一）调用flush方法之前，此节点和由此调用创建的任何祖先都不能保证成为永久的。
+		【Throws】：
+			IllegalArgumentException 如果路径名称无效(即，它包含多个连续斜杠字符，或以斜杠字符结束，且长度超过一个字符)。
+			NullPointerException 如果pathName为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	nodeExists(String pathName):abstract boolean 
+		pathName - 要检查其存在性的节点的路径名。
+		★ 如果指定的首选项节点与此节点位于同一树中，则返回true。相对路径名(不以斜杠字符('/')开头)相对于此首选项节点进行解释。
+		如果这个节点(或祖先)已经被removeNode()方法删除，那么调用这个方法是合法的，但是只能使用路径名“""”;调用将返回false。因此p.nodeExists("")可以用来测试p是否被删除了。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+			NullPointerException 如果pathName为null。
+			IllegalStateException 如果使用removeNode()方法删除了这个节点(或祖先)，并且路径名不是空字符串("")。
 	parent():abstract Preferences 
+		★ 返回此首选项节点的父节点，如果这是根节点，则返回null。
+		【Throws】：
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	put(String key, String value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将指定值与此首选项节点中的指定键关联。
+		【Throws】：
+			NullPointerException 如果key或value为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH，或者value.length超过了MAX_VALUE_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。			
 	putBoolean(String key, boolean value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将表示指定布尔值的字符串与此首选项节点中的指定键关联。如果值为true，则关联的字符串为“true”，如果值为false，则为“false”。此方法将与getBoolean(java.lang.String, boolean)一起使用。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	putByteArray(String key, byte[] value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将表示指定字节数组的字符串与此首选项节点中的指定键关联。关联的字符串是字节数组的Base64编码，如RFC 2045第6.8节中定义的那样，只有一个小的更改:该字符串将仅由Base64字母表中的字符组成;它将不包含任何换行字符。注意，字节数组的最大长度限制为MAX_VALUE_LENGTH的四分之三，以便Base64编码的字符串的长度不超过MAX_VALUE_LENGTH。此方法将与getByteArray(java.lang.String, byte[])结合一起使用。
+		【Throws】：
+			NullPointerException 如果key或value为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH，或者value.length超过了MAX_VALUE_LENGTH*3/4。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。	
 	putDouble(String key, double value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将表示指定double值的字符串与此首选项节点中的指定键关联。如果将double值传递给Double.toString(double)，则返回关联的字符串。此方法将与getDouble(java.lang.String, double)结合一起使用。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。	
 	putFloat(String key, float value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将表示指定float值的字符串与此首选项节点中的指定键关联。如果将float值传递给 Float.toString(float)，则返回关联的字符串。此方法将与getFloat(java.lang.String, float)结合一起使用。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	putInt(String key, int value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将表示指定int值的字符串与此首选项节点中的指定键关联。如果将int值传递给Integer.toString(int)，则返回关联的字符串。此方法将与getInt(java.lang.String, int)结合一起使用。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	putLong(String key, long value):abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		★ 将表示指定long值的字符串与此首选项节点中的指定键关联。如果将long值传递给 Long.toString(long)，则返回关联的字符串。此方法将与getLong(java.lang.String, long)结合一起使用。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	remove(String key):abstract void 
+		key - 要从首选项节点删除其映射的键。
+		★ 移除此首选项节点中与指定键关联的值(如果有的话)。
+		如果这个实现支持存储的默认值，并且指定的首选项也有这样的默认值，那么存储的默认值将由这个调用“公开”，也就是说，它将由后续的get调用返回。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	removeNode():abstract void 
+		★ 删除此首选项节点及其所有子节点，使删除节点中包含的任何首选项无效。一旦删除了节点，在相应的Preferences实例上尝试name()、absolutePath()、isUserNode()、flush()或nodeExists("")之外的任何方法都将失败，并出现IllegalStateException异常。(对象上定义的方法在节点删除后仍然可以在节点上调用;他们不会抛出IllegalStateException异常。)
+		在此节点(或祖先)上调用flush方法之前，不能保证删除是持久的。
+		如果此实现支持存储的默认值，则删除节点将公开此节点上或以下的任何存储的默认值。因此，对该节点路径名上的nodeExists的后续调用可能返回true，而对该路径名上的node的后续调用可能返回(不同的)Preferences实例，该实例表示首选项和/或子元素的非空集合。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+			UnsupportedOperationException 如果在根节点上调用此方法。
 	removeNodeChangeListener(NodeChangeListener ncl):abstract void 
+		ncl - 要删除的NodeChangeListener。
+		★ 删除指定的NodeChangeListener，因此它不再接收更改事件。
+		【Throws】：
+			IllegalArgumentException 如果ncl不是此节点上注册的NodeChangeListener。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	removePreferenceChangeListener(PreferenceChangeListener pcl):abstract void 
+		pcl - 要删除的首选项更改侦听器。
+		★ 移除指定的首选项更改侦听器，因此它不再接收首选项更改事件。
+		【Throws】：
+			IllegalArgumentException 如果pcl不是此节点上注册的首选项更改侦听器。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	sync():abstract void 
+		★ 确保将来从这个首选项节点及其后代节点读取的数据反映同步调用之前提交到持久存储(来自任何VM)的任何更改。作为一个副作用，强制将此首选项节点及其后代的内容中的任何更改强制到持久性存储，就像在此节点上调用了flush方法一样。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
 	toString():abstract String 
-	
+		△ 返回此首选项节点的字符串表示形式，就像由表达式：(this. isusernode () ?"User": "System") + " Preference Node: " + this.absolutePath()。
 	
 	
 	

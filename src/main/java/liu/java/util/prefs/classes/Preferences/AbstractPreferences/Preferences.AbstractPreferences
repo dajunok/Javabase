@@ -1,0 +1,351 @@
+----------------------------------------AbstractPreferences--------------------------------------------------------------------------------------------------------------
+AbstractPreferences：抽象首选项。	【Since:1.4】
+	这个类提供了Preferences类的框架实现，大大减轻了实现它的任务。
+	此类仅用于Preferences实现。Preferences功能的正常用户不需要查阅此文档。Preferences文档应该足够了。
+	实现者必须重写九个抽象服务提供程序接口（SPI）方法：getSpi(String)、 putSpi(String,String)、removeSpi(String)、childSpi(String)、removeNodeSpi()、keysSpi()、childrenNamesSpi()、syncSpi()和flushSpi()。所有的具体方法都精确地指定了如何在这些SPI方法之上实现它们。如果默认实现因任何原因（例如性能）不令人满意，则实现者可以自行决定重写一个或多个具体方法。
+	SPI方法分为三组，涉及异常行为。getSpi方法不应该抛出异常，但实际上并不重要，因为该方法抛出的任何异常都将被get(String,String)截获，它将向调用方返回指定的默认值。指定了removeNodeSpi、keysSpi、childrenNamesSpi、syncSpi和flushSpi方法来引发BackingStoreException异常，如果无法执行该操作，则需要实现来引发此选中的异常。异常向外传播，导致相应的API方法失败。
+	其余的SPI方法putSpi(String,String)、removeSpi(String)和childSpi(String)具有更复杂的异常行为。它们没有被指定为抛出BackingStoreException，因为它们通常可以遵守它们的约定，即使后备存储不可用。这是真的，因为它们不返回任何信息，并且在随后调用Preferences.flush()或Preferences.sync()之前，它们的效果不需要成为永久的。一般来说，这些SPI方法不应该抛出异常。在某些实现中，在某些情况下，这些调用甚至不能将请求的操作排队以供以后处理。即使在这些情况下，通常也最好忽略调用并返回，而不是抛出异常。但是，在这些情况下，所有随后的flush()和sync调用都应返回false，因为返回true意味着所有以前的操作都已成功地永久化。
+	有一种情况下，putSpi、removeSpi和childSpi应该抛出异常：如果调用方在底层操作系统上没有足够的权限来执行请求的操作。例如，如果非特权用户试图修改系统首选项，大多数系统都会发生这种情况。（所需的特权因实施而异。在某些实现中，它们有权修改文件系统中某个目录的内容；在另一些实现中，它们有权修改注册表中某个键的内容。）在任何这些情况下，通常不希望让程序继续执行，就好像这些操作将在以后成为永久性的一样。尽管在这些情况下不需要实现抛出异常，但我们鼓励它们这样做。安全方面的异常是适当的。
+	大多数SPI方法都要求实现在首选项节点上读取或写入信息。实现者应该注意另一个虚拟机可能同时从后备存储中删除了这个节点。如果节点已被删除，则由实现负责重新创建。
+	实现注意：在Sun的默认Preferences实现中，用户标识继承自底层操作系统，在虚拟机的生命周期内不会更改。可以认识到，服务器端首选项实现可能会将用户标识从请求更改为请求，并通过使用静态线程本地实例隐式地传递给首选项方法。强烈建议此类实现的作者在访问首选项时确定用户（例如，通过get(String,String)或put(String,String)方法），而不是将用户与每个首选项实例永久关联。后一种行为与正常的首选项用法相冲突，会导致很大的混乱。
+	
+	
+	类定义	：public abstract class AbstractPreferences extends Preferences
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	lock
+		其监视器用于锁定此节点的对象。此对象优先于节点本身使用，以降低由于锁定的节点而有意或无意拒绝服务的可能性。为了避免死锁，节点永远不会被在该节点的后代上持有锁的线程锁定。
+	newNode
+		如果在创建此对象之前备份存储中不存在此节点，则此字段应为true。字段初始化为false，但可以由子类构造函数设置为true（之后不应修改）。此字段指示在创建完成时是否应激发节点更改事件。
+
+Constructor Summary（构造器概要）：
+	protected AbstractPreferences(AbstractPreferences parent, String name)
+		parent - 此首选项节点的父节点，如果是根节点，则为空。
+		name - 此首选项节点相对于其父节点的名称，如果是根节点，则为""。
+		使用指定的父节点和指定的相对于其父节点的名称创建首选项节点。
+		【Throws】：
+			IllegalArgumentException 如果名称包含斜杠（“/”），或者父级为null，并且名称不是""。
+			
+Method Summary（方法概要）：
+	absolutePath():String 
+		根据Preferences.absolutePath()中的规范实现absolutePath方法。
+		此实现仅返回构造此节点时计算的绝对路径名（基于传递到此节点的构造函数的名称以及传递到此节点的祖先构造函数的名称）。
+		返回此首选项节点的绝对路径名。
+	addNodeChangeListener(NodeChangeListener ncl):void 
+		ncl - 要添加的NodeChangeListener。
+		△ 注册指定的侦听器以接收此节点的节点更改事件。将子节点添加到此节点或从中删除子节点时，将生成节点更改事件。（单个removeNode()调用会导致多个节点更改事件，每个节点对应于根位于已删除节点的子树中的每个节点。）
+		事件仅保证在注册的侦听器所在的同一个JVM中所做的更改，尽管某些实现可能会为在此JVM之外所做的更改生成事件。在更改成为永久更改之前，可能会生成事件。添加或删除此节点的间接后代时，不会生成事件；需要此类事件的调用方必须向每个后代注册。
+		对于节点创建，几乎没有什么保证。由于节点是在访问时隐式创建的，因此在访问之前，实现可能无法确定备份存储中是否存在子节点（例如，因为无法访问备份存储或缓存信息已过期）。在这些情况下，实现既不需要生成节点更改事件，也不禁止这样做。
+		【Throws】：
+			NullPointerException 如果ncl为null。
+			SecurityException 如果存在安全管理器并且拒绝RuntimePermission("preferences")。
+	addPreferenceChangeListener(PreferenceChangeListener pcl):void 
+		pcl - 要添加的首选项更改侦听器。
+		△ 注册指定的侦听器，以接收此首选项节点的首选项更改事件。当将首选项添加到此节点、从此节点删除首选项或更改与首选项关联的值时，将生成首选项更改事件。(首选项更改事件不是由removeNode()方法生成的，该方法生成节点更改事件。首选项更改事件由clear方法生成。)
+		事件只针对注册侦听器在相同JVM中所做的更改提供保证，尽管一些实现可能会为在此JVM之外所做的更改生成事件。事件可以在更改被持久化之前生成。在此节点的后代中修改首选项时不会生成事件;调用者想要这样的事件必须向每个后代注册。
+		【Throws】：
+			NullPointerException 如果pcl为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	cachedChildren():protected final AbstractPreferences[] 
+		返回此节点的所有已知未删除子节点。			
+	childrenNames():String[] 
+		根据Preferences.childrenNames()中的规范实现children方法。	
+		此实现获取此首选项节点的锁，检查该节点是否未被删除，构造一个初始化为已缓存子项名称（此节点的“子缓存”中的子项）的TreeSet，调用childrenNamesSpi()，并将所有返回的子项名称添加到集合中。使用toArray方法将树集的元素转储到字符串数组中，并返回该数组。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。	
+	childrenNamesSpi():abstract String[] 
+		返回此首选项节点的子节点的名称。（如果此节点没有子节点，则返回的数组的大小将为零。）此方法不需要返回已缓存的任何节点的名称，但这样做可能不会造成损害。
+		调用此方法时，此节点上的锁保持不变。
+		如果此节点抛出BackingStoreException异常，则异常将传播到包含childrenNames()调用之外。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	childSpi(String name):protected abstract AbstractPreferences 
+		name - 返回的子节点的名称，相对于此首选项节点。
+		返回此首选项节点的已命名子节点，如果该节点尚不存在，则创建该节点。保证名称非空（non-null）、非空（non-empty）、不包含斜杠字符（“/”），且不超过Preferences.MAX_NAME_LENGTH个字符。此外，还可以确保未删除此节点。（实施者无需检查这些内容。）
+		最后，可以保证在上次删除命名节点之后，此方法或getChild(String)的前一次调用没有返回该节点。换句话说，在调用此方法之前，始终使用缓存值。子类不需要维护自己以前返回的子类的缓存。
+		实现者必须确保返回的节点没有被删除。如果之前删除了此节点的同名子节点，则实现者必须返回新构造的AbstractPreferences节点；一旦删除，AbstractPreferences节点将无法“恢复”。
+		如果此方法导致创建节点，则在对此节点或其祖先（或后代）之一调用flush方法之前，不保证此节点是持久的。
+		调用此方法时，此节点上的锁保持不变。
+	clear():void 
+		根据Preferences.clear()中的规范实现clear方法。
+		此实现获取该首选项节点的锁，调用keys()以获取一个键数组，并对每个键调用remove(String)对数组进行迭代。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	exportNode(OutputStream os):void 
+		os - 要在其上发出XML文档的输出流。
+		根据Preferences.exportNode(OutputStream)中的规范实现exportNode方法。
+		【Throws】：
+			IOException 如果写入指定的输出流会导致IOException。
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	exportSubtree(OutputStream os):void 
+		os - 要在其上发出XML文档的输出流。
+		根据Preferences.exportSubtree(OutputStream)中的规范实现exportSubtree方法。
+		【Throws】：
+			IOException 如果写入指定的输出流会导致IOException。
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	flush():void 
+		根据Preferences.flush()中的规范实现flush方法。
+		此实现调用一个递归helper方法，该方法锁定此节点，对其调用flushSpi()，解锁此节点，并对每个“缓存的子节点”递归调用此方法。缓存的子节点是此虚拟机中创建的子节点，随后未删除。实际上，此方法对根（root）位于此节点的“缓存子树”进行深度优先遍历，在仅锁定该节点的情况下对子树中的每个节点调用flushSpi()。请注意，flushSpi()是自上而下调用的。
+		如果在使用removeNode()方法移除的节点上调用此方法，则在该节点上调用flushSpi()，但在其他节点上则不调用。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	flushSpi():protected abstract void 
+		在锁定此节点的情况下调用此方法。此方法的约定是将此首选项节点的内容中的任何缓存更改强制到后备存储，以保证它们的持久性。（很可能此节点不存在于备份存储中，可能是因为它已被另一个虚拟机删除，也可能是因为它尚未创建。）请注意，此方法不应刷新此节点的任何子节点中的首选项。如果支持存储自然地一次刷新整个子树，则鼓励实现者重写flush()，而不仅仅是重写此方法。
+		如果此节点抛出BackingStoreException异常，则异常将传播到封闭的flush()调用之外。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	get(String key, String def):String 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，则要返回的值。
+		根据Preferences.get(String,String)中的规范实现get方法。
+		此实现首先检查键是否为null，如果是这种情况，则引发NullPointerException异常。然后它获取该首选项节点的锁，检查节点是否未被删除，调用getSpi(String)，并返回结果，除非getSpi调用返回null或引发异常，在这种情况下，此调用返回def。
+		【Throws】：
+			NullPointerException 如果key为null（允许def为null值）。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getBoolean(String key, boolean def):boolean 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，则要返回的值。
+		根据Preferences.getBoolean(String,boolean)中的规范实现getBoolean方法。
+		此实现调用get(key, null)。如果返回值非空（non-null），则使用String.equalsIgnoreCase(String)将其与“true”进行比较。如果比较返回true，则此调用返回true。否则，将原始返回值与“false”进行比较，再次使用String.equalsIgnoreCase(String)。如果比较返回true，则此调用返回false。否则，此调用将返回def。
+		【Throws】：
+			NullPointerException 如果key为null（允许def为null值）。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getByteArray(String key, byte[] def):byte[] 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为字节数组，或者备份存储不可访问，则要返回的值。
+		根据Preferences.getByteArray(String,byte[])中的规范实现getByteArray方法。
+		【Throws】：
+			NullPointerException 如果key为null（允许def为null值）。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getChild(String nodeName):protected AbstractPreferences 
+		nodeName - 要搜索的子节点的名称。
+		返回已命名的子级（如果存在），如果不存在，则返回空值。保证nodeName为非空（non-null）、非空（non-empty）、不包含斜杠字符（“/”），且不超过Preferences.MAX_NAME_LENGTH个字符。此外，还可以确保未删除此节点。（如果实现者选择重写此方法，则无需检查这些内容。）
+		最后，可以保证在最后一次删除命名节点之后，此方法或 getChild(String)的前一次调用没有返回该节点。换句话说，在调用此方法之前，始终使用缓存值。（如果实现者选择重写此方法，则不需要维护自己以前返回的子级的缓存。）
+		此实现获取该首选项节点的锁，调用childrenNames()以获取该节点子节点的名称数组，并在数组中迭代，将每个子节点的名称与指定的节点名称进行比较。如果子节点的名称正确，则调用childSpi(String)方法，并返回结果节点。如果迭代在未找到指定名称的情况下完成，则返回null。
+	getDouble(String key, double def):double 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为字节数组，或者备份存储不可访问，则要返回的值。
+		根据Preferences.getDouble(String,double)中的规范实现getDouble方法。
+		此实现调用get(key, null)。如果返回值非空（non-null），则实现尝试将其转换为具有Double.parseDouble(String)的double。如果尝试成功，返回值将由此方法返回。否则，将返回def。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getFloat(String key, float def):float 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为字节数组，或者备份存储不可访问，则要返回的值。
+		根据 Preferences.getFloat(String,float)中的规范实现getFloat方法。
+		此实现调用get(key, null)。如果返回值非空（non-null），则实现尝试将其转换为具有Float.parseFloat(String)的float。如果尝试成功，返回值将由此方法返回。否则，将返回def。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getInt(String key, int def):int 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为字节数组，或者备份存储不可访问，则要返回的值。
+		根据 Preferences.getInt(String,int)中的规范实现getInt方法。
+		此实现调用get(key, null)。如果返回值非空（non-null），则实现尝试将其转换为具有Integer.parseInt(String)的int。如果尝试成功，返回值将由此方法返回。否则，将返回def。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getLong(String key, long def):long 
+		key - 要返回其关联值的键。
+		def - 如果此首选项节点没有与键关联的值，或者关联的值不能解释为字节数组，或者备份存储不可访问，则要返回的值。
+		根据 Preferences.getLong(String,long)中的规范实现getLong方法。
+		此实现调用get(key, null)。如果返回值非空（non-null），则实现尝试将其转换为具有Long.parseLong(String)的long。如果尝试成功，返回值将由此方法返回。否则，将返回def。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	getSpi(String key):protected abstract String 
+		返回与此首选项节点上的指定键关联的值，如果此键没有关联，则返回null，或者此时无法确定关联。保证key不为null。此外，还可以确保未删除此节点。（实现者不需要检查其中的任何一项。）
+		一般来说，这种方法在任何情况下都不应该抛出异常。但是，如果它确实引发了异常，那么异常将被截获并作为null返回值处理。
+		调用此方法时，此节点上的锁保持不变。
+	isRemoved():protected boolean 
+		如果此节点（或祖先）已用removeNode()方法删除，则返回true。此方法在返回用于跟踪此状态的private字段的内容之前锁定此节点。
+	isUserNode():boolean 
+		根据Preferences.isUserNode()中的规范实现isUserNode方法。
+		此实现将此节点的根节点（存储在private字段中）与Preferences.userRoot()返回的值进行比较。如果两个对象引用相同，则此方法返回true。
+	keys():String[] 
+		根据Preferences.keys()中的规范实现keys方法。
+		此实现获取该首选项节点的锁，检查该节点是否未被删除，并调用keysSpi()。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	keysSpi():protected abstract String[] 
+		返回在此首选项节点中具有关联值的所有键。（如果此节点没有首选项，则返回的数组的大小将为零。）确保此节点未被删除。
+		调用此方法时，此节点上的锁保持不变。
+		如果此节点抛出BackingStoreException，则异常将传播到封闭的keys()调用之外。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	name():String 
+		根据Preferences.name()中的规范实现name方法。
+		此实现只返回传递到此节点的构造函数的名称。
+	node(String path):Preferences 
+		pathName - 要返回的首选项节点的路径名。
+		根据Preferences.node(String)中的规范实现node方法。
+		此实现获取此首选项节点的锁，并检查该节点是否未被删除。如果路径为""，则返回该节点；如果路径为“/”，则返回该节点的根（root）。如果路径中的第一个字符不是“/”，则实现将路径拆分为标记，并递归地将路径从该节点遍历到命名节点，在遍历的每个步骤中使用“名称”和路径中的斜杠。在每个步骤中，都会锁定当前节点，并检查节点的子缓存中的命名节点。如果找不到，将检查名称，以确保其长度不超过最大名称长度。然后调用childSpi(String)方法，结果存储在该节点的子缓存中。如果新创建的Preferences对象的newNode字段为true，并且存在任何节点更改侦听器，则通知事件排队等待事件调度线程处理。
+		当没有更多的令牌时，此方法将返回在子缓存中找到或由childSpi返回的最后一个值。如果在遍历过程中，连续出现两个“/”标记，或者最后一个标记是“/”（而不是名称），则会引发适当的IllegalArgumentException异常。
+		如果路径的第一个字符是“/”（表示绝对路径名），则在将路径拆分为令牌之前，将删除此首选项节点的锁，并且此方法从根开始（而不是从该节点开始）递归地遍历路径。遍历与相对路径名描述的遍历相同。根据锁定不变量，在开始遍历根节点之前删除此节点上的锁对于避免死锁的可能性是至关重要的。
+		【Throws】：
+			IllegalArgumentException 如果路径名称无效(即，它包含多个连续斜杠字符，或以斜杠字符结束，且长度超过一个字符)。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	nodeExists(String path):boolean 
+		pathName - 要检查其存在性的节点的路径名。
+		根据Preferences.nodeExists(String)中的规范实现nodeExists方法。
+		此实现与节点（字符串）非常相似，只是使用了getChild(String)而不是childSpi(String)。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+			IllegalStateException 如果使用removeNode()方法删除了这个节点(或祖先)，并且路径名不是空字符串("")。
+	parent():Preferences 
+		根据Preferences.parent()中的规范实现parent方法。
+		此实现获取该首选项节点的锁，检查该节点是否未被删除，并返回传递给该节点的构造函数的父值。
+		【Throws】：
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	put(String key, String value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.put(String,String)中的规范实现put方法。
+		此实现检查键和值是否合法，获取此首选项节点的锁，检查节点是否未被删除，调用putSpi(String,String)，如果有任何首选项更改侦听器，则将通知事件排队以供事件调度线程处理。
+		【Throws】：
+			NullPointerException 如果key或value为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH，或者value.length超过了MAX_VALUE_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putBoolean(String key, boolean value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.putBoolean(String,boolean)中的规范实现putBoolean方法。
+		此实现将值转换为String.valueOf(boolean)的字符串，并对结果调用put(String,String)。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putByteArray(String key, byte[] value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.putByteArray(String,byte[])中的规范实现putByteArray方法。
+		【Throws】：
+			NullPointerException 如果key或value为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH，或者value.length超过了MAX_VALUE_LENGTH*3/4。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putDouble(String key, double value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.putDouble(String,double)中的规范实现putDouble方法。
+		此实现将值转换为具有Double.toString(double)的字符串，并对结果调用put(String,String)。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putFloat(String key, float value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.putFloat(String,float)中的规范实现putFloat方法。
+		此实现将值转换为具有Float.toString(float)的字符串，并对结果调用put(String,String)。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putInt(String key, int value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.putInt(String,int)中的规范实现putFloat方法。
+		此实现将值转换为具有Integer.toString(int)的字符串，并对结果调用put(String,String)。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putLong(String key, long value):void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		根据Preferences.putLong(String,long)中的规范实现putLong方法。
+		此实现将值转换为具有Long.toString(long)的字符串，并对结果调用put(String,String)。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalArgumentException 如果key.length()超过了MAX_KEY_LENGTH。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	putSpi(String key, String value):protected abstract void 
+		key - 要与指定值关联的键。
+		value - 与指定的键关联的值。
+		将给定的键值关联放入此首选项节点。它保证key和值不为null，并且具有合法长度。此外，还可以确保未删除此节点。（实施者无需检查这些内容。）
+		用此方法时，此节点上的锁保持不变。
+	remove(String key):void 
+		key - 要从首选项节点删除其映射的键。
+		根据Preferences.remove(String)中的规范实现remove(String)方法。
+		此实现获取此首选项节点的锁，检查该节点是否未被删除，调用removeSpi(String)，如果有任何首选项更改侦听器，则将通知事件排队以供事件调度线程处理。
+		【Throws】：
+			NullPointerException 如果key为null。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	removeNode():void 
+		根据Preferences.removeNode()中的规范实现removeNode()方法。
+		这个实现检查这个节点是否是根节点；如果是，它将抛出一个适当的异常。然后，它锁定这个节点的父节点，并调用一个递归helper方法，该方法遍历这个节点上的子树。递归方法锁定调用它的节点，检查它是否尚未被删除，然后确保缓存其所有子级：调用childrenNamesSpi()方法，并检查返回的每个子级名称是否包含在子级缓存中。如果尚未缓存子级，则调用childSpi(String)方法为其创建Preferences实例，并将此实例放入子级缓存中。然后，helper方法在其子缓存中包含的每个节点上递归调用自己。接下来，它调用removenodespi（），将自身标记为已移除，并将自身从其父缓存中移除。最后，如果有任何节点更改侦听器，它将通知事件排队，以便由事件调度线程进行处理。
+		请注意，helper方法总是在锁定所有祖先（直到“最近的未删除祖先”）的情况下调用。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+			UnsupportedOperationException 如果在根节点上调用此方法。
+	removeNodeChangeListener(NodeChangeListener ncl):void 
+		ncl - 要删除的NodeChangeListener。
+		△ 删除指定的NodeChangeListener，因此它不再接收更改事件。
+		【Throws】：
+			IllegalArgumentException 如果ncl不是此节点上注册的NodeChangeListener。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	removeNodeSpi():protected abstract void 
+		删除此首选项节点，使其及其包含的任何首选项无效。在进行此调用时，命名子级将没有后代（即Preferences.removeNode()方法以自下而上的方式重复调用此方法，在删除节点本身之前删除节点的每个后代）。
+		调用此方法时，此节点及其父节点上的锁保持不变（以及由于对Preferences.removeNode()的单个调用而移除的所有祖先）。
+		在这个节点（或祖先）上调用flush方法之前，不需要持久地删除节点。
+		如果此节点抛出BackingStoreException异常，则异常将传播到封闭的removeNode()调用之外。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	removePreferenceChangeListener(PreferenceChangeListener pcl):void 
+		pcl - 要删除的首选项更改侦听器。
+		△ 移除指定的首选项更改侦听器，因此它不再接收首选项更改事件。
+		【Throws】：
+			IllegalArgumentException 如果pcl不是此节点上注册的首选项更改侦听器。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	removeSpi(String key):protected abstract void 
+		删除此首选项节点上指定键的关联（如果有）。保证key不为空。此外，还可以确保没有删除此节点。（实现者不需要检查其中的任何一项。）
+		调用此方法时，此节点上的锁保持不变。
+	sync():void 
+		根据Preferences.sync()中的规范实现sync方法。
+		此实现调用一个递归helper方法，该方法锁定此节点，对其调用syncSpi()，解锁此节点，并对每个“缓存的子级”递归调用此方法。缓存的子级是此节点的子级，此节点已在此虚拟机中创建，但随后未删除。实际上，此方法对根（root）位于此节点的“缓存子树”进行深度优先遍历，在仅锁定该节点的情况下对子树中的每个节点调用syncSpi()。注意，syncSpi()是自上而下调用的。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+			IllegalStateException 如果使用removeNode()方法删除了此节点(或祖先)。
+	syncSpi():protected abstract void 
+		在锁定此节点的情况下调用此方法。此方法的约定是将存储在此节点的任何缓存首选项与存储在备份存储中的任何首选项同步。（很可能此节点不存在于备份存储中，可能是因为它已被另一个虚拟机删除，也可能是因为它尚未创建。）请注意，此方法不应同步此节点的任何子节点中的首选项。如果支持存储自然地同时同步整个子树，则鼓励实现者重写sync()，而不仅仅重写此方法。
+		如果此节点抛出BackingStoreException，则异常将传播到封闭的sync()调用之外。
+		【Throws】：
+			BackingStoreException 如果由于备份存储中的故障或无法与它通信而无法完成此操作。
+	toString():String 
+		返回此首选项节点的绝对路径名。
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、数据的一致性：
+		a、严格一致性（linearizability, strict/atomic Consistency）：读出的数据始终为最近写入的数据。这种一致性只有全局时钟存在时才有可能，在分布式网络环境不可能实现。
+		b、顺序一致性（sequential consistency）：所有使用者以同样的顺序看到对同一数据的操作，但是该顺序不一定是实时的。
+		c、因果一致性（causal consistency）：只有存在因果关系的写操作才要求所有使用者以相同的次序看到，对于无因果关系的写入则并行进行，无次序保证。因果一致性可以看做对顺序一致性性能的一种优化，但在实现时必须建立与维护因果依赖图，是相当困难的。
+		d、管道一致性（PRAM/FIFO consistency）：在因果一致性模型上的进一步弱化，要求由某一个使用者完成的写操作可以被其他所有的使用者按照顺序的感知到，而从不同使用者中来的写操作则无需保证顺序，就像一个一个的管道一样。 相对来说比较容易实现。
+		e、弱一致性（weak consistency）：只要求对共享数据结构的访问保证顺序一致性。对于同步变量的操作具有顺序一致性，是全局可见的，且只有当没有写操作等待处理时才可进行，以保证对于临界区域的访问顺序进行。在同步时点，所有使用者可以看到相同的数据。
+		f、 释放一致性（release consistency）：弱一致性无法区分使用者是要进入临界区还是要出临界区， 释放一致性使用两个不同的操作语句进行了区分。需要写入时使用者acquire该对象，写完后release，acquire-release之间形成了一个临界区，提供 释放一致性也就意味着当release操作发生后，所有使用者应该可以看到该操作。
+		g、最终一致性（eventual consistency）：当没有新更新的情况下，更新最终会通过网络传播到所有副本点，所有副本点最终会一致，也就是说使用者在最终某个时间点前的中间过程中无法保证看到的是新写入的数据。可以采用最终一致性模型有一个关键要求：读出陈旧数据是可以接受的。
+		h、delta consistency：系统会在delta时间内达到一致。这段时间内会存在一个不一致的窗口，该窗口可能是因为log shipping的过程导致。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
