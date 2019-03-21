@@ -1,0 +1,77 @@
+----------------------------------------Pattern--------------------------------------------------------------------------------------------------------------
+Pattern：模式。	【Since:1.4】
+	
+	
+	类定义	：public final class Pattern implements java.io.Serializable
+	实现接口	：Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	CANON_EQ
+	CASE_INSENSITIVE
+	COMMENTS
+	DOTALL
+	LITERAL
+	MULTILINE
+	UNICODE_CASE
+	UNICODE_CHARACTER_CLASS
+	UNIX_LINES
+	
+
+Method Summary（方法概要）：
+	compile(String regex):static Pattern 
+	compile(String regex, int flags):static Pattern 
+	matches(String regex, CharSequence input):static boolean 
+	quote(String s):static String 
+	asPredicate():Predicate<String> 
+	flags():int 
+	matcher(CharSequence input):Matcher 
+	pattern():String 
+	split(CharSequence input):String[] 
+	split(CharSequence input, int limit):String[] 
+	splitAsStream(final CharSequence input):Stream<String> 
+	toString():String 
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	4、正则表达式的捕获组：
+		● 普通捕获组	
+			从正则表达式左侧开始，每出现一个左括号“(”记做一个分组，分组编号从1开始。0代表整个表达式。
+			例如：对于时间字符串：2017-04-25，表达式如下
+				(\\d{4})-((\\d{2})-(\\d{2}))
+			有4个左括号，所以有4个分组
+			编号                                           捕获组                                           						 匹配
+			0			(\\d{4})-((\\d{2})-(\\d{2}))			2017-04-25			
+			1				(\\d{4})								2017
+			2			((\\d{2})-(\\d{2}))							04-25
+			3				(\\d{2})								04
+			4				(\\d{2})								25
+		● 命名捕获组
+			每个以左括号开始的捕获组，都紧跟着“?”，而后才是正则表达式。
+			例如：对于时间字符串：2017-04-25，表达式如下
+				(?<year>\\d{4})-(?<md>(?<month>\\d{2})-(?<date>\\d{2}))
+			有4个命名的捕获组，分别是
+			编号                                      名称					捕获组                                           					 匹配
+			0				0			(?\d{4})-(?(?\d{2})-(?\d{2}))			2017-04-25			
+			1				year			(?\d{4})								2017
+			2				md				(?(?\d{2})-(?\d{2}))					04-25
+			3				month			(?\d{2})								04
+			4				date			(?\d{2})								25
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
