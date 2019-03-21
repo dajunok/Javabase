@@ -1,5 +1,158 @@
 ----------------------------------------Pattern--------------------------------------------------------------------------------------------------------------
 Pattern：模式。	【Since:1.4】
+	正则表达式的编译表示。
+	必须首先将指定为字符串的正则表达式编译为此类的实例。然后，可以使用生成的模式创建Matcher对象，该对象可以根据正则表达式匹配任意字符序列。执行匹配所涉及的所有状态都位于匹配器中，因此许多匹配器可以共享相同的模式。
+	因此，一个典型的调用序列是：
+		 Pattern p = Pattern.compile("a*b");
+		 Matcher m = p.matcher("aaaaab");
+		 boolean b = m.matches();	
+	matches方法被此类定义为当正则表达式仅使用一次时的便利方法。这个方法编译一个表达式，并在一次调用中针对它匹配一个输入序列。语句：
+		boolean b = Pattern.matches("a*b", "aaaaab");
+	相当于上面的三条语句，但是对于重复匹配，由于它不允许重用已编译的模式，因此效率较低。
+	此类的实例是不可变的，可以安全地供多个并发线程使用。Matcher类的实例对于这种使用是不安全的。
+	Summary of regular-expression constructs（正则表达式构造摘要）：
+
+	Construct		Matches
+	 
+	字符
+	x				字符 x
+	\\				反斜杠
+	\0n				八进制值字符 0n (0 <= n <= 7)
+	\0nn			八进制值字符 0nn (0 <= n <= 7)
+	\0mnn			八进制值字符 0mnn (0 <= m <= 3, 0 <= n <= 7)
+	\xhh			十六进制值的字符 0xhh
+	\uhhhh			十六进制值的字符 0xhhhh
+	\x{h...h}		十六进制值的字符 0xh...h (Character.MIN_CODE_POINT  <= 0xh...h <=  Character.MAX_CODE_POINT)
+	\t				"tab"字符 ('\u0009')
+	\n				换行符 ('\u000A')
+	\r				回车符 ('\u000D')
+	\f				表单馈送字符 ('\u000C')
+	\a				警报（铃）字符 ('\u0007')
+	\e				转义字符符 ('\u001B')
+	\cx				X对应的控制字符
+	
+	Character classes（字符类别）
+	
+	[abc]			a, b, or c (简单)
+	[^abc]			Any character except a, b, or c (相反)
+	[a-zA-Z]		a到z或者A到Z (范围)
+	[a-d[m-p]]		a 到  d, 或者 m 到 p: [a-dm-p] (联合)
+	[a-z&&[def]]	d, e, 或者 f (交叉)
+	[a-z&&[^bc]]	a 到 z, 除了b和 c: [ad-z] (减法)
+	[a-z&&[^m-p]]	a 到 z, 并且非 m 到 p: [a-lq-z](减法)	
+	
+	Predefined character classes（预定义字符类别）
+	.				Any character (may or may not match line terminators)
+	\d				数字: [0-9]
+	\D				非数字: [^0-9]
+	\h				水平空白字符: [ \t\xA0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000]
+	\H				非水平空白字符: [^\h]
+	\s				空白字符: [ \t\n\x0B\f\r]
+	\S				非空白字符: [^\s]
+	\v				垂直空白字符: [\n\x0B\f\r\x85\u2028\u2029]
+	\V				非垂直空白字符: [^\v]
+	\w				单词字符: [a-zA-Z_0-9]
+	\W				非单词字符: [^\w]	
+	
+	POSIX字符类（仅限US-ASCII）
+	\p{Lower}		小写字母字符: [a-z]
+	\p{Upper}		大写字母字符:[A-Z]
+	\p{ASCII}		所有ASCII字符:[\x00-\x7F]
+	\p{Alpha}		字母:[\p{Lower}\p{Upper}]
+	\p{Digit}		十进制数字: [0-9]
+	\p{Alnum}		字母数字字符:[\p{Alpha}\p{Digit}]
+	\p{Punct}		标点符号:  !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ 其中之一
+	\p{Graph}		可见字符: [\p{Alnum}\p{Punct}]
+	\p{Print}		可打印字符: [\p{Graph}\x20]
+	\p{Blank}		空格或制表符: [ \t]
+	\p{Cntrl}		控制字符: [\x00-\x1F\x7F]
+	\p{XDigit}		十六进制数字: [0-9a-fA-F]
+	\p{Space}		空白字符: [ \t\n\x0B\f\r]	
+	
+	java.lang.Character classes (simple java character type)
+	
+	\p{javaLowerCase}	等于 java.lang.Character.isLowerCase()
+	\p{javaUpperCase}	等于 java.lang.Character.isUpperCase()
+	\p{javaWhitespace}	等于 java.lang.Character.isWhitespace()
+	\p{javaMirrored}	等于 java.lang.Character.isMirrored()	
+	
+	Classes for Unicode scripts, blocks, categories and binary properties
+	
+	\p{IsLatin}			拉丁字母脚本 (script)
+	\p{InGreek}			希腊语块中的一个字符 (block)
+	\p{Lu}				大写字母 (category)
+	\p{IsAlphabetic}	字母 (binary property)
+	\p{Sc}				货币符号
+	\P{InGreek}			除希腊语块中以外的任何字符 (negation)
+	[\p{L}&&[^\p{Lu}]]	除大写字母外的任何字母 (subtraction)	
+	
+	Boundary matchers（边界匹配）
+	^		行首
+	$		行尾
+	\b		单词边界
+	\B		非单词边界
+	\A		输入的开始
+	\G		前一次匹配的末尾
+	\Z		输入的结尾，但对于最终终结符（如果有）
+	\z		输入的结尾
+	
+	Linebreak matcher（换行匹配）
+	\R		任何Unicode换行符序列，等于 \u000D\u000A|[\u000A\u000B\u000C\u000D\u0085\u2028\u2029]	
+	
+	Greedy quantifiers（贪婪量词）
+	
+	X?			X, 一次或者没有
+	X*			X, 0次或者更多次
+	X+			X, 1次或者更多次
+	X{n}		X, 恰好n次
+	X{n,}		X, 至少n次
+	X{n,m}		X, 至少n次但不超过m次
+	
+	Reluctant quantifiers(勉强量词)
+	X??			X, 一次或者一次都没有
+	X*?			X, 零次或更多次
+	X+?			X, 一次或多次
+	X{n}?		X, 恰好n次
+	X{n,}?		X, 至少n次
+	X{n,m}?		X, 至少n次但不超过m次
+	
+	Possessive quantifiers（侵占量词）
+	X?+			X, 一次或者一次都没有
+	X*+			X, 零次或更多次
+	X++			X, 一次或多次
+	X{n}+		X, 恰好n次
+	X{n,}+		X, 至少n次
+	X{n,m}+		X, 至少n次但不超过m次
+	
+	Logical operators（逻辑操作）
+	XY			X 后面跟随Y
+	X|Y			X 或 Y任意之一
+	(X)			X, 作为捕获组
+	
+	Back references（反斜杠）
+	\n			无论第n个捕获组匹配什么
+	\k<name>	无论命名的捕获组“名称”匹配什么
+	
+	Quotation（引用）
+	\		Nothing, 但引用后跟随字符
+	\Q		Nothing, 但引用所有字符直到\E
+	\E		Nothing, 但结尾由\E开始
+	
+	Special constructs (named-capturing and non-capturing)特殊构造（命名为捕获和非捕获）
+	
+	(?<name>X)				X, 作为命名捕获组
+	(?:X)					X, 作为非捕获组
+	(?idmsuxU-idmsuxU) 		Nothing, 但开关匹配标志 i d m s u x U on - off
+	(?idmsux-idmsux:X)  	X, 作为具有给定标志的非捕获组 i d m s u x on - off
+	(?=X)					X, 通过0宽度正 lookahead
+	(?!X)					X, 通过0宽度负 lookahead
+	(?<=X)					X, 通过0宽度正 lookbehind
+	(?<!X)					X, 通过0宽度负 lookbehind
+	(?>X)					X, 作为独立的非捕获组	
+	
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	Backslashes, escapes, and quoting（反斜杠、逃逸和引用）
+	
 	
 	
 	类定义	：public final class Pattern implements java.io.Serializable
