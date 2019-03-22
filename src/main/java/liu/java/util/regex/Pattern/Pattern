@@ -36,7 +36,7 @@ Pattern：模式。	【Since:1.4】
 	[abc]			a, b, or c (简单)
 	[^abc]			Any character except a, b, or c (相反)
 	[a-zA-Z]		a到z或者A到Z (范围)
-	[a-d[m-p]]		a 到  d, 或者 m 到 p: [a-dm-p] (联合)
+	[a-d[m-p]]		a 到  d, 或者 m 到 p: [a-dm-p] (并集)
 	[a-z&&[def]]	d, e, 或者 f (交叉)
 	[a-z&&[^bc]]	a 到 z, 除了b和 c: [ad-z] (减法)
 	[a-z&&[^m-p]]	a 到 z, 并且非 m 到 p: [a-lq-z](减法)	
@@ -138,7 +138,7 @@ Pattern：模式。	【Since:1.4】
 	\Q		Nothing, 但引用所有字符直到\E
 	\E		Nothing, 但结尾由\E开始
 	
-	Special constructs (named-capturing and non-capturing)特殊构造（命名为捕获和非捕获）
+	Special constructs (named-capturing and non-capturing)特殊控制（命名为捕获和非捕获）
 	
 	(?<name>X)				X, 作为命名捕获组
 	(?:X)					X, 作为非捕获组
@@ -151,7 +151,117 @@ Pattern：模式。	【Since:1.4】
 	(?>X)					X, 作为独立的非捕获组	
 	
 	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-	Backslashes, escapes, and quoting（反斜杠、逃逸和引用）
+	Backslashes, escapes, and quoting（反斜杠、转义和引用）
+	反斜杠字符（'\'）用于引入上表中定义的转义结构，并引用将被解释为未转义结构的字符。因此，表达式\\匹配一个反斜杠，而\{匹配左大括号。
+	在不表示转义构造的任何字母字符之前使用反斜杠是错误的；这些字符是为以后的正则表达式语言扩展保留的。反斜杠可以在非字母字符之前使用，不管该字符是否是未转义结构的一部分。
+	Java源代码中的字符串文本中的反斜杠根据Java语言规范的要求解释为Unicode转义（第3.3节）或其他字符转义（第3.1.6节），因此需要在表示正则表达式的字符串文本中加双反斜杠，以保护它们不被解释。Java字节码编译器。例如，字符串文本“\b”在解释为正则表达式时与单个退格字符匹配，而“\\b”与单词边界匹配。字符串文字“\(hello\)”是非法的，会导致编译时错误；为了匹配字符串（hello），必须使用字符串文字"\\(hello\\)"。
+	
+	Character Classes（字符类）
+	字符类可以出现在其他字符类中，并且可以由并集运算符（隐式）和交集运算符（&&）组成。并集运算符表示一个类，该类包含至少一个操作数类中的每个字符。交集运算符表示包含两个操作数类中的每个字符的类。
+	字符类运算符的优先级从高到低如下：
+		1    	字面转义    	\X
+		2    	分组		[...]
+		3    	范围		a-z
+		4    	并集		[a-e][i-u]
+		5    	交集		[a-z&&[aeiou]]
+	请注意，字符类内部的元字符集与字符类外部的元字符集不同。例如，正则表达式。在字符类中失去其特殊意义，而表达式‘-’变成一个形成元字符的范围。
+	
+	Line terminators（行终止符）
+	行终止符是一个或两个字符序列，用于标记输入字符序列行的结尾。以下是行终止符：
+		● 换行符	“\n”
+		● 紧跟换行符的回车符	“\r\n”
+		● 独立回车符	“\r”
+		● 下一行字符	 “\u0085”
+		● 行分隔符		“\u2028”
+		● 段落分隔符	“\u2029”
+	如果启动了UNIX_LINES模式，那么唯一识别的行终止符是换行符。
+	正则表达式“.”匹配除行终止符以外的任何字符，除非指定了DOTALL标志。
+	默认情况下，正则表达式^和$忽略行终止符，并且只在整个输入序列的开始和结束处分别匹配。如果激活了多行模式，则^在输入的开头和任何行终止符之后匹配，输入的结尾除外。当处于多行模式时，$刚好在行终止符或输入序列末尾之前匹配。
+	
+	Groups and capturing（捕获组）
+		Group number（捕获组编号）
+			捕获组是通过从左到右计数其左括号来编号的。例如，在表达式捕获组是通过从左到右计数其左括号来编号的。例如，在表达式((A)(B(C)))中，有fou
+				1    	((A)(B(C)))
+				2    	(A)
+				3    	(B(C))
+				4    	(C)		
+			分组0始终代表整个表达式。
+			捕获组之所以如此命名，是因为在匹配期间，将保存与此类组匹配的输入序列的每个子序列。捕获的子序列可以稍后在表达式中通过后向引用使用，也可以在匹配操作完成后从匹配器中检索。
+		Group name（命名捕获组）
+			捕获组也可以被分配一个“名称”，一个命名的捕获组，然后由“名称”重新引用。组名由以下字符组成。第一个字符必须是字母。
+				● 大写字母“A”到“Z”（'\u0041'到'\u005a'），
+				● 小写字母'a'到'z'（'\u0061'到'\u007a'），
+				● 数字“0”到“9”（'\u0030'到'\u0039'），
+			命名的捕获组仍然按照组号中的描述进行编号。
+			与组关联的捕获输入始终是组最近匹配的子序列。如果由于量化而对一个组进行了第二次评估，那么如果第二次评估失败，则将保留先前捕获的值（如果有）。将字符串"aba"与表达式(a(b)?)+匹配，例如，将分组2设置为"b"。所有捕获的输入在每次匹配开始时都被丢弃。	
+			以  (? 开头的组是不捕获文本且不计入组总数的纯粹非捕获组，或者是命名的捕获组。
+	
+	Unicode support（Unicode字符支持）
+	该类符合Unicode技术标准#18：Unicode正则表达式plus RL2.1标准规范。	
+	如Java语言规范的第3.3节所描述的，Unicode转义序列（如Java源代码中的\u2014）被处理。这种转义序列也直接由正则表达式解析器实现，以便Unicode转义可以用于从文件或键盘读取的表达式。因此，字符串"\u2014"和"\\u2014"虽然不相等，但编译成相同的模式，该模式与十六进制值为0x2014的字符匹配。	
+	Unicode字符也可以用十六进制表示法（十六进制码位值）在正则表达式中直接表示，如构造\x{...}所述，例如，可以将辅助字符U+2011F指定为\x{2011F}，而不是代理项对\uD840\uDD1F的两个连续的Unicode转义序列。
+	Unicode脚本（scripts）、块（blocks）、类别（categories）和二进制属性（binary properties）使用\p和\P构造编写，如Perl中所示。如果输入具有属性prop，则与\p{prop}匹配；如果输入具有属性prop，则与\P{prop}不匹配。
+	脚本（scripts）、块（blocks）、类别（categories）和二进制属性（binary properties）可以在字符类的内部和外部使用。
+	脚本（scripts）可以使用前缀is（如IsHiragana）指定，也可以使用script=Hiragana或sc=Hiragana中的script关键字（或其缩写sc）指定。
+	模式（Pattern）支持的脚本名是UnicodeScript.forName接受并定义的有效脚本名。
+	块（blocks）使用前缀In（如InMongolian）指定，或使用关键字block（或其缩写blk）指定，如block=Mongolian或blk=Mongolian的前缀。
+	模式（Pattern）支持的块名是UnicodeBlock.forName接受和定义的有效块名。
+	类别（categories）可以用可选前缀指定：\p{L}和\p{lsL}都表示Unicode字母的类别。与脚本和块一样，也可以使用关键字general_category（或其缩写gc）指定类别，如general_category=Lu 或者 gc=Lu。
+	支持的类别（categories）是Character类指定版本中的Unicode标准类别。类别名称是标准中定义的名称，包括规范性名称和信息性名称。
+	使用前缀Is指定二进制属性，如IsAlphabetic中所示。Pattern支持的二进制属性为：
+		● Alphabetic					字母
+		● Ideographic					表意的	
+		● Letter						字母
+		● Lowercase						小写
+		● Uppercase						大写
+		● Titlecase						标题字符
+		● Punctuation					标点符号
+		● Control						控制符号
+		● White_Space					空白符号
+		● Digit							数字
+		● Hex_Digit						十六进制数字
+		● Join_Control					连接控制
+		● Noncharacter_Code_Point		非字符代码指针	
+		● Assigned						分配符
+	下列预定义的字符类和POSIX字符类符合附录C的建议：当指定UNICODE_CHARACTER_CLASS标志时，Unicode正则表达式的兼容性属性。	
+		Classes				Matches
+		\p{Lower}		小写字母字符：		\p{IsLowercase}
+		\p{Upper}		大写字母字符：		\p{IsUppercase}
+		\p{ASCII}		所有ASCII码字符：	[\x00-\x7F]
+		\p{Alpha}		字母字符：			\p{IsAlphabetic}
+		\p{Digit}		十进制数字字符：		p{IsDigit}
+		\p{Alnum}		字母数字字符：		[\p{IsAlphabetic}\p{IsDigit}]
+		\p{Punct}		标点符号：			p{IsPunctuation}
+		\p{Graph}		可见字符：			[^\p{IsWhite_Space}\p{gc=Cc}\p{gc=Cs}\p{gc=Cn}]
+		\p{Print}		可打印字符：		[\p{Graph}\p{Blank}&&[^\p{Cntrl}]]
+		\p{Blank}		空白或者tab字符：	[\p{IsWhite_Space}&&[^\p{gc=Zl}\p{gc=Zp}\x0a\x0b\x0c\x0d\x85]]
+		\p{Cntrl}		控制字符：			\p{gc=Cc}
+		\p{XDigit}		十六进制数字：		[\p{gc=Nd}\p{IsHex_Digit}]
+		\p{Space}		空白字符：			\p{IsWhite_Space}
+		\d				数字：			\p{IsDigit}
+		\D				非数字：			[^\d]
+		\s				空白字符：			\p{IsWhite_Space}
+		\S				非空白字符：		[^\s]
+		\w				单词字符：			[\p{Alpha}\p{gc=Mn}\p{gc=Me}\p{gc=Mc}\p{Digit}\p{gc=Pc}\p{IsJoin_Control}]
+		\W				非单词字符：		[^\w]	
+	行为类似于java.lang.Character boolean ismethodname方法的类别（不推荐使用的类别除外）可以通过指定属性名为javamethodname的相同\p{prop}语法使用。
+	
+	Comparison to Perl 5（与Perl 5的比较）
+	模式（Pattern）引擎执行传统的基于NFA的匹配，并使用Perl5中出现的有序替换。
+	此类不支持Perl构造：
+		● 预定义字符类（Unicode字符）		\X    匹配unicode扩展字母簇
+		● 反斜杠控制，nthcapturing捕获组\g{n}和命名捕获组\g{name}
+		● 命名字符控制，Unicode字符\N{name}按其名称控制。
+		● 条件控制，(?(condition)X)和(?(condition)X|Y)
+		● 嵌入的代码控制，(?{code})和(??{code})，
+		● 嵌入的注释语法(?#comment)，和
+		● 预处理操作\l \u, \L, and \U。
+	此类支持但Perl不支持的控制：
+		● 在Perl中，从\1到\9始终被解释为反斜杠；如果存在至少多个子表达式，大于9的反斜杠转义数将被视为反斜杠，否则，如果可能，它将被解释为八进制转义。在这一类中，八进制转义必须始终以0开头。在这个类中，如果正则表达式中在该点上至少存在多个子表达式，则\1到\9始终被解释为反向斜杠，并且一个较大的数字被接受为反斜杠，否则解析器将删除数字，直到该数字小于或等于现有的组数或是一个数字。
+		● Perl使用g标志来请求一个匹配，该匹配将在最后一个匹配结束时恢复。Matcher类隐式地提供了这个功能：除非Matcher被重置，否则find方法的重复调用将在最后一个匹配结束时恢复。
+		● 在Perl中，表达式顶层的嵌入标志会影响整个表达式。在这个类中，嵌入的标志总是在它们出现的时候生效，不管它们是在顶层还是在一个组中；在后一种情况下，标志在组的末尾被还原，就像在Perl中一样。
+	有关正则表达式构造行为的更精确描述，请参阅Mastering Regular Expressions, 3nd Edition, Jeffrey E. F. Friedl，O'Reilly and Associates, 2006。
+	
 	
 	
 	
@@ -160,30 +270,129 @@ Pattern：模式。	【Since:1.4】
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）
 	CANON_EQ
+		启用规范等价。
+		如果指定了此标志，那么只有当两个字符的完整规范分解匹配时，才认为它们匹配。例如，当指定此标志时，表达式"a\u030A"将与字符串"\u00E5"。默认情况下，匹配不考虑规范等价。
+		没有用于启用规范等价的嵌入标志字符。
+		指定此标志可能会导致性能损失。
 	CASE_INSENSITIVE
+		启用不区分大小写的匹配。
+		默认情况下，不区分大小写的匹配假定只匹配US-ASCII字符集中的字符。通过将UNICODE_CASE标志与此标志一起指定，可以启用区分大小写的匹配。
+		也可以通过嵌入的标志表达式(?i)启用不区分大小写的匹配。
+		指定此标志可能会造成轻微的性能损失。
 	COMMENTS
+		允许模式中的空白和注释。
+		在这种模式下，空白被忽略，以#开头的嵌入注释被忽略，直到行尾。
+		也可以通过嵌入的标志表达式 (?x)。
 	DOTALL
+		启用dotall模式。
+		在dotall模式下，表达式“.”匹配任何字符，包括行终止符。默认情况下，此表达式与行终止符不匹配。
+		也可以通过嵌入的标志表达式(?s)。（s是“single-line”模式的助记符，在Perl中就是这样称呼的。）
 	LITERAL
+		启用模式的字面文本解析。
+		当指定此标志时，指定模式的输入字符串将被视为一系列文本字符。输入序列中的元字符或转义序列将没有特殊意义。
+		标记CASE_INSENSITIVE和UNICODE_CASE与此标记一起使用时，会保留它们对匹配的影响。其他的标志变得多余了。
+		没有用于启用字面文本解析的嵌入标志字符。
 	MULTILINE
+		启用多行模式。
+		在多行模式下，表达式^和$分别在输入序列的行尾或行尾之后或之前匹配。默认情况下，这些表达式只在整个输入序列的开始和结束处匹配。
+		还可以通过嵌入的标志表达式 (?m)启用多行模式。
 	UNICODE_CASE
+		启用Unicode感知的大小写重叠。
+		如果指定了此标志，则当CASE_INSENSITIVE标志启用时，将以与Unicode标准一致的方式进行不区分大小写的匹配。默认情况下，不区分大小写的匹配假定只匹配US-ASCII字符集中的字符。
+		也可以通过嵌入的标志表达式 (?u)。
+		指定此标志可能会导致性能损失。
 	UNICODE_CHARACTER_CLASS
+		启用预定义字符类和POSIX字符类的Unicode版本。
+		如果指定此标志，则（仅限US-ASCII）预定义字符类和POSIX字符类符合Unicode技术标准#18：Unicode正则表达式附录C：兼容性属性。
+		UNICODE_CHARACTER_CLASS模式也可以通过嵌入的标志表达式(?U)。
+		指定此标志可能会导致性能损失。
 	UNIX_LINES
-	
+		启用Unix行模式。
+		在此模式下., ^, 和 $的行为中只识别'\n'行终止符。
+		也可以通过嵌入的标志表达式(?d)。
 
 Method Summary（方法概要）：
 	compile(String regex):static Pattern 
+		regex - 要编译的表达式。
+		将给定的正则表达式编译为模式。
+		返回已编译成模式的给定正则表达式
+		【Throws】：
+			PatternSyntaxException 如果表达式的语法无效
 	compile(String regex, int flags):static Pattern 
+		regex - 要编译的表达式。
+		flags - 匹配标志，一个位掩码，可以包括CASE_INSENSITIVE, MULTILINE, DOTALL, UNICODE_CASE, CANON_EQ, UNIX_LINES, LITERAL, UNICODE_CHARACTER_CLASS 和 COMMENTS。		
+		将给定的正则表达式编译为具有给定标志的模式。
+		返回给定的正则表达式编译成具有给定标志的模式。
+		【Throws】：
+			IllegalArgumentException 如果在标志中设置了与定义的匹配标志相对应的位值以外的位值
+			PatternSyntaxException 如果表达式的语法无效
 	matches(String regex, CharSequence input):static boolean 
+		regex - 要编译的表达式。
+		input - 要匹配的字符序列
+		编译给定的正则表达式并尝试将给定的输入与其匹配。
+		对这个方便方法的调用形式：
+			Pattern.matches(regex, input);
+		行为方式与表达式完全相同：
+			Pattern.compile(regex).matcher(input).matches()
+		如果一个模式要多次使用，那么编译一次并重用它将比每次调用这个方法更有效。
+		如果正则表达与输入匹配则返回true，否则返回false。
+		【Throws】：
+			PatternSyntaxException 如果表达式的语法无效
 	quote(String s):static String 
+		s - 要文本化的字符串
+		返回指定字符串的文本模式字符串。
+		此方法生成一个String，该String可用于创建与字符串匹配的模式（Pattern），就像它是文本模式一样。
+		输入序列中的元字符或转义序列将没有特殊意义。		
+		返回文本字符串替换。
+		注意：使用quote()方法之后,原有的字符串s变成了\Qs\E的样式。原有的字符串被\Q..\E包裹,返回后的字符串成了正则字面量。
 	asPredicate():Predicate<String> 
+		创建可用于匹配字符串的谓词。
+		返回可用于在字符串上匹配的谓词。
 	flags():int 
+		返回此模式的匹配标志。
+		返回编译此模式时指定的匹配标志。
 	matcher(CharSequence input):Matcher 
+		input - 要匹配的字符序列
+		创建一个匹配器，该匹配器将根据此模式匹配给定的输入。
+		返回此模式的新的匹配器。
 	pattern():String 
+		返回从中编译此模式的正则表达式。
+		返回此模式的源头。
 	split(CharSequence input):String[] 
+		input - 要拆分的字符序列
+		围绕此模式的匹配（即正则表达式）拆分给定的输入序列。
+		此方法的工作方式类似于使用给定的输入序列和限制参数为0调用双参数split方法。因此，结果数组中不包含尾随的空字符串。
+		例如，输入"boo:and:foo"通过这些表达式生成以下结果：
+			Regex    	Result
+			:			{ "boo", "and", "foo" }
+			o			{ "b", "", ":and:f" }
+		通过围绕此模式的匹配项拆分输入计算的字符串数组。	
 	split(CharSequence input, int limit):String[] 
+		input - 要拆分的字符序列
+		limit - 结果阈值，如下所述
+		围绕此模式的匹配（即正则表达式）拆分给定的输入序列。
+		此方法返回的数组包含输入序列的每个子字符串，这些子字符串由与此模式匹配的另一个子序列终止，或者由输入序列的结尾终止。数组中的子字符串按它们在输入中出现的顺序排列。如果此模式不匹配输入的任何子序列，则结果数组只有一个元素，即字符串形式的输入序列。
+		如果在输入序列的开头有一个正的宽度匹配，那么在结果数组的开头会包含一个空的前导子字符串。但是，零宽度匹配在开始时不会产生这样的空前导子字符串。
+		limit参数控制应用模式的次数，从而影响结果数组的长度。如果限制n大于零，则最多应用n-1次模式，数组的长度将不大于n，并且数组的最后一个条目将包含最后匹配分隔符之外的所有输入。如果n为非正数，则模式将尽可能多地应用，并且数组可以有任何长度。如果n为零，那么模式将被应用尽可能多次，数组可以有任何长度，并且尾部的空字符串将被丢弃。
+		例如，输入"boo:and:foo"使用这些参数生成以下结果：
+			Regex    	Limit    	Result    
+			:			2			{ "boo", "and:foo" }
+			:			5			{ "boo", "and", "foo" }
+			:			-2			{ "boo", "and", "foo" }
+			o			5			{ "b", "", ":and:f", "", "" }
+			o			-2			{ "b", "", ":and:f", "", "" }
+			o			0			{ "b", "", ":and:f" }	
+		通过围绕此模式的匹配项拆分输入计算的字符串数组。	
 	splitAsStream(final CharSequence input):Stream<String> 
+		input -  要拆分的字符序列
+		根据给定的输入序列围绕此模式的匹配项（即正则表达式）创建流。
+		此方法返回的流包含输入序列的每个子字符串，这些子字符串由与此模式匹配的另一个子序列终止，或者由输入序列的结尾终止。流中的子字符串按它们在输入中出现的顺序排列。尾随的空字符串将被丢弃，并且不会在流中遇到。
+		如果此模式不匹配输入的任何子序列，那么结果流只有一个元素，即字符串形式的输入序列。
+		当在输入序列的开始有一个正的宽度匹配时，在流的开始包含一个空的前导子字符串。但是，零宽度匹配在开始时不会产生这样的空前导子字符串。
+		如果输入序列是可变的，它必须在执行终端流操作期间保持不变。否则，终端流操作的结果不确定。
+		通过围绕此模式的匹配项拆分输入计算的字符串流
 	toString():String 
-	
+		返回此模式的字符串表示形式。这是从中编译此模式的正则表达式。
 	
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
@@ -214,10 +423,10 @@ Method Summary（方法概要）：
 			2				md				(?(?\d{2})-(?\d{2}))					04-25
 			3				month			(?\d{2})								04
 			4				date			(?\d{2})								25
-
-
-
-
+	5、escapes：转义字符。
+	6、metacharacter（元字符）：正则表达式语言由两种基本字符类型组成：原义（正常）文本字符和元字符。元字符使正则表达式具有处理能力。所谓元字符就是指那些在正则表达式中具有特殊意义的专用字符，可以用来规定其前导字符（即位于元字符前面的字符）在目标对象中的出现模式。元字符是一个或一组代替一个或多个字符的字符。听起来有点拗口，但举一个例子也许你就明白了：元字符*用来匹配0个或多个的前一字符；而元字符.用来匹配一个任意的一个字符（除换行符外）。
+	7、Line terminators：行终止符。
+	8、literal string：文本字符串（或者理解为字面常量）。它由双引号包围的0个或多个字符组成，比如"abc","Hello World"等等。一个String字面常量总是引用相同的String实例，比如"abc","abc"两个常量引用的是同一个对象。 
 
 
 

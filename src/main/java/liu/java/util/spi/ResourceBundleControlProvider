@@ -1,0 +1,19 @@
+-----------------------------------------ResourceBundleControlProvider-----------------------------------------------------------------------------------------------------------------------------		
+ResourceBundleControlProvider：资源绑定控件提供器。 【Since:1.8】
+	提供ResourceBundle.Control实现的服务提供器接口。采用非ResourceBundle.Control实例的ResourceBundle.getBundle工厂方法的默认资源绑定加载行为可以使用ResourceBundleControlProvider实现进行修改。
+	提供器实现必须使用Java扩展机制打包为已安装的扩展。有关扩展包的信息，请参阅ServiceLoader。任何已安装的ResourceBundleControlProvider实现都是在ResourceBundle类加载时使用ServiceLoader加载的。
+	
+	接口定义	：public interface ResourceBundleControlProvider
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	getControl(String baseName):ResourceBundle.Control 
+		baseName - 资源绑定的基础名称 
+		返回用于处理给定basename的资源绑定加载的ResourceBundle.Control实例。如果此提供器未处理给定的basename，则此方法必须返回null。
+		返回ResourceBundle.Control实例，如果给定的baseName不适用于此提供器，则返回null。
+		【Throws】：
+			NullPointerException 如果baseName为null。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	

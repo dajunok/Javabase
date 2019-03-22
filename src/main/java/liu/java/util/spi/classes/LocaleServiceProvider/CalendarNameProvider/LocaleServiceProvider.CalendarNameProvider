@@ -1,0 +1,90 @@
+----------------------------------------CalendarNameProvider--------------------------------------------------------------------------------------------------------------
+CalendarNameProvider：日历名称提供器。	【Since:1.6】
+	提供Calendar字段值的本地化字符串表示（显示名称）的服务提供器的抽象类。
+	
+	Calendar Types（日历类型）
+	日历类型用于指定getDisplayName和getDisplayNames方法为其提供日历字段值名称的日历系统。有关详细信息，请参阅Calendar.getCalendarType()。
+	
+	Calendar Fields（日历字段）
+	日历字段是用Calendar中定义的常量指定的。以下是普通字段及其值，将为每个日历系统提供支持。
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	Field						Value											Description
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	Calendar.MONTH				Calendar.JANUARY 至  Calendar.UNDECIMBER			基于0的月份编号（例如，0-January（1月），…，11-December（12月））。有些日历系统有13个月。如果受支持的区域设置需要，则需要在格式化和独立形式中支持月份名称。如果两种形式之间没有区别，那么在两种形式中应该返回相同的名称。
+	Calendar.DAY_OF_WEEK		Calendar.SUNDAY 至  Calendar.SATURDAY				从Sunday（星期日）（即1-Sunday（星期日），…，7-Saturday（星期六））开始，一周中的某一天以1为基础。
+	Calendar.AM_PM				Calendar.AM 至  Calendar.PM						0 - AM, 1 - PM	
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	
+	
+	以下是日历特定字段及其要支持的值。
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	Calendar Type	Field					Value						Description
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	"gregory"		Calendar.ERA			0			GregorianCalendar.BC (BCE)
+											1			GregorianCalendar.AD (CE)
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	"buddhist"		Calendar.ERA			0			BC (BCE)
+											1			B.E. (Buddhist Era)
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	"japanese"	Calendar.ERA				0			Seireki (Before Meiji)
+											1			Meiji
+											2			Taisho
+											3			Showa
+											4			Heisei	
+				Calendar.YEAR				1			the first year in each era. It should be returned when a long style (Calendar.LONG_FORMAT or Calendar.LONG_STANDALONE) is specified. See also the Year representation in SimpleDateFormat.
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	"roc"		Calendar.ERA				0			Before R.O.C.
+											1			R.O.C.
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	"islamic"	Calendar.ERA				0			Before AH
+											1			Anno Hijrah (AH)	
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	“gregory”的日历字段值名称必须与DateFormatSymbolsProvider提供的日期时间符号一致。
+	时区名称受TimeZoneNameProvider支持。
+	
+	
+	
+	
+	
+	
+	类定义	：public abstract class CalendarNameProvider extends LocaleServiceProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected CalendarNameProvider()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+Method Summary（方法概要）：
+	getDisplayName(String calendarType,int field, int value,int style, Locale locale):abstract String 
+		calendarType - 日历类型。（区域设置给定的任何日历类型都将被忽略。）
+		field - 日历字段索引，例如Calendar.DAY_OF_WEEK
+		value - 日历字段的值，例如Calendar.MONDAY
+		style - 字符串表示样式：Calendar.SHORT_FORMAT (SHORT)、 Calendar.SHORT_STANDALONE、 Calendar.LONG_FORMAT (LONG)、 Calendar.LONG_STANDALONE、 Calendar.NARROW_FORMAT 或者 Calendar.NARROW_STANDALONE 格式之一。
+		locale - 所需的区域设置
+		返回给定样式和区域设置中日历字段值的字符串表示形式（显示名称）。如果没有适用的字符串表示，则返回null。	
+		字段是Calendar字段索引，例如Calendar.MONTH。此方法不支持时区字段Calendar.ZONE_OFFSET和Calendar.DST_OFFSET。如果指定了任何时区字段，则必须返回null。
+		值是字段值的数字表示形式。例如，如果字段为Calendar.DAY_OF_WEEK，则有效值为Calendar.SUNDAY至Calendar.SATURDAY（包含）。
+		style提供字符串表示的样式。它是Calendar.SHORT_FORMAT (SHORT)、Calendar.SHORT_STANDALONE、Calendar.LONG_FORMAT (LONG)、Calendar.LONG_STANDALONE、Calendar.NARROW_FORMAT或Calendar.NARROW_STANDALONE。
+		例如，下面的调用将返回“Sunday”。
+			getDisplayName("gregory", Calendar.DAY_OF_WEEK, Calendar.SUNDAY,Calendar.LONG_STANDALONE, Locale.ENGLISH);
+		
+    getDisplayNames(String calendarType,int field, int style,Locale locale):abstract Map<String, Integer> 
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

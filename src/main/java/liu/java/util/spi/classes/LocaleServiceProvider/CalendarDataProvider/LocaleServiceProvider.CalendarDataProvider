@@ -1,0 +1,44 @@
+----------------------------------------CalendarDataProvider--------------------------------------------------------------------------------------------------------------
+CalendarDataProvider：日历数据提供器。	【Since:1.6】
+	提供与区域设置相关的Calendar参数的服务提供器的抽象类。
+	
+	
+	
+	类定义	：public abstract class CalendarDataProvider extends LocaleServiceProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected CalendarDataProvider()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+Method Summary（方法概要）：
+	getFirstDayOfWeek(Locale locale):abstract int 
+		locale - 所需的区域设置
+		★ 返回给定区域设置（locale）中一周的第一天。Calendar需要此信息才能支持与周相关的日历字段的操作。
+		返回一周的第一天；如果区域设置的值不可用，则为Calendar.SUNDAY .. Calendar.SATURDAY中的一个或者0。
+		【Throws】：
+			NullPointerException 如果给定的locale为null。
+	getMinimalDaysInFirstWeek(Locale locale):abstract int 
+		locale - 所需的区域设置
+		★ 返回一年中第一周所需的最少天数。Calendar需要这些信息来确定一年中的第一周。请参阅日历如何确定第一周的说明。
+		返回第一周的最小天数，如果该值不适用于区域设置，则为0。
+		【Throws】：
+			NullPointerException 如果给定的locale为null。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
