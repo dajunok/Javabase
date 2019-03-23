@@ -1,0 +1,66 @@
+----------------------------------------LocaleNameProvider--------------------------------------------------------------------------------------------------------------
+LocaleNameProvider：区域设置名称提供器。	【Since:1.6】
+	为区域设置类提供本地化名称的服务提供程序的抽象类。
+	
+	
+	
+	类定义	：public abstract class LocaleNameProvider extends LocaleServiceProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected LocaleNameProvider()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+
+Method Summary（方法概要）：
+	getDisplayCountry(String countryCode, Locale locale):abstract String 
+		countryCode - “A”（U+0041）和“Z”（U+005A）之间的两个大写字母形式的国家（地区）代码字符串，或“0”（U+0030）和“9”（U+0039）之间的三位数字字母形式的UN M.49区号。
+		locale - 所需的区域设置。
+		返回给定IETF BCP47区域代码（ISO 3166国家/地区代码或UN M.49区域代码）和适合显示给用户的给定区域设置的本地化名称。例如，如果countryCode为“FR”，locale为en_US，getDisplayCountry()将返回“France”；如果countryCode为“US”，locale为fr_FR，getDisplayCountry()将返回“Etats-Unis”。如果返回的名称不能根据区域设置进行本地化（例如，提供器没有克罗地亚（Croatia）的Japanese名称），则此方法返回null。
+		返回指定区域设置的给定国家/地区代码的名称，如果该名称不可用，则返回null。
+		【Throws】：
+			NullPointerException 如果countryCode或者locale为null。
+			IllegalArgumentException 如果countryCode不是两个大写字母或三个数字字母的形式，或者locale不是从getAvailableLocales()返回的locale之一。
+	getDisplayLanguage(String languageCode, Locale locale):abstract String 
+		languageCode - 返回'a' (U+0061)和'z' (U+007A)之间的2到8个小写字母形式的语言代码字符串。
+		locale - 所需的区域设置。
+		返回给定IETF BCP47语言代码的本地化名称以及适合显示给用户的给定区域设置。例如，如果languageCode为“FR”，locale为en_US，getDisplayLanguage()将返回“French”；如果languageCode为“en”，locale为fr_FR，getDisplayLanguage()将返回“anglais”。如果返回的名称不能根据区域设置进行本地化（例如，提供器没有克罗地亚（Croatia）的Japanese名称），则此方法返回null。
+		返回指定区域设置的给定语言代码的名称，如果不可用，则返回null。
+		【Throws】：
+			NullPointerException 如果languageCode或者locale为null。
+			IllegalArgumentException 如果languageCode不是两个或三个小写字母的形式，或者locale不是从getAvailableLocales()返回的locale之一。
+	getDisplayScript(String scriptCode, Locale locale):String 
+		scriptCode - 以标题大小写字母形式出现的四个字母的脚本代码字符串（第一个字母是“A”（U+0041）和“Z”（U+005A）之间的大写字符，然后是“A”（U+0061）和“Z”（U+007A）之间的三个小写字符）。
+		locale - 所需的区域设置。
+		返回给定IETF BCP47脚本代码的本地化名称以及适合显示给用户的给定区域设置。例如，如果scriptCode为“Latn”，locale为en_US，getDisplayScript()将返回“Latin”；如果scriptCode为“Cyrl”，locale为fr_FR，getDisplayScript()将返回“cyrillique”。如果返回的名称不能根据区域设置进行本地化（例如，提供器没有克罗地亚（Croatia）的Japanese名称），则此方法返回null。默认实现返回null。
+		返回指定区域设置的给定脚本代码的名称，如果不可用，则返回null。
+		【Throws】：
+			NullPointerException 如果scriptCode或者locale为null。
+			IllegalArgumentException 如果脚本代码不是四个标题字母的形式，或者区域设置不是从getAvailableLocales()返回的区域设置之一。
+	getDisplayVariant(String variant, Locale locale):abstract String 
+		variant - 变量字符串
+		locale - 所需的区域设置。
+		返回给定变量代码的本地化名称以及适合显示给用户的给定区域设置。如果返回的名称不能根据区域设置进行本地化，则此方法返回null。
+		返回指定区域设置的给定变量字符串的名称，如果不可用，则为null。
+		【Throws】：
+			NullPointerException 如果variant或者locale为null。
+			IllegalArgumentException 如果区域设置不是从getAvailableLocales()返回的区域设置之一。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

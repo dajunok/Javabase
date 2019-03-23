@@ -1,0 +1,49 @@
+----------------------------------------CurrencyNameProvider--------------------------------------------------------------------------------------------------------------
+CurrencyNameProvider：货币名称提供器。	【Since:1.6】
+	为服务提供器提供的抽象类，它为Currency类提供本地化的货币符号和显示名称。请注意，在确定LocaleServiceProvider规范中描述的行为时，货币符号被视为名称。
+	
+	
+	
+	类定义	：public abstract class CurrencyNameProvider extends LocaleServiceProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected CurrencyNameProvider()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+
+Method Summary（方法概要）：
+	getDisplayName(String currencyCode, Locale locale):String 
+		currencyCode - ISO 4217 货币代码, 它由'A'(U+0041)和'Z'(U+005A)之间的三个大写字母组成。
+		locale - 所需的区域设置
+		返回适合显示给用户的货币名称。默认实现返回null。
+		适用于向用户显示的货币名称，如果该名称不适用于区域设置，则为null。
+		【Throws】：
+			IllegalArgumentException 如果currencyCode不是三个大写字母的形式，或者locale不是从getAvailableLocales()返回的区域设置之一。
+			NullPointerException 如果currencyCode或locale为null。
+	getSymbol(String currencyCode, Locale locale):abstract String 
+		currencyCode - ISO 4217 货币代码, 它由'A'(U+0041)和'Z'(U+005A)之间的三个大写字母组成。
+		locale - 所需的区域设置
+		★ 获取指定区域设置（locale）的给定货币代码（currencyCode）的符号。例如，对于“USD”（US dollar），如果指定的区域设置为US，则符号为“$”，而对于其他区域设置，则符号可能为“US$”。如果无法确定符号，则应返回null。
+		返回指定区域设置的给定货币代码的符号，如果该符号不适用于该区域设置，则为null。
+		【Throws】：
+			NullPointerException 如果currencyCode或者locale为null。
+			IllegalArgumentException 如果currencyCode不是三个大写字母的形式，或者locale不是从getAvailableLocales()返回的区域设置之一。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

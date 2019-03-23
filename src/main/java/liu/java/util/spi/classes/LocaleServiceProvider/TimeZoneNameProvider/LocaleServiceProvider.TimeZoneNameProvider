@@ -1,0 +1,54 @@
+----------------------------------------TimeZoneNameProvider--------------------------------------------------------------------------------------------------------------
+TimeZoneNameProvider：时区名称提供器。	【Since:1.6】
+	为时区类提供本地化时区名称的服务提供器的抽象类。此类实现中可用的本地化时区名称也是DateFormatSymbols.getZoneStrings()方法的源。
+	
+	
+	
+	类定义	：public abstract class TimeZoneNameProvider extends LocaleServiceProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected TimeZoneNameProvider()
+		唯一构造器。（对于子类构造函数的调用，通常是隐式的。）
+
+Method Summary（方法概要）：
+	getDisplayName(String ID, boolean daylight, int style, Locale locale):abstract String 
+		ID - 时区ID字符串
+		daylight - 如果为true，则返回夏令时名称。
+		style - TimeZone.LONG或者TimeZone.SHORT
+		locale - 所需的区域设置。
+		★ 返回指定时区ID的名称，该名称适用于在指定区域设置中向用户演示。给定的时区ID是“GMT”或“tz database”中使用“Zone”条目定义的名称之一，该数据库是位于ftp://elsie.nci.nih.gov/pub/的公共域时区数据库。这个数据库的数据包含在一个以“tzdata”开头的文件中，数据格式的规范是zic.8手册页的一部分，该手册页包含在一个以“tzcode”开头的文件中。		
+		如果夏令时为true，则该方法应返回适合夏令时的名称，即使指定时区过去没有观察到夏令时。
+		给定区域中给定时区的可读名称，如果不可用，则为null。
+		【Throws】：
+			IllegalArgumentException 如果样式无效，或者区域设置不是从getAvailableLocales()返回的区域设置之一。
+			NullPointerException 如果ID或者locale为null。
+	getGenericDisplayName(String ID, int style, Locale locale):String 
+		ID - 时区ID字符串
+		style - TimeZone.LONG或者TimeZone.SHORT
+		locale - 所需的区域设置。
+		返回给定时区ID的通用名称，该名称适用于在指定区域设置中向用户演示。通用时区名称与标准时间和夏令时保持中性。例如，“PT”是美国/洛杉矶时区ID的短通用名称，而其短标准时间和夏令时名称分别是“PST”和“PDT”。有关有效的时区ID，请参阅getDisplayName。
+		此方法的默认实现返回null。
+		【Throws】：
+			IllegalArgumentException 如果样式无效，或者区域设置不是从getAvailableLocales()返回的区域设置之一。
+			NullPointerException 如果ID或者locale为null。	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -67,7 +67,18 @@ Method Summary（方法概要）：
 			getDisplayName("gregory", Calendar.DAY_OF_WEEK, Calendar.SUNDAY,Calendar.LONG_STANDALONE, Locale.ENGLISH);
 		
     getDisplayNames(String calendarType,int field, int style,Locale locale):abstract Map<String, Integer> 
-	
+    	calendarType - 日历类型。（区域设置给定的任何日历类型都将被忽略。）
+		field - 日历字段索引，例如Calendar.DAY_OF_WEEK
+		style - 字符串表示样式：Calendar.SHORT_FORMAT (SHORT)、 Calendar.SHORT_STANDALONE、 Calendar.LONG_FORMAT (LONG)、 Calendar.LONG_STANDALONE、 Calendar.NARROW_FORMAT 或者 Calendar.NARROW_STANDALONE 格式之一。
+		locale - 所需的区域设置
+		返回包含给定样式和区域设置中日历字段的所有字符串表示形式（显示名称）及其相应字段值的映射。
+		field是日历（Calendar）字段索引，例如Calendar.MONTH。此方法不支持时区字段Calendar.ZONE_OFFSET和Calendar.DST_OFFSET。如果指定了任何时区字段，则必须返回null。
+		style提供字符串表示的样式。必须是Calendar.ALL_STYLES、Calendar.SHORT_FORMAT (SHORT)、Calendar.SHORT_STANDALONE、Calendar.LONG_FORMAT (LONG)、Calendar.LONG_STANDALONE、Calendar.NARROW_FORMAT或Calendar.NARROW_STANDALONE之一。请注意，由于使用单个字符，窄名称可能不唯一，例如“S”代表星期日（Sunday）和星期六（Saturday），并且在这种情况下不包括窄名称。
+		例如，以下调用将返回包含"January"到Calendar.JANUARY、"Jan"到Calendar.JANUARY、"February"到Calendar.FEBRUARY、"Feb"到Calendar.FEBRUARY等内容的映射（Map）。
+			getDisplayNames("gregory", Calendar.MONTH, Calendar.ALL_STYLES, Locale.ENGLISH);
+		【Throws】：
+			NullPointerException 如果locale为null。
+			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
