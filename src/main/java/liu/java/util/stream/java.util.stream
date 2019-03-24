@@ -1,0 +1,39 @@
+----------------------------------------Package java.util.stream Description--------------------------------------------------------------------------------------------------------------
+											【Since 1.8】
+Package Description（包描述说明）：
+	类用来支持元素流上的函数式操作，如map-reduce集合上的转换。例如：
+		int sum = widgets.stream()
+                  .filter(b -> b.getColor() == RED)
+                  .mapToInt(b -> b.getWeight())
+                  .sum();
+	
+	
+
+Interface Summary（接口概要）
+	BaseStream
+	Collector
+	DoubleStream
+	DoubleStream.Builder
+	IntStream
+	IntStream.Builder
+	LongStream
+	LongStream.Builder
+	Stream
+	Stream.Builder
+
+Class Summary(类概要)
+	Collectors
+	StreamSupport	
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、
+	
+	
+	
+	
+		
+		
