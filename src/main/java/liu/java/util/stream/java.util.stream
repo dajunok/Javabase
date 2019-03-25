@@ -6,9 +6,192 @@ Package Description（包描述说明）：
                   .filter(b -> b.getColor() == RED)
                   .mapToInt(b -> b.getWeight())
                   .sum();
+	这里我们使用小部件Collection<Widget>作为流的源，然后在流上执行filter-map-reduce以获得红色小部件的权重之和。（求和是一个简化操作的例子。）
+	这个包中引入的关键抽象是流。类Stream、IntStream、LongStream和DoubleStream是对象和原始int、long和double类型上的流。流与集合在以下几个方面存在差异：
+		● 没有存储。流不是存储元素的数据结构，而是通过计算操作管道从数据结构、数组、生成器函数或I/O通道等源传输元素。
+		● 本质是函数。流上的操作生成结果，但不修改其源。例如，筛选从集合中获取的流将生成一个没有筛选元素的新流，而不是从源集合中删除元素。		
+		● 延迟搜索。许多流操作（如筛选、映射或删除重复）可以惰性地实现，从而暴露优化的机会。例如，“查找具有三个连续元音的第一个字符串”不需要检查所有输入字符串。流操作分为中间（流生成）操作和终端（值或副作用生成）操作。中间操作总是惰性的。
+		● 可能是不受限制的。虽然集合的大小有限，但流不需要。诸如limit(n)或findFirst()之类的短路操作可以允许无限流上的计算在有限时间内完成。
+		● 消耗大。在流的生命周期中，只能访问一次流的元素。像迭代器一样，必须生成新的流来重新访问源的相同元素。
+	流可以通过多种方式获得。一些例子包括：
+		● 通过stream()和parallelStream()方法从集合中获取；
+		● 通过Arrays.stream(Object[])从数组中获取；
+		● 来自Stream类上的静态工厂方法，例如Stream.of(Object[])、IntStream.range(int, int)或Stream.iterate(Object, UnaryOperator)；
+		● 文件的行可以从BufferedReader.lines()获得；
+		● 文件路径流可以从文件(File)中的方法获得；
+		● 随机数流可以从Random.ints()获得；
+		● JDK中的许多其他流承载方法，包括位BitSet.stream()、Pattern.splitAsStream(java.lang.CharSequence)和JarFile.stream()。
+	使用这些技术，第三方库可以提供额外的流源。
 	
+	流作业和管道：
+		流操作分为中间操作和终端操作，并结合在一起形成流管道。流管道由源（如集合、数组、生成器函数或I/O通道）组成；然后是零个或多个中间操作（如Stream.filter或Stream.map）；以及终端操作（如Stream.forEach或Stream.reduce）。
+		中间操作返回新流。它们总是惰性的（延迟的）；执行诸如filter()之类的中间操作实际上并不执行任何过滤，而是创建一个新流，当遍历该流时，它包含与给定谓词匹配的初始流的元素。在执行管道的终端操作之前，管道源的遍历不会开始。
+		终端操作（如Stream.forEach或IntStream.sum）可能会遍历流以产生结果或副作用。执行终端操作后，流管道被视为已消耗，不能再使用；如果需要再次遍历同一个数据源，必须返回到该数据源以获取新的流。在几乎所有的情况下，终端操作都非常迫切，在返回之前完成对数据源的遍历和对管道的处理。只有终端操作iterator()和spliterator()不可用；它们作为“转义”提供，以便在现有操作不足以完成任务的情况下启用任意客户端控制的管道遍历。
+		处理流的惰性使得效率显著提高；在上面的filter-map-sum示例这样的管道中，过滤、映射和求和可以融合到数据的单个传递中，中间状态最小。惰性还允许在不需要时避免检查所有数据；对于诸如“查找长度超过1000个字符的第一个字符串”之类的操作，只需要检查足够多的字符串，即可找到具有所需特征的字符串，而无需检查源中所有可用的字符串。（当输入流是无限的而不仅仅是很大的时，这种行为变得更加重要。）
+		中间操作进一步分为无状态操作和有状态操作。无状态操作（如filter和map）在处理新元素时不保留以前看到的元素的状态————每个元素都可以独立于其他元素的操作进行处理。有状态操作，如distinct和sorted，在处理新元素时，可以合并以前看到的元素的状态。
+		状态操作可能需要在产生结果之前处理整个输入。例如，在看到流的所有元素之前，无法通过对流进行排序产生任何结果。因此，在并行计算中，一些包含有状态中间操作的管道可能需要对数据进行多次传递，或者可能需要缓冲重要的数据。只包含无状态中间操作的管道可以在一次传递中处理，无论是顺序的还是并行的，数据缓冲最少。
+		此外，一些操作被认为是短路操作。如果在无限输入条件下，中间操作可能会产生有限的流，那么它就是短路。终端操作是短路的，如果在无限输入条件下，终端操作可能在有限时间内终止。在管道中进行短路操作是处理无限流在有限时间内正常终止的必要但不充分的条件。
+		
+	Parallelism（并发）：
+		具有显式for循环的处理元素本质上是串行的。流通过将计算重新组合为聚合操作的管道，而不是作为每个单独元素上的强制操作，来促进并行执行。所有流操作都可以串行或并行执行。除非显式请求并行性，否则JDK中的流实现将创建串行流。例如，Collection有方法Collection.stream()和Collection.parallelStream()，分别生成顺序流和并行流；其他流承载方法（如IntStream.range(int, int) ）生成顺序流，但这些流可以通过调用其BaseStream.parallel()方法有效地并行化。要并行执行先前的“小部件权重总和”查询，我们将执行以下操作：
+		     int sumOfWeights = widgets.parallelStream()
+		                               .filter(b -> b.getColor() == RED)
+		                               .mapToInt(b -> b.getWeight())
+		                               .sum();		
+		此示例的串行和并行版本之间的唯一区别是使用“parallelStream()”而不是“stream()”创建初始流。当启动终端操作时，根据调用流的方向，流管道按顺序或并行执行。可以使用isParallel()方法确定流是串行执行还是并行执行，并且可以使用BaseStream.sequential()和BaseStream.parallel()操作修改流的方向。当启动终端操作时，根据调用流的模式，流管道按顺序或并行方式执行。	
+		除了被标识为显式不确定的操作（如findAny()）外，流是按顺序执行还是并行执行不应更改计算结果。	
+		大多数流操作接受描述用户指定行为的参数，这些参数通常是lambda表达式。为了保持正确的行为，这些行为参数必须是非干扰的，并且在大多数情况下必须是无状态的。此类参数始终是函数接口（如函数）的实例，并且通常是lambda表达式或方法引用。
 	
+	Non-interference（无干扰）：
+		流使您能够在各种数据源上执行可能的并行聚合操作，包括非线程安全的集合（如ArrayList）。只有在流管道的执行过程中，我们能够防止对数据源的干扰，这才是可能的。除了escape-hatch操作iterator()和spliterator()之外，执行从调用终端操作时开始，到终端操作完成时结束。对于大多数数据源，防止干扰意味着确保在流管道执行期间完全不修改数据源。值得注意的例外是，流的源是并发集合，专门设计用于处理并发修改。并发流源是那些其拆分器报告CONCURRENT特性的流源。
+		因此，源可能不并发的流管道中的行为参数不应修改流的数据源。如果行为参数修改或导致修改流的数据源，则称其干扰非并发数据源。不受干扰的要求适用于所有管道，而不仅仅是并行管道。除非流源是并发的，否则在流管道执行期间修改流的数据源可能会导致异常、不正确的答案或不一致的行为。对于性能良好的流源，可以在终端操作开始前修改源，这些修改将反映在覆盖的元素中。例如，考虑以下代码：
+		     List<String> l = new ArrayList(Arrays.asList("one", "two"));
+		     Stream<String> sl = l.stream();
+		     l.add("three");
+		     String s = sl.collect(joining(" "));		
+		首先，创建一个由两个字符串组成的列表：“one”和“two”。然后从该列表创建流。接下来，通过添加第三个字符串来修改列表：“three”。最后，收集流的元素并将其连接在一起。由于在终端收集操作开始之前修改了列表，结果将是一个字符串“one two three”。从JDK集合和大多数其他JDK类返回的所有流都以这种方式运行良好；对于其他库生成的流，请参阅低级流构造以了解构建运行良好的流的要求。
+	
+	Stateless behaviors（无状态行为）：
+		如果流操作的行为参数是有状态的，则流管道结果可能是不确定的或不正确的。有状态lambda（或实现适当功能接口的其他对象）的结果取决于流管道执行期间可能更改的任何状态。状态lambda的一个示例是map()的参数：	
+		     Set<Integer> seen = Collections.synchronizedSet(new HashSet<>());
+		     stream.parallel().map(e -> { if (seen.add(e)) return 0; else return e; })...	
+		在这里，如果映射操作是并行执行的，由于线程调度的不同，相同输入的结果可能因运行而异，而对于无状态lambda表达式，结果总是相同的。	
+		还要注意，尝试从行为参数访问可变状态在安全性和性能方面给您带来了一个错误的选择；如果您不同步对该状态的访问，您将有一个数据竞争，因此您的代码被破坏，但是如果您同步对该状态的访问，您将面临争用破坏并行性的风险。你想从中获益。最好的方法是完全避免流操作的状态行为参数；通常有一种方法可以重新构造流管道以避免状态操作。
+		
+	Side-effects（副作用）：
+		一般来说，流操作的行为参数中的副作用是不鼓励的，因为它们通常会导致无意中违反无状态要求，以及其他线程安全隐患。	
+		如果行为参数确实有副作用，除非明确说明，否则无法保证这些副作用对其他线程的可见性，也无法保证在同一个流管道中对“相同”元素执行的不同操作在同一线程中执行。此外，这些影响的排序可能令人惊讶。即使管道被约束以生成与流源的遇到顺序一致的结果（例如，IntStream.range(0,5).parallel().map(x -> x*2).toArray()必须生成 [0, 2, 4, 6, 8]），也不能保证映射器函数应用于单个元素的顺序，或者对于给定元素的任何行为参数在哪个线程中的执行顺序，都不作任何保证。
+		许多可能会使用副作用的计算可以更安全、更有效地表达，而不产生副作用，例如使用约简而不是可变累加器。但是，诸如使用println()进行调试之类的副作用通常是无害的。少数流操作（如forEach() 和peek()）只能通过副作用进行操作；这些操作应该小心使用。
+		作为如何将不适当使用副作用的流管道转换为不适当使用副作用的流管道的示例，以下代码在字符串流中搜索与给定正则表达式匹配的字符串，并将匹配项放入列表中。
+		     ArrayList<String> results = new ArrayList<>();
+		     stream.filter(s -> pattern.matcher(s).matches())
+		           .forEach(s -> results.add(s));  //不必要地使用副作用！
+		此代码不必要地使用副作用。如果并行执行，ArrayList的非线程安全性将导致不正确的结果，并且添加所需的同步将导致争用，从而损害并行的好处。此外，在这里使用副作用是完全不必要的；forEach()可以简单地替换为更安全、更高效、更易于并行化的约简（reduction）操作：
+			List<String>results =
+		         stream.filter(s -> pattern.matcher(s).matches())
+		               .collect(Collectors.toList());  // No side-effects!	
+	
+	Ordering（排序）：
+		流可能或可能没有定义的遭遇顺序。流是否具有遭遇顺序取决于源和中间操作。某些流源（如列表或数组）本质上是有序的，而其他流源（如HashSet）则不是有序的。某些中间操作（如sorted()）可能会对其他无序流施加一个遭遇顺序，而其他操作可能会使有序流无序，如BaseStream.unordered()。此外，一些终端操作可能会忽略遭遇顺序，例如forEach()。
+		如果流是有序的，那么大多数操作都被约束为以遇到的顺序对元素进行操作；如果流的源是一个包含[1, 2, 3]的列表，那么执行map（x->x*2）的结果必须是[2,4,6]。但是，如果源没有定义的遭遇顺序，那么值[2、4、6]的任何排列都将是有效的结果。
+		对于顺序流，遭遇顺序的presence或absence不影响性能，只影响确定性。如果对流进行了排序，则在相同的源上重复执行相同的流管道将产生相同的结果；如果不进行排序，则重复执行可能会产生不同的结果。
+		对于并行流，宽松的排序约束有时可以实现更高效的执行。如果元素的排序无关紧要，则可以更有效地实现某些聚合操作，例如过滤重复项（distinct()）或分组约简（Collectors.groupingBy()）。类似地，与遭遇顺序本质上相关联的操作（如limit()）可能需要缓冲以确保正确的顺序，从而破坏并行性的好处。在流具有遭遇顺序但用户不特别关心该遭遇顺序的情况下，使用unordered()显式取消对流的排序可能会提高某些有状态或终端操作的并行性能。但是，大多数流管道，例如上面的“块的重量总和”示例，即使在排序约束下，仍然有效地并行化。
+	
+	Reduction operations（约简操作）：
+		约简操作（也称为重叠）接受一系列输入元素，并通过重复应用组合操作（例如查找一组数字的和或最大值）或将元素累积到列表中，将它们组合成单个摘要结果。流类具有多种形式的常规约简操作，称为reduce()和collect()，以及多种专门化的约简形式，如sum()、max()或count()。
+		当然，这种操作可以很容易地实现为简单的顺序循环，如：
+		    int sum = 0;
+		    for (int x : numbers) {
+		       sum += x;
+		    }	
+		然而，有充分的理由选择约简（reduce）操作，而不是像上面这样的突变积累。约简不仅“更抽象”（它作为一个整体而不是单个元素对流进行操作），而且正确构造的reduce操作本质上是可并行的，只要用于处理元素的函数是关联的和无状态的。例如，给定一个要求和的数字流，我们可以写：	
+			int sum = numbers.stream().reduce(0, (x,y) -> x+y);
+		或者
+			int sum = numbers.stream().reduce(0, Integer::sum);
+		这些约简操作可以在几乎没有修改的情况下安全并行运行：
+			int sum = numbers.parallelStream().reduce(0, Integer::sum);
+		因为实现可以并行地操作数据的子集，然后将中间结果组合起来得到最终正确的答案，所以约简操作可以很好地并行。（即使该语言有一个“parallel for-each”结构，变化累积方法仍然需要开发人员提供共享累积变量和的线程安全更新，然后所需的同步可能会从并行性中消除任何性能增益。）相反，使用reduce（）可以消除并行化reduce操作的所有负担，并且库可以提供一个高效的并行实现，不需要额外的同步。
+		前面显示的“widgets”示例显示了如何将约简操作与其他操作结合起来，用批量操作替换循环。如果widgets是Widget对象的集合，它们有一个getWeight方法，那么我们可以通过以下方式找到最重的widget：
+		     OptionalInt heaviest = widgets.parallelStream()
+		                                   .mapToInt(Widget::getWeight)
+		                                   .max();		
+		在更一般的形式中（泛型），对类型为<t>的元素执行reduce操作，得到类型为<u>的结果需要三个参数：
+		 <U> U reduce(U identity,
+		              BiFunction<U, ? super T, U> accumulator,
+		              BinaryOperator<U> combiner);		
+		这里，identity元素既是约简操作的初始种子值，也是没有输入元素时的默认结果。accumulator函数接受部分结果和下一个元素，并生成一个新的部分结果。combiner函数组合两个部分结果以生成新的部分结果。（combiner在并行约简操作中是必需的，在这种情况下，对输入进行分区，为每个分区计算一个部分累积，然后将部分结果合并，以生成最终结果。）
+		更正式地说，identity值必须是combiner函数的identity。这意味着对于所有u，combiner.apply(identity, u)等于u。此外，combiner函数必须是关联的，并且必须与accumulator函数兼容：对于所有u和t，combiner.apply(u, accumulator.apply(identity, t))必须是equals()到accumulator.apply(u, t)。
+		三元形式是两元形式的推广，将映射步骤纳入累积步骤。我们可以使用更一般的形式重新生成简单的权重和示例，如下所示：
+		    int sumOfWeights = widgets.stream()
+		                               .reduce(0,
+		                                       (sum, b) -> sum + b.getWeight())
+		                                       Integer::sum);		
+		尽管显式的map-reduce形式更易于阅读，因此通常应首选。对于将映射和约简结合为一个函数可以优化重要工作的情况，给出了广义形式。
+		
+	Mutable reduction（可变约简）：	
+		可变约简操作在处理流中的元素时，将输入元素累积到可变结果容器中，例如Collection或StringBuilder。
+		如果我们想要获取一个字符串流并将它们连接成一个长字符串，我们可以通过普通的约简来实现这一点：
+			String concatenated = strings.reduce("", String::concat)
+		我们会得到期望的结果，甚至可以并行工作。不过，我们可能对这次演出不太满意！这样的实现将进行大量的字符串复制，并且运行时间将是字符数为O(n^2)。更具性能的方法是将结果累积到一个StringBuilder中，它是一个用于累积字符串的可变容器。我们可以使用与普通约简相同的技术来并行可变约简。
+		可变约简操作称为collect()，因为它将所需结果收集到结果容器（如Collection）中。收集操作需要三个函数：一个供应商函数来构造结果容器的新实例，一个累加器函数将输入元素合并到结果容器中，一个组合函数将结果容器的内容合并到另一个结果容器中。其形式与普通约简法的一般形式非常相似：
+			 <R> R collect(Supplier<R> supplier,
+	               BiConsumer<R, ? super T> accumulator,
+	               BiConsumer<R, R> combiner);
+		与reduce()一样，用这种抽象的方式表达collect的好处是它可以直接并行化：我们可以并行地累积部分结果，然后将它们组合起来，只要累积和组合函数满足适当的要求。例如，要将流中元素的字符串表示形式收集到ArrayList中，我们可以为每种形式编写明显的序列：
+		     ArrayList<String> strings = new ArrayList<>();
+		     for (T element : stream) {
+		         strings.add(element.toString());
+		     }
+		或者我们可以使用可并行收集形式：
+			ArrayList<String> strings = stream.collect(() -> new ArrayList<>(),
+			                                                (c, e) -> c.add(e.toString()),
+			                                                (c1, c2) -> c1.addAll(c2));			
+		或者，将映射操作从累加器（accumulator）函数中拉出，我们可以更简洁地表示为：
+		    List<String> strings = stream.map(Object::toString)
+		                                  .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);			
+		这里，我们的供应商只是ArrayList构造函数，累加器将字符串化元素添加到ArrayList，合并器只使用addAll将字符串从一个容器复制到另一个容器中。
+		collect的三个方面————供应商、累加器和合并器————是紧密耦合的。我们可以使用收集器的抽象来捕获所有三个方面。上述将字符串收集到列表中的示例可以使用标准收集器重写为：
+			     List<String> strings = stream.map(Object::toString)
+                                  .collect(Collectors.toList());
+       	 将可变约简打包到收集器中还有一个优点：可组合性。类Collectors包含许多用于收集器的预定义工厂，包括将一个收集器转换为另一个收集器的组合器。例如，假设我们有一个收款人计算一批员工的工资总额，如下所示：
+		     Collector<Employee, ?, Integer> summingSalaries
+		         = Collectors.summingInt(Employee::getSalary);		
+		（第二个类型参数的？仅表示我们不关心此收集器使用的中间表示。）如果我们要创建一个收集器来按部门列出工资总额，可以使用groupingBy重用summingSalaries：
+			Map<Department, Integer> salariesByDept
+			         = employees.stream().collect(Collectors.groupingBy(Employee::getDepartment,
+			                                                            summingSalaries));			
+		与常规的约简操作一样，collect()操作只能在满足适当条件的情况下并行。对于任何部分累积的结果，将其与空结果容器组合必须产生等效的结果。也就是说，对于任何一系列累加器和合并器调用的部分累积结果p，p必须等于combiner.apply(p, supplier.get())。
+		此外，无论计算如何拆分，它都必须产生等效的结果。对于任何输入元素t1和t2，下面计算中的结果r1和r2必须相等：
+		     A a1 = supplier.get();
+		     accumulator.accept(a1, t1);
+		     accumulator.accept(a1, t2);
+		     R r1 = finisher.apply(a1);  // result without splitting
+		
+		     A a2 = supplier.get();
+		     accumulator.accept(a2, t1);
+		     A a3 = supplier.get();
+		     accumulator.accept(a3, t2);
+		     R r2 = finisher.apply(combiner.apply(a2, a3));  // result with splitting		
+		在这里，等价通常是根据Object.equals(Object)来表示的。但在某些情况下，为了解释顺序上的差异，等价性可以放宽。
 
+	Reduction, concurrency, and ordering(约简、并发和排序)：
+		通过一些复杂的约简操作，例如collect()生成一个映射，例如：
+	    	 Map<Buyer, List<Transaction>> salesByBuyer
+	        	 = txns.parallelStream()
+	               .collect(Collectors.groupingBy(Transaction::getBuyer));		
+		并行执行操作实际上可能会适得其反。这是因为对于某些Map实现来说，组合步骤（按键将一个映射合并到另一个映射）可能代价高昂。
+		然而，假设在这个约简操作中使用的结果容器是一个可同时修改的集合————例如ConcurrentHashMap。在这种情况下，收集器的并行调用实际上可以将结果并发地存储到同一共享结果容器中，从而消除了合并器合并不同结果容器的需要。这可能会提高并行执行性能。我们称之为并行约简。	
+		支持并行约简的收集器用Collector.Characteristics.CONCURRENT特性标记。然而，并发收集也有缺点。如果多个线程同时将结果存放在共享容器中，则结果存放的顺序是不确定的。因此，只有当排序对于正在处理的流不重要时，才可能并发约简。只有在以下情况下，Stream.collect(Collector)实现才会执行并发约简：
+			● 并发流；
+			● 收集器（collector）具有Collector.Characteristics.CONCURRENT特性，并且；
+			● 流是无序的，或者收集器具有Collector.Characteristics.UNORDERED特性。
+		可以使用BaseStream.unordered()方法确保流无序。例如：
+		     Map<Buyer, List<Transaction>> salesByBuyer
+		         = txns.parallelStream()
+		               .unordered()
+		               .collect(groupingByConcurrent(Transaction::getBuyer));			
+		Collectors.groupingByConcurrent(java.util.function.Function<? super T, ? extends K>)是groupingBy的并发等效项。
+		注意，如果一个给定键的元素按照它们在源代码中出现的顺序出现是很重要的，那么我们就不能使用并发约简操作，因为排序是并发插入的一个牺牲品。然后我们将被约束来实现顺序约简或基于合并的并行约简。
+		
+	Associativity（关联操作）：
+		如果以下条件成立，运算符或函数op是关联的：
+			 (a op b) op c == a op (b op c)
+		如果我们将此扩展到四个项，可以看出这对并行评估的重要性：
+			a op b op c op d == (a op b) op (c op d)
+		所以我们可以和（c op d）并行地评估（a op b），然后对结果调用op。
+		关联操作的示例包括数字加法、最小值和最大值以及字符串连接。
+	
+	Low-level stream construction（创建低级别流）：
+		到目前为止，所有流示例都使用了Collection.stream()或Arrays.stream(Object[])等方法来获取流。这些流承载方法是如何实现的？
+		StreamSupport类有许多用于创建流的低级方法，都使用某种形式的拆分器（Spliterator）。Spliterator是迭代器的并行模拟；它描述了一个（可能是无限的）元素集合，支持按顺序前进、批量遍历，并将输入的某些部分拆分为另一个拆分器，可以并行处理。在最低级别，所有流都由拆分器驱动。
+		在实现一个拆分器时有许多实现选择，几乎所有选择都是在使用该拆分器的流的简单实现和运行时性能之间进行权衡。创建拆分器的最简单但性能最差的方法是使用Spliterators.spliteratorUnknownSize(java.util.Iterator, int)从迭代器创建一个拆分器。虽然这样的拆分器可以工作，但它可能会提供较差的并行性能，因为我们已经丢失了大小调整信息（基础数据集有多大），并且被限制为简单的拆分算法。
+		更高质量的拆分器将提供平衡的已知大小拆分、准确的大小调整信息以及拆分器的许多其他特性或可供实现优化执行的数据。
+		可变数据源的拆分器还有一个额外的挑战：绑定到数据的时间，因为数据可能在创建拆分器的时间和执行流管道的时间之间发生更改。理想情况下，流的拆分器将报告不可变（IMMUTABLE）或并发（CONCURRENT）特性；如果不是，则应为后期绑定。如果源不能直接提供推荐的拆分器，则可以使用Supplier间接提供拆分器，并通过Supplier-accepting的stream()版本。只有在流管道的终端操作开始后，才能从供应商处获得拆分器。
+		这些要求显著降低了流源突变和流管道执行之间潜在干扰的范围。基于具有所需特性的拆分器的流，或使用基于供应商的工厂形式的流，在终端操作开始前不受数据源修改的影响（前提是流操作的行为参数满足无干扰和无状态的要求标准）。有关详细信息，请参见“无干扰”。	
+
+
+
+		
 Interface Summary（接口概要）
 	BaseStream
 	Collector
@@ -30,10 +213,14 @@ Class Summary(类概要)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 附录：
-	1、
-	
-	
-	
+	1、Laziness-seeking：延迟搜索。Stream 的很多操作如 filter、map、sort 和 duplicate removal(去重）可以延迟实现，意思是我们只要检查到满足要求的元素就可以返回。
+	2、side-effect：副作用。是针对操作(表达式)而言的，一个操作/表达式有“副作用”是指在对该表达式求值时，会改变程序的一个或多个数据，以致再次对该表达式求值时，可能会得出不同的结果。事实上，Java的4种表达式语句如赋值、自增自减、方法调用、对象创建都可能带来副作用。
+		方法的副作用：一个方法的执行，如果在返回一个值之外还导致某些外部“状态”发生变化，则称该方法产生了副作用。这里所谓“状态”发生变化，可以是实例域或静态变量被修改、方法的实参被修改(Java 中不会出现这种情况。但是实参为引用时，其指向的对象可能被修改从而产生副作用)、将数据传递给显示器、打印机或存入文件中等等。
+		当然，方法内部的表达式也会出现副作用，如果它仅仅影响局部变量而不影响外部状态，则方法没有副作用。基于副作用概念，定义两个术语：
+			<1>、  有返回值而且没有副作用的方法称为函数(function)。
+			<2>、没有返回值的方法必然有副作用，除非它的方法体是空的或者方法没有意义。所以，没有返回值的方法、有返回值但有副作用的方法称为过程(procedure)或命令(command)。简言之，有副作用的方法称为过程。
+		如此严格地定义出函数的概念，是因为函数使得系统的状态稳定，函数的行为容易预测。更进一步，如果函数是纯粹的函数(pure function，纯函数)——它的输出值依靠和仅仅依靠其输入、对于相同的输入总是返回相同的值，(由于纯函数的纯粹和无副作用)对纯函数的调用就能够被一个值取代(或者说，将方法视为一个值)，这就是函数式编程语言中著名的引用透明(referentialtransparency)特性。
+
 	
 		
 		

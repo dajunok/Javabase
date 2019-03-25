@@ -1,0 +1,61 @@
+-----------------------------------------DoubleStream-----------------------------------------------------------------------------------------------------------------------------		
+DoubleStream：Double流。 【Since:1.8】
+	支持顺序和并行聚合操作的原始double值元素序列。这是原始专门化double流。
+	下面的示例说明了使用Stream和DoubleStream的聚合操作，计算红色weights的权重之和：
+	     double sum = widgets.stream()
+	                         .filter(w -> w.getColor() == RED)
+	                         .mapToDouble(w -> w.getWeight())
+	                         .sum();	
+	有关流、流操作、流管道和并行性的其他规范，请参阅流的类文档和java.util.stream的包文档。
+	
+	
+	接口定义	：public interface DoubleStream extends BaseStream<Double, DoubleStream>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	builder():static Builder 
+	concat(DoubleStream a, DoubleStream b):static DoubleStream 
+	DoubleStream empty():static 
+	generate(DoubleSupplier s):static DoubleStream 
+	iterate(final double seed, final DoubleUnaryOperator f):static DoubleStream 
+	of(double t):static DoubleStream 
+	of(double... values):static DoubleStream 
+	allMatch(DoublePredicate predicate):boolean 
+	anyMatch(DoublePredicate predicate):boolean 
+	average():OptionalDouble 
+	boxed():Stream<Double> 
+	collect(Supplier<R> supplier,ObjDoubleConsumer<R> accumulator,BiConsumer<R, R> combiner):<R> R
+	count():long 
+	distinct():DoubleStream 
+	filter(DoublePredicate predicate):DoubleStream 
+	findAny():OptionalDouble 
+	findFirst():OptionalDouble 
+	flatMap(DoubleFunction<? extends DoubleStream> mapper):DoubleStream 
+	forEach(DoubleConsumer action):void 
+	forEachOrdered(DoubleConsumer action):void 
+	iterator():PrimitiveIterator.OfDouble 
+	limit(long maxSize):DoubleStream 
+	map(DoubleUnaryOperator mapper):DoubleStream 
+	mapToInt(DoubleToIntFunction mapper):IntStream 
+	mapToLong(DoubleToLongFunction mapper):LongStream 
+	mapToObj(DoubleFunction<? extends U> mapper):<U> Stream<U> 
+	max():OptionalDouble 
+	min():OptionalDouble 
+	noneMatch(DoublePredicate predicate):boolean 
+	parallel():DoubleStream 
+	peek(DoubleConsumer action):DoubleStream 
+	reduce(double identity, DoubleBinaryOperator op):double 
+	reduce(DoubleBinaryOperator op):OptionalDouble 
+	sequential():DoubleStream 
+	skip(long n):DoubleStream 
+	sorted():DoubleStream 
+	spliterator():Spliterator.OfDouble 
+	sum():double 
+	summaryStatistics():DoubleSummaryStatistics 
+	toArray():double[] 
+	
+	 
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	
