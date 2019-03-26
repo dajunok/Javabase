@@ -10,6 +10,7 @@ DoubleStream：Double流。 【Since:1.8】
 	
 	
 	接口定义	：public interface DoubleStream extends BaseStream<Double, DoubleStream>
+	嵌套接口	：Builder
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	builder():static Builder 
 		返回DoubleStream的生成器。
@@ -73,37 +74,181 @@ DoubleStream：Double流。 【Since:1.8】
 		这是一个终端操作。
 		返回约简（reduction）操作的结果。
 	count():long 
-		
+		返回此流中元素的计数。这是一种特殊的约简（reduction）情况，相当于：
+			 return mapToLong(e -> 1L).sum();
+		这是一个终端操作。
 	distinct():DoubleStream 
+		返回由该流的不同元素组成的流。根据Double.compare(double, double)。
+		这是一个有状态的中间操作。
 	filter(DoublePredicate predicate):DoubleStream 
+		predicate - 应用于每个元素以确定是否应包含该元素的非干扰无状态谓词。
+		返回由该流中与给定谓词匹配的元素组成的流。
+		这是一个中间操作。
 	findAny():OptionalDouble 
+		返回描述流的某个元素的OptionalDouble，如果流为空，则返回空的OptionalDouble。
+		这是一种短路终端操作。
+		此操作的行为显式地不确定；可以自由选择流中的任何元素。这是为了在并行操作中获得最大的性能；代价是同一个源上的多个调用可能不会返回相同的结果。（如果需要稳定的结果，请改用findfirst（）。
 	findFirst():OptionalDouble 
+		返回描述此流的第一个元素的OptionalDouble，或者返回空的OptionalDouble（如果流为空）。如果流没有遭遇顺序，则可以返回任何元素。
+		这是一种短路终端操作。
 	flatMap(DoubleFunction<? extends DoubleStream> mapper):DoubleStream 
+		mapper - 一个无干扰、无状态的函数，用于产生新值的DoubleStream的每个元素。
+		返回一个流，该流由将此流的每个元素替换为通过将提供的映射函数应用于每个元素而生成的映射流的内容的结果组成。在将每个映射流的内容放入此流后，将关闭每个映射流。（如果映射流为空，则使用空流。）
+		这是一个中间操作。
 	forEach(DoubleConsumer action):void 
+		action - 对元素执行的非干扰操作
+		为此流的每个元素执行操作。
+		这是一个终端操作。
+		对于并行流管道，此操作不保证遵守流的遭遇顺序，因为这样做会牺牲并行的好处。对于任何给定的元素，可以在库选择的任何时间和线程中执行操作。如果操作访问共享状态，它负责提供所需的同步。
 	forEachOrdered(DoubleConsumer action):void 
+		action - 对元素执行的非干扰操作
+		对该流的每个元素执行一个操作，确保对具有定义的遇到顺序的流按遇到顺序处理每个元素。
+		这是一个终端操作。
 	iterator():PrimitiveIterator.OfDouble 
+		△ 返回此流元素的迭代器。
+		这是一个终端操作。		
 	limit(long maxSize):DoubleStream 
+		maxSize - 流应限制的元素数量
+		返回由该流的元素组成的流，截断后的长度不超过MaxSize。
+		这是一个短路状态的中间操作。
+		虽然limit()在顺序流管道上通常是一个廉价的操作，但在有序的并行管道上可能会非常昂贵，特别是对于maxSize的大值，因为limit(n)被约束返回的不仅仅是任何n个元素，而是遇到顺序中的前n个元素。使用无序流源（例如generate(DoubleSupplier)）或使用BaseStream.unordered()删除排序约束可能会导致并行管道中limit()的显著加速。如果需要与遇到顺序保持一致，并且并行管道中的limit()性能或内存利用率较差，则使用sequential()切换到顺序执行可能会提高性能。
+		【Throws】：
+			IllegalArgumentException 如果maxSize为负数。
 	map(DoubleUnaryOperator mapper):DoubleStream 
+		mapper - 应用于每个元素的无干扰无状态函数。
+		返回由将给定函数应用于此流元素的结果组成的流。
+		这是一个中间操作。		
 	mapToInt(DoubleToIntFunction mapper):IntStream 
+		mapper - 应用于每个元素的无干扰无状态函数。
+		返回由将给定函数应用于此流元素的结果组成的IntStream。
+		这是一个中间操作。
 	mapToLong(DoubleToLongFunction mapper):LongStream 
+		mapper - 应用于每个元素的无干扰无状态函数。
+		返回由将给定函数应用于此流元素的结果组成的LongStream。
+		这是一个中间操作。
 	mapToObj(DoubleFunction<? extends U> mapper):<U> Stream<U> 
+		<U> - 新流的元素类型
+		mapper - 应用于每个元素的无干扰无状态函数。
+		返回一个对象值流，该流由将给定函数应用于此流元素的结果组成。
+		这是一个中间操作。
 	max():OptionalDouble 
+		返回描述此流的最大元素的OptionalDouble，如果此流为空，则返回空的OptionalDouble。如果任何流元素为NaN，则最大元素将为Double.NaN。与数值比较运算符不同，该方法认为负零严格小于正零。这是一种特殊的约简（reduction）情况，相当于：
+			return reduce(Double::max);
+		这是一个终端操作。
 	min():OptionalDouble 
+		返回描述此流的最小元素的OptionalDouble，如果此流为空，则返回空的OptionalDouble。如果任何流元素为NaN，则最小元素将为Double.NaN。与数值比较运算符不同，该方法认为负零严格小于正零。这是一种特殊的约简（reduction）情况，相当于：
+			return reduce(Double::min);
+		这是一个终端操作。
 	noneMatch(DoublePredicate predicate):boolean 
+		predicate - 应用于此流元素的非干扰无状态谓词
+		返回此流中是否没有元素与提供的谓词匹配。如果不需要确定结果，则不能在所有元素上计算谓词。如果流为空，则返回true，不计算谓词。
+		这是一种短路终端操作。
+		如果流中没有与提供的谓词匹配的元素或流为空，则为true，否则为false。
 	parallel():DoubleStream 
+		△ 返回并行的等效流。可能返回自身，原因可能是流已并行，或者基础流状态已修改为并行。
+		这是一个中间操作。
 	peek(DoubleConsumer action):DoubleStream 
+		action - 在元素从流中消耗时对其执行的非干扰操作。
+		返回一个由该流的元素组成的流，此外，当元素从结果流中消耗时，对每个元素执行所提供的操作。
+		这是一个中间操作。
+		对于并行流管道，可以在任何时间调用该操作，也可以在上游操作使元素可用的任何线程中调用该操作。如果操作修改了共享状态，则它负责提供所需的同步。
+		此方法主要用于支持调试，您希望在元素流过管道中的某个点时看到这些元素：
+		     DoubleStream.of(1, 2, 3, 4)
+		         .filter(e -> e > 2)
+		         .peek(e -> System.out.println("Filtered value: " + e))
+		         .map(e -> e * e)
+		         .peek(e -> System.out.println("Mapped value: " + e))
+		         .sum();		
 	reduce(double identity, DoubleBinaryOperator op):double 
+		identity - 累积函数的标识值
+		op - 用于组合两个值的关联、非干扰、无状态函数	
+		使用提供的标识值和关联累积函数对该流的元素执行约简（reduction）操作，并返回约简的值。这相当于：	
+		     double result = identity;
+		     for (double element : this stream)
+		         result = accumulator.applyAsDouble(result, element)
+		     return result;	
+		但不限于按顺序执行。
+		标识值必须是累积器函数的标识。这意味着对于所有x，accumulator.apply(identity, x)都等于x。accumulator函数必须是一个关联函数。	
+		这是一个终端操作。
+		求和（sum）、最小值（Min）、最大值(Max)和平均值(average)都是简约操作（reduction）的特殊情况。数字流的求和可以表示为：
+			double sum = numbers.reduce(0, (a, b) -> a+b);
+		或者更紧凑：
+			double sum = numbers.reduce(0, Double::sum);
+		与简单改变循环中的运行总数相比，这似乎是执行聚合的一种更为迂回的方式，但简约操作（reduction）更为优雅地并行，不需要额外的同步，并且大大降低了数据竞争的风险。
 	reduce(DoubleBinaryOperator op):OptionalDouble 
+		op - 用于组合两个值的关联、非干扰、无状态函数	
+		使用关联累积函数对该流的元素执行约简（reduction）操作，并返回描述约简值（如果有）的OptionalDouble。这相当于：
+		     boolean foundAny = false;
+		     double result = null;
+		     for (double element : this stream) {
+		         if (!foundAny) {
+		             foundAny = true;
+		             result = element;
+		         }
+		         else
+		             result = accumulator.applyAsDouble(result, element);
+		     }
+		     return foundAny ? OptionalDouble.of(result) : OptionalDouble.empty();		
+		但不限于按顺序执行。
+		累积器函数必须是关联函数。
+		这是一个终端操作。
 	sequential():DoubleStream 
+		△ 返回顺序的等效流。可能返回自身，可能是因为流已经是连续的，也可能是因为基础流状态被修改为连续的。
+		这是一个中间操作。
 	skip(long n):DoubleStream 
+		n - 要跳过的前导元素数
+		返回在丢弃流的前n个元素后由该流的其余元素组成的流。如果此流包含的元素少于n个，则返回空流。
+		这是一个有状态的中间操作。
+		虽然skip()在顺序流管道上通常是一个廉价的操作，但是在有序的并行管道上，它可能会非常昂贵，特别是对于n的大值，因为skip（n）不仅限于跳过任何n个元素，而且必须跳过遇到顺序中的前n个元素。使用无序流源（例如generate(DoubleSupplier)）或使用BaseStream.unordered()删除排序约束可能会导致并行管道中skip()的显著加速。如果需要与遇到顺序保持一致，并且在并行管道中使用skip()时性能或内存利用率较差，则使用sequential()切换到顺序执行可能会提高性能。
+		【Throws】：
+			IllegalArgumentException 如果n为负数。
 	sorted():DoubleStream 
+		返回由此流的元素按排序顺序组成的流。根据Double.compare(double, double)对元素进行相等比较。
+		这是一个有状态的中间操作。
 	spliterator():Spliterator.OfDouble 
-	sum():double 
+		△ 返回此流元素的拆分器。
+		这是一个终端操作。
+	sum():double
+		返回此流中元素的总和。求和是约简操作（reduction）的一种特殊情况。如果浮点求和是精确的，则此方法相当于： 
+			return reduce(0, Double::sum);
+		然而，由于浮点求和不精确，上述代码不一定等于该方法所做的求和计算。
+		如果任何流元素是NaN或总和在任何点是NaN，则总和将是NaN。浮点和的值是输入值和加法运算顺序的函数。为了提高计算结果的速度和准确性，有意不定义此方法的加法运算顺序，以允许实现灵活性。特别是，这种方法可以使用补偿求和或其他技术来实现，与简单的双值求和相比，减少数值求和中的误差范围。
+		这是一个终端操作。
+		通过增加绝对量排序的元素往往会产生更精确的结果。
 	summaryStatistics():DoubleSummaryStatistics 
+		返回描述有关此流元素的各种摘要数据的DoubleSummaryStatistics。这是一种特殊的约简操作（reduction）情况。
+		这是一个终端操作。
 	toArray():double[] 
-	
-	 
+		△ 返回包含此流元素的数组。
+		这是一个终端操作。
 		
+		
+-----------------------------------------1、DoubleStream.Builder-----------------------------------------------------------------------------------------------------------------------------		
+1、Builder：生成器（或称构建器）。 【Since:1.8】
+	DoubleStream的可变生成器。
+	流生成器有一个生命周期，该生命周期从构建阶段开始，在此期间可以添加元素，然后过渡到构建阶段，在此之后不能添加元素。当build()方法被调用时，构建阶段就开始了，该方法创建一个有序流，其元素是按添加顺序添加到流生成器中的元素。
+	
+
+	接口定义	：public static interface Builder extends DoubleConsumer
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	 
+	accept(double t):void
+		t - 输入参数
+		向正在生成的流添加元素。 
+		【Throws】：
+			IllegalStateException 如果生成器已转换为构建状态
+	add(double t):default Builder 
+		t - 要添加的元素。
+		向正在生成的流添加元素。	
+		默认实现的行为类似于：
+			accept(t)
+			return this;
+		【Throws】：
+			IllegalStateException 如果生成器已转换为构建状态		
+	build():DoubleStream 
+		生成流，将此生成器转换为构建状态。如果在构建器进入构建状态后有进一步的操作尝试，则会引发IllegalStateException异常。
+		【Throws】：
+			IllegalStateException 如果生成器已转换为构建状态	
+			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
