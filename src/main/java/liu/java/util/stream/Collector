@@ -1,0 +1,101 @@
+-----------------------------------------Collector<T, A, R>-----------------------------------------------------------------------------------------------------------------------------		
+Collector<T, A, R>：收集器。 【Since:1.8】
+	<T> - 约简操作（reduction）的输入元素类型
+	<A> - 约简操作（reduction）的可变累积类型（通常隐藏为实现细节）
+	<R> -  约简操作（reduction）的结果类型	
+	一种可变约简操作（reduction），将输入元素累积到可变结果容器中，在处理完所有输入元素后，可以选择将累积的结果转换为最终表示。约简操作可以按顺序执行，也可以并行执行。
+	可变约简操作的示例包括：将元素累积到集合中；使用StringBuilder连接字符串；计算有关元素（如sum、min、max或average）的摘要信息；计算“Pivot Table”摘要（如“maximum valued transaction by seller”）等。Collector类实现提供许多常见的可变约简（reduction）。
+	Collector由四个共同工作的函数指定，这些函数将条目累积到可变结果容器中，并可选地对结果执行最终转换。他们是：
+		● 创建新的结果容器（supplier()）
+		● 将新数据元素合并到结果容器中（accumulator()）
+		● 将两个结果容器组合为一个（combiner()）
+		● 对容器执行可选的最终转换（finisher()）
+	收集器还具有一组特性，例如Collector.Characteristics.CONCURRENT，这些特性提供了一些提示，可供约简（reduction）实现使用，以提供更好的性能。
+	使用收集器的约简（reduction）的顺序实现将使用supplier函数创建单个结果容器，并为每个输入元素调用一次accumulator函数。并行实现将对输入进行分区，为每个分区创建一个结果容器，将每个分区的内容累积到该分区的子结果中，然后使用combiner函数将子结果合并为一个组合结果。
+	为了确保顺序和并行执行产生等效的结果，收集器函数必须满足标识和关联性（associativity）约束。
+	identity约束表示，对于任何部分累积的结果，将其与空结果容器组合必须产生等效的结果。也就是说，对于任何一系列累积器（accumulator）和合并器（combiner）调用的部分累积结果a，a必须等于combiner.apply(a, supplier.get())。
+	associativity约束表示拆分计算必须产生等效结果。也就是说，对于任何输入元素t1和t2，下面计算中的结果r1和r2必须相等：
+	     A a1 = supplier.get();
+	     accumulator.accept(a1, t1);
+	     accumulator.accept(a1, t2);
+	     R r1 = finisher.apply(a1);  // 不拆分的结果
+	
+	     A a2 = supplier.get();
+	     accumulator.accept(a2, t1);
+	     A a3 = supplier.get();
+	     accumulator.accept(a3, t2);
+	     R r2 = finisher.apply(combiner.apply(a2, a3));  // 拆分后的结果	
+	对于没有UNORDERED特性的收集器，如果finisher.apply(a1).equals(finisher.apply(a2))，则累积的两个结果a1和a2相等。对于无序收集器，等价性可以放宽，以允许与排序差异相关的不相等。（例如，如果两个列表包含相同的元素，而忽略了排序，那么将元素累积到列表中的无序收集器将认为两个列表是等效的。）
+	基于收集器实现约简（reduction）的库（如Stream.collect(Collector)）必须遵守以下约束：
+		● 传递给accumulator函数的第一个参数、传递给Combiner函数的两个参数以及传递给finisher函数的参数必须是先前调用结果supplier、accumulator或combiner函数的结果。
+		● 该实现不应对任何结果supplier、accumulator或combiner函数的结果执行任何操作，除非将它们再次传递给accumulator、combiner或finisher函数，或者将它们返回给约简操作（reduction）的调用方。
+		● 如果将结果传递给合并器（combiner）或完成器（finisher）函数，并且同一对象没有从该函数返回，则不再使用该对象。
+		● 一旦结果传递给合并器（combiner）或完成器（finisher）函数，它就不会再传递给累积器（accumulator）函数。
+		● 对于非并发收集器，从supplier、accumulator或combiner函数返回的任何结果都必须是串行线程限制的。这使收集可以并行进行，而不需要收集器实现任何其他同步。约简（reduction）实现必须管理输入是否正确分区，分区是否单独处理，并且只有在累积完成后才进行组合。
+		● 对于并发收集器，实现可以自由地（但不需要）同时实现约简（reduction）。并发约简是指使用同一个可并发修改的结果容器从多个线程并发调用accumulator函数，而不是在累积期间保持结果独立。只有当收集器具有Collector.Characteristics.UNORDERED特性或原始数据无序时，才应应用并发约简。
+	除了收集器中的预定义实现之外，还可以使用（Supplier、BiConsumer、BinaryOperator、Characteristics…）的静态工厂方法来构造收集器。例如，您可以创建一个收集器，该收集器widgets累积到一个TreeSet中，使用：
+	     Collector<Widget, ?, TreeSet<Widget>> intoSet =
+	         Collector.of(TreeSet::new, TreeSet::add,
+	                      (left, right) -> { left.addAll(right); return left; });	
+	（此行为也由预定义的收集器Collectors.toCollection(Supplier)实现）。
+	使用收集器执行约简（reduction）操作应产生等同于以下结果的结果：
+	     R container = collector.supplier().get();
+	     for (T t : data)
+	         collector.accumulator().accept(container, t);
+	     return collector.finisher().apply(container);		
+	但是，库可以自由地对输入进行分区，对分区进行约简（reduction），然后使用combiner函数将部分结果组合起来，以实现并行约简。（取决于特定的约简操作，根据accumulator和combiner函数的相对成本，这可能会执行得更好或更差。）
+	Collector被设计为可以组合；Collector中的许多方法都是采用收集器并生成新收集器的函数。例如，假设以下收集器计算员工流的工资总和：
+		     Collector<Employee, ?, Integer> summingSalaries
+		         = Collectors.summingInt(Employee::getSalary))	
+	如果我们想要创建一个收集器来按部门列出工资总额，我们可以使用Collectors.groupingBy(Function, Collector)，重用“工资总额”逻辑：
+		     Collector<Employee, ?, Map<Department, Integer>> summingSalariesByDept
+		         = Collectors.groupingBy(Employee::getDepartment, summingSalaries);		
+	
+	
+	
+	
+	接口定义	：public interface Collector<T, A, R>
+	嵌套枚举	：Characteristics
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	of(Supplier<A> supplier,BiConsumer<A, T> accumulator,BinaryOperator<A> combiner,Function<A, R> finisher,Characteristics... characteristics):static<T, A, R> Collector<T, A, R> 	
+		<T> - 新收集器的输入元素类型
+		<A> - 新收集器的中间累积结果类型。
+		<R> - 新收集器的最终结果类型
+		supplier - 新收集器的供应商函数
+		accumulator - 新收集器的累积器函数
+		combiner - 新收集器的合并器函数
+		finisher - 新收集器的完成器函数
+		characteristics - 新收集器的收集器特性
+		返回由给定的supplier、accumulator、combiner和finisher函数描述的新收集器。
+		【Throws】：
+			NullPointerException - 如果任何参数为null。		
+	of(Supplier<R> supplier,BiConsumer<R, T> accumulator,BinaryOperator<R> combiner,Characteristics... characteristics):static<T, R> Collector<T, R, R> 	
+		<T> - 新收集器的输入元素类型
+		<R> - 新收集器的中间累积结果和最终结果的类型
+		supplier - 新收集器的供应商函数
+		accumulator - 新收集器的累积器函数
+		combiner - 新收集器的合并器函数
+		characteristics - 新收集器的收集器特性
+		返回由给定的supplier、accumulator和combiner函数描述的新收集器。生成的收集器具有Collector.Characteristics.IDENTITY_FINISH特性。
+		【Throws】：
+			NullPointerException - 如果任何参数为null。	
+	accumulator():BiConsumer<A, T> 
+		返回将值重叠到可变结果容器中的函数。
+	characteristics():Set<Characteristics> 
+		返回一组Collector.Characteristics，指示此收集器的特性。这个集合应该是不可变的。
+	combiner():BinaryOperator<A> 
+		接受两个部分结果并合并它们的函数。combiner函数可以将状态从一个参数重叠到另一个参数，并返回该参数，或者返回一个新的结果容器。
+		返回将两个部分结果组合成一个组合结果的函数。
+	finisher():Function<A, R> 
+		执行从中间积累类型A到最终结果类型R的最终转换。
+		如果设置了IDENTITY_TRANSFORM特性，则可以将此函数假定为具有从A到R的未选中转换的强制转换的标识转换。
+		返回将中间结果转换为最终结果的函数。
+	supplier():Supplier<A> 
+		创建并返回新可变结果容器的函数。
+
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	

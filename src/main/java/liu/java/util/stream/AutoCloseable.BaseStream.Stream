@@ -193,6 +193,7 @@ Stream<T>：流。 【Since:1.8】
 		predicate - 应用于此流元素的非干扰无状态谓词
 		返回此流中是否没有元素与提供的谓词匹配。如果不需要确定结果，则不能在所有元素上计算谓词。如果流为空，则返回true，不计算谓词。
 		这是一种短路终端操作。
+		此方法评估流元素上否定谓词的通用量化（对于所有x~P(x)）。如果流是空的，则称量化是空满足的，并且总是为true，不管p(x)是什么。
 		如果流中没有与提供的谓词匹配的元素或流为空，则为true，否则为false。
 	peek(Consumer<? super T> action):Stream<T> 
 		action - 在元素从流中消耗时对其执行的非干扰操作。
@@ -240,35 +241,54 @@ Stream<T>：流。 【Since:1.8】
 		累积器函数必须是关联函数。
 		这是一个终端操作。
 	reduce(U identity,BiFunction<U, ? super T, U> accumulator,BinaryOperator<U> combiner):<U> U 
-		///////////?????????????????????
-		
-	sequential():IntStream 
-		△ 返回顺序的等效流。可能返回自身，可能是因为流已经是连续的，也可能是因为基础流状态被修改为连续的。
-		这是一个中间操作。
-	skip(long n):IntStream 
+		<U> - 结果的类型
+		identity - 合并器函数的标识值
+		accumulator - 一种关联的、非干扰的、无状态的函数，用于将追加元素合并到结果中。
+		combiner - 用于组合两个值的关联、非干扰、无状态函数，必须与累积器函数兼容。		
+		使用提供的标识、累积和组合函数，对该流的元素执行约简（reduction）操作。这相当于：
+		     U result = identity;
+		     for (T element : this stream)
+		         result = accumulator.apply(result, element)
+		     return result;	
+		但不限于按顺序执行。
+		标识值必须是合并器函数的标识。这意味着对于所有u，combiner(identity, u)等于u。此外，合并器功能必须与累积器功能兼容；对于所有u和t，必须满足以下条件：	
+		 	combiner.apply(u, accumulator.apply(identity, t)) == accumulator.apply(u, t)
+		这是一个终端操作。
+		使用这种形式的许多约简（reduction）可以更简单地用map和reduce操作的显式组合来表示。accumulator函数充当一个融合的映射器和累积器，有时比单独的映射和约简更有效，例如当知道以前的约简值时，可以避免一些计算。
+		返回约简（reduction）操作的结果。
+	skip(long n):Stream<T> 
 		n - 要跳过的前导元素数
 		返回在丢弃流的前n个元素后由该流的其余元素组成的流。如果此流包含的元素少于n个，则返回空流。
 		这是一个有状态的中间操作。
-		虽然skip()在顺序流管道上通常是一个廉价的操作，但是在有序的并行管道上，它可能会非常昂贵，特别是对于n的大值，因为skip（n）不仅限于跳过任何n个元素，而且必须跳过遇到顺序中的前n个元素。使用无序流源（例如generate(IntSupplier)）或使用BaseStream.unordered()删除排序约束可能会导致并行管道中skip()的显著加速。如果需要与遇到顺序保持一致，并且在并行管道中使用skip()时性能或内存利用率较差，则使用sequential()切换到顺序执行可能会提高性能。
+		虽然skip()在顺序流管道上通常是一个廉价的操作，但是在有序的并行管道上，它可能会非常昂贵，特别是对于n的大值，因为skip（n）不仅限于跳过任何n个元素，而且必须跳过遇到顺序中的前n个元素。使用无序流源（例如generate(Supplier)）或使用BaseStream.unordered()删除排序约束可能会导致并行管道中skip()的显著加速。如果需要与遇到顺序保持一致，并且在并行管道中使用skip()时性能或内存利用率较差，则使用sequential()切换到顺序执行可能会提高性能。
 		【Throws】：
 			IllegalArgumentException 如果n为负数。
-	sorted():IntStream 
-		返回由此流的元素按排序顺序组成的流。
+	sorted():Stream<T> 
+		返回由该流的元素组成的流，按自然顺序排序。如果此流的元素不可比较，则在执行终端操作时可能会引发java.lang.ClassCastException异常。
+		对于有序流，排序是稳定的。对于无序流，不提供稳定性保证。
 		这是一个有状态的中间操作。
-	spliterator():Spliterator.OfInt 
-		△ 返回此流元素的拆分器。
+	sorted(Comparator<? super T> comparator):Stream<T> 
+		comparator - 用于比较流元素的无干扰无状态比较器。
+		返回由该流的元素组成的流，并根据提供的比较器进行排序。
+		对于有序流，排序是稳定的。对于无序流，不提供稳定性保证。
+		这是一个有状态的中间操作。
+	toArray():Object[]
+		返回包含此流元素的数组。
 		这是一个终端操作。
-	sum():int
-		返回此流中元素的总和。求和是约简操作（reduction）的一种特殊情况。
-			return reduce(0, Integer::sum);
+	toArray(IntFunction<A[]> generator):<A> A[] 
+		<A> - 结果数组的元素类型
+		generator - 产生所需类型和所提供长度的新数组的函数。
+		返回一个包含此流元素的数组，使用提供的生成器函数分配返回的数组，以及分区执行或调整大小可能需要的任何其他数组。
 		这是一个终端操作。
-	summaryStatistics():IntSummaryStatistics 
-		返回描述有关此流元素的各种摘要数据的IntSummaryStatistics。这是一种特殊的约简操作（reduction）情况。
-		这是一个终端操作。
-	toArray():int[] 
-		△ 返回包含此流元素的数组。
-		这是一个终端操作。
-		
+		generator函数接受一个整数，即所需数组的大小，并生成所需大小的数组。这可以用数组构造函数引用简洁地表示：
+		     Person[] men = people.stream()
+		                          .filter(p -> p.getGender() == MALE)
+		                          .toArray(Person[]::new);	
+		返回包含此流中的元素的数组。
+		【Throws】：
+			ArrayStoreException 如果从数组生成器返回的数组的运行时类型不是此流中每个元素的运行时类型的父类型。
+			
+					
 		
 -----------------------------------------1、IntStream.Builder-----------------------------------------------------------------------------------------------------------------------------		
 1、Builder：生成器（或称构建器）。 【Since:1.8】

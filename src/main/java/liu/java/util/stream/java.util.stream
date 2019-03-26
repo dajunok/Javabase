@@ -173,7 +173,7 @@ Package Description（包描述说明）：
 		Collectors.groupingByConcurrent(java.util.function.Function<? super T, ? extends K>)是groupingBy的并发等效项。
 		注意，如果一个给定键的元素按照它们在源代码中出现的顺序出现是很重要的，那么我们就不能使用并发约简操作，因为排序是并发插入的一个牺牲品。然后我们将被约束来实现顺序约简或基于合并的并行约简。
 		
-	Associativity（关联操作）：
+	Associativity（关联性操作）：
 		如果以下条件成立，运算符或函数op是关联的：
 			 (a op b) op c == a op (b op c)
 		如果我们将此扩展到四个项，可以看出这对并行评估的重要性：
