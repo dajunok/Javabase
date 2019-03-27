@@ -1,0 +1,318 @@
+----------------------------------------Collectors--------------------------------------------------------------------------------------------------------------
+Collectors：收集器静态工厂。	【Since:1.8】
+	收集器（Collector）的实现，实现各种有用的约简（reduction）操作，如将元素累积到集合中、根据各种标准汇总元素等。
+	以下是使用预定义收集器执行常见可变约简任务的示例：
+	     // Accumulate names into a List
+	     List<String> list = people.stream().map(Person::getName).collect(Collectors.toList());
+	
+	     // Accumulate names into a TreeSet
+	     Set<String> set = people.stream().map(Person::getName).collect(Collectors.toCollection(TreeSet::new));
+	
+	     // Convert elements to strings and concatenate them, separated by commas
+	     String joined = things.stream()
+	                           .map(Object::toString)
+	                           .collect(Collectors.joining(", "));
+	
+	     // Compute sum of salaries of employee
+	     int total = employees.stream()
+	                          .collect(Collectors.summingInt(Employee::getSalary)));
+	
+	     // Group employees by department
+	     Map<Department, List<Employee>> byDept
+	         = employees.stream()
+	                    .collect(Collectors.groupingBy(Employee::getDepartment));
+	
+	     // Compute sum of salaries by department
+	     Map<Department, Integer> totalByDept
+	         = employees.stream()
+	                    .collect(Collectors.groupingBy(Employee::getDepartment,
+	                                                   Collectors.summingInt(Employee::getSalary)));
+	
+	     // Partition students into passing and failing
+	     Map<Boolean, List<Student>> passingFailing =
+	         students.stream()
+	                 .collect(Collectors.partitioningBy(s -> s.getGrade() >= PASS_THRESHOLD));	
+	
+	
+	类定义	：public final class Collectors
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	averagingDouble(ToDoubleFunction<? super T> mapper):static <T> Collector<T, ?, Double>
+		<T> - 输入元素类型
+		mapper - 获取求和属性函数
+		返回一个收集器（Collector），该收集器生成应用于输入元素的double值函数的算术平均值。如果不存在元素，则结果为0。
+		返回的平均值可能会因记录值的顺序而变化，这是因为除了不同大小的值之外，还存在累积舍入误差。通过增加绝对量排序的值往往会产生更精确的结果。如果任何记录值为NaN或总和在任何点为NaN，则平均值为NaN。
+		double格式可以表示-253到253范围内的所有连续整数。如果管道的数值超过253，平均计算中的除数将饱和到253，导致额外的数值误差。
+	averagingInt(ToIntFunction<? super T> mapper):static <T> Collector<T, ?, Double>
+		<T> - 输入元素类型
+		mapper - 获取求和属性函数
+		返回一个收集器，该收集器生成应用于输入元素的整数值函数的算术平均值。如果不存在元素，则结果为0。		
+	averagingLong(ToLongFunction<? super T> mapper):static <T> Collector<T, ?, Double>
+		<T> - 输入元素类型
+		mapper - 获取求和属性函数
+		返回一个收集器，该收集器生成应用于输入元素的long值函数的算术平均值。如果不存在元素，则结果为0。	
+	collectingAndThen(Collector<T,A,R> downstream,Function<R,RR> finisher):static<T,A,R,RR> Collector<T,A,RR> 
+		<T> - 输入元素类型
+		<A> - downstream收集器的中间累积类型
+		<R> - downstream收集器的结果类型
+		<RR> - 返回的收集器的结果类型
+		downstream - 收集器 
+		finisher - 应用于downstream收集器最终结果的函数	
+		调整收集器以执行附加的完成（finishing）转换。例如，可以调整toList()收集器，以始终生成具有以下内容的不可变列表：	
+	     List<String> people
+	         = people.stream().collect(collectingAndThen(toList(), Collections::unmodifiableList));			
+		执行downstream收集器操作的收集器，然后执行附加的finisher步骤。
+	counting():static <T> Collector<T, ?, Long>
+		<T> - 输入元素类型
+		返回一个接受类型为T的元素的收集器，计算输入元素的数目。如果不存在元素，则结果为0。
+		这样产生的结果相当于：
+			reducing(0L, e -> 1L, Long::sum)
+		返回对输入元素进行计数的收集器。
+	groupingBy(Function<? super T, ? extends K> classifier):static <T, K> Collector<T, ?, Map<K, List<T>>>
+		<T> - 输入元素类型
+		<K> - 键的类型
+		classifier - 分类函数，将输入元素映射到键
+		返回对T类型的输入元素执行“group by”操作的收集器，根据分类函数对元素进行分组，并在映射中返回结果。
+		classifier函数将元素映射到某个键类型K。收集器生成一个Map<K, List<T>>，其键是将分类函数应用于输入元素所产生的值，其相应值是包含映射到分类函数下相关键的输入元素的列表。
+		对于返回的映射或列表对象的类型、可变性、可序列化性或线程安全性没有任何保证。
+		这将产生类似于以下结果的结果：
+			groupingBy(classifier, toList());
+		返回非并发收集器。对于并行流管道，合并器函数（combiner）通过将一个映射中的键合并到另一个映射中来操作，这可能是一个昂贵的操作。如果不需要保留元素在生成的映射收集器中的显示顺序，则使用groupingByConcurrent(Function)可以提供更好的并行性能。
+		返回实现分组操作的收集器。
+	groupingBy(Function<? super T, ? extends K> classifier,Supplier<M> mapFactory,Collector<? super T, A, D> downstream):static <T, K, D, A, M extends Map<K, D>> Collector<T, ?, M> 
+		<T> - 输入元素类型
+		<K> - 键的类型
+		<A> - downstream收集器的中间累积类型
+		<D> - downstream收集器约简操作（reduction）结果类型。
+		<M> - 结果Map类型
+		classifier - 分类函数，将输入元素映射到键
+		downstream - 收集器 
+		mapFactory - 一种函数，当被调用时，它产生一个所需类型的新空Map。
+		返回对T类型的输入元素执行级联“group by”操作的收集器，根据分类函数对元素进行分组，然后使用指定的downstream收集器对与给定键关联的值执行约简操作（reduction）。收集器生成的映射是使用提供的工厂功能创建的。
+		classifier函数将元素映射到某个键类型K。downstream收集器对类型T的元素进行操作，并生成类型D的结果。结果收集器生成一个Map<K, D>。
+		例如，要计算每个城市中按姓氏进行排序的人的姓氏集合，请执行以下操作：
+		     Map<City, Set<String>> namesByCity
+		         = people.stream().collect(groupingBy(Person::getCity, TreeMap::new,
+		                                              mapping(Person::getLastName, toSet())));	
+		返回非并发收集器（Collector）。对于并行流管道，合并器函数（combiner）通过将一个映射中的键合并到另一个映射中来操作，这可能是一个昂贵的操作。如果不需要保留downstream收集器显示元素的顺序，则使用groupingByConcurrent(Function, Supplier, Collector)可以提供更好的并行性能。	
+		返回实现级联分组操作的收集器。
+	groupingBy(Function<? super T, ? extends K> classifier,Collector<? super T, A, D> downstream):static <T, K, A, D> Collector<T, ?, Map<K, D>> 
+		<T> - 输入元素类型
+		<K> - 键的类型
+		<A> - downstream收集器的中间累积类型
+		<D> - downstream收集器约简操作（reduction）结果类型。
+		classifier - 分类函数，将输入元素映射到键
+		downstream - 收集器 
+		返回对T类型的输入元素执行级联“group by”操作的收集器，根据分类函数（classifier）对元素进行分组，然后使用指定的downstream收集器对与给定键关联的值执行约简操作（reduction）。
+		分类函数将元素映射到某个键类型K。下游收集器对类型t的元素进行操作，并生成类型d的结果。结果收集器生成一个Map<K, D>。
+		对于返回的映射的类型、可变性、可序列化或线程安全性没有任何保证。
+		例如，要计算每个城市中人员的姓氏集：
+		     Map<City, Set<String>> namesByCity
+		         = people.stream().collect(groupingBy(Person::getCity,
+		                                              mapping(Person::getLastName, toSet())));	
+		返回非并发收集器（Collector）。对于并行流管道，合并器函数（combiner）通过将一个映射中的键合并到另一个映射中来操作，这可能是一个昂贵的操作。如果不需要保留downstream收集器显示元素的顺序，则使用groupingByConcurrent(Function, Collector)可以提供更好的并行性能。	
+		返回实现级联分组操作的收集器。
+	groupingByConcurrent(Function<? super T, ? extends K> classifier):static <T, K> Collector<T, ?, ConcurrentMap<K, List<T>>>
+		<T> - 输入元素类型
+		<K> - 键的类型
+		classifier - 分类函数，将输入元素映射到键
+		返回对T类型的输入元素执行“group by”操作的并发收集器，并根据分类函数（classifier）对元素进行分组。
+		这是一个并发的、无序的收集器。
+		分类函数（classifier）将元素映射到某个键类型K。结果收集器生成一个ConcurrentMap<K, List<T>>，其键是将分类函数应用到输入元素所产生的值，其值是包含映射到分类函数（classifier）下关联键的输入元素的列表。
+		对于返回的映射或列表对象的类型、可变性或可序列化性，或返回的列表对象的线程安全性，没有任何保证。
+		这将产生类似于以下结果的结果：
+			groupingByConcurrent(classifier, toList());
+		返回实现GroupBy操作的并发、无序的收集器。
+	groupingByConcurrent(Function<? super T, ? extends K> classifier,Supplier<M> mapFactory,Collector<? super T, A, D> downstream):static <T, K, A, D, M extends ConcurrentMap<K, D>> Collector<T, ?, M> 
+		<T> - 输入元素类型
+		<K> - 键的类型
+		<A> - downstream收集器的中间累积类型
+		<D> - downstream收集器约简操作（reduction）结果类型。
+		<M> - 结果类型ConcurrentMap
+		classifier - 分类函数，将输入元素映射到键
+		downstream - 收集器 
+		mapFactory - 一种函数，当被调用时，它产生一个所需类型的新空ConcurrentMap。
+		返回对T类型的输入元素执行级联“group by”操作的并发收集器，根据分类函数(classifier)对元素进行分组，然后使用指定的downstream收集器对与给定键关联的值执行约简操作（reduction）。收集器生成的ConcurrentMap是使用提供的工厂函数创建的。
+		这是一个并发的、无序的收集器。
+		分类函数（classifier）将元素映射到某个键类型K。downstream收集器对类型T的元素进行操作，并生成类型D的结果。结果收集器生成一个Map<K, D>。
+		例如，要计算每个城市中按姓氏进行排序的人的姓氏集合，请执行以下操作：
+		     ConcurrentMap<City, Set<String>> namesByCity
+		         = people.stream().collect(groupingBy(Person::getCity, ConcurrentSkipListMap::new,
+		                                              mapping(Person::getLastName, toSet())));	
+		返回实现级联分组操作的并发、无序收集器。		
+	groupingByConcurrent(Function<? super T, ? extends K> classifier,Collector<? super T, A, D> downstream):static <T, K, A, D> Collector<T, ?, ConcurrentMap<K, D>> 	
+		<T> - 输入元素类型
+		<K> - 键的类型
+		<A> - downstream收集器的中间累积类型
+		<D> - downstream收集器约简操作（reduction）结果类型。
+		classifier - 分类函数，将输入元素映射到键
+		downstream - 收集器 
+		返回对T类型的输入元素执行级联“group by”操作的并发收集器，根据分类函数（classifier）对元素进行分组，然后使用指定的downstream收集器对与给定键关联的值执行约简操作（reduction）。
+		分类函数（classifier）将元素映射到某个键类型K。downstream收集器对类型T的元素进行操作，并生成类型D的结果。结果收集器生成一个Map<K, D>。
+		例如，要计算每个城市中按姓氏进行排序的人的姓氏集合，请执行以下操作：
+		     ConcurrentMap<City, Set<String>> namesByCity
+		         = people.stream().collect(groupingByConcurrent(Person::getCity,
+		                                                        mapping(Person::getLastName, toSet())));	
+		返回实现级联分组操作的并发、无序的收集器。	
+	joining():static Collector<CharSequence, ?, String> 
+		返回按遇到顺序将输入元素连接到String中的收集器。
+	joining(CharSequence delimiter):static Collector<CharSequence, ?, String> 
+		delimiter - 每个元素之间要使用的分隔符。
+		返回按遇到顺序连接由指定分隔符分隔的输入元素的收集器。
+	joining(CharSequence delimiter,CharSequence prefix,CharSequence suffix):static Collector<CharSequence, ?, String> 
+		delimiter - 每个元素之间要使用的分隔符。
+		prefix - 在联接结果开始处要使用的字符序列（前缀字符串）。
+		suffix - 在联接结果结尾处要使用的字符序列（后缀字符串）。
+		返回一个收集器，该收集器按遇到顺序将由指定分隔符分隔的输入元素与指定的前缀和后缀连接起来。
+	mapping(Function<? super T, ? extends U> mapper,Collector<? super U, A, R> downstream):static <T, U, A, R> Collector<T, ?, R> 
+		<T> - 输入元素类型
+		<U> - downstream收集器接受的元素类型
+		<A> - downstream收集器累积类型
+		<R> - 返回的收集器的结果类型
+		mapper - 要应用于输入元素的函数 。
+		downstream - 接受映射值的收集器。	
+		通过在累积前对每个输入元素应用映射函数，将接受U类型元素的收集器调整为接受T类型元素的收集器。
+		mapping()收集器在进行多级约简操作（如作为groupingBy或partitioningBy操作的downstream收集器）时最有用。例如，给定一组人流，在每个城市中累积一组姓氏：
+		     Map<City, Set<String>> lastNamesByCity
+		         = people.stream().collect(groupingBy(Person::getCity,
+		                                              mapping(Person::getLastName, toSet())));		
+		返回将映射函数应用于输入元素并向downstream收集器提供映射结果的收集器。	
+	maxBy(Comparator<? super T> comparator):static <T> Collector<T, ?, Optional<T>>
+		<T> - 输入元素类型
+		comparator - 用于比较元素的比较器
+		返回一个收集器，该收集器根据给定的比较器生成最大元素，并将最大元素包装为Optional<T>。
+		这样产生的结果相当于：
+			 reducing(BinaryOperator.maxBy(comparator))
+		返回产生最大值的收集器。
+	minBy(Comparator<? super T> comparator):static <T> Collector<T, ?, Optional<T>>
+		<T> - 输入元素类型
+		comparator - 用于比较元素的比较器
+		返回一个收集器，该收集器根据给定的比较器生成最小元素，并将最小元素包装为Optional<T>。
+		这样产生的结果相当于：
+			 reducing(BinaryOperator.minBy(comparator))
+		返回产生最小值的收集器。
+	partitioningBy(Predicate<? super T> predicate):static <T> Collector<T, ?, Map<Boolean, List<T>>> 
+		<T> - 输入元素类型
+		predicate - 用于对输入元素进行分类的谓词（条件）。
+		返回一个收集器，该收集器根据谓词对输入元素进行分区，并将其组织为Map<Boolean, List<T>>。对于返回的Map的类型、可变性、可序列化或线程安全性没有任何保证。
+		返回实现分区操作的收集器。		
+	partitioningBy(Predicate<? super T> predicate,Collector<? super T, A, D> downstream):static <T, D, A> Collector<T, ?, Map<Boolean, D>> 
+		<T> - 输入元素类型
+		<A> - downstream收集器的中间累积类型。
+		<D> - downstream收集器约简操作的结果类型。
+		predicate - 用于对输入元素进行分类的谓词（条件）。
+		downstream - 实现downstream约简操作的收集器 。
+		返回一个收集器，该收集器根据谓词对输入元素进行分区，根据另一个收集器约简每个分区中的值，并将这些值组织为一个Map<Boolean, D>，其值是downstream约简操作的结果。
+	reducing(BinaryOperator<T> op):static <T> Collector<T, ?, Optional<T>>
+		<T> - 约简操作的输入和输出元素类型。
+		op - 用于对约简操作的输入元素的二进制运算符（BinaryOperator<T>）。
+		返回一个收集器，该收集器在指定的BinaryOperator下执行其输入元素的约简。结果包装为Optional<T>。
+		reducing()收集器在用于多级约简（reduction）、groupingBy或partitioningBy的downstream时最有用。要对流执行简单的约简，请改用Stream.reduce(BinaryOperator)。
+		例如，给定人流，计算每个城市中最高的人：
+		     Comparator<Person> byHeight = Comparator.comparing(Person::getHeight);
+		     Map<City, Person> tallestByCity
+		         = people.stream().collect(groupingBy(Person::getCity, reducing(BinaryOperator.maxBy(byHeight))));
+		返回执行约简操作的收集器。		
+	reducing(T identity, BinaryOperator<T> op):static <T> Collector<T, ?, T>
+		<T> - 约简操作的输入和输出元素类型。
+		identity - 约简的标识值（也就是没有输入元素时返回的值）
+		op - 用于对约简操作的输入元素的二进制运算符（BinaryOperator<T>）。
+		返回使用提供的标识在指定的BinaryOperator下执行其输入元素约简操作的收集器。
+		reducing()收集器在用于多级约简、groupingBy或partitioningBy的downstream时最有用。要对流执行简单的约简，请使用Stream.reduce(Object, BinaryOperator)。
+		返回执行约简操作的收集器。
+	reducing(U identity,Function<? super T, ? extends U> mapper,BinaryOperator<U> op):static <T, U> Collector<T, ?, U> 
+		<T> - 输入元素的类型
+		<U> - 映射值的类型
+		identity - 约简的标识值（也就是没有输入元素时返回的值）。【该参数可以省略】
+		mapper - 应用于每个输入值的映射函数
+		op - 用于对约简操作的输入元素的二进制运算符（BinaryOperator<T>）。
+		返回一个收集器，该收集器在指定的映射函数（mapper）和BinaryOperator下执行其输入元素的约简操作。这是reducing(Object, BinaryOperator)的一个推广，它允许在约简操作（reduction）之前对元素进行转换。	
+		reducing()收集器在用于多级约简、groupingBy或partitioningBy的downstream时最有用。要在流上执行简单的map-reduce，请使用Stream.map(Function)和Stream.reduce(Object, BinaryOperator) 。
+		例如，给定一个人流，计算每个城市中姓氏最长的居民：
+		     Comparator<String> byLength = Comparator.comparing(String::length);
+		     Map<City, String> longestLastNameByCity
+		         = people.stream().collect(groupingBy(Person::getCity,
+		                                              reducing(Person::getLastName, BinaryOperator.maxBy(byLength))));	
+		返回实现map-reduce操作的收集器。		
+	summarizingDouble(ToDoubleFunction<? super T> mapper):static <T> Collector<T, ?, DoubleSummaryStatistics> 
+		<T> - 输入元素的类型
+		mapper - 要应用于每个元素的映射函数
+		返回一个收集器，该收集器将一个double值的生成映射函数应用于每个输入元素，并返回结果值的摘要统计信息（最终结果值为DoubleSummaryStatistics对象）。
+		返回实现汇总统计约简操作的收集器。
+	summarizingInt(ToIntFunction<? super T> mapper):static <T> Collector<T, ?, IntSummaryStatistics> 
+		<T> - 输入元素的类型
+		mapper - 要应用于每个元素的映射函数
+		返回一个收集器，该收集器将一个int值的生成映射函数应用于每个输入元素，并返回结果值的摘要统计信息（最终结果值为IntSummaryStatistics对象）。
+		返回实现汇总统计约简操作的收集器。
+	summarizingLong(ToLongFunction<? super T> mapper):static <T> Collector<T, ?, LongSummaryStatistics> 
+		<T> - 输入元素的类型
+		mapper - 要应用于每个元素的映射函数
+		返回一个收集器，该收集器将一个long值的生成映射函数应用于每个输入元素，并返回结果值的摘要统计信息（最终结果值为LongSummaryStatistics对象）。
+		返回实现汇总统计约简操作的收集器。
+	summingDouble(ToDoubleFunction<? super T> mapper):static <T> Collector<T, ?, Double>
+		<T> - 输入元素的类型
+		mapper - 获取求和属性的函数
+		返回一个收集器，该收集器生成应用于输入元素的double值函数的和。如果不存在元素，则结果为0。
+		根据记录值的顺序，返回的总和可能会有所不同，这是因为除了不同大小的值之外，还存在累积舍入误差。通过增加绝对量排序的值往往会产生更精确的结果。如果任何记录值为NaN或总和在任何点为NaN，则总和将为NaN。
+	summingInt(ToIntFunction<? super T> mapper):static <T> Collector<T, ?, Integer>
+		<T> - 输入元素的类型
+		mapper - 获取求和属性的函数
+		返回一个收集器，该收集器生成应用于输入元素的integer值函数的和。如果不存在元素，则结果为0。
+	summingLong(ToLongFunction<? super T> mapper):static <T> Collector<T, ?, Long>
+		<T> - 输入元素的类型
+		mapper - 获取求和属性的函数
+		返回一个收集器，该收集器生成应用于输入元素的long值函数的和。如果不存在元素，则结果为0。
+	toCollection(Supplier<C> collectionFactory):static <T, C extends Collection<T>> Collector<T, ?, C> 
+		<T> - 输入元素的类型
+		<C> - 结果集合的类型
+		返回按遇到顺序将输入元素累积（或收集）到新集合中的收集器。集合由提供的工厂创建。
+	toConcurrentMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper):static <T, K, U> Collector<T, ?, ConcurrentMap<K,U>> 
+		<T> - 输入元素的类型
+		<K> - 键映射函数的输出类型
+		<U> - 值映射函数的输出类型
+		keyMapper - 生成键的映射函数
+		valueMapper - 生成值的映射函数
+		返回一个并发收集器，该收集器将元素累积到一个ConcurrentMap 中，其键和值是将提供的映射函数应用于输入元素的结果。	
+		如果映射的键包含重复项（根据Object.equals(Object)），则在执行收集操作时将引发IllegalStateException。如果映射的键可能有重复项，请改用toConcurrentMap(Function, Function, BinaryOperator)。
+		键或值作为输入元素很常见。在这种情况下，实用程序方法Function.identity()可能会有所帮助。例如，下面将生成一个Map，将学生映射到他们的平均成绩：
+		     Map<Student, Double> studentToGPA
+		         students.stream().collect(toMap(Functions.identity(),
+		                                         student -> computeGPA(student)));		
+		下面生成一个映射，将唯一标识符映射到学生：
+		     Map<String, Student> studentIdToStudent
+		         students.stream().collect(toConcurrentMap(Student::getId,
+		                                                   Functions.identity());	
+		这是一个并发的、无序的收集器。
+		返回一个并发的、无序的收集器，将元素收集到一个ConcurrentMap中，其键是对输入元素应用键映射函数的结果，其值是对输入元素应用值映射函数的结果。	
+	toConcurrentMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction):static <T, K, U> Collector<T, ?, ConcurrentMap<K,U>>
+	toConcurrentMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction,Supplier<M> mapSupplier):static <T, K, U, M extends ConcurrentMap<K, U>> Collector<T, ?, M> 
+	toList():static <T> Collector<T, ?, List<T>> 
+		<T> - 输入元素类型
+		返回将输入元素累积到新列表中的收集器。对于返回的列表的类型、可变性、可序列化性或线程安全性没有保证；如果需要对返回的列表进行更多控制，请使用toCollection(Supplier)。
+		按遇到顺序将所有输入元素收集到一个列表中的收集器。		
+	toMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper):static <T, K, U> Collector<T, ?, Map<K,U>> 
+	toMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction):static <T, K, U> Collector<T, ?, Map<K,U>> 
+	toMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction,Supplier<M> mapSupplier):static <T, K, U, M extends Map<K, U>> Collector<T, ?, M> 
+	toSet():static <T> Collector<T, ?, Set<T>> 
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
