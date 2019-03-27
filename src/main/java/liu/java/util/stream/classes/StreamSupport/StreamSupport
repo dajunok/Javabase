@@ -1,0 +1,87 @@
+----------------------------------------StreamSupport--------------------------------------------------------------------------------------------------------------
+StreamSupport：流支持静态工厂。	【Since:1.8】
+	用于创建和操作流的低级别实用方法。
+	这个类主要是为呈现数据结构的流视图的库编写器提供的；大多数面向最终用户的静态流方法都在不同的Stream类中。
+	
+	类定义	：public final class StreamSupport
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	doubleStream(Supplier<? extends Spliterator.OfDouble> supplier,int characteristics,boolean parallel):static DoubleStream 
+		supplier - Spliterator.OfDouble的提供商。
+		characteristics - 提供Spliterator.OfDouble的拆分器特性。特性必须等于supplier.get().characteristics()，否则在终端操作开始时可能会发生不确定的行为。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator.OfDouble的供应商创建新的顺序或并行DoubleStream。
+		Supplier.get()方法将在流管道的终端操作开始后对供应商调用不超过一次。
+		对于报告不可变（IMMUTABLE）或并发（CONCURRENT）特性的拆分器，或者是后期绑定的拆分器，使用doubleStream(java.util.Spliterator.OfDouble, boolean)可能更有效。
+		这种形式的Supplier的使用提供了一种间接性级别，减少了对源的潜在干扰范围。由于只有在终端操作开始后才调用供应商，因此对源的任何修改直到终端操作开始都会反映在流结果中。有关详细信息，请参见“无干扰（Non-Interference）”。
+	doubleStream(Spliterator.OfDouble spliterator,boolean parallel):static DoubleStream 
+		spliterator - 描述流元素的Spliterator.OfDouble。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator.OfDouble创建新的顺序或并行DoubleStream。
+		只有在流管道的终端操作开始后，才能遍历、拆分或查询拆分器的估计大小。
+		强烈建议拆分器报告不可变(IMMUTABLE)、并发(CONCURRENT)或延迟绑定特性。否则，应该使用doubleStream(java.util.function.Supplier, int, boolean)来减少对源的潜在干扰范围。有关详细信息，请参见“无干扰（Non-Interference）”。
+	intStream(Supplier<? extends Spliterator.OfInt> supplier,int characteristics,boolean parallel):static IntStream 
+		supplier - Spliterator.OfInt的提供商。
+		characteristics - 提供Spliterator.OfInt的拆分器特性。特性必须等于supplier.get().characteristics()，否则在终端操作开始时可能会发生不确定的行为。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator.OfInt的供应商创建新的顺序或并行IntStream。
+		Supplier.get()方法将在流管道的终端操作开始后对供应商调用不超过一次。
+		对于报告不可变（IMMUTABLE）或并发（CONCURRENT）特性的拆分器，或者是后期绑定的拆分器，使用intStream(java.util.Spliterator.OfInt, boolean)可能更有效。
+		这种形式的Supplier的使用提供了一种间接性级别，减少了对源的潜在干扰范围。由于只有在终端操作开始后才调用供应商，因此对源的任何修改直到终端操作开始都会反映在流结果中。有关详细信息，请参见“无干扰（Non-Interference）”。
+	intStream(Spliterator.OfInt spliterator, boolean parallel):static IntStream 
+		spliterator - 描述流元素的Spliterator.OfInt。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator.OfInt创建新的顺序或并行IntStream。
+		只有在流管道的终端操作开始后，才能遍历、拆分或查询拆分器的估计大小。
+		强烈建议拆分器报告不可变(IMMUTABLE)、并发(CONCURRENT)或延迟绑定特性。否则，应该使用intStream(java.util.function.Supplier, int, boolean)来减少对源的潜在干扰范围。有关详细信息，请参见“无干扰（Non-Interference）”。
+	longStream(Supplier<? extends Spliterator.OfLong> supplier,int characteristics,boolean parallel):static LongStream 
+		supplier - Spliterator.OfLong的提供商。
+		characteristics - 提供Spliterator.OfLong的拆分器特性。特性必须等于supplier.get().characteristics()，否则在终端操作开始时可能会发生不确定的行为。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator.OfLong的供应商创建新的顺序或并行LongStream。
+		Supplier.get()方法将在流管道的终端操作开始后对供应商调用不超过一次。
+		对于报告不可变（IMMUTABLE）或并发（CONCURRENT）特性的拆分器，或者是后期绑定的拆分器，使用longStream(java.util.Spliterator.OfLong, boolean)可能更有效。
+		这种形式的Supplier的使用提供了一种间接性级别，减少了对源的潜在干扰范围。由于只有在终端操作开始后才调用供应商，因此对源的任何修改直到终端操作开始都会反映在流结果中。有关详细信息，请参见“无干扰（Non-Interference）”。
+	longStream(Spliterator.OfLong spliterator,boolean parallel):static LongStream 
+		spliterator - 描述流元素的Spliterator.OfLong。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator.OfLong创建新的顺序或并行LongStream。
+		只有在流管道的终端操作开始后，才能遍历、拆分或查询拆分器的估计大小。
+		强烈建议拆分器报告不可变(IMMUTABLE)、并发(CONCURRENT)或延迟绑定特性。否则，应该使用longStream(java.util.function.Supplier, int, boolean)来减少对源的潜在干扰范围。有关详细信息，请参见“无干扰（Non-Interference）”。
+	stream(Supplier<? extends Spliterator<T>> supplier,int characteristics,boolean parallel):static <T> Stream<T> 
+		<T> - 流元素的类型
+		supplier - Spliterator的提供商。
+		characteristics - 提供Spliterator的拆分器特性。特性必须等于supplier.get().characteristics()，否则在终端操作开始时可能会发生不确定的行为。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator的供应商创建新的顺序或并行Stream。
+		Supplier.get()方法将在流管道的终端操作开始后对供应商调用不超过一次。
+		对于报告不可变（IMMUTABLE）或并发（CONCURRENT）特性的拆分器，或者是后期绑定的拆分器，使用stream(java.util.Spliterator, boolean)可能更有效。
+		这种形式的Supplier的使用提供了一种间接性级别，减少了对源的潜在干扰范围。由于只有在终端操作开始后才调用供应商，因此对源的任何修改直到终端操作开始都会反映在流结果中。有关详细信息，请参见“无干扰（Non-Interference）”。
+	stream(Spliterator<T> spliterator, boolean parallel):static <T> Stream<T> 
+		<T> - 流元素的类型
+		spliterator - 描述流元素的Spliterator。
+		parallel - 如果为true，则返回的流是并行流；如果为false，则返回的流是顺序流。
+		从Spliterator创建新的顺序或并行Stream。
+		只有在流管道的终端操作开始后，才能遍历、拆分或查询拆分器的估计大小。
+		强烈建议拆分器报告不可变(IMMUTABLE)、并发(CONCURRENT)或延迟绑定特性。否则，应该使用stream(java.util.function.Supplier, int, boolean)来减少对源的潜在干扰范围。有关详细信息，请参见“无干扰（Non-Interference）”。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -285,16 +285,89 @@ Method Summary（方法概要）：
 		这是一个并发的、无序的收集器。
 		返回一个并发的、无序的收集器，将元素收集到一个ConcurrentMap中，其键是对输入元素应用键映射函数的结果，其值是对输入元素应用值映射函数的结果。	
 	toConcurrentMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction):static <T, K, U> Collector<T, ?, ConcurrentMap<K,U>>
+		<T> - 输入元素的类型
+		<K> - 键映射函数的输出类型
+		<U> - 值映射函数的输出类型
+		keyMapper - 生成键的映射函数
+		valueMapper - 生成值的映射函数
+		mergeFunction - 一种合并函数，用于解决与同一键相关的值之间的冲突，如提供给Map.merge(Object, Object, BiFunction)
+		返回一个并发收集器，该收集器将元素累积到一个ConcurrentMap中，其键和值是将提供的映射函数应用于输入元素的结果。
+		如果映射键包含重复项（根据Object.equals(Object)），则值映射函数将应用于每个相等元素，并使用提供的合并函数合并结果。
+		有多种方式来处理多元素映射到相同键冲突。ToConcurrentMap的其他形式简单使用一个无条件抛出的合并函数，但是您可以轻松地编写更灵活的合并策略。例如，如果您有一组Person流，并且您希望生成一个“电话簿”将姓名映射到地址，但可能有两个人具有相同的姓名，则可以执行以下操作以优雅地处理这些冲突，并生成一个将姓名映射到连接的地址列表的映射：
+		     Map<String, String> phoneBook
+		         people.stream().collect(toConcurrentMap(Person::getName,
+		                                                 Person::getAddress,
+		                                                 (s, a) -> s + ", " + a));		
+		这是一个并发的、无序的收集器。
+		返回一种并发的、无序的收集器，它将元素收集到一个ConcurrentMap中，该ConcurrentMap的键是对输入元素应用键映射函数的结果，其值是对所有等于键的输入元素应用值映射函数并使用合并函数将其组合的结果。
 	toConcurrentMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction,Supplier<M> mapSupplier):static <T, K, U, M extends ConcurrentMap<K, U>> Collector<T, ?, M> 
+		<T> - 输入元素的类型
+		<K> - 键映射函数的输出类型
+		<U> - 值映射函数的输出类型
+		<M> - 作为结果的ConcurrentMap类型
+		keyMapper - 生成键的映射函数
+		valueMapper - 生成值的映射函数
+		mergeFunction - 一种合并函数，用于解决与同一键相关的值之间的冲突，如提供给Map.merge(Object, Object, BiFunction)
+		mapSupplier - 返回新的空Map并将结果插入其中的函数。
+		返回一个并发收集器，该收集器将元素累积到一个ConcurrentMap中，其键和值是将提供的映射函数应用于输入元素的结果。
+		如果映射键包含重复项（根据Object.equals(Object)），则值映射函数将应用于每个相等元素，并使用提供的合并函数合并结果。ConcurrentMap由提供的供应商函数（mapSupplier）创建。
+		这是一个并发的、无序的收集器。
+		返回一个并发的、无序的收集器，它将元素收集到一个ConcurrentMap中，该ConcurrentMap的键是对输入元素应用键映射函数的结果，其值是对所有等于键的输入元素应用值映射函数并使用合并函数将其组合的结果。
 	toList():static <T> Collector<T, ?, List<T>> 
 		<T> - 输入元素类型
 		返回将输入元素累积到新列表中的收集器。对于返回的列表的类型、可变性、可序列化性或线程安全性没有保证；如果需要对返回的列表进行更多控制，请使用toCollection(Supplier)。
 		按遇到顺序将所有输入元素收集到一个列表中的收集器。		
 	toMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper):static <T, K, U> Collector<T, ?, Map<K,U>> 
+		<T> - 输入元素的类型
+		<K> - 键映射函数的输出类型
+		<U> - 值映射函数的输出类型
+		keyMapper - 生成键的映射函数
+		valueMapper - 生成值的映射函数
+		返回一个收集器，该收集器将元素累积到一个Map中，该Map的键和值是将提供的映射函数应用于输入元素的结果。
+		如果映射的键包含重复项（根据Object.equals(Object)），则在执行收集操作时将引发IllegalStateException。如果映射的键有重复项，请改用toMap(Function, Function, BinaryOperator)。
+		键或值作为输入元素很常见。在这种情况下，实用程序方法Function.identity()可能会有所帮助。例如，下面将生成一个Map，将学生映射到他们的平均成绩：
+		     Map<Student, Double> studentToGPA
+		         students.stream().collect(toMap(Functions.identity(),
+		                                         student -> computeGPA(student)));	
+		下面生成一个映射，将唯一标识符映射到学生：
+		     Map<String, Student> studentIdToStudent
+		         students.stream().collect(toMap(Student::getId,
+		                                         Functions.identity());		
+		返回非并发收集器。对于并行流管道，合并器函数通过将一个映射中的键合并到另一个映射中来操作，这可能是一个昂贵的操作。如果不需要按遇到顺序将结果插入到映射中，则使用toConcurrentMap(Function, Function)可以提供更好的并行性能。		
+		返回一个收集器，它将元素收集到一个映射中，该映射的键和值是对输入元素应用映射函数的结果。
 	toMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction):static <T, K, U> Collector<T, ?, Map<K,U>> 
+		<T> - 输入元素的类型
+		<K> - 键映射函数的输出类型
+		<U> - 值映射函数的输出类型
+		keyMapper - 生成键的映射函数
+		valueMapper - 生成值的映射函数
+		mergeFunction - 一种合并函数，用于解决与同一键相关的值之间的冲突，如提供给Map.merge(Object, Object, BiFunction)
+		返回一个并发收集器，该收集器将元素累积到一个Map中，其键和值是将提供的映射函数应用于输入元素的结果。
+		如果映射键包含重复项（根据Object.equals(Object)），则值映射函数将应用于每个相等元素，并使用提供的合并函数合并结果。
+		有多种方式来处理多元素映射到相同键冲突。toMap的其他形式简单使用一个无条件抛出的合并函数，但是您可以轻松地编写更灵活的合并策略。例如，如果您有一组Person流，并且您希望生成一个“电话簿”将姓名映射到地址，但可能有两个人具有相同的姓名，则可以执行以下操作以优雅地处理这些冲突，并生成一个将姓名映射到连接的地址列表的映射：
+		     Map<String, String> phoneBook
+		         people.stream().collect(toMap(Person::getName,
+		                                       Person::getAddress,
+		                                       (s, a) -> s + ", " + a));
+		返回非并发收集器。对于并行流管道，合并器函数通过将一个映射中的键合并到另一个映射中来操作，这可能是一个昂贵的操作。如果不需要按遇到顺序将结果插入到映射中，则使用toConcurrentMap(Function, Function, BinaryOperator)可以提供更好的并行性能。
+		返回一个收集器，将元素收集到一个映射中，该映射的键是对输入元素应用键映射函数的结果，其值是对等于键的所有输入元素应用值映射函数并使用合并函数将其组合而成的结果。
 	toMap(Function<? super T, ? extends K> keyMapper,Function<? super T, ? extends U> valueMapper,BinaryOperator<U> mergeFunction,Supplier<M> mapSupplier):static <T, K, U, M extends Map<K, U>> Collector<T, ?, M> 
+		<T> - 输入元素的类型
+		<K> - 键映射函数的输出类型
+		<U> - 值映射函数的输出类型
+		<M> - 作为结果的Map类型
+		keyMapper - 生成键的映射函数
+		valueMapper - 生成值的映射函数
+		mergeFunction - 一种合并函数，用于解决与同一键相关的值之间的冲突，如提供给Map.merge(Object, Object, BiFunction)
+		mapSupplier - 返回新的空Map并将结果插入其中的函数。
+		返回一个收集器，该收集器将元素累积到一个Map中，该Map的键和值是将提供的映射函数应用于输入元素的结果。
+		如果映射键包含重复项（根据Object.equals(Object)），则值映射函数将应用于每个相等元素，并使用提供的合并函数合并结果。Map由提供的供应商函数（mapSupplier）创建。
+		返回非并发收集器。对于并行流管道，合并器函数通过将一个映射中的键合并到另一个映射中来操作，这可能是一个昂贵的操作。如果不需要按遇到顺序将结果插入到映射中，则使用toConcurrentMap(Function, Function, BinaryOperator, Supplier)可以提供更好的并行性能。
+		返回一个收集器，将元素收集到一个映射中，该映射的键是对输入元素应用键映射函数的结果，其值是对等于键的所有输入元素应用值映射函数并使用合并函数将其组合而成的结果。
 	toSet():static <T> Collector<T, ?, Set<T>> 
-	
+		<T> - 输入元素的类型
+		返回将输入元素累积到新集合中的收集器。对于返回的集合的类型、可变性、可序列化性或线程安全性没有任何保证；如果需要对返回的集进行更多控制，请使用toCollection(Supplier)。
+		返回将所有输入元素收集到一个集合中的收集器。
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
