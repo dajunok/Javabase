@@ -1,0 +1,119 @@
+----------------------------------------Inflater--------------------------------------------------------------------------------------------------------------
+Inflater：充气机（解压器）	【Since:1.1】
+	这个类使用流行的ZLIB压缩库为通用解压提供支持。ZLIB压缩库最初是作为PNG图形标准的一部分开发的，不受专利保护。它在java.util.zip包描述中的规范中进行了详细描述。
+	下面的代码片段演示了使用Deflater（放气）和Inflater（充气）对字符串进行简单的压缩和解压缩。
+	 try {
+	     // Encode a String into bytes
+	     String inputString = "blahblahblah??";
+	     byte[] input = inputString.getBytes("UTF-8");
+	
+	     // Compress the bytes
+	     byte[] output = new byte[100];
+	     Deflater compresser = new Deflater();
+	     compresser.setInput(input);
+	     compresser.finish();
+	     int compressedDataLength = compresser.deflate(output);
+	
+	     // Decompress the bytes
+	     Inflater decompresser = new Inflater();
+	     decompresser.setInput(output, 0, compressedDataLength);
+	     byte[] result = new byte[100];
+	     int resultLength = decompresser.inflate(result);
+	     decompresser.end();
+	
+	     // Decode the bytes into a String
+	     String outputString = new String(result, 0, resultLength, "UTF-8");
+	 } catch(java.io.UnsupportedEncodingException ex) {
+	     // handle
+	 } catch (java.util.zip.DataFormatException ex) {
+	     // handle
+	 }		
+	
+	
+	类定义	：public class Inflater 
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public Inflater()
+		创建新的解压器。
+	public Inflater(boolean nowrap)
+		nowrap - 如果为true，则支持与GZIP兼容的压缩
+		创建新的解压器。如果参数'nowrap'为true，则不会使用ZLIB头和校验和字段。这提供了与GZIP和PKZIP使用的压缩格式的兼容性。
+		注意：当使用“nowrap”选项时，还需要提供一个额外的“dummy”字节作为输入。ZLIB本地库需要这样做才能支持某些优化。
+		
+Method Summary（方法概要）：
+	end():void 
+		关闭解压器并丢弃任何未处理的输入。当不再使用解压器时应调用此方法，但也将由finalize()方法自动调用。调用此方法后，inflater对象的行为将不确定。
+	finalize():protected void 
+		△ 垃圾回收时关闭解压器。
+	finished():boolean 
+		如果已到达压缩数据流的结尾，则返回true。
+	getAdler():int 
+		返回未压缩数据的ADLER-32值。
+	getBytesRead():long 
+		返回到目前为止输入的压缩字节总数。
+	getBytesWritten():long 
+		返回到目前为止未压缩的字节输出总数。
+	getRemaining():int
+		返回输入缓冲区中剩余的总字节数。这可以用来找出在解压完成后输入缓冲区中仍保留哪些字节。 
+	getTotalIn():int 
+		返回到目前为止输入的压缩字节总数。
+		由于字节数可能大于Integer.MAX_VALUE，因此getBytesRead()方法现在是获取此信息的首选方法。
+		返回迄今为止输入的压缩字节总数。
+	getTotalOut():int 
+		返回到目前为止未压缩的字节输出总数。
+		由于字节数可能大于Integer.MAX_VALUE，因此getBytesWritten()方法现在是获取此信息的首选方法。
+	inflate(byte[] b):int 
+		b - 未压缩数据的缓冲区（临时存储解压后的数据）
+		将字节解压缩到指定的缓冲区。返回未压缩（即解压后）的实际字节数。返回值0表示应调用needsInput()或needsDictionary()，以确定是否需要更多输入数据或预设字典。在后一种情况下，getAdler()可用于获取所需字典的Adler-32值。
+		【Throws】：
+			DataFormatException 如果压缩数据格式无效
+	inflate(byte[] b, int off, int len):int 
+		b - 解压缩数据的缓冲区（临时存储解压后的数据）
+		off - 数据的起始偏移量
+		len - 未压缩的最大字节数
+		将字节解压缩到指定的缓冲区。返回未压缩的实际字节数（实际解压字节数）。返回值0表示应调用needsInput()或needsDictionary()，以确定是否需要更多输入数据或预设字典。在后一种情况下，getAdler()可用于获取所需字典的Adler-32值。
+		【Throws】：
+			DataFormatException 如果压缩数据格式无效
+	needsDictionary():boolean 
+		如果解压缩需要预设字典，则返回true。
+	needsInput():boolean 
+		如果输入缓冲区中没有数据，则返回true。这可用于确定是否应调用setInput以提供更多输入。
+	reset():void 
+		重置解压器，以便处理一组新的输入数据。
+	setDictionary(byte[] b):void 
+		b - 字典数据字节
+		将预设字典设置为给定的字节数组。当inflat()返回0且needsDictionary()返回true（指示需要预设字典）时应调用。方法getAdler()可用于获取所需字典的Adler-32值。
+	setDictionary(byte[] b, int off, int len):void 
+		b - 字典数据字节
+		off - 数据的起始偏移量
+		len - 数据的长度
+		将预设字典设置为给定的字节数组。当inflat()返回0且needsDictionary()返回true（指示需要预设字典）时应调用。方法getAdler()可用于获取所需字典的Adler-32值。		
+	setInput(byte[] b):void 
+		b - 输入数据字节
+		为解压缩设置输入数据。当needsInput()返回true时应调用，指示需要更多输入数据。
+	setInput(byte[] b, int off, int len):void 
+		b - 输入数据字节
+		off - 数据的起始偏移量
+		len - 数据的长度
+		为解压缩设置输入数据。应在needsInput()返回true时调用，指示需要更多输入数据。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -1,0 +1,58 @@
+----------------------------------------CheckedInputStream--------------------------------------------------------------------------------------------------------------
+CheckedInputStream：	已校验输入流。 【Since:1.6】
+	一种输入流，它还维护正在读取的数据的校验和。然后可以使用校验和验证输入数据的完整性。
+	
+	类定义	：public class CheckedInputStream extends FilterInputStream
+	实现接口	：Closeable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public CheckedInputStream(InputStream in, Checksum cksum)
+		in - 输入流
+		cksum - 校验和。
+		使用指定的校验和创建输入流。
+Method Summary（方法概要）：
+	getChecksum():Checksum 
+		返回此输入流的校验和。
+	read():int 
+		△ 读取字节。如果没有可用的输入，将阻塞。
+		返回读取字节，如果到达流的结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(byte[] buf, int off, int len):int 
+		buf - 读取数据的缓冲区
+		off - 目标数组b中的起始偏移量
+		len - 读取的最大字节数	
+		△ 读取一个字节数组。如果len不是0，则方法将一直阻塞，直到某些输入可用；否则，将不读取任何字节，并返回0。
+		返回实际读取的字节数，如果到达流的结尾，则为-1。
+		【Throws】：
+			NullPointerException 如果buf为null。
+			IndexOutOfBoundsException 如果off为负，len为负，或者len > buf.length - off
+			IOException 如果发生I/O错误。
+	skip(long n):long 
+		n - 要跳过的字节数
+		△ 跳过指定的输入字节数。
+		返回跳过的实际字节数。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

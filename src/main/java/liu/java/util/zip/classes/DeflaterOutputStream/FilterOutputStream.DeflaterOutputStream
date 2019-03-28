@@ -1,0 +1,97 @@
+----------------------------------------DeflaterOutputStream--------------------------------------------------------------------------------------------------------------
+DeflaterOutputStream：压缩器输出流	【Since:1.1】
+	这个类实现了一个输出流过滤器，用于以“deflate”压缩格式压缩数据。它还用作其他类型压缩过滤器（如GZIPOutputStream）的基础。
+	
+	
+	类定义	：public class DeflaterOutputStream extends FilterOutputStream
+	实现接口	：Closeable, Flushable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	buf
+		用于写入压缩数据的输出缓冲区。
+	def
+		用于此流的压缩器。
+		
+Constructor Summary（构造器概要）：
+	public DeflaterOutputStream(OutputStream out)
+		out - 输出流
+		使用默认的压缩器和缓冲区大小创建新的输出流。
+		新的输出流实例是通过调用2个参数构造函数DeflaterOutputStream(out, false)创建的。
+	public DeflaterOutputStream(OutputStream out, boolean syncFlush)
+		out - 输出流
+		syncFlush - 如果为true，则此实例的flush()方法在刷新输出流之前使用flush模式Deflater.SYNC_FLUSH刷新压缩器，否则只刷新输出流。
+		使用默认压缩器、默认缓冲区大小和指定的刷新模式创建新的输出流。
+	public DeflaterOutputStream(OutputStream out, Deflater def)
+		out - 输出流
+		def - "deflater"压缩器
+		使用指定的压缩器和默认缓冲区大小创建新的输出流。
+		新的输出流实例是通过调用3个参数构造函数DeflaterOutputStream(out, def, false)创建的。
+	public DeflaterOutputStream(OutputStream out,Deflater def,boolean syncFlush)
+		out - 输出流
+		def - "deflater"压缩器
+		syncFlush - 如果为true，则此实例的flush()方法在刷新输出流之前使用flush模式Deflater.SYNC_FLUSH刷新压缩器，否则只刷新输出流。
+		使用指定的压缩器、刷新模式和默认缓冲区大小创建新的输出流。
+	public DeflaterOutputStream(OutputStream out, Deflater def, int size)
+		out - 输出流
+		def - "deflater"压缩器
+		size - 输出缓冲区大小
+		使用指定的压缩器和缓冲区大小创建新的输出流。
+		新的输出流实例是通过调用4个参数构造函数DeflaterOutputStream(out, def, size, false)创建的。
+		【Throws】：
+			IllegalArgumentException 如果size <= 0
+	public DeflaterOutputStream(OutputStream out,Deflater def,int size,boolean syncFlush)
+		out - 输出流
+		def - "deflater"压缩器
+		size - 输出缓冲区大小
+		syncFlush - 如果为true，则此实例的flush()方法在刷新输出流之前使用flush模式Deflater.SYNC_FLUSH刷新压缩器，否则只刷新输出流。
+		使用指定的压缩器、缓冲区大小和刷新模式创建新的输出流。
+Method Summary（方法概要）：
+	close():void 
+		将剩余的压缩数据写入输出流并关闭基础流。
+		【Throws】：
+			IOException - 如果发生I/O错误。
+	deflate():protected void 
+		将下一个压缩数据块写入输出流。
+		【Throws】：
+			IOException - 如果发生I/O错误。
+	finish():void 
+		完成将压缩数据写入输出流而不关闭基础流。对同一输出流连续应用多个过滤器，请使用此方法。
+		【Throws】：
+			IOException - 如果发生I/O错误。
+	flush():void 
+		刷新压缩的输出流。如果在构造此压缩输出流时syncFlush为true，则此方法首先使用刷新模式Deflater.SYNC_FLUSH刷新底层压缩器，以强制将所有挂起的数据刷新到输出流，然后刷新输出流。否则，此方法只刷新输出流而不刷新压缩器。
+		【Throws】：
+			IOException - 如果发生I/O错误。
+	write(byte[] b, int off, int len):void 
+		b - 要写入的数据
+		off - 数据的起始偏移量
+		len - 数据的长度
+		将字节数组写入压缩的输出流。在写入所有字节之前，此方法将被阻塞。
+		【Throws】：
+			IOException - 如果发生I/O错误。
+	write(int b):void 
+		b - 要写入的字节
+		将字节写入压缩的输出流。此方法将一直阻塞，直到可以写入字节。
+		【Throws】：
+			IOException - 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -1,0 +1,101 @@
+----------------------------------------InflaterInputStream--------------------------------------------------------------------------------------------------------------
+InflaterInputStream：解压器输入流	【Since:1.6】
+	这个类实现了一个流过滤器，用于以“deflate”压缩格式解压缩数据。它还用作其他解压过滤器（如GZIPInputStream）的基础。
+	
+	
+	
+	类定义	：public class InflaterInputStream extends FilterInputStream
+	实现接口	：Closeable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	buf
+		用于解压缩的输入缓冲区。
+	inf
+		用于此流的解压器。
+	len
+		输入缓冲区的长度。
+		
+Constructor Summary（构造器概要）：
+	public InflaterInputStream(InputStream in)
+		in -  输入流
+		使用默认的解压器和缓冲区大小创建新的输入流。
+		【Throws】：
+			NullPointerException 如果in为null。
+	public InflaterInputStream(InputStream in, Inflater inf)
+		in -  输入流
+		inf - 用于此流的解压器("inflater")
+		使用指定的解压器和默认缓冲区大小创建新的输入流。
+		【Throws】：
+			NullPointerException 如果in或者defl为null。
+	public InflaterInputStream(InputStream in, Inflater inf, int size)
+		in - 输入流
+		inf - 用于此流的解压器("inflater")
+		size - 输入缓冲区大小
+		使用指定的解压器和缓冲区大小创建新的输入流。
+		【Throws】：
+			IllegalArgumentException 如果 size <= 0。
+		
+Method Summary（方法概要）：
+	available():int 
+		△ 到达EOF后返回0，否则始终返回1。
+		程序不应指望此方法可以不阻塞地读取到实际字节数并返回。
+		【Throws】：
+			IOException 如果发生I/O错误或此流已关闭。
+	close():void 
+		△ 关闭此输入流并释放与该流关联的任何系统资源。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	fill():protected void 
+		向输入缓冲区填充更多要解压缩的数据。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	mark(int readlimit):void
+		△ readlimit - 标记位置无效之前可以读取的最大字节数限制。
+		标记此输入流中的当前位置。
+		InflaterInputStream的标记方法不起作用。
+	markSupported():boolean 
+		△ 测试此输入流是否支持标记和重置方法。InflaterInputStream的markSupported方法返回false。
+	read():int 
+		△ 读取未压缩数据的字节。此方法将阻塞，直到有足够的输入可用于解压缩。
+		返回读取的字节，如果达到压缩输入的结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(byte[] b, int off, int len):int 
+		b - 读取数据的缓冲区
+		off - 目标数组b中的起始偏移量
+		len - 读取的最大字节数
+		△ 将未压缩的数据（即解压后的数据）读取到字节数组中。如果len不是零，方法将阻塞，直到可以解压缩某些输入；否则，将不读取任何字节，并返回0。
+		返回实际读取的字节数，如果达到压缩输入的结尾或需要预设字典，则为-1。
+	reset():void 
+		△ 将此流重新定位到此输入流上一次调用mark方法时的位置。
+		类InflaterInputStream的方法reset除了抛出IOException外什么也不做。		
+		【Throws】：
+			IOException 总是一直抛出此异常。
+	skip(long n):long 
+		n - 要跳过的字节数。
+		△ 跳过未压缩数据的指定字节数。
+		返回跳过的实际字节数。
+		【Throws】：
+			IOException 如果发生I/O错误或此流已关闭。
+			IllegalArgumentException 如果n < 0
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

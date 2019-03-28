@@ -1,0 +1,171 @@
+----------------------------------------Deflater--------------------------------------------------------------------------------------------------------------
+Deflater：放气机（压缩器）	【Since:1.1】
+	这个类使用流行的ZLIB压缩库为通用压缩提供支持。ZLIB压缩库最初是作为PNG图形标准的一部分开发的，不受专利保护。它在java.util.zip包描述中的规范中进行了详细描述。
+	下面的代码片段演示了使用Deflater（放气）和Inflater（充气）对字符串进行简单的压缩和解压缩。
+	 try {
+	     // Encode a String into bytes
+	     String inputString = "blahblahblah";
+	     byte[] input = inputString.getBytes("UTF-8");
+	
+	     // Compress the bytes
+	     byte[] output = new byte[100];
+	     Deflater compresser = new Deflater();
+	     compresser.setInput(input);
+	     compresser.finish();
+	     int compressedDataLength = compresser.deflate(output);
+	     compresser.end();
+	
+	     // Decompress the bytes
+	     Inflater decompresser = new Inflater();
+	     decompresser.setInput(output, 0, compressedDataLength);
+	     byte[] result = new byte[100];
+	     int resultLength = decompresser.inflate(result);
+	     decompresser.end();
+	
+	     // Decode the bytes into a String
+	     String outputString = new String(result, 0, resultLength, "UTF-8");
+	 } catch(java.io.UnsupportedEncodingException ex) {
+	     // handle
+	 } catch (java.util.zip.DataFormatException ex) {
+	     // handle
+	 }	
+	
+	
+	类定义	：public class Deflater 
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	BEST_COMPRESSION
+		压缩级别可实现最佳压缩。
+	BEST_SPEED
+		压缩级别可实现最快的压缩。
+	DEFAULT_COMPRESSION
+		默认压缩级别。
+	DEFAULT_STRATEGY
+		默认压缩策略。
+	DEFLATED
+		deflate算法的压缩方法（当前唯一支持的方法）。
+	FILTERED
+		压缩策略最适用于大多数由小值组成的数据，这些小值具有一定的随机分布。强制更多的Huffman编码和更少的字符串匹配。
+	FULL_FLUSH
+		压缩刷新模式，用于刷新所有待处理的输出，并重置deflater。频繁使用此模式会严重降低压缩。
+	HUFFMAN_ONLY
+		压缩策略仅适用于哈夫曼编码。
+	NO_COMPRESSION
+		无压缩的压缩级别。
+	NO_FLUSH
+		压缩刷新模式用于获得最佳压缩效果。
+	SYNC_FLUSH
+		压缩刷新模式用于清除所有挂起的输出；可能会降低某些压缩算法的压缩。
+		
+Constructor Summary（构造器概要）：
+	public Deflater()
+		创建具有默认压缩级别的新压缩器。压缩数据将以ZLIB格式生成。
+	public Deflater(int level)
+		level - 压缩级别(0-9)
+		使用指定的压缩级别创建新的压缩器。压缩数据将以ZLIB格式生成。
+	public Deflater(int level, boolean nowrap)
+		level - 压缩级别(0-9)
+		nowrap - 如果为true，则使用GZIP兼容压缩
+		使用指定的压缩级别创建新的压缩器。如果“nowrap”为true，则不会使用ZLIB头和校验和字段来支持GZIP和PKZIP中使用的压缩格式。
+	
+		
+Method Summary（方法概要）：
+	deflate(byte[] b):int 
+		b - 压缩数据的缓冲区（临时存储压缩后的数据）
+		压缩输入数据并用压缩数据填充指定的缓冲区。返回压缩数据的实际字节数。返回值0表示应调用needsInput以确定是否需要更多输入数据。
+		此方法使用NO_FLUSH作为其压缩刷新模式。调用deflater.deflate(b)形式的此方法将产生与调用deflater.deflate(b, 0, b.length, Deflater.NO_FLUSH)相同的结果。
+		返回写入输出缓冲区的压缩数据的实际字节数。
+	deflate(byte[] b, int off, int len):int 
+		b - 压缩数据的缓冲区
+		off - 数据的起始偏移量
+		len - 压缩数据的最大字节数
+		压缩输入数据并用压缩数据填充指定的缓冲区。返回压缩数据的实际字节数。返回值0表示应调用needsInput以确定是否需要更多输入数据。	
+		此方法使用NO_FLUSH作为其压缩刷新模式。调用deflater.deflate(b, off, len)形式的此方法将产生与调用deflater.deflate(b, off, len, Deflater.NO_FLUSH)相同的结果。	
+	deflate(byte[] b, int off, int len, int flush):int 
+		b - 压缩数据的缓冲区（临时存储压缩后的数据）
+		off - 数据的起始偏移量
+		len - 压缩数据的最大字节数
+		flush - 压缩刷新模式
+		压缩输入数据并用压缩数据填充指定的缓冲区。返回压缩数据的实际字节数。
+		压缩刷新模式是以下三种模式之一：
+			● NO_FLUSH：允许deflater在产生输出之前决定要积累多少数据，以实现最佳压缩（应在正常使用场景中使用）。此刷新模式下的返回值0表示应调用needsInput()以确定是否需要更多输入数据。
+			● SYNC_FLUSH：deflater中所有待处理的输出都会被刷新到指定的输出缓冲区，这样，处理压缩数据的inflater就可以获得目前为止可用的所有输入数据（特别是，如果提供了足够的输出空间，needsInput()在调用后返回true）。使用SYNC_FLUSH进行刷新可能会降低某些压缩算法的压缩，因此只有在必要时才应使用它。
+			● FULL_FLUSH：所有挂起的输出都会像SYNC_FLUSH一样刷新。压缩状态被重置，以便在先前的压缩数据已损坏或需要随机访问时，对压缩输出数据工作的inflater可以从此点重新启动。经常使用FULL_FLUSH会严重降低压缩。
+		在FULL_FLUSH或SYNC_FLUSH的情况下，如果返回值为len（输出缓冲区b中的可用空间），则应使用相同的刷新参数和更多的输出空间再次调用此方法。
+		返回写入输出缓冲区的压缩数据的实际字节数。
+		【Throws】：
+			IllegalArgumentException 如果刷新模式无效
+	end():void 
+		关闭压缩器并丢弃任何未处理的输入。当不再使用压缩器时应调用此方法，但也将由finalize()方法自动调用。调用此方法后，deflater对象的行为将不确定。
+	finalize(): protected void 
+		垃圾回收时关闭压缩器。
+	finish():void 
+		被调用时，指示压缩应以输入缓冲区的当前内容结束。
+	finished():boolean 
+		如果已到达压缩数据输出流的结尾，则返回true。
+	getAdler():int 
+		返回未压缩数据的ADLER-32值。
+	getBytesRead():long 
+		返回到目前为止输入的未压缩字节总数。
+		返回迄今为止输入的未压缩字节总数（非负数）。
+	getBytesWritten():long 
+		返回到目前为止输出的压缩字节总数。
+		返回迄今为止输出的压缩字节总数（非负数）。
+	getTotalIn():int 
+		返回到目前为止输入的未压缩字节总数。
+		由于字节数可能大于Integer.MAX_VALUE，因此getBytesRead()方法现在是获取此信息的首选方法。
+	getTotalOut():int 
+		返回到目前为止输出的压缩字节总数。
+		由于字节数可能大于Integer.MAX_VALUE，因此getBytesWritten()方法现在是获取此信息的首选方法。
+	needsInput():boolean 
+		如果输入数据缓冲区为空，并且应调用setInput()以提供更多输入，则返回true。
+	reset():void 
+		重置deflater，以便处理一组新的输入数据。保持当前压缩级别和策略设置。
+	setDictionary(byte[] b):void 
+		b - 字典数据字节
+		为压缩设置预设字典。当历史缓冲区可以预先确定时，使用预先设定的字典。当数据稍后用Inflater.inflate()解压缩时，可以调用Inflater.getAdler()以获取解压缩所需字典的Adler-32值。
+	setDictionary(byte[] b, int off, int len):void 
+		b - 字典数据字节
+		off - 数据的起始偏移量
+		len - 数据的长度
+		为压缩设置预设字典。当历史缓冲区可以预先确定时，使用预先设定的字典。当数据稍后用Inflater.inflate()解压缩时，可以调用Inflater.getAdler()以获取解压缩所需字典的Adler-32值。
+	setInput(byte[] b):void 
+		b - 输入数据字节
+		为压缩设置输入数据。只要needsInput()返回true，表示需要更多的输入数据，就应该调用此函数。
+	setInput(byte[] b, int off, int len):void 
+		b - 输入数据字节
+		off - 数据的起始偏移量
+		len - 数据的长度
+		为压缩设置输入数据。只要needsInput()返回true，表示需要更多的输入数据，就应该调用此函数。
+	setLevel(int level):void 
+		level - 新的压缩级别（0-9）
+		将压缩级别设置为指定值。
+		如果压缩级别更改，下一次deflate调用将压缩现有级别的输入（并可能被刷新）；新级别仅在调用之后生效。
+		【Throws:】：
+			IllegalArgumentException 如果压缩级别level无效。
+	setStrategy(int strategy):void 
+		strategy - 新的压缩策略
+		将压缩策略设置为指定值。
+		如果压缩策略被更改，下一次调用deflate使用旧策略压缩迄今为止可用的输入（并且可能被刷新）；新策略只有在调用之后才会生效。
+		【Throws:】：
+			IllegalArgumentException 如果压缩策略strategy无效。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

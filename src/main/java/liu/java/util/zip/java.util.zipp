@@ -1,0 +1,30 @@
+----------------------------------------Package java.util.zip--------------------------------------------------------------------------------------------------------------
+											【Since 1.1】
+Package Description（包描述说明）：
+	提供用于读取和写入标准ZIP和GZIP文件格式的类。还包括使用DEFLATE压缩算法压缩和解压缩数据的类，压缩算法由ZIP和GZIP文件格式使用。此外，还有用于计算任意输入流的CRC-32和Adler-32校验和的实用程序类。
+
+Interface Summary（接口概要）
+	Checksum
+
+Class Summary(类概要)
+	Adler32
+	CheckedInputStream
+	CheckedOutputStream
+	CRC32
+	Deflater
+	DeflaterInputStream
+	DeflaterOutputStream
+	GZIPInputStream
+	GZIPOutputStream
+	Inflater
+	InflaterInputStream
+	InflaterOutputStream
+	ZipEntry
+	ZipFile
+	ZipInputStream
+	ZipOutputStream	
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、
