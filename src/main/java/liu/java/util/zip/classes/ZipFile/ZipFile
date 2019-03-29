@@ -1,0 +1,136 @@
+----------------------------------------ZipFile--------------------------------------------------------------------------------------------------------------
+ZipFile：Zip文件	【Since:1.1】
+	此类用于从zip文件中读取条目。
+	除非另有说明，否则将null参数传递给此类中的构造函数或方法将导致引发NullPointerException异常。
+	
+	
+	类定义	：public class ZipFile implements ZipConstants, Closeable
+	实现接口	：ZipConstants, Cloneable
+	直接子类	：JarFile
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	OPEN_DELETE
+		打开zip文件并标记为删除的模式标志。在打开文件和关闭文件之间的一段时间内，文件将被删除，但在调用close方法或虚拟机退出之前，其内容将通过ZipFile对象保持可访问性。
+	OPEN_READ
+		打开zip文件进行读取的模式标志。
+		
+Constructor Summary（构造器概要）：
+	public ZipFile(File file)
+		file - 要打开以供读取的ZIP文件
+		打开一个ZIP文件以读取给定的文件对象。
+		UTF-8字符集用于解码条目名称和注释。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException - 如果发生I/O错误。
+	public ZipFile(File file, int mode)
+		file - 要打开以供读取的ZIP文件
+		mode - 打开文件的模式
+		打开一个新的ZipFile以在指定模式下从指定的文件对象中读取。模式参数必须是OPEN_READ 或者  OPEN_READ | OPEN_DELETE。
+		首先，如果存在安全管理器，则使用name参数调用其checkRead方法，以确保允许读取。
+		UTF-8字符集用于解码条目名称和注释。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安全管理器存在，并且其checkRead 方法不允许对文件进行读访问，或者其checkDelete方法不允许在设置OPEN_DELETE标志时删除文件。
+			IllegalArgumentException 如果mode参数无效。
+	public ZipFile(File file, int mode, Charset charset)
+		file - 要打开以供读取的ZIP文件
+		mode - 打开文件的模式
+		charset - 用于解码不使用UTF-8编码（由条目的通用标志指示）的ZIP条目名称和注释的字符集。	
+		打开一个新的ZipFile以在指定模式下从指定的文件对象中读取。模式参数必须是OPEN_READ或OPEN_READ | OPEN_DELETE。	
+		首先，如果存在安全管理器，则使用name参数调用其checkRead方法，以确保允许读取。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安全管理器存在，并且其checkRead 方法不允许对文件进行读访问，或者其checkDelete方法不允许在设置OPEN_DELETE标志时删除文件。
+			IllegalArgumentException 如果mode参数无效。
+	public ZipFile(File file, Charset charset)
+		file - 要打开以供读取的ZIP文件
+		charset - 用于解码不使用UTF-8编码（由条目的通用标志指示）的ZIP条目名称和注释的字符集。	
+		打开一个ZIP文件以读取给定的文件对象。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException 如果发生I/O错误。
+	public ZipFile(String name)
+		name - zip文件名称
+		打开一个zip文件进行读取。
+		首先，如果存在安全管理器，则使用name参数调用其checkRead方法，以确保允许读取。
+		UTF-8字符集用于解码条目名称和注释。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安全管理器存在，并且其checkRead方法不允许对文件进行读访问，或者其checkDelete方法不允许在设置OPEN_DELETE标志时删除文件。
+	public ZipFile(String name, Charset charset)
+		name - zip文件名称
+		charset - 用于解码不使用UTF-8编码（由条目的通用标志指示）的ZIP条目名称和注释的字符集。
+		打开一个zip文件进行读取。
+		首先，如果存在安全管理器，则使用name参数调用其checkRead方法，以确保允许读取。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安全管理器存在，并且其checkRead方法不允许对文件进行读访问，或者其checkDelete方法不允许在设置OPEN_DELETE标志时删除文件。
+		
+Method Summary（方法概要）：
+	close():void 
+		关闭ZIP文件。
+		关闭此ZIP文件将关闭先前由getInputStream方法调用返回的所有输入流。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	entries():Enumeration<? extends ZipEntry> 
+		返回ZIP文件条目的枚举。
+		【Throws】：
+			IllegalStateException 如果压缩文件已关闭
+	finalize():protected void 
+		确保当不再有对该ZipFile对象的引用时，释放该对象持有的系统资源。
+		由于GC调用此方法的时间尚未确定，因此强烈建议应用程序在完成访问此ZipFile后立即调用close方法。这将防止在不确定的时间长度内占用系统资源。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	getComment():String 
+		返回zip文件注释，如果没有则返回null值。
+		【Throws】：
+			IllegalStateException 如果压缩文件已关闭（Since 1.7）
+	getEntry(String name):ZipEntry 
+		name - 条目名称
+		返回指定名称的zip文件条目，如果找不到，则返回null值。
+		【Throws】：
+			IllegalStateException 如果压缩文件已关闭
+	getInputStream(ZipEntry entry):InputStream 
+		entry - zip文件条目
+		返回用于读取指定zip文件条目内容的输入流。
+		关闭此zip文件将依次关闭调用此方法返回的所有输入流。
+		【Throws】：
+			ZipException 如果发生ZIP格式错误。
+			IOException 如果发生I/O错误。
+			IllegalStateException 如果压缩文件已关闭
+	getName():String 
+		返回zip文件的路径名。
+	size():int 
+		返回zip文件中的条目数量。
+		【Throws】：
+			IllegalStateException 如果压缩文件已关闭
+	stream():Stream<? extends ZipEntry> 
+		在zip文件项上返回有序流。条目在流中的显示顺序与它们在zip文件的中心目录中的显示顺序相同。
+		【Throws】：
+			IllegalStateException 如果压缩文件已关闭
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	4、ZipEntry：包含了一个功能全面的接口，利用它可以获取和设置Zip 文件内那个特定的Entry（入口）上能够接受的所有数据：名字、压缩后和压缩前的长度、日期、CRC 校验和、额外字段的数据、注释、压缩方法以及它是否一个目录入口等等。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -1,0 +1,65 @@
+----------------------------------------GZIPInputStream--------------------------------------------------------------------------------------------------------------
+GZIPInputStream：GZIP输入流	【Since:1.6】
+	此类实现用于以GZIP文件格式读取压缩数据的过滤器流。
+	
+	
+	
+	类定义	：public class GZIPInputStream extends InflaterInputStream
+	实现接口	：Closeable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	GZIP_MAGIC
+		GZIP头幻数。
+	crc
+		用于未压缩数据的CRC-32。
+	eos
+		指示输入流的结尾。
+		
+		
+Constructor Summary（构造器概要）：
+	public GZIPInputStream(InputStream in)	
+		in - 输入流	
+		创建具有默认缓冲区大小的新输入流。
+		【Throws】：
+			ZipException 如果发生GZIP格式错误或不支持使用的压缩方法
+			IOException 如果发生I/O错误
+	public GZIPInputStream(InputStream in, int size)
+		in - 输入流
+		size - 输入缓冲区大小
+		创建具有指定缓冲区大小的新输入流。
+		【Throws】：
+			ZipException 如果发生GZIP格式错误或不支持使用的压缩方法
+			IOException 如果发生I/O错误
+			IllegalArgumentException 如果size <= 0。
+			
+Method Summary（方法概要）：
+	close():void 
+		关闭此输入流并释放与该流关联的任何系统资源。
+		【Throws】：
+			IOException 如果发生I/O错误
+	read(byte[] buf, int off, int len):int 
+		buf - 读取数据的缓冲区
+		off - 目标数组b中的起始偏移量
+		len - 读取的最大字节数
+		将未压缩的数据读取到字节数组中。如果len不是零，方法将阻塞，直到可以解压缩某些输入；否则，将不读取任何字节，并返回0。	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

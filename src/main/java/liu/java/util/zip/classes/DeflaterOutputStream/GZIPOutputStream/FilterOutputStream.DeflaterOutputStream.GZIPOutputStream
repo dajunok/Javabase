@@ -1,0 +1,75 @@
+----------------------------------------GZIPOutputStream--------------------------------------------------------------------------------------------------------------
+GZIPOutputStream：GZIP输出流	【Since:1.1】
+	此类实现了一个流过滤器，用于以GZIP文件格式写入压缩数据。
+	
+	
+	类定义	：public class GZIPOutputStream extends DeflaterOutputStream
+	实现接口	：Closeable, Flushable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	crc
+		未压缩数据的CRC-32。
+		
+Constructor Summary（构造器概要）：
+	public GZIPOutputStream(OutputStream out)
+		out - 输出流
+		创建具有默认缓冲区大小的新输出流。
+		新的输出流实例是通过调用2个参数构造函数GZIPOutputStream(out, false)创建的。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	public GZIPOutputStream(OutputStream out, boolean syncFlush)
+		out - 输出流
+		syncFlush - 如果此实例继承的flush()方法的真调用在刷新输出流之前使用刷新模式Deflater.SYNC_FLUSH刷新压缩器，否则只刷新输出流。
+		使用默认缓冲区大小和指定的刷新模式创建新的输出流。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	public GZIPOutputStream(OutputStream out, int size)
+		out - 输出流
+		size - 输出缓冲区大小
+		创建具有指定缓冲区大小的新输出流。
+		新的输出流实例是通过调用3个参数构造函数GZIPOutputStream(out, size, false)创建的。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			IllegalArgumentException 如果size <= 0
+	public GZIPOutputStream(OutputStream out, int size, boolean syncFlush)
+		out - 输出流
+		size - 输出缓冲区大小
+		syncFlush - 如果此实例继承的flush()方法的真调用在刷新输出流之前使用刷新模式Deflater.SYNC_FLUSH刷新压缩器，否则只刷新输出流。
+		使用指定的缓冲区大小和刷新模式创建新的输出流。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			IllegalArgumentException 如果size <= 0
+		
+Method Summary（方法概要）：
+	finish():void 
+		完成将压缩数据写入输出流而不关闭基础流。对同一输出流连续应用多个过滤器器时，请使用此方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte[] buf, int off, int len):synchronized void 
+		buf - 要写入的数据
+		off - 数据的起始偏移量
+		len - 数据的长度
+		将字节数组写入压缩的输出流。在写入所有字节之前，此方法将被阻止。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

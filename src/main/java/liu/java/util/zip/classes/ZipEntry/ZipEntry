@@ -1,0 +1,169 @@
+----------------------------------------ZipEntry--------------------------------------------------------------------------------------------------------------
+ZipEntry：Zip条目	【Since:1.1】
+	此类用于表示ZIP文件项。
+	
+	
+	类定义	：public class ZipEntry implements ZipConstants, Cloneable
+	实现接口	：ZipConstants, Cloneable
+	直接子类	：JarEntry
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	CENATT		
+	CENATX
+	CENCOM
+	CENCRC
+	CENDSK
+	CENEXT
+	CENFLG
+	CENHDR
+	CENHOW
+	CENLEN
+	CENNAM
+	CENOFF
+	CENSIG
+	CENSIZ
+	CENTIM
+	CENVEM
+	CENVER
+	ENDCOM
+	ENDHDR
+	ENDOFF
+	ENDSIG
+	ENDSIZ
+	ENDSUB
+	ENDTOT
+	EXTCRC
+	EXTHDR
+	EXTLEN
+	EXTSIG
+	EXTSIZ
+	LOCCRC
+	LOCEXT
+	LOCFLG
+	LOCHDR
+	LOCHOW
+	LOCLEN
+	LOCNAM
+	LOCSIG
+	LOCSIZ
+	LOCTIM
+	LOCVER
+	
+	DEFLATED
+		压缩（放气）条目的压缩方法。
+	STORED
+		未压缩项的压缩方法。
+		
+Constructor Summary（构造器概要）：
+	public ZipEntry(String name)
+		name - 条目名称
+		创建具有指定名称的新zip条目。
+		【Throws】：
+			NullPointerException 如果条目名称为null。
+			IllegalArgumentException 如果条目名称超过0xFFFF字节
+	public ZipEntry(ZipEntry e)
+		e - zip条目对象
+		创建一个新的zip条目，其中包含从指定的zip条目中获取的字段。
+		【Throws】：
+			NullPointerException 如果条目对象为null。
+		
+Method Summary（方法概要）：
+	clone():Object 
+		返回此条目的副本。
+	getComment():String 
+		返回条目的注释字符串。如果没有，则返回null。
+	getCompressedSize():long 
+		返回压缩条目数据的大小。
+		在存储条目的情况下，压缩大小将与该条目的未压缩大小相同。
+		返回压缩条目数据的大小，如果不知道，则为-1
+	getCrc():long 
+		返回未压缩入口数据的CRC-32校验和。
+		返回未压缩入口数据的CRC-32校验和，如果不知道，则返回-1。
+	getCreationTime():FileTime 
+		返回条目的创建时间。
+		当从ZIP文件或ZIP文件格式的流中读取时，创建时间来自条目可选额外数据的扩展时间戳字段。
+		返回条目的创建时间，如果未指定，则为null。
+	getExtra():byte[] 
+		返回该条目的额外字段数据。如果没有，则返回null。
+	getLastAccessTime():FileTime 
+		返回该条目的上次访问时间。如果没有指定返回null。
+		最后一次访问时间是在从ZIP文件或ZIP文件格式的流中读取时，从条目的可选额外数据的扩展时间戳字段中获取的。
+	getLastModifiedTime():FileTime 
+		返回该条目的上次修改时间。如果没有指定返回null。
+		如果从ZIP文件或ZIP文件格式的输入流中读取条目，则如果存在扩展时间戳字段，则这是最后一次从ZIP文件条目的可选额外数据中进行修改。否则，从条目的日期和时间字段中读取上次修改时间，默认时区用于将标准MS-DOS格式的日期和时间转换为epoch时间。
+	getMethod():int 
+		返回条目的压缩方法。如果没有指定返回-1。
+	getName():String 
+		返回条目的名称。
+	getSize():long 
+		返回条目数据的未压缩大小。或者-1（如果不知道）
+	getTime():long 
+		返回条目的上次修改时间。
+		如果从ZIP文件或ZIP文件格式的输入流读取条目，则这是从ZIP文件条目的日期和时间字段开始的最后一次修改时间。默认时区用于将标准MS-DOS格式的日期和时间转换为epoch时间。
+		返回该项自epoch以来的最后修改时间（毫秒），如果未指定，则返回-1。
+	hashCode():int 
+		返回此项的哈希代码值。
+	isDirectory():boolean 
+		如果这是目录条目，则返回true。目录条目被定义为名称以“/”结尾的条目。
+	setComment(String comment):void 
+		设置条目的可选注释字符串。
+		ZIP条目注释的最大长度为0xFFFF。如果指定注释字符串的长度在编码后大于0xFFFF字节，则只有前0xFFFF字节输出到ZIP文件条目。
+	setCompressedSize(long csize):void 
+		设置压缩条目数据的大小。
+	setCrc(long crc):void 
+		设置未压缩入口数据的CRC-32校验和。
+	setCreationTime(FileTime time):ZipEntry 
+		设置条目的创建时间。
+		如果设置了，则当输出到ZIP文件或ZIP文件格式的流时，创建时间将存储到条目可选额外数据的扩展时间戳字段中。
+		【Throws】：
+			NullPointerException 如果time为null。
+	setExtra(byte[] extra):void 
+		extra - 额外的字段数据字节
+		为条目设置可选的额外字段数据。
+		如果额外的字段数据包括可扩展时间戳字段，如Info-ZIP应用程序说明970311中指定的NTFS标记0x0001或Info-ZIP扩展时间戳，则调用此方法可能会更改此项的上次修改时间、上次访问时间和创建时间。
+	setLastAccessTime(FileTime time):ZipEntry 
+		设置项的最后访问时间。
+		如果设置了，当输出到ZIP文件或ZIP文件格式的流时，最后一次访问时间将存储在条目可选额外数据的扩展时间戳字段中。
+	setLastModifiedTime(FileTime time):ZipEntry 
+		设置条目的最后修改时间。
+		当输出到ZIP文件或ZIP文件格式的输出流时，此方法设置的最后修改时间将以标准MS-DOS日期和时间格式存储到ZIP文件条目的日期和时间字段中，并以UTC时间格式存储可选额外数据中的扩展时间戳字段。
+		【Throws】：
+			NullPointerException 如果time为null。
+	setMethod(int method):void 
+		method - 压缩方法，STORED 或者 DEFLATED
+		设置项的压缩方法。
+		【Throws】：
+			IllegalArgumentException 如果指定的压缩方法无效
+	setSize(long size):void 
+		size - 未压缩的大小（字节）
+		设置输入数据的未压缩大小。
+		【Throws】：
+			IllegalArgumentException 如果指定的大小小于0，则在不支持ZIP64格式时大于0xFFFFFFFF，或者在支持ZIP64时小于0。
+	setTime(long time):void 
+		设置条目的上次修改时间。
+		如果将条目输出到ZIP文件或ZIP文件格式的输出流，则此方法设置的最后修改时间将存储到ZIP文件条目的日期和时间字段中，并以标准MS-DOS日期和时间格式编码。默认时区用于将epoch时间转换为MS-DOS数据和时间。
+	toString():String 
+		返回ZIP条目的字符串表示形式。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	4、ZipEntry：包含了一个功能全面的接口，利用它可以获取和设置Zip 文件内那个特定的Entry（入口）上能够接受的所有数据：名字、压缩后和压缩前的长度、日期、CRC 校验和、额外字段的数据、注释、压缩方法以及它是否一个目录入口等等。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

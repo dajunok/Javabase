@@ -1,0 +1,77 @@
+----------------------------------------ZipInputStream--------------------------------------------------------------------------------------------------------------
+ZipInputStream：Zip输入流	【Since:1.6】
+	此类实现了一个输入流过滤器，用于读取ZIP文件格式的文件。包括对压缩条目和未压缩条目的支持。
+	
+	
+	
+	类定义	：public class ZipInputStream extends InflaterInputStream implements ZipConstants
+	实现接口	：Closeable, AutoCloseable
+	直接子类	：JarInputStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ZipInputStream(InputStream in)
+		in - 实际输入流
+		创建新的zip输入流。
+		UTF-8字符集用于解码条目名称。
+	public ZipInputStream(InputStream in, Charset charset)
+		in - 实际输入流
+		charset - 用于解码zip条目名称的字符集（如果设置了zip条目的通用位标志的语言编码位，则忽略此字符集）。	
+		创建新的zip输入流。
+		
+Method Summary（方法概要）：
+	available():int 
+		在当前输入数据达到EOF后返回0，否则始终返回1。
+		程序不应指望此方法返回可以不阻塞地读取的实际字节数。
+		【Throws】：
+			IOException 如果发生I/O错误		
+	close():void 
+		关闭此输入流并释放与该流关联的任何系统资源。
+		【Throws】：
+			IOException 如果发生I/O错误	
+	closeEntry():void 
+		关闭当前zip条目并定位流以读取下一个条目。
+		【Throws】：
+			ZipException 如果发生zip文件错误
+			IOException 如果发生I/O错误
+	createZipEntry(String name):protected ZipEntry 
+		name - ZIP文件条目名称
+		为指定的条目名称创建新的ZipEntry对象。
+	getNextEntry():ZipEntry
+		读取下一个ZIP文件条目并将流定位在条目数据的开头。
+	read(byte[] b, int off, int len):int 
+		b - 读取数据的缓冲区
+		off - 目标数组b中的起始偏移量
+		len - 读取的最大字节数
+		从当前ZIP条目读取到字节数组。如果len不是零，则方法将一直阻塞，直到某些输入可用；否则，将不读取任何字节，并返回0。
+		【Throws】：
+			NullPointerException 如果b为null。
+			IndexOutOfBoundsException 如果off为负，len为负，或者len大于b.length-off
+			ZipException 如果发生zip文件错误
+			IOException 如果发生I/O错误
+	skip(long n):long 
+		n - 要跳过的字节数。
+		跳过当前zip条目中指定的字节数。
+		【Throws】：
+			ZipException 如果发生zip文件错误
+			IOException 如果发生I/O错误
+			IllegalArgumentException 如果n < 0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

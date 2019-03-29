@@ -30,7 +30,7 @@ Constructor Summary（构造器概要）：
 	public InflaterInputStream(InputStream in, Inflater inf, int size)
 		in - 输入流
 		inf - 用于此流的解压器("inflater")
-		size - 输入缓冲区大小
+		size - 输入缓冲区大小（临时存放要解压的数据）
 		使用指定的解压器和缓冲区大小创建新的输入流。
 		【Throws】：
 			IllegalArgumentException 如果 size <= 0。
@@ -73,7 +73,7 @@ Method Summary（方法概要）：
 			IOException 总是一直抛出此异常。
 	skip(long n):long 
 		n - 要跳过的字节数。
-		△ 跳过未压缩数据的指定字节数。
+		△ 跳过未压缩数据（即解压后的数据）的指定字节数。
 		返回跳过的实际字节数。
 		【Throws】：
 			IOException 如果发生I/O错误或此流已关闭。
