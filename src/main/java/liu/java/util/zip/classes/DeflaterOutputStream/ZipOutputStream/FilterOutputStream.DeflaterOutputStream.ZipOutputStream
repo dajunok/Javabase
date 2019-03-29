@@ -1,0 +1,91 @@
+----------------------------------------ZipOutputStream--------------------------------------------------------------------------------------------------------------
+ZipOutputStream：Zip输出流	【Since:1.6】
+	这个类实现了一个输出流过滤器，用于以zip文件格式写入文件。包括对压缩条目和未压缩条目的支持。
+	
+	
+	类定义	：public class ZipOutputStream extends DeflaterOutputStream implements ZipConstants
+	实现接口	：Closeable, Flushable, AutoCloseable
+	直接子类	：JarOutputStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	DEFLATED
+		压缩（DEFLATED）条目的压缩方法。
+	STORED
+		未压缩（存储）条目的压缩方法。
+		
+Constructor Summary（构造器概要）：
+	public ZipOutputStream(OutputStream out)
+		out - 实际输出流
+		创建新的ZIP输出流。
+		UTF-8字符集用于对条目名称和注释进行编码。
+	public ZipOutputStream(OutputStream out, Charset charset)
+		out - 实际输出流
+		charset - 用于对条目名称和注释进行编码的字符集
+		创建新的ZIP输出流。
+	
+Method Summary（方法概要）：
+	close():void 
+		关闭ZIP输出流以及正在过滤的流。
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+	closeEntry():void
+		关闭当前zip条目并定位流以写入下一个条目。 
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+	finish():void 
+		在不关闭基础流的情况下完成写入ZIP输出流的内容。对同一输出流连续应用多个过滤器器时，请使用此方法。
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+	putNextEntry(ZipEntry e):void 
+		e - the ZIP entry to be written
+		开始写入新的ZIP文件条目，并将流定位到条目数据的开头。如果仍处于活动状态，则关闭当前条目。如果没有为条目指定压缩方法，则使用默认压缩方法；如果条目没有设置修改时间，则使用当前时间。
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+	setComment(String comment):void 
+		设置ZIP文件注释。
+		【Throws】：
+			IllegalArgumentException 如果指定ZIP文件注释的长度大于0xFFFF字节
+	setLevel(int level):void 
+		level - 压缩级别(0-9)
+		设置下一个DEFLATED的入口的压缩级别。默认设置为DEFAULT_COMPRESSION。
+		【Throws】：
+			IllegalArgumentException 如果压缩级别无效。
+	setMethod(int method):void 
+		method - 默认压缩方法
+		为后续条目设置默认压缩方法。每当没有为单个ZIP文件条目指定压缩方法时，将使用此默认值，并且初始设置为DEFLATED。
+		【Throws】：
+			IllegalArgumentException 如果指定的压缩方法无效。
+	write(byte[] b, int off, int len):synchronized void 
+		buf - 要写入的数据
+		off - 数据的起始偏移量
+		len - 写入的字节数
+		将字节数组写入当前的ZIP条目数据。在写入所有字节之前，此方法将被阻塞。	
+		【Throws】：
+			ZipException 如果发生ZIP文件错误
+			IOException 如果发生I/O错误
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、manifest文件：描述Jar文件的打包、运行信息。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
