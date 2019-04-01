@@ -1,0 +1,133 @@
+-----------------------------------------DataOutput-----------------------------------------------------------------------------------------------------------------------------		
+DataOutput：数据输出流  【Since:1.0】
+	DataOutput接口提供将任何Java原始类型的数据转换为一系列字节，并将这些字节写入二进制流。还有一个工具可以将String转换成修改后的UTF-8格式，并写入产生的字节序列。
+	对于该接口中写入字节的所有方法，如果由于任何原因无法写入字节，则通常会引发IOException异常。
+
+	接口定义	：public interface DataOutput
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）
+	write(byte b[]):void 
+		将数组b中的所有字节写入输出流。如果b为null，则引发NullPointerException异常。如果b.length为0，则不写入任何字节。否则，首先写入字节b[0]，然后写入b[1]，依此类推；最后写入的字节是b[b.length-1]。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。	
+		按顺序将len字节从数组b写入输出流。如果b为null，则引发NullPointerException异常。如果off为负，或者len为负，或者off+len大于数组b的长度，则会引发IndexOutOfBoundsException异常。如果len为零，则不写入字节。否则，首先写入字节b[off]，然后写入b[off+1]，依此类推；最后写入的字节是b[off+len-1]。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(int b):void 
+		b - 要写入的字节。
+		写入输出流参数b的八个低阶位。忽略b的24个高阶位。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeBoolean(boolean v):void 
+		v - 要写入的布尔值。
+		将布尔值写入此输出流。如果参数v为true，则写入值（字节）1；如果v为false，则写入值（字节）0。此方法写入的字节可以由DataInput接口的readBoolean方法读取，然后返回等于v的布尔值。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeByte(int v):void 
+		v - 要写入的字节值。
+		将参数v的8个低阶位写入输出流。忽略v的24个高阶位。（这意味着writeByte与整型参数的write操作完全相同。）此方法写入的字节可以由DataInput接口的readByte方法读取，然后返回等于（byte）v的字节。
+	writeBytes(String s):void 
+		s - 要写入的字节字符串。
+		将字符串写入输出流。对于字符串s中的每个字符，按顺序将一个字节写入输出流。如果s为null，则引发NullPointerException异常。
+		如果s.length为零，则不写入任何字节。否则，首先写入字符s[0]，然后写入s[1]，依此类推；最后写入的字符是s[s.length-1]。对于每个字符，一个字节，即低位字节，完全按照writeByte方法的方式写入。忽略字符串中每个字符的高阶8位。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeChar(int v):void 
+		v - 要写入的char值。
+		将由两个字节组成的char值写入输出流。要按所示顺序写入的字节值为：
+			 (byte)(0xff & (v >> 8))
+			 (byte)(0xff & v)	
+		此方法写入的字节可以由DataInput接口的readChar方法读取，然后返回等于(char)v的char。
+		【Throws】：
+			IOException 如果发生I/O错误。	
+	writeChars(String s):void 
+		s - 要写入的字符串值。
+		按顺序将字符串s中的每个字符写入输出流，每个字符两个字节。如果s为null，则引发NullPointerException异常。如果s.length为零，则不写入任何字符。否则，首先写入字符s[0]，然后写入s[1]，依此类推；最后写入的字符是s[s.length-1]。对于每个字符，实际上是以writeChar方法的方式写入两个字节，第一个是高阶字节。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeDouble(double v):void 
+		v - 要写入的double值。
+		将由八个字节组成的double值写入输出流。这样做就好像它首先以Double.doubleToLongBits方法的方式将此double值转换为long，然后以writeLong方法的方式写入long值。此方法写入的字节可以通过DataInput接口的readDouble方法读取，然后该方法将返回一个等于v的double。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeFloat(float v):void 
+		v - 要写入的float值。
+		将由四个字节组成的float值写入输出流。这样做就好像它首先以Float.floatToIntBits方法的方式将此float值转换为int，然后以writeInt方法的方式写入int值。此方法写入的字节可以由DataInput接口的readFloat方法读取，然后返回等于v的float。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeInt(int v):void 
+		v - 要写入的int值。
+		将由四个字节组成的int值写入输出流。要按所示顺序写入的字节值为：
+		 (byte)(0xff & (v >> 24))
+		 (byte)(0xff & (v >> 16))
+		 (byte)(0xff & (v >>  8))
+		 (byte)(0xff & v)
+		此方法写入的字节可以由DataInput接口的readInt方法读取，然后返回等于v的int。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeLong(long v):void 
+		v - the long value to be written.
+		将包含八个字节的long值写入输出流。要按所示顺序写入的字节值为：
+			 (byte)(0xff & (v >> 56))
+			 (byte)(0xff & (v >> 48))
+			 (byte)(0xff & (v >> 40))
+			 (byte)(0xff & (v >> 32))
+			 (byte)(0xff & (v >> 24))
+			 (byte)(0xff & (v >> 16))
+			 (byte)(0xff & (v >>  8))
+			 (byte)(0xff & v)
+		此方法写入的字节可以通过DataInput接口的readLong方法读取，然后返回等于v的long。
+		【Throws】：
+			IOException 如果发生I/O错误。		
+	writeShort(int v):void 
+		v - 要写入的short值。
+		将两个字节写入输出流以表示参数的值。要按所示顺序写入的字节值为：
+		 (byte)(0xff & (v >> 8))
+		 (byte)(0xff & v)
+		此方法写入的字节可以通过DataInput接口的readShort方法读取，然后返回等于（short）v的short。	
+		【Throws】：
+			IOException 如果发生I/O错误。	
+	void writeUTF(String s)
+		s - 要写入的字符串值。
+		将两个字节的长度信息写入输出流，后跟字符串s中每个字符的修改后的UTF-8表示形式。如果s为null，则引发NullPointerException异常。根据字符的值，字符串s中的每个字符都被转换为一个1、2或3字节的组。
+		如果字符c在\u0001到\u007f范围内，则用一个字节表示：
+			(byte)c 
+		如果字符c是\u0000或在\u0080到\u07ff的范围内，则用两个字节表示，并按如下顺序写入：
+			(byte)(0xc0 | (0x1f & (c >> 6)))
+ 			(byte)(0x80 | (0x3f & c))	
+ 		如果字符c在从\u0800到uffff的范围内，则它由三个字节表示，按如下顺序写入：
+			 (byte)(0xe0 | (0x0f & (c >> 12)))
+			 (byte)(0x80 | (0x3f & (c >>  6)))
+			 (byte)(0x80 | (0x3f & c)) 	
+		首先，计算表示s的所有字符所需的字节总数。如果此数字大于65535，则引发UTFDataFormatException。否则，该长度将完全按照writeShort方法的方式写入输出流；在此之后，将写入字符串s中每个字符的单字节、双字节或三字节表示。	
+ 		此方法写入的字节可以由DataInput接口的readUTF方法读取，该方法将返回一个等于s的字符串。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
