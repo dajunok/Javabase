@@ -1,0 +1,67 @@
+----------------------------------------OutputStream--------------------------------------------------------------------------------------------------------------
+OutputStream：输出流	【Since:JDK1.0】
+	这个抽象类是表示字节输出流的所有类的超类。输出流接受输出字节并将它们发送到某个接收器。
+	需要定义OutputStream子类的应用程序必须始终至少提供一个写入输出一个字节的方法。
+	
+	
+	
+	类定义	：public abstract class OutputStream implements Closeable, Flushable
+	实现接口	：AutoCloseable, Closeable ,Flushable
+	直接子类	：ByteArrayOutputStream, FileOutputStream, FilterOutputStream, ObjectOutputStream, OutputStream, PipedOutputStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public OutputStream()
+	
+	
+Method Summary（方法概要）：
+	close():void 
+		关闭此输出流并释放与此流关联的任何系统资源。关闭的一般约定是关闭输出流。关闭的流无法执行输出操作，无法重新打开。
+		OutputStream的Close方法不起任何作用。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	flush():void 
+		刷新此输出流并强制写出任何缓冲的输出字节。flush的一般约定是，调用它表示，如果以前写入的任何字节已被输出流的实现缓冲，则这些字节应立即写入其预期目标。
+		如果此流的预期目标是底层操作系统（例如文件）提供的抽象，则刷新流仅保证将以前写入流的字节传递给操作系统进行写入；它不能保证实际写入物理设备（如磁盘驱动器）。
+		OutputStream的flush方法不起任何作用。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[]):void 
+		b - 数据。
+		将b.length字节从指定的字节数组写入此输出流。write(b)的一般约定是它应该与调用write(b, 0, b.length)具有完全相同的效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		将指定字节数组中以偏移量off开始的len字节写入此输出流。write(b, off, len)的一般约定是数组b中的一些字节按顺序写入输出流；元素b[off]是第一个写入的字节，b[off+len-1]是此操作写入的最后一个字节。
+		OutputStream的write方法对要写出的每个字节调用一个参数的write方法。鼓励子类重写此方法并提供更有效的实现。
+		如果b为空，则引发NullPointerException异常。
+		如果off为负，或者len为负，或者off+len大于数组b的长度，那么将引发IndexOutOfBoundsException异常。
+		【Throws】：
+			IOException 如果发生I/O错误。特别是，如果输出流关闭，则引发IOException。
+	write(int b):abstract void 
+		b - 字节。
+		将指定的字节写入此输出流。写入的一般约定是将一个字节写入输出流。要写入的字节是参数b的8个低阶位。忽略b的24个高阶位。
+		OutputStream的子类必须提供此方法的实现。
+		【Throws】：
+			IOException 如果发生I/O错误。特别是，如果输出流关闭，则引发IOException。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

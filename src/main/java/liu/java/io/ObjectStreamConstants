@@ -7,34 +7,65 @@ ObjectStreamConstants：对象流常量  【Since:1.1】
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）
 	baseWireHandle
+		要分配的第一个导线手柄。
 	PROTOCOL_VERSION_1
+		流协议版本。
+		调用此方法后，所有可外部化的数据都以JDK1.1外部数据格式写入。此版本需要写入包含可由JDK 1.1.6之前的JVM读取的Externalizable数据的流。
 	PROTOCOL_VERSION_2
+		流协议版本。
+		该协议由JVM 1.2编写。外部化数据以块数据模式写入，并以TC_ENDBLOCKDATA终止。Externalizable类描述符标志已启用SC_BLOCK_DATA。JVM 1.1.6及更高版本可以读取此格式更改。允许向流中写入不可序列化的类描述符。nonSerializable类的serialVersionUID设置为0L。
 	SC_BLOCK_DATA
+		ObjectStreamClass标志位屏蔽。表示以块数据模式写入的Externalizable数据。为PROTOCOL_VERSION_2添加。
 	SC_ENUM
+		ObjectStreamClass标志的位掩码。指示类是枚举类型。
 	SC_EXTERNALIZABLE
+		ObjectStreamClass标志的位掩码。指示类是Externalizable。
 	SC_SERIALIZABLE
+		ObjectStreamClass标志的位掩码。指示类是可序列化的。
 	SC_WRITE_METHOD
+		ObjectStreamClass标志的位掩码。指示可序列化类定义其自己的writeObject方法。
 	STREAM_MAGIC
+		写入流头的幻数。
 	STREAM_VERSION
+		写入流头的版本号。
 	SUBCLASS_IMPLEMENTATION_PERMISSION
+		启用对readObject和writeObject的重写。
 	SUBSTITUTION_PERMISSION
+		在序列化/反序列化期间，允许将一个对象替换为另一个对象。
 	TC_ARRAY
+		新数组
 	TC_BASE
+		第一个标记值
 	TC_BLOCKDATA
+		可选数据块。后面的字节标记表示此块数据中的字节数。
 	TC_BLOCKDATALONG
+		long块数据。标记后面的long字符表示此块数据中的字节数。
 	TC_CLASS
+		对类的引用。
 	TC_CLASSDESC
+		新类的描述。
 	TC_ENDBLOCKDATA
+		对象的可选块数据块的结尾。
 	TC_ENUM
+		新枚举常量
 	TC_EXCEPTION
+		写入时出现异常。
 	TC_LONGSTRING
+		long字符串。
 	TC_MAX
+		最后的标签值。
 	TC_NULL
+		对象引用为空。
 	TC_OBJECT
+		新对象（Object）
 	TC_PROXYCLASSDESC
+		新代理类描述符。
 	TC_REFERENCE
+		对已写入流中的对象的引用。
 	TC_RESET
+		重置流上下文。写入流中的所有句柄都将重置。
 	TC_STRING
+		新字符串
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 附录：

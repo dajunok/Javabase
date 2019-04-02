@@ -1,0 +1,73 @@
+----------------------------------------FilterOutputStream--------------------------------------------------------------------------------------------------------------
+FilterOutputStream：过滤器输出流	【Since:JDK1.0】
+	这个类是过滤输出流的所有类的超类。这些流位于已经存在的输出流（底层输出流）的顶部，它使用这些输出流作为基本的数据接收器，但可能会沿途转换数据或提供其他功能。
+	类FilterOutputStream本身只使用将所有请求传递给基础输出流的版本覆盖OutputStream的所有方法。FilterOutputStream的子类可能会进一步覆盖其中一些方法，并提供其他方法和字段。
+	
+	
+	
+	类定义	：public class FilterOutputStream extends OutputStream
+	实现接口	：AutoCloseable, Closeable ,Flushable
+	直接子类	：BufferedOutputStream, CheckedOutputStream, CipherOutputStream, DataOutputStream, DeflaterOutputStream, DigestOutputStream, InflaterOutputStream, PrintStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	out : OutputStream
+		要过滤的基础输出流。
+
+Constructor Summary（构造器概要）：
+	public FilterOutputStream(OutputStream out)
+		out - 要分配给字段this.out以供以后使用的基础输出流；如果要在没有基础流的情况下创建此实例，则为null。
+		在指定的基础输出流之上创建输出流过滤器。
+	
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭此输出流并释放与此流关联的任何系统资源。
+		FilterOutputStream的close方法调用其flush方法，然后调用其基础输出流的close方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	flush():void 
+		△ 刷新此输出流并强制将任何缓冲输出字节写入该流。
+		FilterOutputStream的flush方法调用其基础输出流的flush方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[]):void 
+		b - 要写入的数据。
+		△ 将b.length字节从指定的字节数组写入此输出流。
+		FilterOutputStream的write方法使用参数b、0和b.length调用它的三个参数的write方法。
+		请注意，此方法不使用单个参数b调用其基础流的单参数write方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		△ 将指定字节数组中以偏移量off开始的len字节写入此输出流。
+		FilterOutputStream的write方法调用每个字节上一个参数的write方法来输出。
+		请注意，此方法不使用相同的参数调用其基础输入流的write方法。FilterOutputStream的子类应该提供更有效的方法实现。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(int b):abstract void 
+		b - 字节。
+		△ 将指定的字节写入此输出流。
+		FilterOutputStream的write方法调用其基础输出流的write方法，即执行out.write(b)。
+		实现OutputStream的抽象write方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

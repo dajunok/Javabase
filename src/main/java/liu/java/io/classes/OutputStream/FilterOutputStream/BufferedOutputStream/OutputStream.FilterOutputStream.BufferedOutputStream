@@ -1,0 +1,61 @@
+----------------------------------------BufferedOutputStream--------------------------------------------------------------------------------------------------------------
+BufferedOutputStream：缓冲输出流	【Since:JDK1.0】
+	
+	
+	类定义	：public class BufferedOutputStream extends FilterOutputStream
+	实现接口	：AutoCloseable, Closeable ,Flushable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	buf : byte[]
+		存储数据的内部缓冲区。
+	count : int
+		缓冲区中的有效字节数。此值始终在0到buf.length的范围内；元素buf[0]到buf[count-1]包含有效的字节数据。
+		
+Constructor Summary（构造器概要）：
+	public BufferedOutputStream(OutputStream out)
+		out - 底层输出流。
+		创建新的缓冲输出流以将数据写入指定的基础输出流。
+	public BufferedOutputStream(OutputStream out, int size)
+		out - 底层输出流。
+		size - 缓存大小
+		创建新的缓冲输出流，以将数据写入具有指定缓冲区大小的指定基础输出流。
+		【Throws】：
+			IllegalArgumentException 如果size <= 0。
+	
+Method Summary（方法概要）：
+	flush():void 
+		△ 刷新此缓冲输出流。这将强制将任何缓冲输出字节写入底层输出流。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		△ 将指定字节数组中以偏移量off开始的len字节写入此输出流。
+		通常，此方法将给定数组中的字节存储到此流的缓冲区中，并根据需要将缓冲区刷新到底层输出流中。但是，如果请求的长度至少与此流的缓冲区相同，那么此方法将刷新缓冲区并将字节直接写入底层输出流。因此，冗余的BufferedOutputStream不会不必要地复制数据。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(int b):abstract void 
+		b - 要写入的字节。
+		△ 将指定的字节写入此缓冲输出流。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
