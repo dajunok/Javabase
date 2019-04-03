@@ -1,0 +1,109 @@
+----------------------------------------BufferedReader--------------------------------------------------------------------------------------------------------------
+BufferedReader：缓冲阅读器	【Since:JDK1.1】
+	从字符输入流中读取文本，缓冲字符，以便有效地读取字符、数组和行。
+	可以指定缓冲区大小，也可以使用默认大小。默认值对于大多数用途来说都足够大。
+	通常，每个Reader发出的读请求都会导致相应的读请求由底层字符或字节流发出。因此，建议将BufferedReader包装在任何read()操作可能代价高昂的Reader上，例如FileReader和InputStreamReader。例如：
+		BufferedReader in   = new BufferedReader(new FileReader("foo.in"));
+	将缓冲指定文件中的输入。如果不进行缓冲，每次调用read()或readLine()都可能导致从文件中读取字节，转换为字符，然后返回，这可能非常低效。
+	使用DataInputStream进行文本输入的程序可以通过用适当的BufferedReader替换每个DataInputStream进行本地化。
+	
+	
+	类定义	：public class BufferedReader extends Reader
+	实现接口	：Readable, Closeable
+	直接子类	：LineNumberReader
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	Reader.lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+
+Constructor Summary（构造器概要）：
+	public BufferedReader(Reader in)
+		in - Reader
+		创建使用默认大小的输入缓冲区的缓冲字符输入流。
+	public BufferedReader(Reader in, int sz)
+		in - Reader
+		sz - 输入缓冲区大小
+		创建使用指定大小的输入缓冲区的缓冲字符输入流。
+		【Throws】：
+			IllegalArgumentException 如果sz <= 0
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭流并释放与其关联的任何系统资源。流关闭后，进一步的read()、ready()、mark()、reset()或skip()调用将引发IOException。关闭以前关闭的流没有效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	lines():Stream<String> 
+		【Since:1.8】
+		返回一个流，其中的元素是从此BufferedReader读取的行。Stream被延迟填充，即，在终端流操作期间发生只读。
+		在执行终端流操作期间，不得对阅读器（reader）进行操作。否则，终端流操作的结果不确定。
+		在执行终端流操作之后，不能保证阅读器将处于一个特定的位置，从该位置读取下一个字符或行。
+		如果在访问基础BufferedReader时引发IOException，它将被包装在一个UncheckedIOException中，该异常将从导致读取发生的Stream方法中引发。如果在已关闭的BufferedReader上调用，则此方法将返回Stream。该流上的任何操作在关闭后需要从BufferedReader读取，都将导致引发UncheckedIOException异常。
+	mark(int readAheadLimit):void 
+		readAheadLimit - 限制在保留标记的同时可以读取的字符数。读取字符达到或超过此限制后，尝试重置流可能会失败。大于输入缓冲区大小的限制值将导致分配不小于限制的新缓冲区。因此，应小心使用较大的值。
+		△ 标记流中的当前位置。对reset()的后续调用将尝试将流重新定位到此点。
+		【Throws】：
+			IllegalArgumentException 如果readAheadLimit < 0
+			IOException 如果流不支持mark()，或者发生其他I/O错误。
+	markSupported():boolean 
+		△ 指示此流是否支持mark()操作。
+		如果且仅当此流支持mark操作时返回true。
+	read():int 
+		△ 读取单个字符。
+		返回以0到65535（0x00-0xffff）范围内的整数形式读取的字符，或者如果已达到流的结尾，返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(char cbuf[], int off, int len):int 
+		cbuf - 目标缓存
+		off - 开始存储字符的偏移量
+		len - 要读取的最大字符数量
+		△  将字符读入数组的一部分。
+		此方法实现了Reader类的相应read方法的一般约定。作为一种额外的便利，它尝试通过重复调用底层流的read方法来读取尽可能多的字符。此迭代读取将继续进行，直到满足以下条件之一：
+			● 已读取指定的字符数，
+			● 底层流的read方法返回-1，表示文件结束，或者
+			● 底层流的ready方法返回false，表示进一步的输入请求将被阻塞。
+		如果对底层流的第一次读取返回-1以指示文件结束，则此方法返回-1。否则，此方法返回实际读取的字符数。
+		鼓励类的子类（但不是必需的）尝试以相同的方式读取尽可能多的字符。
+		通常，此方法从流的字符缓冲区获取字符，并根据需要从底层流填充字符。但是，如果缓冲区为空，标记（mark）无效，并且请求的长度至少与缓冲区的长度相同，则此方法将直接从底层流中将字符读取到给定的数组中。因此，冗余的BufferedReader不会不必要地复制数据。
+		返回已读取的字符数，如果已到达流的结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	readLine():String 	
+		读取一行文本。行被认为是由换行符（“\n”）、回车符（“\r”）或紧跟换行符的回车符中的任何一个终止的。
+		返回包含行内容（不包括任何行终止字符）的字符串，如果已到达流的结尾，则为null。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	ready():boolean 
+		△ 指示是否已准备好读取此流。如果缓冲区不为空，或者底层字符流已就绪，则缓冲字符流已就绪。
+		如果保证下一个read()不会阻塞输入，则返回true，否则返回false。请注意，返回false并不保证下一次读取将被阻塞。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	reset():void 
+		△ 将流重置为最新标记。
+		【Throws】：
+			IOException 如果流未被标记，或者标记已失效。
+	skip(long n):long 
+		n - 要跳过的字符数
+		△ 跳过n个字符。
+		返回实际跳过的字符数。
+		【Throws】：
+			IllegalArgumentException 如果n为负数。
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

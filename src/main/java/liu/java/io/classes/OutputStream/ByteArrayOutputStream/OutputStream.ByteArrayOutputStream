@@ -1,0 +1,83 @@
+----------------------------------------ByteArrayOutputStream--------------------------------------------------------------------------------------------------------------
+ByteArrayOutputStream：字节数组输出流	【Since:JDK1.0】
+	此类实现一个输出流，在该输出流中数据被写入字节数组。当数据写入缓冲区时，缓冲区会自动增长。可以使用toByteArray()和toString()检索数据。
+	关闭ByteArrayOutputStream没有效果。此类中的方法可以在流关闭后调用，而不会产生IOException异常。
+	
+	
+	类定义	：public class ByteArrayOutputStream extends OutputStream
+	实现接口	：AutoCloseable, Closeable ,Flushable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	buf : byte[]
+		存储数据的缓冲区。
+	count : int
+		缓冲区中的有效字节数。
+
+Constructor Summary（构造器概要）：
+	public ByteArrayOutputStream()
+		创建新的字节数组输出流。缓冲区容量最初为32个字节，但如果需要，它的大小会增加。
+	public ByteArrayOutputStream(int size)
+		size - 初始化大小。
+		创建一个新的字节数组输出流，缓冲容量为指定大小，以字节为单位。
+		【Throws】：
+			IllegalArgumentException 如果size为负数。
+	
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭BytearrayOutputstream没有效果。此类中的方法可以在流关闭后调用，而不会产生IOException异常。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	reset():synchronized void 
+		将此字节数组输出流的count字段重置为零，以便放弃输出流中当前累积的所有输出。可以再次使用输出流，重用已经分配的缓冲区空间。
+	size():synchronized int
+		 返回缓冲区的当前大小。
+		 返回count字段的值，即此输出流中的有效字节数。
+	toByteArray():synchronized byte[] 
+		创建新分配的字节数组。它的大小是此输出流的当前大小，缓冲区的有效内容已复制到其中。
+		返回此输出流的当前内容，作为字节数组。
+	toString():synchronized String 
+		△ 使用平台的默认字符集将缓冲区的内容转换为字符串解码字节。新字符串的长度是字符集的函数，因此可能不等于缓冲区的大小。
+		此方法始终使用平台默认字符集的默认替换字符串，替换格式错误的输入和不可映射的字符序列。当需要对解码过程进行更多控制时，应使用CharsetDecoder类。
+	toString(int hibyte):synchronized String 
+		hibyte - 每个产生的Unicode字符的高位字节。
+		✘ 已淘汰。此方法无法将字节正确转换为字符。从JDK 1.1开始，实现这一点的首选方法是使用编码名称参数的toString(String enc)方法，或使用平台默认字符编码的toString()方法。
+		创建新分配的字符串。它的大小是输出流的当前大小，缓冲区的有效内容已复制到其中。结果字符串中的每个字符c都是由字节数组中相应的元素b构成的，这样：
+			c == (char)(((hibyte & 0xff) << 8) | (b & 0xff))
+		返回作为字符串的输出流的当前内容。
+	toString(String charsetName):synchronized String 
+		charsetName - 支持的字符集的名称。
+		通过使用命名字符集对字节进行解码，将缓冲区的内容转换为字符串。新字符串的长度是字符集的函数，因此可能不等于字节数组的长度。
+		此方法总是用此字符集的默认替换字符串,替换格式错误的输入和不可映射的字符序列。当需要对解码过程进行更多控制时，应使用CharsetDecoder类。
+		返回从缓冲区内容解码的字符串。
+		【Throws】：
+			UnsupportedEncodingException 如果不支持命名字符集。
+	write(byte b[], int off, int len):synchronized void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		△ 将指定字节数组中从偏移量off开始的len字节写入此字节数组输出流。
+	write(int b):synchronized void 
+		b - 要写入的字节。
+		△ 将指定的字节写入此字节数组输出流。
+	writeTo(OutputStream out):synchronized void 
+		out - 要写入数据的输出流。
+		将此字节数组输出流的完整内容写入指定的输出流参数，就像使用out.write(buf, 0, count)调用输出流的write方法一样。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

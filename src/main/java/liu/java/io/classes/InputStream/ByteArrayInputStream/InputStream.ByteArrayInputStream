@@ -1,0 +1,86 @@
+----------------------------------------ByteArrayInputStream--------------------------------------------------------------------------------------------------------------
+ByteArrayInputStream：字节数组输入流	【Since:JDK1.0】
+	ByteArrayInputStream包含一个内部缓冲区，该缓冲区包含可以从流中读取的字节。内部计数器跟踪由read方法提供的下一个字节。
+	关闭ByteArrayInputStream没有效果。此类中的方法可以在流关闭后调用，而不产生IOException异常。
+	
+	
+	类定义	：public class ByteArrayInputStream extends InputStream
+	实现接口	：AutoCloseable, Closeable	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	buf : byte[]
+		流的创建者提供的字节数组。元素buf[0]到buf[count-1]是唯一可以从流中读取的字节；元素buf[pos]是下一个要读取的字节。
+	count : int
+		索引1大于输入流缓冲区中的最后一个有效字符。该值应始终为非负值，且不大于buf的长度。它比可以从输入流缓冲区读取的buf中最后一个字节的位置大一个。
+	mark : int
+		流中当前标记的位置。BytearrayInputStream对象在构造时默认标记在零位置。它们可以用mark()方法标记在缓冲区内的另一个位置。当前缓冲区位置通过reset()方法设置到此点。
+	pos : int	
+		要从输入流缓冲区中读取的下一个字符的索引。该值应始终为非负值，且不大于计数的值。从输入流缓冲区读取的下一个字节将是buf[pos]。
+		
+Constructor Summary（构造器概要）：
+	public ByteArrayInputStream(byte buf[])
+		buf - 输入缓冲区。
+		创建ByteArrayInputStream，以便使用buf作为缓冲区数组。未复制缓冲区数组。pos的初始值为0，count的初始值为buf的长度。
+	public ByteArrayInputStream(byte buf[], int offset, int length)
+		buf -  输入缓冲区。
+		offset - 要读取的第一个字节缓冲区中的偏移量。
+		length - 从缓冲区读取的最大字节数。	
+		创建使用buf作为缓冲区数组的ByteArrayInputStream。pos的初始值是offset，count的初始值是offset+length和buf.length的最小值。未复制缓冲区数组。缓冲区的标记被设置为指定的偏移量(offset)。
+	
+Method Summary（方法概要）：
+	available():synchronized int 
+		△ 返回可从此输入流读取（或跳过）的剩余字节数。
+		返回的值是count-pos，它是从输入缓冲区读取的剩余字节数。
+		返回可以从此输入流中读取（或跳过）而不阻塞的剩余字节数。
+	close():void 
+		△ 关闭ByteArrayInputStream没有效果。此类中的方法可以在流关闭后调用，而不产生IOException异常。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	mark(int readAheadLimit):void 
+		readlimit - 标记位置无效之前可以读取的最大字节数限制。
+		△ 设置流中当前标记的位置。BytearrayInputStream对象在构造时默认标记为位置零。它们可以用这种方法标记在缓冲区内的另一个位置。
+		如果未设置标记，则标记的值是传递给构造函数的偏移量（offset）（如果未提供偏移量，则为0）。
+		注意：此类的readAheadLimit没有意义。
+	markSupported():boolean 
+		△ 测试此输入流是否支持mark和reset方法。
+		BytearrayInputStream的MarkSupported方法始终返回true。
+		如果此流实例支持mark和rese方法，则返回true；否则返回false。
+	read():synchronized int 
+		△ 从这个输入流中读取下一个字节的数据。值字节作为int返回，范围为0到255。如果由于到达流结尾而没有字节可用，则返回值-1。
+		此读取方法不会被阻塞。
+		返回数据的下一个字节，如果到达流的末尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(byte b[], int off, int len):int
+		b - 读取数据的缓冲区。
+		off - 数组b中写入数据的起始偏移量。
+		len - 要读取的最大字节数。		
+		△ 从这个输入流读取最多len字节的数据到字节数组中。如果pos等于count，则返回-1以指示文件结束。否则，读取的字节数k等于len和count-pos中的较小值。如果k为正，则字节buf[pos]到buf[pos+k-1]以System.arraycopy执行的方式复制到b[off]到b[off+k-1]。将值k添加到pos中并返回k。		
+		此读取方法不会被阻塞。
+		【Throws】：
+			NullPointerException 如果b为null。
+			IndexOutOfBoundsException 如果off为负，len为负，或者len大于b.length-off。	
+	reset():synchronized void 
+		△将缓冲区重置到标记（mark）位置。除非在构造函数中标记了其他位置或指定了偏移量，否则标记的位置为0。	
+	skip(long n):synchronized long
+		n - 要跳过的字节数。
+		△ 从这个输入流中跳过n个字节的输入。如果到达输入流的结尾，可能跳过更少的字节。要跳过的实际字节数k等于n和count-pos中的较小值。将值k添加到pos中并返回k。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

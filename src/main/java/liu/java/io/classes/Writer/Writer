@@ -1,0 +1,109 @@
+----------------------------------------Writer--------------------------------------------------------------------------------------------------------------
+Writer：写入器	【Since:JDK1.0】
+	用于写入字符流的抽象类。子类必须实现的唯一方法是write(char[], int, int)、flush()和close()。然而，大多数子类将覆盖这里定义的一些方法，以便提供更高的效率、额外的功能，或者两者兼而有之。
+	
+	
+	
+	类定义	：public abstract class Writer implements Appendable, Closeable, Flushable
+	实现接口	：Closeable, Flushable, Appendable, AutoCloseable
+	直接子类	：BufferedWriter, CharArrayWriter, FilterWriter, OutputStreamWriter, PipedWriter, PrintWriter, StringWriter
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+Constructor Summary（构造器概要）：
+	protected Writer()
+		创建一个新的字符流写入器，其关键部分将在写入器本身上同步。
+	protected Writer(Object lock)
+		lock - 要同步的对象
+		创建一个新的字符流写入器，其关键部分将在给定对象上同步。 
+	
+Method Summary（方法概要）：
+	append(char c):Writer 
+		c - 要追加的16位字符
+		△ 将指定的字符追加到此写入器。
+		对out.append(c)形式的此方法的调用与调用的行为完全相同
+			out.write(c) 
+		返回此写入器。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	append(CharSequence csq):Writer 
+		csq - 要追加的字符序列。如果csq为空，那么将向该写入器追加四个字符“null”。
+		△ 将指定的字符序列追加到此写入器。
+		对out.append(csq)形式的此方法的调用与调用的行为完全相同
+			out.write(csq.toString()) 
+		根据字符序列csq的toString规范，不能追加整个序列。例如，调用字符缓冲区的toString方法将返回一个子序列，其内容取决于缓冲区的位置和限制。
+		返回此写入器。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	append(CharSequence csq, int start, int end):Writer 
+		csq - 要追加的字符序列。如果csq为空，那么将向该写入器追加四个字符“null”。
+		start - 子序列中第一个字符的索引
+		end - 子序列中最后一个字符后面的字符的索引
+		△ 将指定字符序列的子序列追加到此写入器。可追加的。
+		当csq不为空时，对out.append(csq, start, end)形式的此方法的调用的行为与调用的方式完全相同。
+			out.write(csq.subSequence(start, end).toString()) 
+		返回此写入器。
+		【Throws】：
+			IndexOutOfBoundsException 如果start或end为负，start大于end，或者end大于csq.length()。
+			IOException 如果发生I/O错误。		
+	close():abstract void 
+		△ ★ 关闭流，首先对其进行刷新。关闭流后，进一步的write()或flush()调用将导致引发IOException。关闭以前关闭的流没有效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	flush():abstract void 
+		△ 刷新流。如果流已将各种write()方法中的任何字符保存在缓冲区中，请立即将它们写入其预期目标。然后，如果目标是另一个字符或字节流，则刷新它。因此，一次flush()调用将刷新写入器和输出流链中的所有缓冲区。
+		如果此流的预期目标是底层操作系统（例如文件）提供的抽象，则刷新流仅保证将以前写入流的字节传递给操作系统进行写入；它不能保证实际上是写入物理设备（如磁盘驱动器）。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(char cbuf[]):void 
+		cbuf - 要写入的字符数组
+		写入字符数组。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(char cbuf[], int off, int len):abstract void 
+		cbuf - 要写入的字符数组
+		off - 开始写入字符的偏移量
+		len - 要写入的字符数量
+		★ 写入字符数组的一部分。	
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(int c):void 
+		c - 使用int类型指定要写入的字符
+		只写一个字符。要写入的字符包含在给定整数值的16个低位中；忽略16个高位。
+		想要支持有效的单字符输出的子类应该重写这个方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(String str):void 
+		str - 要写入的字符串
+		写入字符串。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(String str, int off, int len):void 
+		str - 字符串
+		off - 开始写入字符的偏移量
+		len - 要写入的字符数量
+		写入字符串的一部分。	
+		【Throws】：
+			IndexOutOfBoundsException 如果off为负，或者len为负，或者off+len为负或大于给定字符串的长度。
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

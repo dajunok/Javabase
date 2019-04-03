@@ -1,0 +1,91 @@
+----------------------------------------CharArrayReader--------------------------------------------------------------------------------------------------------------
+CharArrayReader：字符数组阅读器	【Since:JDK1.0】
+	这个类实现了一个字符缓冲区，可以用作字符输入流。
+	
+	
+	类定义	：public class CharArrayReader extends Reader
+	实现接口	：Readable, Closeable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	buf : char[]
+		字符缓冲区。
+	count : int
+		缓冲区结尾的索引。此索引处或之外没有有效数据。
+	markedPos : int
+		标记在缓冲器中的位置。
+	pos : int
+		当前缓冲区位置。
+		
+		
+Constructor Summary（构造器概要）：
+	public CharArrayReader(char buf[])
+		buf - 输入缓冲区（不能复制）
+		从指定的字符数组创建CharArrayReader。
+	public CharArrayReader(char buf[], int offset, int length)
+		buf - 输入缓冲区（不能复制）
+		offset - 要读取的第一个字符的偏移量
+		length - 要读取的字符数量
+		从指定的字符数组创建CharArrayReader。		
+		生成的阅读器将在给定的偏移量处开始读取。可以从此阅读器读取的char值的总数将是length或buf.length-offset，以较小者为准。
+		【Throws】：
+			IllegalArgumentException 如果偏移量为负或大于buf.length，或者长度为负，或者这两个值的和为负。
+
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭流并释放与其关联的任何系统资源。流关闭后，进一步的read()、ready()、mark()、reset()或skip()调用将引发IOException。关闭以前关闭的流没有效果。
+	mark(int readAheadLimit):void 
+		readAheadLimit - 限制在保留标记的同时可以读取的字符数。由于流的输入来自字符数组，因此没有实际限制；因此忽略此参数。
+		标记流中的当前位置。随后调用reset()会将流重新定位到此点。
+		【Throws】：
+			IOException 如果流不支持mark()，或者发生其他I/O错误。
+	markSupported():boolean 
+		指示此流是否支持mark()操作。此类的markSupported方法总是返回true。
+		如果且仅当此流支持mark操作时返回true。
+	read():int 
+		读取单个字符。
+		返回以0到65535（0x00-0xffff）范围内的整数形式读取的字符，或者如果已达到流的结尾，返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(char cbuf[], int off, int len):int 
+		cbuf - 目标缓存
+		off - 开始存储字符的偏移量
+		len - 要读取的最大字符数量
+		将字符读入数组的一部分。
+		返回已读取的字符数，如果已到达流的结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	ready():boolean 
+		指示是否已准备好读取此流。字符数组读卡器总是准备好被读取。
+		如果保证下一个read()不会阻塞输入，则返回true，否则返回false。请注意，返回false并不保证下一次读取将被阻塞。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	reset():void 
+		将流重置为最新标记，如果从未标记，则重置为开始标记。
+		【Throws】：
+			IOException 如果流未被标记，或者标记已失效，或者流不支持reset()，或者发生其他I/O错误。
+	skip(long n):long 
+		n - 要跳过的字符数
+		跳过n个字符。返回跳过的字符数。
+		n参数可以是负数，即使在这种情况下，Reader超类的skip方法抛出了一个异常。如果n为负，则此方法不执行任何操作并返回0。
+		返回实际跳过的字符数。
+		【Throws】：
+			IOException 如果流关闭，或发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
