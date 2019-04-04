@@ -39,16 +39,49 @@ Method Summary（方法概要）：
 		【Throws】：
 			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序类规范的详细信息部分。
 	reader():Reader 
-	readLine():String 
+		检索与此控制台关联的唯一阅读器对象。
+		此方法用于复杂的应用程序，例如利用Scanner提供的丰富解析/扫描功能的Scanner对象：
+			 Console con = System.console();
+			 if (con != null) {
+			     Scanner sc = new Scanner(con.reader());
+			     ...
+			 }	
+		对于只需要面向线（line-oriented）阅读的简单应用程序，使用readLine(java.lang.String, java.lang.Object...)。	
+		返回对象上的大容量读取操作read(char[])、read(char[], int, int)和read(java.nio.CharBuffer)不会在每次调用的行边界之外读取字符，即使目标缓冲区有空间容纳更多字符。如果在控制台的输入设备上未输入或未达到行边界，则读卡器的A4方法可能会阻塞。行边界被认为是换行符（“\n”）、回车符（“\r”）、紧跟换行符的回车符或流的结尾之一。
+	readLine():String
+		从控制台读取一行文本。 
+		返回字符串，包含从控制台读取的行，不包括任何行终止字符，如果到达流的结尾，则返回null。
+		【Throws】：
+			IOError 如果发生I/O错误。
 	readLine(String fmt, Object ... args):String 
+		fmt - 格式字符串语法中描述的格式字符串。
+		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的最大数目受Java虚拟机规范定义的Java数组的最大尺寸的限制。	
+		提供格式化提示，然后从控制台读取一行文本。
+		返回一个字符串，包含从控制台读取的行，不包括任何行终止字符，如果已到达流的结尾，则为空。
+		【Throws】：
+			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序（formatter）类规范的详细信息部分。
+			IOError 如果发生I/O错误。		
 	readPassword():char[] 
-	readPassword(String fmt, Object ... args):char[] 
+		返回在禁用回显（echo）的情况下从控制台读取口令或密码。
+		返回包含从控制台读取的密码或密码的字符数组，不包括任何行终止字符，如果已到达流结尾，则为空。
+		【Throws】：
+			IOError 如果发生I/O错误。
+	readPassword(String fmt, Object ... args):char[] 		
+		fmt - 在提示文本的Format字符串语法中描述的格式字符串。
+		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的最大数目受Java虚拟机规范定义的Java阵列的最大尺寸的限制。	
+		提供格式化提示，然后从控制台读取口令或密码，并禁用回显（echo）。
+		返回包含从控制台读取的密码或密码的字符数组，不包括任何行终止字符，如果已到达流的结尾，则返回null。
+		【Throws】：
+			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序（formatter）类规范的详细信息部分。
+			IOError 如果发生I/O错误。
 	writer():PrintWriter 
+		检索与此控制台关联的唯一PrintWriter对象。
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
 	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、echo：回显。
 
 
 

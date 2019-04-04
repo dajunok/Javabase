@@ -1,0 +1,126 @@
+----------------------------------------DataOutputStream--------------------------------------------------------------------------------------------------------------
+DataOutputStream：数据输出流	【Since:JDK1.0】
+	数据输出流允许应用程序以便携的方式将原始Java数据类型写入输出流。然后，应用程序可以使用数据输入流来重新读取数据。
+	
+	
+	类定义	：public class DataOutputStream extends FilterOutputStream implements DataOutput
+	实现接口	：AutoCloseable, Closeable ,Flushable, DataOutput
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	FilterOutputStream.out : OutputStream
+		要过滤的底层输出流。
+	written : int
+		到目前为止写入数据输出流的字节数。如果此计数器溢出，它将被包装为Integer.MAX_VALUE。
+
+Constructor Summary（构造器概要）：
+	public DataOutputStream(OutputStream out)
+		out - 底层输出流，保存以供以后使用。
+		创建新的数据输出流以将数据写入指定的底层输出流。计数器written设置为零。
+	
+Method Summary（方法概要）：
+	flush():void 
+		刷新此数据输出流。强制将任何缓冲输出字节写入流。
+		DataOutputStream的flush方法调用其底层输出流的flush方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	size():final int 
+		返回已written计数器的当前值，即迄今为止写入此数据输出流的字节数。如果计数器溢出，它将被包装为Integer.MAX_VALUE。
+		返回written字段的值。
+	write(byte b[], int off, int len):synchronized void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		将指定字节数组中以偏移量off开始的len字节写入底层输出流。如果不引发异常，则计数器written的值将增加len。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(int b):synchronized void 
+		b - 要写入的字节。
+		将指定的字节（参数b的低8位）写入底层输出流。如果不引发异常，则written计数器将增加1。
+		实现OutputStream的写入方法。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeBoolean(boolean v):final void 
+		v - 要写入的布尔值。
+		将布尔值写入此输出流。如果参数v为true，则写入值（字节）1；如果v为false，则写入值（字节）0。如果不引发异常，则written计数器将增加1。
+		此方法写入的字节可以由DataInput接口的readBoolean方法读取，然后返回等于v的布尔值。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeByte(int v):final void 
+		v - 要写入的字节值。
+		将1字节的值写入底层输出流。如果不引发异常，则written计数器将增加1。
+		此方法写入的字节可以由DataInput接口的readByte方法读取，然后返回等于（byte）v的字节。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeBytes(String s):final void 
+		s - 要写入的字节字符串。
+		将字符串作为一个字节序列写入底层输出流。字符串中的每个字符都是通过丢弃其高位8位按顺序写出的。如果没有引发异常，则written计数器written的长度将增加s。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeChar(int v):final void 
+		v - 要写入的char值。
+		将char作为2字节值写入底层输出流，首先是高字节。如果没有引发异常，则written计数器写入的值将增加2。
+		此方法写入的字节可以由DataInput接口的readChar方法读取，然后返回等于(char)v的char。
+		【Throws】：
+			IOException 如果发生I/O错误。	
+	writeChars(String s):final void 
+		s - 要写入的字符串值。
+		将字符串作为字符序列写入底层输出流。每个字符都像通过writeChar方法一样写入数据输出流。如果没有引发异常，则计数器written的值将增加s的两倍长度。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeDouble(double v):final void 
+		v - 要写入的double值。
+		使用Double类中的doubleToLongBits方法将double参数转换为long，然后将该long值作为一个8字节的量（首先是高字节）写入底层输出流。如果不引发异常，则计数器written的值将增加8。
+		此方法写入的字节可以通过DataInput接口的readDouble方法读取，然后该方法将返回一个等于v的double。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeFloat(float v):final void
+		v - 要写入的float值。
+		在类Float中使用floatToIntBits方法将float参数转换为int，然后将该int值作为4字节的数量（首先是高字节）写入底层输出流。如果没有引发异常，则计数器written的值将增加4。
+		此方法写入的字节可以由DataInput接口的readFloat方法读取，然后返回等于v的float。
+		【Throws】：
+			IOException 如果发生I/O错误。 
+	writeInt(int v):final void 
+		v - 要写入的int值。
+		将int作为四个字节写入底层输出流，首先是高字节。如果不引发异常，则计数器written的值将增加4。
+		此方法写入的字节可以由DataInput接口的readInt方法读取，然后返回等于v的int。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeLong(long v):final void 
+		v - the long value to be written.
+		将long作为八个字节写入底层输出流，首先是高字节。在不引发异常的情况下，written计数器将增加8。
+		此方法写入的字节可以通过DataInput接口的readLong方法读取，然后返回等于v的long。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeShort(int v):inal void 
+		v - 要写入的short值。
+		以两个字节的形式向底层输出流写入一个short节，首先是高字节。如果没有引发异常，则计数器written的值将增加2。
+		此方法写入的字节可以通过DataInput接口的readShort方法读取，然后返回等于（short）v的short。	
+		【Throws】：
+			IOException 如果发生I/O错误。	
+	writeUTF(String str):final void 
+		s - 要写入的字符串值。
+		使用修改后的UTF-8编码以独立于机器的方式将字符串写入底层输出流。
+		首先，将两个字节写入输出流，就好像是通过writeShort方法写入的一样，并给出后面的字节数。这个值是实际写出的字节数，而不是字符串的长度。在长度之后，使用修改后的UTF-8编码将字符串中的每个字符按顺序输出。如果没有引发异常，则written计数器将增加写入输出流的总字节数。这至少是两个加上str的长度，最多是str长度的两个加三分之一。
+		此方法写入的字节可以由DataInput接口的readUTF方法读取，该方法将返回一个等于s的字符串。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -1,0 +1,198 @@
+----------------------------------------DataInputStream--------------------------------------------------------------------------------------------------------------
+DataInputStream：数据输入流	【Since:JDK1.0】
+	数据输入流允许应用程序以独立于机器的方式从底层输入流读取原始Java数据类型。应用程序使用数据输出流来写入数据，这些数据稍后可由数据输入流读取。
+	对于多线程访问，DataInputStream不一定安全。线程安全是可选的，并且是此类中方法的用户的责任。
+	
+	类定义	：public class DataInputStream extends FilterInputStream implements DataInput
+	实现接口	：AutoCloseable, Closeable, DataInput
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	FilterInputStream.in 
+		要过滤的输入流。
+
+Constructor Summary（构造器概要）：
+	public DataInputStream(InputStream in)
+		in - 指定的输入流
+		创建使用指定基础InputStream的DataInputStream。
+	
+	
+Method Summary（方法概要）：
+	readUTF(DataInput in):final static String 
+		读取使用修改后的UTF-8格式编码的字符串。readUTF的一般约定是读取以修改后的UTF-8格式编码的Unicode字符串的表示形式；然后将此字符串作为String返回。
+		首先，读取两个字节，并使用与readUnsignedShort方法完全相同的方式构造无符号16位整数。这个整数值称为UTF长度，并指定要读取的额外字节数。然后，通过分组考虑这些字节，将它们转换为字符。每个组的长度是根据组的第一个字节的值计算的。组后面的字节（如果有）是下一组的第一个字节。
+		如果一个组的第一个字节与位模式0xxxxxxx匹配（其中x表示“可能是0或1”），则该组仅由该字节组成。字节被零扩展以形成一个字符。
+		如果一个组的第一个字节与位模式110xxxxx匹配，则该组由该字节a和第二个字节b组成。如果没有字节b（因为字节a是要读取的最后一个字节），或者如果字节b与位模式10xxxxxx不匹配，则引发UTFDataFormatException异常。否则，组将转换为字符：
+			(char)(((a & 0x1F) << 6) | (b & 0x3F))
+		如果一个组的第一个字节与位模式1110xxxx匹配，则该组由该字节a和另外两个字节b和c组成。如果没有字节c（因为字节a是要读取的最后两个字节之一），或者字节b或字节c与位模式10xxxxxx不匹配，则会引发UTFDataFormatException异常。否则，组将转换为字符：
+			(char)(((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F))
+		如果组的第一个字节与模式1111xxxx或模式10xxxxxx匹配，则引发UTFDataFormatException异常。
+		在此过程将每个组转换为字符后，将按照从输入流中读取相应组的相同顺序收集字符，以形成返回的字符串。
+		从包含的输入流中读取此操作的字节。
+		返回Unicode字符串。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			OException 如果发生I/O错误。
+			UTFDataFormatException 如果字节不代表字符串的有效修改的UTF-8编码。
+	read(byte b[]):final int 
+		b - 读取数据的缓冲区。、
+		△ 从包含的输入流中读取一些字节数，并将它们存储到缓冲区数组b中。实际读取的字节数作为整数返回。此方法将一直阻塞，直到输入数据可用、检测到文件结尾或引发异常为止。
+		如果b为null，则引发NullPointerException异常。如果b的长度为零，则不读取字节，返回0；否则，将尝试读取至少一个字节。如果由于流位于文件末尾而没有字节可用，则返回值-1；否则，至少读取一个字节并将其存储到b中。
+		第一个字节读取被存储到元素b[0]中，下一个字节读取到b[1]中，依此类推。读取的字节数最多等于b的长度。设k为实际读取的字节数；这些字节将存储在元素b[0]到b[k-1]中，不影响元素b[k]到b[b.length-1]的内容。
+		read(b)方法的效果与以下方法相同：
+				read(b, 0, b.length)
+		【Throws】：
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	read(byte b[], int off, int len):final int 
+		b - 读取数据的缓冲区。
+		off - 数组b中写入数据的起始偏移量。
+		len - 要读取的最大字节数。	
+		△ 从包含的输入流读取最多len字节的数据到字节数组中。试图读取尽可能多的len字节，但可以读取较小的数字，可能为零。实际读取的字节数作为整数返回。
+		此方法将一直阻塞，直到输入数据可用、检测到文件结尾或引发异常为止。
+		如果len为零，则不读取字节并返回0；否则，将尝试读取至少一个字节。如果由于流位于文件末尾而没有字节可用，则返回值-1；否则，至少读取一个字节并将其存储到b中。
+		第一个字节读取被存储到元素b[off]中，下一个字节读取到b[off+1]中，依此类推。读取的字节数最多等于len。设k为实际读取的字节数；这些字节将存储在元素b[off]到b[off+k-1]中，使元素b[off+k]到b[off+len-1]不受影响。
+		在任何情况下，元素b[0]到b[off]和元素b[off+len]到b[b.length-1]都不受影响。
+		【Throws】：
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+			NullPointerException 如果b为null。
+			IndexOutOfBoundsException 如果off为负，len为负，或者len大于b.length-off。
+	readBoolean():final boolean 
+		读取一个输入字节，如果该字节非零，则返回true；如果该字节为零，则返回false。此方法适用于读取DataOutput接口的writeBoolean方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readByte():final byte 
+		读取并返回一个输入字节。字节被视为-128到127（含）范围内的有符号值。此方法适用于读取接口DataOutput的writeByte方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readChar():final char 
+		读取两个输入字节并返回char值。让a为第一个读取字节，b为第二个字节。返回的值为：
+			(char)((a << 8) | (b & 0xff))
+		此方法适用于读取接口DataOutput的writeChar方法写入的字节。
+		【Throws】：
+			EOFException 如果此输入流在读取两个字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readDouble():final double 
+		读取八个输入字节并返回一个double值。它首先以readLong方法的方式构造一个long值，然后以Double.longBitsToDouble方法的方式将这个long值转换为double。此方法适用于读取DataOutput接口的writeDouble方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readFloat():final float 
+		读取四个输入字节并返回float值。它首先以readInt方法的方式构造一个int值，然后以Float.intBitsToFloat方法的方式将该int值转换为一个float。此方法适用于读取DataOutput接口的writeFloat方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readFully(byte b[]):final void 
+		从输入流中读取一些字节，并将它们存储到缓冲区数组b中。读取的字节数等于b的长度。
+		此方法将一直阻塞，直到出现以下情况之一：
+			● b.length长度的输入数据字节是可用的，在这种情况下，返回正常值。
+			● 检测到文件结尾，在这种情况下会引发EOFException异常。
+			● 发生I/O错误，在这种情况下会引发除EOFException以外的IOException。
+		如果b为null，则引发NullPointerException异常。如果b.length为零，则不读取任何字节。否则，第一个字节读取被存储到元素b[0]中，下一个字节读取到b[1]中，依此类推。如果从这个方法中抛出异常，那么可能是b的一些字节（但不是所有字节）已经用来自输入流的数据进行了更新。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readFully(byte b[], int off, int len):final void 
+		b -   读取数据的缓冲区。
+		off - 指定数据偏移量的int。
+		len - 指定要读取的字节数的int。
+		△ 从输入流读取len长度字节。
+		此方法将一直阻塞，直到出现以下情况之一：
+			● 输入数据的len长度字节是可用的，在这种情况下，返回正常值。
+			● 检测到文件结尾，在这种情况下会引发EOFException异常。
+			● 发生I/O错误，在这种情况下会引发除EOFException以外的IOException。
+		如果b为null，则引发NullPointerException。如果off为负，或者len为负，或者off+len大于数组b的长度，则会引发IndexOutOfBoundsException异常。如果len为零，则不读取字节。否则，第一个字节读取被存储到元素b[off]中，下一个字节读取到b[off+1]中，依此类推。读取的字节数最多等于len。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readInt():final int 
+		△ 读取四个输入字节并返回一个int值。让a-d作为第一个到第四个字节的读取。返回的值为：
+			 (((a & 0xff) << 24) | ((b & 0xff) << 16) |
+			  ((c & 0xff) <<  8) | (d & 0xff))	
+		此方法适用于读取DataOutput接口的writeInt方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readLine():final String 
+		✘ 已淘汰。此方法没有正确地将字节转换为字符。从JDK 1.1开始，读取文本行的首选方法是通过BufferedReader.readLine()方法。使用DataInputStream类读取行的程序可以通过替换代码形式转换为使用BufferedReader类：
+			DataInputStream d = new DataInputStream(in);
+		用：
+			BufferedReader d = new BufferedReader(new InputStreamReader(in));
+		参见DataInput的readLine方法的一般约定。
+		从包含的输入流中读取此操作的字节。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	readLong():final long 
+		△ 读取八个输入字节并返回一个长值。让a-h作为第一个到第八个字节的读取。返回的值为：
+			 (((long)(a & 0xff) << 56) |
+			  ((long)(b & 0xff) << 48) |
+			  ((long)(c & 0xff) << 40) |
+			  ((long)(d & 0xff) << 32) |
+			  ((long)(e & 0xff) << 24) |
+			  ((long)(f & 0xff) << 16) |
+			  ((long)(g & 0xff) <<  8) |
+			  ((long)(h & 0xff)))
+		此方法适用于读取DataOutput接口的writeLong方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readShort():final short 
+		△ 读取两个输入字节并返回一个short值。让a为第一个读取字节，b为第二个字节。返回的值为：
+			(short)((a << 8) | (b & 0xff))
+		此方法适用于读取DataOutput接口的writeShort方法写入的字节。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readUnsignedByte():final int 
+		△ 读取一个输入字节，零将其扩展到int类型，并返回结果，因此结果在0到255之间。此方法适用于读取DataOutput接口的writeByte方法写入的字节（如果writeByte的参数是0到255之间的值）。
+		返回读取的无符号8位值。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readUnsignedShort():final int 
+		△ 读取两个输入字节并返回一个介于0到65535之间的int值。让a是第一个读取的字节，b是第二个字节。返回的值为：
+			(((a & 0xff) << 8) | (b & 0xff))
+		此方法适用于读取DataOutput接口的writeShort方法写入的字节，前提是writeShort的参数的范围是0到65535之间的值。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+	readUTF():final String 
+		△ 读取使用修改后的UTF-8格式编码的字符串。readUTF的一般约定是读取以修改后的UTF-8格式编码的Unicode字符串的表示形式；然后将此字符串作为String返回。
+		首先，读取两个字节，并使用与readUnsignedShort方法完全相同的方式构造无符号16位整数。这个整数值称为UTF长度，并指定要读取的额外字节数。然后，通过分组考虑这些字节，将它们转换为字符。每个组的长度是根据组的第一个字节的值计算的。组后面的字节（如果有）是下一组的第一个字节。
+		如果一个组的第一个字节与位模式0xxxxxxx匹配（其中x表示“可能是0或1”），则该组仅由该字节组成。字节被零扩展以形成一个字符。
+		如果一个组的第一个字节与位模式110xxxxx匹配，则该组由该字节a和第二个字节b组成。如果没有字节b（因为字节a是要读取的最后一个字节），或者如果字节b与位模式10xxxxxx不匹配，则引发UTFDataFormatException异常。否则，组将转换为字符：
+			(char)(((a & 0x1F) << 6) | (b & 0x3F))
+		如果一个组的第一个字节与位模式1110xxxx匹配，则该组由该字节a和另外两个字节b和c组成。如果没有字节c（因为字节a是要读取的最后两个字节之一），或者字节b或字节c与位模式10xxxxxx不匹配，则会引发UTFDataFormatException异常。否则，组将转换为字符：
+			(char)(((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F))
+		如果组的第一个字节与模式1111xxxx或模式10xxxxxx匹配，则引发UTFDataFormatException异常。
+		在此过程将每个组转换为字符后，将按照从输入流中读取相应组的相同顺序收集字符，以形成返回的字符串。
+		DataOutput接口的writeUTF方法可用于写入适合此方法读取的数据。
+		【Throws】：
+			EOFException 如果此流在读取所有字节之前到达末尾。
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+			UTFDataFormatException 如果字节不代表字符串的有效修改的UTF-8编码。
+	skipBytes(int n):final int 
+		n - 要跳过的字节数。
+		△ 尝试从输入流中跳过n个字节以上的数据，放弃跳过的字节。但是，它可能跳过一些较小的字节数，可能为零。这可能是由多个条件中的任何一个造成的；在跳过n个字节之前到达文件结尾只是一种可能。此方法从不引发EOFException异常。将返回跳过的实际字节数。
+		返回实际跳过的字节数。
+		【Throws】：
+			IOException 如果由于除文件结尾以外的任何原因无法读取第一个字节，则流已关闭，并且底层输入流不支持在关闭后读取，或者发生其他I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

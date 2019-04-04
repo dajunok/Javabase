@@ -1,0 +1,248 @@
+----------------------------------------File--------------------------------------------------------------------------------------------------------------
+File：文件	【Since:JDK1.0】
+	文件和目录路径名的抽象表示。	
+	用户界面和操作系统使用与系统相关的路径名字符串来命名文件和目录。这个类提供了一个抽象的、与系统无关的层次路径名视图。抽象路径名有两个组件：
+		1、可选的与系统相关的前缀字符串，例如磁盘驱动器说明符、“/”用于UNIX根目录，或“\\”用于Microsoft Windows UNC路径名，以及
+		2、零个或多个字符串名称的序列。
+	抽象路径名中的第一个名称可以是目录名，如果是Microsoft Windows UNC路径名，则可以是主机名（hostname）。抽象路径名中的每个后续名称都表示一个目录；最后一个名称可以表示一个目录或一个文件。空的抽象路径名没有前缀和空的名称序列。
+	将路径名字符串转换为抽象路径名或从抽象路径名转换为抽象路径名本质上依赖于系统。当抽象路径名转换为路径名字符串时，每个名称都由一个默认分隔符的副本与下一个名称分隔开。默认名称分隔符由系统属性file.separator定义，并在此类的public static字段separator和separatorChar中可用。将路径名字符串转换为抽象路径名时，其中的名称可以由默认名称分隔符或基础系统支持的任何其他名称分隔符分隔。
+	路径名，无论是抽象的还是字符串形式的，都可以是绝对的或相对的。绝对路径名是完整的，因为不需要其他信息来定位它所表示的文件。相反，相对路径名必须用从其他路径名获取的信息来解释。默认情况下，java.io包中的类总是根据当前用户目录解析相对路径名。该目录由系统属性user.dir命名，通常是调用Java虚拟机的目录。
+	抽象路径名的父级可以通过调用此类的getParent()方法来获取，它由路径名的前缀和路径名名称序列中除最后一个以外的每个名称组成。每个目录的绝对路径名都是以目录的绝对路径名开头的绝对抽象路径名的任何文件对象的祖先。例如，由抽象路径名“/usr”表示的目录是由路径名“/usr/local/bin”表示的目录的祖先。
+	前缀概念用于处理UNIX平台上的根目录，以及Microsoft Windows平台上的驱动器说明符、根目录和UNC路径名，如下所示：
+		● 对于UNIX平台，绝对路径名的前缀始终为“/”。相对路径名没有前缀。表示根目录的抽象路径名具有前缀“/”和空名称序列。
+		● 对于Microsoft Windows平台，包含驱动器说明符的路径名前缀由驱动器号后跟“：”组成，如果路径名是绝对路径，则可能后跟“\\”。UNC路径名的前缀是"\\\\"；主机名和共享名是名称序列中的前两个名称。没有指定驱动器的相对路径名没有前缀。
+	此类的实例可以表示或不表示实际的文件系统对象，如文件或目录。如果它确实表示这样一个对象，那么这个对象就驻留在一个分区中。分区是文件系统特定于操作系统的存储部分。单个存储设备（例如物理磁盘驱动器、闪存、CD-ROM）可以包含多个分区。对象（如果有）将驻留在此路径名绝对形式的某个祖先命名的分区上。
+	文件系统可以对实际文件系统对象的某些操作（如读取、写入和执行）实施限制。这些限制统称为访问权限。文件系统可能对单个对象具有多组访问权限。例如，一组可以应用于对象的所有者，另一组可以应用于所有其他用户。对象的访问权限可能会导致此类中的某些方法失败。
+	File类的实例是不可变的；即，一旦创建，由File对象表示的抽象路径名将永远不会更改。
+	
+	与java.nio.file包的互操作性：
+		java.nio.file包定义了Java虚拟机访问文件、文件属性和文件系统的接口和类。这个API可以用来克服java.io.File类的许多限制。toPath方法可用于获取使用File对象表示的抽象路径定位文件的Path。结果Path可与File类一起使用，以提供对其他文件操作、文件属性和I/O异常的更高效和更广泛的访问，以帮助在文件上的操作失败时诊断错误。
+	
+	
+	类定义	：public class File implements Serializable, Comparable<File>
+	实现接口	：Serializable, Comparable<File>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	pathSeparator : String
+		与系统相关的路径分隔符，为方便起见表示为字符串。此字符串包含单个字符，即pathSeparatorChar。
+	pathSeparatorChar : char
+		与系统相关的路径分隔符字符。此字段初始化为包含系统属性path.separator值的第一个字符。此字符用于按作为路径列表的文件序列分隔文件名。在UNIX系统上，此字符为“:”；在Microsoft Windows系统上，此字符为“;”。
+	separator : String
+		与系统相关的默认名称分隔符字符，为方便起见表示为字符串。此字符串包含单个字符，即separatorChar。
+	separatorChar : char
+		与系统相关的默认名称分隔符字符。此字段初始化为包含System属性file.separator值的第一个字符。在Unix系统上，该字段的值为“/”；在Microsoft Windows系统上，该字段的值为“\\”。
+
+Constructor Summary（构造器概要）：
+	public File(File parent, String child)
+		parent - 父抽象路径名
+		child - 子路径名字符串
+		从父抽象路径名和子路径名字符串创建新的File实例。	
+		如果父级为空，则通过对给定子路径名字符串调用单参数File构造函数来创建新的File实例。
+		否则，将使用父抽象路径名表示目录，使用子路径名字符串表示目录或文件。如果子路径名字符串是绝对的，那么它将以与系统相关的方式转换为相对路径名。如果父级是空的抽象路径名，则通过将子级转换为抽象路径名并根据依赖于系统的默认目录解析结果来创建新的File实例。否则，每个路径名字符串将转换为抽象路径名，子抽象路径名将根据父级解析。
+		【Throws】：
+			NullPointerException 如果child为null。
+	public File(String pathname)
+		pathname - 路径名字符串
+		通过将给定的路径名字符串转换为抽象路径名来创建新的File实例。如果给定的字符串是空字符串，则结果是空的抽象路径名。
+		【Throws】：
+			NullPointerException 如果pathname参数为null
+	public File(String parent, String child)
+		parent - 父路径名字符串
+		child - 子路径名字符串	
+		从父路径名字符串和子路径名字符串创建新的File实例。
+		如果父级为null，则通过对给定子路径名字符串调用单参数File构造函数来创建新的File实例。
+		否则，将使用父路径名字符串表示目录，使用子路径名字符串表示目录或文件。如果子路径名字符串是绝对的，那么它将以与系统相关的方式转换为相对路径名。如果父级是空字符串，则通过将子级转换为抽象路径名并根据依赖系统的默认目录解析结果来创建新的File实例。否则，每个路径名字符串将转换为抽象路径名，子抽象路径名将根据父级解析。
+		【Throws】：
+			NullPointerException 如果child为null。
+	public File(URI uri)
+		uri - 一个绝对的、层次结构的URI，其scheme等于“文件”、非空路径组件以及未定义的权限、查询和片段组件。
+		通过将给定的file:URI转换为抽象路径名来创建新的File实例。
+		确切形式的file:URI依赖于系统，因此此构造函数执行的转换也依赖于系统。
+		对于给定的抽象路径名f，可以保证
+			new File( f.toURI()).equals( f.getAbsoluteFile())
+		只要原始抽象路径名、URI和新抽象路径名都在同一Java虚拟机中创建（可能是不同的调用）。但是，当在一个操作系统上的虚拟机中创建的 file: URI转换为另一个操作系统上的虚拟机中的抽象路径名时，此关系通常不成立。
+		【Throws】：
+			NullPointerException 如果uri为null。
+			IllegalArgumentException 如果参数的前提条件不成立
+			
+Method Summary（方法概要）：
+	createTempFile(String prefix, String suffix):static File 
+		prefix - 用于生成文件名的前缀字符串；必须至少有三个字符
+		suffix - 
+		在默认临时文件目录中创建一个空文件，使用给定的前缀和后缀生成其名称。调用此方法等同于调用createTempFile(prefix, suffix, null)。
+		Files.createTempFile方法提供了在临时文件目录中创建空文件的替代方法。该方法创建的文件可能对该方法创建的文件具有更严格的访问权限，因此可能更适合安全敏感的应用程序。
+		【Throws】：
+			IllegalArgumentException 如果前缀参数包含少于三个字符
+			IOException 如果无法创建文件
+			SecurityException 如果安全管理器存在且其SecurityManager.checkWrite(java.lang.String)方法不允许创建文件。
+	createTempFile(String prefix, String suffix,File directory):static File
+		prefix - 用于生成文件名的前缀字符串；必须至少有三个字符长
+		suffix - 用于生成文件名的后缀字符串；可以为null，在这种情况下，将使用后缀“.tmp”。
+		directory - 要在其中创建文件的目录，如果要使用默认临时文件目录，则为null。
+		在指定目录中创建新的空文件，使用给定的前缀和后缀字符串生成其名称。如果此方法成功返回，则保证：
+			1、在调用此方法之前，由返回的抽象路径名表示的文件不存在，并且
+			2、在虚拟机的当前调用中，此方法及其任何变体都不会再次返回相同的抽象路径名。
+		此方法只提供临时文件工具的一部分。要安排自动删除此方法创建的文件，请使用deleteOnExit()方法。
+		前缀参数必须至少有三个字符长。建议前缀是一个简短、有意义的字符串，如“hjb”或“mail”。后缀参数可以为空，在这种情况下，将使用后缀“.tmp”。
+		要创建新文件，可以首先调整前缀和后缀以适应底层平台的限制。如果前缀太长，它将被截断，但前三个字符将始终保留。如果后缀太长，那么它也将被截断，但是如果后缀以句点字符（“.”）开头，那么句点和紧随其后的前三个字符将始终保留。一旦进行了这些调整，将通过连接前缀、五个或更多内部生成的字符和后缀来生成新文件的名称。
+		如果directory参数为空，则将使用与系统相关的默认临时文件目录。默认临时文件目录由系统属性java.io.tmpdir指定。在UNIX系统上，此属性的默认值通常为“/tmp”或“/var/tmp”；在Microsoft Windows系统上，它通常为“c:\\winnt\\temp”。当调用Java虚拟机时，可以对该系统属性赋予不同的值，但不保证对该属性的编程更改对该方法所使用的临时目录有任何影响。
+		【Throws】：
+			IllegalArgumentException 如果前缀参数包含少于三个字符
+			IOException 如果无法创建文件
+			SecurityException 如果安全管理器存在且其SecurityManager.checkWrite(java.lang.String)方法不允许创建文件。
+	listRoots():static File[] 
+		列出可用的文件系统根。
+		特定的Java平台可以支持零或更多层次化的文件系统。每个文件系统都有一个根目录，从中可以访问该文件系统中的所有其他文件。例如，Windows平台为每个活动驱动器都有一个根目录；UNIX平台只有一个根目录，即“/”。可用的文件系统根目录集受各种系统级操作的影响，例如插入或弹出可移动媒体以及断开或卸载物理或虚拟磁盘驱动器。
+		此方法返回一个文件对象数组，表示可用文件系统根目录的根目录。可以保证本地计算机上物理上存在的任何文件的规范路径名都将以该方法返回的某个根开始。
+		驻留在其他计算机上并通过远程文件系统协议（如SMB或NFS）访问的文件的规范路径名可以或不能以此方法返回的某个根开始。如果远程文件的路径名在语法上与本地文件的路径名不可区分，那么它将以该方法返回的其中一个根开始。因此，例如，表示Windows平台映射网络驱动器根目录的文件对象将通过此方法返回，而包含UNC路径名的文件对象将不会通过此方法返回。
+		与此类中的大多数方法不同，此方法不会引发安全异常。如果存在安全管理器，并且其SecurityManager.checkRead(String)方法拒绝对特定根目录的读取访问，那么该目录将不会出现在结果中。
+		返回表示可用文件系统根的文件对象数组，如果无法确定根集，则为null。如果没有文件系统根，数组将为空。
+	canExecute():boolean 
+		测试应用程序是否可以执行此抽象路径名表示的文件。在某些平台上，可以启动Java虚拟机，并允许其执行未标记可执行文件的特殊权限。因此，即使文件没有执行权限，此方法也可能返回true。
+		仅当抽象路径名存在且允许应用程序执行文件时返回true。
+		【Throws】：
+			SecurityException 如果安全管理器存在且其SecurityManager.checkExec(java.lang.String)方法拒绝执行对文件的访问。
+	canRead():boolean 
+		测试应用程序是否可以读取此抽象路径名表示的文件。在某些平台上，可以启动Java虚拟机，并允许它读取标记为不可读的文件。因此，即使文件没有读取权限，此方法也可能返回true。
+		如果且仅当此抽象路径名指定的文件存在且应用程序可以读取时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果安全管理器存在且其SecurityManager.checkRead(java.lang.String)方法将拒绝对文件的读取访问。
+	canWrite():boolean 
+		测试应用程序是否可以修改此抽象路径名表示的文件。在某些平台上，可以启动Java虚拟机，使其能够修改标记为只读的文件。因此，即使文件标记为只读，此方法也可能返回true。
+		如果并且仅当文件系统实际包含用此抽象路径名表示的文件并且允许应用程序写入该文件时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果安全管理器存在且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写访问。
+	compareTo(File pathname):int 
+		pathname - 要与此抽象路径名比较的抽象路径名
+		从词法上比较两个抽象路径名。此方法定义的顺序取决于底层系统。在UNIX系统上，字母大小写在比较路径名方面很重要；在Microsoft Windows系统上则不是。
+		如果参数等于此抽象路径名，则返回0；如果此抽象路径名在词法上小于参数，则为小于零；如果此抽象路径名在词法上大于参数，则为大于零。
+	createNewFile():boolean 
+		如果且仅当具有此名称的文件尚不存在时，原子性地创建一个以此抽象路径名命名的新的空文件。检查文件是否存在以及是否创建了文件（如果不存在），对于可能影响文件的所有其他文件系统活动来说，这是一个原子操作。
+		注意：此方法不应用于文件锁定，因为无法使生成的协议可靠工作。应该改用FileLock工具。
+		如果命名文件不存在并已成功创建，则返回true；如果命名文件已存在，则返回false。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果安全管理器存在且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写访问。
+	delete():boolean 
+		删除此抽象路径名表示的文件或目录。如果此路径名表示目录，则目录必须为空才能删除。
+		请注意，File类定义了一个delete方法，以便在无法删除文件时引发IOException。这对于错误报告和诊断无法删除文件的原因很有用。
+		如果且仅当成功删除文件或目录时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果安全管理器存在且其SecurityManager.checkDelete(java.lang.String)方法拒绝对文件的删除访问。
+	deleteOnExit():void 
+		请求在虚拟机终止时删除此抽象路径名指示的文件或目录。文件（或目录）按注册的相反顺序删除。调用此方法删除已注册删除的文件或目录无效。只有Java语言规范定义了虚拟机的正常终止，才会尝试删除。
+		一旦请求删除，就无法取消请求。因此，应小心使用此方法。
+		注意：此方法不应用于文件锁定，因为无法使生成的协议可靠工作。应该改用FileLock工具。
+		【Throws】：
+			SecurityException 如果安全管理器存在且其SecurityManager.checkDelete(java.lang.String)方法拒绝删除对文件的访问。
+	equals(Object obj):boolean 
+		obj - 要与此抽象路径名进行比较的对象
+		测试此抽象路径名是否与给定对象的相等。如果且仅当参数不为null并且是表示与此抽象路径名相同的文件或目录的抽象路径名时返回true。两个抽象路径名是否相等取决于底层系统。在UNIX系统上，字母大小写在比较路径名方面很重要；在Microsoft Windows系统上则不是。
+		如果且仅当对象相同时返回true；否则返回false。
+	exists():boolean 
+		测试此抽象路径名指示的文件或目录是否存在。
+		如果且仅当此抽象路径名表示的文件或目录存在时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果安全管理器存在且其SecurityManager.checkRead(java.lang.String)方法拒绝对文件或目录的读取访问。
+	getAbsoluteFile():File 
+		返回此抽象路径名的绝对形式。等效于new File(this.getAbsolutePath())。
+		返回表示与此抽象路径名相同的文件或目录的绝对抽象路径名。
+		【Throws】：
+			SecurityException 如果无法访问所需的系统属性值。
+	getAbsolutePath():String 
+		返回此抽象路径名的绝对路径名字符串。
+		如果这个抽象路径名已经是绝对路径名，那么该路径名字符串只会像getPath()方法那样返回。如果此抽象路径名是空的抽象路径名，则返回当前用户目录的路径名字符串，该字符串由系统属性user.dir命名。否则，此路径名将以与系统相关的方式解析。在Unix系统上，相对路径名通过将其与当前用户目录进行解析而变为绝对路径名。在Microsoft Windows系统上，相对路径名通过将其与由路径名命名的驱动器的当前目录（如果有）进行解析而变为绝对路径名；如果没有，则根据当前用户目录进行解析。
+		返回表示与此抽象路径名相同的文件或目录的绝对路径名字符串。
+		【Throws】：
+			SecurityException 如果无法访问所需的系统属性值。
+	getCanonicalFile():File 
+		返回此抽象路径名的规范形式。等效于new File(this.getCanonicalPath())。
+		返回表示与此抽象路径名相同的文件或目录的规范路径名字符串。
+		【Throws】：
+			IOException 如果发生I/O错误，这可能是因为规范路径名的构造可能需要文件系统查询。
+			SecurityException 如果无法访问所需的系统属性值，或者安全管理器存在且其SecurityManager.checkRead(java.io.FileDescriptor)方法拒绝对文件的读取访问。
+	getCanonicalPath():String 
+		返回此抽象路径名的规范路径名字符串。
+		规范路径名是绝对路径名和唯一路径名。规范形式的精确定义取决于系统。如果需要，此方法首先将此路径名转换为绝对形式，就像调用getAbsolutePath()方法一样，然后以依赖系统的方式将其映射到其唯一形式。这通常涉及从路径名中删除冗余名称，如“.”和“..”，解析符号链接（在UNIX平台上），并将驱动器号转换为标准大小写（在Microsoft Windows平台上）。
+		表示现有文件或目录的每个路径名都具有唯一的规范形式。表示不存在的文件或目录的每个路径名也具有唯一的规范形式。不存在的文件或目录的路径名的规范形式可能与创建该文件或目录后相同路径名的规范形式不同。同样，删除文件或目录后，现有文件或目录的路径名的规范形式可能与相同路径名的规范形式不同。
+		返回表示与此抽象路径名相同的文件或目录的规范路径名字符串。
+		【Throws】：
+			IOException 如果发生I/O错误，这可能是因为规范路径名的构造可能需要文件系统查询。
+			SecurityException 如果无法访问所需的系统属性值，或者安全管理器存在且其SecurityManager.checkRead(java.io.FileDescriptor)方法拒绝对文件的读取访问。
+	getFreeSpace():long 
+		返回此抽象路径名命名的分区中未分配的字节数。
+		返回的未分配字节数是一个提示，但不能保证可以使用这些字节中的大部分或任何一个。未分配的字节数很可能在调用后立即准确。任何外部I/O操作（包括在此虚拟机外部的系统上进行的操作）都可能使其不准确。此方法不能保证对该文件系统的写入操作会成功。
+		返回分区上未分配的字节数，如果抽象路径名未命名分区，则为0。此值将小于或等于getTotalSpace()返回的文件系统总大小。
+		【Throws】：
+			SecurityException 如果已安装了安全管理器，并且RuntimePermission("getFileSystemAttributes") 或SecurityManager.checkRead(String)方法拒绝对此抽象路径名命名的文件的读取访问。
+	getName():String 
+		返回用此抽象路径名表示的文件或目录的名称。这只是路径名序列中的最后一个名称。如果路径名的名称序列为空，则返回空字符串。
+	getParent():String 
+		返回此抽象路径名的父目录的路径名字符串，如果此路径名未命名父目录，则返回null。
+		抽象路径名的父级由路径名的前缀（如果有）和路径名名称序列中除最后一个以外的每个名称组成。如果名称序列为空，则路径名不会命名父目录。
+	getParentFile():File 
+		返回此抽象路径名的父目录的抽象路径名，如果此路径名未命名父目录，则返回null。
+		抽象路径名的父级由路径名的前缀（如果有）和路径名名称序列中除最后一个以外的每个名称组成。如果名称序列为空，则路径名不会命名父目录。
+	getPath():String 
+		将此抽象路径名转换为路径名字符串。结果字符串使用默认的名称分隔符来分隔名称序列中的名称。
+		返回此抽象路径名的字符串形式。
+	getTotalSpace():long 
+		返回由此抽象路径名命名的分区的大小。
+		返回分区的大小（以字节为单位）或0L（如果此抽象路径名未命名分区）。
+		【Throws】：
+			SecurityException 如果已安装了安全管理器，并且它拒绝RuntimePermission("getFileSystemAttributes") 或SecurityManager.checkRead(String)方法拒绝对此抽象路径名命名的文件的读取访问。
+	getUsableSpace():long 
+		返回此抽象路径名命名的分区上此虚拟机可用的字节数。如果可能，此方法将检查写入权限和其他操作系统限制，因此通常会提供比getFreeSpace()更准确的新数据实际可写入量估计。
+		返回的可用字节数是一个提示，但不能保证可以使用这些字节中的大部分或任何一个。未分配的字节数很可能在调用后立即准确。任何外部I/O操作（包括在此虚拟机外部的系统上进行的操作）都可能使其不准确。此方法不能保证对该文件系统的写入操作将成功。
+		返回分区上的可用字节数，如果抽象路径名未命名分区，则为0。在没有此信息的系统上，此方法相当于对getFreeSpace()的调用。
+		【Throws】：
+			SecurityException 如果已安装了安全管理器，并且它拒绝RuntimePermission("getFileSystemAttributes") 或SecurityManager.checkRead(String)方法拒绝对此抽象路径名命名的文件的读取访问。
+	hashCode():int 
+	isAbsolute():boolean 
+	isDirectory():boolean 
+	isFile():boolean 
+	isHidden():boolean 
+	lastModified():long 
+	length():long 
+	list():String[] 
+	list(FilenameFilter filter):String[] 
+	listFiles():File[] 
+	listFiles(FileFilter filter):File[] 
+	listFiles(FilenameFilter filter):File[] 
+	mkdir():boolean 
+	mkdirs():boolean 
+	renameTo(File dest):boolean 
+	setExecutable(boolean executable):boolean 
+	setExecutable(boolean executable, boolean ownerOnly):boolean 
+	setLastModified(long time):boolean 
+	setReadable(boolean readable):boolean 
+	setReadable(boolean readable, boolean ownerOnly):boolean 
+	setReadOnly():boolean 
+	setWritable(boolean writable):boolean 
+	setWritable(boolean writable, boolean ownerOnly):boolean 
+	toPath():Path 
+	toString():String 
+	toURI():URI 
+	toURL():URL 
+	
+	
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

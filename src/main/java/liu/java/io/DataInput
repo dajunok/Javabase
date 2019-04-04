@@ -18,29 +18,29 @@ Method Summary（方法概要）
 		读取一个输入字节，如果该字节非零，则返回true；如果该字节为零，则返回false。此方法适用于读取DataOutput接口的writeBoolean方法写入的字节。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readByte():byte 
 		读取并返回一个输入字节。字节被视为-128到127（含）范围内的有符号值。此方法适用于读取接口DataOutput的writeByte方法写入的字节。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readChar():char 
 		读取两个输入字节并返回char值。让a为第一个读取字节，b为第二个字节。返回的值为：
 			(char)((a << 8) | (b & 0xff))
 		此方法适用于读取接口DataOutput的writeChar方法写入的字节。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readDouble():double 
 		读取八个输入字节并返回一个double值。它首先以readLong方法的方式构造一个long值，然后以Double.longBitsToDouble方法的方式将这个long值转换为double。此方法适用于读取DataOutput接口的writeDouble方法写入的字节。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readFloat():float 
 		读取四个输入字节并返回float值。它首先以readInt方法的方式构造一个int值，然后以Float.intBitsToFloat方法的方式将该int值转换为一个float。此方法适用于读取DataOutput接口的writeFloat方法写入的字节。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readFully(byte b[]):void 
 		从输入流中读取一些字节，并将它们存储到缓冲区数组b中。读取的字节数等于b的长度。
 		此方法将一直阻塞，直到出现以下情况之一：
@@ -50,7 +50,7 @@ Method Summary（方法概要）
 		如果b为null，则引发NullPointerException异常。如果b.length为零，则不读取任何字节。否则，第一个字节读取被存储到元素b[0]中，下一个字节读取到b[1]中，依此类推。如果从这个方法中抛出异常，那么可能是b的一些字节（但不是所有字节）已经用来自输入流的数据进行了更新。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readFully(byte b[], int off, int len):void 
 		b -   读取数据的缓冲区。
 		off - 指定数据偏移量的int。
@@ -63,7 +63,7 @@ Method Summary（方法概要）
 		如果b为null，则引发NullPointerException。如果off为负，或者len为负，或者off+len大于数组b的长度，则会引发IndexOutOfBoundsException异常。如果len为零，则不读取字节。否则，第一个字节读取被存储到元素b[off]中，下一个字节读取到b[off+1]中，依此类推。读取的字节数最多等于len。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readInt():int 
 		读取四个输入字节并返回一个int值。让a-d作为第一个到第四个字节的读取。返回的值为：
 			 (((a & 0xff) << 24) | ((b & 0xff) << 16) |
@@ -73,7 +73,7 @@ Method Summary（方法概要）
 		从输入流中读取下一行文本。它读取连续的字节，将每个字节分别转换为一个字符，直到遇到行终止符或文件结尾；然后将读取的字符作为字符串返回。注意，因为这个方法处理字节，所以它不支持完整的Unicode字符集的输入。
 		如果在读取一个字节之前遇到文件结尾，则返回null。否则，读取的每个字节都将被零扩展名转换为char类型。如果遇到字符'\n'，则将丢弃该字符并停止读取。如果遇到字符'\r'，它将被丢弃，如果下面的字节转换为字符'\n'，那么它也将被丢弃；然后读取将停止。如果在遇到字符'\n'和'\r'之前遇到文件结尾，则读取将停止。一旦停止读取，将返回一个字符串，其中包含所有已读取但未丢弃的字符，并按顺序排列。请注意，此字符串中的每个字符的值都小于\u0100，即，(char)256。
 		【Throws】：
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readLong():long 
 		读取八个输入字节并返回一个长值。让a-h作为第一个到第八个字节的读取。返回的值为：
 			 (((long)(a & 0xff) << 56) |
@@ -91,20 +91,20 @@ Method Summary（方法概要）
 		此方法适用于读取DataOutput接口的writeShort方法写入的字节。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readUnsignedByte():int 
 		读取一个输入字节，零将其扩展到int类型，并返回结果，因此结果在0到255之间。此方法适用于读取DataOutput接口的writeByte方法写入的字节（如果writeByte的参数是0到255之间的值）。
 		返回读取的无符号8位值。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readUnsignedShort():int 
 		读取两个输入字节并返回一个介于0到65535之间的int值。让a是第一个读取的字节，b是第二个字节。返回的值为：
 			(((a & 0xff) << 8) | (b & 0xff))
 		此方法适用于读取DataOutput接口的writeShort方法写入的字节，前提是writeShort的参数的范围是0到65535之间的值。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 	readUTF():String 
 		读取使用修改后的UTF-8格式编码的字符串。readUTF的一般约定是读取以修改后的UTF-8格式编码的Unicode字符串的表示形式；然后将此字符串作为String返回。
 		首先，读取两个字节，并使用与readUnsignedShort方法完全相同的方式构造无符号16位整数。这个整数值称为UTF长度，并指定要读取的额外字节数。然后，通过分组考虑这些字节，将它们转换为字符。每个组的长度是根据组的第一个字节的值计算的。组后面的字节（如果有）是下一组的第一个字节。
@@ -118,14 +118,14 @@ Method Summary（方法概要）
 		DataOutput接口的writeUTF方法可用于写入适合此方法读取的数据。
 		【Throws】：
 			EOFException 如果此流在读取所有字节之前到达末尾。
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 			UTFDataFormatException 如果字节不代表字符串的有效修改的UTF-8编码。
 	skipBytes(int n):int 
 		n - 要跳过的字节数。
 		尝试从输入流中跳过n个字节以上的数据，放弃跳过的字节。但是，它可能跳过一些较小的字节数，可能为零。这可能是由多个条件中的任何一个造成的；在跳过n个字节之前到达文件结尾只是一种可能。此方法从不引发EOFException异常。将返回跳过的实际字节数。
 		返回实际跳过的字节数。
 		【Throws】：
-			OException 如果发生I/O错误。
+			IOException 如果发生I/O错误。
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 附录：
 
