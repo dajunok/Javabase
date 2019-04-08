@@ -19,15 +19,43 @@ FilePermission：文件权限【Since:1.2】
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）
 	public FilePermission(String path, String actions)
+		path - 文件/目录的路径名。
+		actions - 操作字符串。
+		使用指定的操作创建新的FilePermission对象。path是文件或目录的路径名，actions包含对文件或目录授予的所需操作的逗号分隔列表。可能的操作有"read", "write", "execute", "delete", and "readlink"。			
+		以“/”（其中“/”是文件分隔符File.separatorChar）结尾的路径名表示该目录中包含的所有文件和目录。以“-”结尾的路径名（递归地）表示该目录中包含的所有文件和子目录。特殊路径名"<<ALL FILES>>"匹配任何文件。
+		由单个“*”组成的路径名表示当前目录中的所有文件，而由单个“-”组成的路径名表示当前目录中的所有文件，以及（递归地）当前目录中包含的所有文件和子目录。
+		包含空字符串的路径名表示空路径。
+		【Throws】：
+			IllegalArgumentException 如果操作为null或包含指定的可能操作以外的操作。
 			
-
 Method Summary（方法概要）
 	equals(Object obj):boolean 
+		obj - 我们正在测试的对象是否与此对象相等。
+		检查两个FilePermission对象是否相等。检查obj是否为FilePermission，以及是否与此对象具有相同的路径名和操作。
+		如果obj是FilePermission，并且与此FilePermission对象具有相同的路径名和操作，则返回true，否则返回false。
 	getActions():String 
+		返回操作的“规范字符串表示形式”。也就是说，此方法始终按以下顺序返回当前操作：read、write、execute、delete、readlink。例如，如果此FilePermission对象同时允许写操作和读操作，则对GetActions的调用将返回字符串"read,write"。
+		返回操作的规范字符串表示形式。
 	hashCode():int 
+		返回此对象的哈希代码值。
 	implies(Permission p):boolean 
+		p - 检查的权限。
+		检查此FilePermission对象是否“包含”指定的权限。
+		更具体地说，如果：
+			● p是FilePermission的实例，
+			● p的动作是该对象动作的一个子集，并且
+			● p的路径名由该对象的路径名隐含。例如，“/tmp/*”表示“/tmp/foo”，因为“/tmp/*”包含“/tmp”目录中的所有文件，包括名为“foo”的文件。
+		如果指定的权限不为null并且被此对象包含，则返回true，否则返回false。
 	newPermissionCollection():PermissionCollection 
-	
+		返回用于存储FilePermission对象的新PermissionCollection对象。
+		FilePermission对象的存储方式必须允许它们以任何顺序插入到集合中，但这也使PermissionCollection意味着要以有效（且一致）的方式实现方法。
+		例如，如果您有两个文件权限：
+			1、"/tmp/-", "read"
+			2、"/tmp/scratch/foo", "write"
+		您正在使用FilePermission调用隐含方法：
+			"/tmp/scratch/foo", "read,write",
+		那么implies函数必须同时考虑“/tmp/-”和“/tmp/scratch/foo”权限，因此有效权限为"read,write"，并且implies返回true。FilePermission的“implies”语义由newPermissionCollection方法返回的PermissionCollection对象正确处理。
+		返回适用于存储FilePermission的新PermissionCollection对象。
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
