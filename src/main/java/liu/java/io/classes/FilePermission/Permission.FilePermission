@@ -1,0 +1,52 @@
+----------------------------------------FilePermission--------------------------------------------------------------------------------------------------------------
+FilePermission：文件权限【Since:1.2】
+	此类表示对文件或目录的访问。FilePermission由一个路径名和一组对该路径名有效的操作组成。
+	pathname是授予指定操作的文件或目录的路径名。以“/”（其中“/”是文件分隔符File.separatorChar）结尾的路径名表示该目录中包含的所有文件和目录。以“/-”结尾的路径名（递归地）表示该目录中包含的所有文件和子目录。包含特殊标记 "<<ALL FILES>>"的路径名与任何文件匹配。
+	注意：由单个“*”组成的路径名表示当前目录中的所有文件，而由单个“-”组成的路径名表示当前目录中的所有文件，以及（递归地）当前目录中包含的所有文件和子目录。
+	要授予的操作将以包含一个或多个逗号分隔关键字列表的字符串的形式传递给构造函数。可能的关键字有“read”、“write”、“execute”、“delete”和“readlink”。其含义定义如下：
+		● read		读取权限
+		● write		写入权限
+		● execute	执行权限。允许调用Runtime.exec。对应于SecurityManager.checkExec。
+		● delete	删除权限。允许调用File.delete。对应于SecurityManager.checkDelete。
+		● readlink	读取链接权限。允许通过调用readSymbolicLink方法读取符号链接的目标。
+	操作字符串在处理前转换为小写。
+	授予FilePermissions时要小心。考虑授予对各种文件和目录的读写访问权限的含义。写操作的"<<ALL FILES>>"权限特别危险。这将授予对整个文件系统的写入权限。这有效地允许的一件事是替换系统二进制文件，包括JVM运行时环境。
+	请注意：代码总是可以从它所在的同一目录（或该目录的子目录）中读取文件；它不需要显式的权限来执行此操作。
+		
+	
+	类定义	：public final class FilePermission extends Permission implements Serializable
+	实现接口	：Guard, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）
+	public FilePermission(String path, String actions)
+			
+
+Method Summary（方法概要）
+	equals(Object obj):boolean 
+	getActions():String 
+	hashCode():int 
+	implies(Permission p):boolean 
+	newPermissionCollection():PermissionCollection 
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、UNC：（Universal Naming Convention）路径：UNC指的是通用命名规则，也称通用命名规范、通用命名约定。UNC路径就是类似\\softer这样的形式的网络路径。
+		格式：\\servername\sharename，其中servername是服务器名。sharename是共享资源的名称。UNC共享就是指网络硬盘的共享当访问softer计算机中名为it168的共享文件夹，用UNC表示就是\\softer\it168；如果是softer计算机的默认管理共享C$则用\\softer\c$来表示。我们访问网上邻居所采用的命令行访问法，实际上应该称作UNC路径访问法。
+	4、echo：回显。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

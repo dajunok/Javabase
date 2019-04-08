@@ -198,42 +198,167 @@ Method Summary（方法概要）：
 		【Throws】：
 			SecurityException 如果已安装了安全管理器，并且它拒绝RuntimePermission("getFileSystemAttributes") 或SecurityManager.checkRead(String)方法拒绝对此抽象路径名命名的文件的读取访问。
 	hashCode():int 
+		计算此抽象路径名的哈希代码。因为抽象路径名的相等本质上依赖于系统，所以它们的哈希代码的计算也是如此。在UNIX系统上，抽象路径名的哈希代码等于其路径名字符串的异或哈希代码以及十进制值1234321。在Microsoft Windows系统上，哈希代码等于其路径名字符串（转换为小写）的异或哈希代码以及十进制值1234321。对路径名字符串进行lowercasing时，不考虑区域设置。
 	isAbsolute():boolean 
+		测试此抽象路径名是否为绝对路径。绝对路径名的定义取决于系统。在UNIX系统上，如果路径名的前缀是“/”，则该路径名是绝对路径名。在Microsoft Windows系统上，如果路径名的前缀是驱动器说明符，后跟“\”，或者如果路径名的前缀是“\\”。
+		如果此抽象路径名是绝对路径名，则返回true；否则返回false。
 	isDirectory():boolean 
-	isFile():boolean 
+		测试此抽象路径名表示的文件是否为目录。
+		如果需要区分I/O异常与文件不是目录的情况，或者同时需要同一文件的多个属性，则可以使用Files.readAttributes方法。
+		如果且仅当此抽象路径名表示的文件存在且是目录时返回true；否则返回false。
+	isFile():boolean
+		测试此抽象路径名表示的文件是否为普通文件。如果一个文件不是一个目录，那么它是正常的，此外，它还满足其他与系统相关的标准。Java应用程序创建的任何非目录文件都保证是一个普通文件。
+		如果需要将I/O异常与文件不是普通文件的情况区分开来，或者同时需要同一文件的多个属性，则可以使用Files.readAttributes方法。
+		如果且仅当此抽象路径名表示的文件存在且是普通文件时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果已安装了安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对文件的读取访问。
 	isHidden():boolean 
+		测试此抽象路径名命名的文件是否为隐藏文件。隐藏的确切定义取决于系统。在UNIX系统上，如果文件名以句点字符（“.”）开头，则认为该文件是隐藏的。在Microsoft Windows系统上，如果文件已在文件系统中标记为隐藏文件，则认为该文件是隐藏的。
+		如果且仅当根据底层平台的约定隐藏此抽象路径名表示的文件时返回true。
+		【Throws】：
+			SecurityException 如果已安装了安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对文件的读取访问。
 	lastModified():long 
+		返回用此抽象路径名表示的文件上次修改的时间。
+		如果需要区分I/O异常与返回0L的情况，或者同一文件同时需要多个属性，或者需要最后一次访问的时间或创建时间，则可以使用Files.readAttributes方法。
 	length():long 
+		返回用此抽象路径名表示的文件长度。如果此路径名表示目录，则返回值不确定。
+		如果需要将I/O异常与返回0L的情况区分开来，或者同时需要同一文件的多个属性，则可以使用Files.readAttributes方法。
+		返回此抽象路径名表示的文件长度（以字节为单位），如果该文件不存在，则返回0。一些操作系统可能会返回0L作为路径名，表示与系统相关的实体，如设备或管道。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对文件的读取访问。
 	list():String[] 
+		返回一个字符串数组，用此抽象路径名命名目录中的文件和目录。
+		如果此抽象路径名不表示目录，则此方法返回null。否则将返回一个字符串数组，每个文件或目录对应一个字符串数组。结果中不包括表示目录本身和目录父目录的名称。每个字符串都是一个文件名，而不是完整的路径。
+		无法保证结果数组中的名称字符串将以任何特定的顺序出现；尤其不能保证它们以字母顺序出现。
+		注意，File类定义了newDirectoryStream方法来打开一个目录并迭代目录中文件的名称。在处理非常大的目录时，这可能会使用较少的资源，而在处理远程目录时，这可能会更具响应性。
+		返回一个字符串数组，用于命名由该抽象路径名表示的目录中的文件和目录。如果目录为空，则数组将为空。如果此抽象路径名不表示目录，或者发生I/O错误，则返回null。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对目录的读取访问。
 	list(FilenameFilter filter):String[] 
+		filter - 文件名过滤器
+		返回一个字符串数组，用满足指定过滤器的抽象路径名表示目录中的文件和目录。此方法的行为与list()方法的行为相同，只是返回数组中的字符串必须满足过滤器。如果给定的过滤器为null，则接受所有名称。否则，只有当对该抽象路径名调用过滤器的FilenameFilter.accept(File, String)方法以及该抽象路径名表示的目录中的文件或目录的名称时，值为true才满足过滤器的要求。
+		返回一个字符串数组，用于命名目录中的文件和目录，由给定过滤器接受的抽象路径名表示。如果目录为空或过滤器不接受任何名称，则数组将为空。如果此抽象路径名不表示目录，或者发生I/O错误，则返回null。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对目录的读取访问。
 	listFiles():File[] 
+		返回一个抽象路径名数组，该数组表示由该抽象路径名表示的目录中的文件。
+		如果此抽象路径名不表示目录，则此方法返回null。否则将返回一个File对象数组，每个文件或目录对应一个。结果中不包含表示目录本身和目录父目录的路径名。每个生成的抽象路径名都是使用File(File, String)构造函数从这个抽象路径名构造的。因此，如果此路径名是绝对路径名，则每个生成的路径名都是绝对路径名；如果此路径名是相对路径名，则每个生成的路径名都将相对于同一目录。
+		无法保证结果数组中的名称字符串将以任何特定的顺序出现；尤其不能保证它们以字母顺序出现。
+		注意，Files类定义了newDirectoryStream方法来打开一个目录并迭代目录中文件的名称。在处理非常大的目录时，这可能会使用较少的资源。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对目录的读取访问。
 	listFiles(FileFilter filter):File[] 
+		filter - 文件过滤器
+		返回一个抽象路径名数组，表示满足指定过滤器的此抽象路径名表示的目录中的文件和目录。此方法的行为与listFiles()方法的行为相同，只是返回的数组中的路径名必须满足过滤器。如果给定的过滤器为null，则接受所有路径名。否则，只有当对路径名调用过滤器的FileFilter.accept(File)方法时，值为true才满足过滤器。
+		返回一个抽象路径名数组，表示由该抽象路径名表示的目录中的文件和目录。如果目录为空，则数组将为空。如果此抽象路径名不表示目录，或者发生I/O错误，则返回null。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对目录的读取访问。
 	listFiles(FilenameFilter filter):File[] 
+		filter - 文件名过滤器
+		返回表示目录中满足指定过滤器的文件和目录的抽象路径名数组。此方法的行为与listFiles()方法的行为相同，只是返回的数组中的路径名必须满足过滤器。如果给定的过滤器为null，则接受所有路径名。否则，只有当对该抽象路径名调用筛选器的FilenameFilter.accept(File, String)方法以及该抽象路径名表示的目录中的文件或目录的名称时，值为true才满足筛选器。
+		返回一个抽象路径名数组，表示由该抽象路径名表示的目录中的文件和目录。如果目录为空，则数组将为空。如果此抽象路径名不表示目录，或者发生I/O错误，则返回null。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且SecurityManager.checkRead(java.lang.String)方法拒绝对目录的读取访问。
 	mkdir():boolean 
+		创建以此抽象路径名命名的目录。
+		如果且仅当创建了目录时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果存在安全管理器，它的SecurityManager.checkWrite(java.lang.String)方法不允许创建命名目录。
 	mkdirs():boolean 
+		创建以此抽象路径名命名的目录，包括任何必要但不存在的父目录。注意，如果此操作失败，它可能已经成功地创建了一些必需的父目录。
+		如果且仅当创建了目录以及所有必需的父目录时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其SecurityManager.checkRead(java.lang.String)方法不允许验证命名目录和所有必需的父目录的存在；或者SecurityManager.checkWrite(java.lang.String)方法不允许创建命名目录和所有必需的父目录。
 	renameTo(File dest):boolean 
+		重命名此抽象路径名表示的文件。
+		此方法行为的许多方面本质上依赖于平台：重命名操作可能无法将文件从一个文件系统移动到另一个文件系统，它可能不是原子的，如果目标抽象路径名的文件已经存在，则可能不会成功。应始终检查返回值，以确保重命名操作成功。
+		注意，Files类定义了move方法，以独立于平台的方式移动或重命名文件。
 	setExecutable(boolean executable):boolean 
+		executable - 如果为true，则将访问权限设置为允许执行操作；如果为false，则设置为不允许执行操作。
+		设置所有者对此抽象路径名的执行权限的方便方法。在某些平台上，可以启动Java虚拟机，并允许其执行未标记可执行文件的特殊权限。
+		对此方法的调用形式file.setExcutable(arg)的行为与下面等效：
+			file.setExecutable(arg, true) 
+		如果且仅当操作成功时返回true。如果用户没有更改此抽象路径名的访问权限的权限，则操作将失败。如果可执行文件为false，并且底层文件系统未实现执行权限，则操作将失败。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写入访问。
 	setExecutable(boolean executable, boolean ownerOnly):boolean 
+		executable - 如果为true，则将访问权限设置为允许执行操作；如果为false，则设置为不允许执行操作。、
+		设置此抽象路径名的所有者或所有人的执行权限。在某些平台上，可以启动Java虚拟机，并允许其执行未标记可执行文件的特殊权限。
+		Files类定义对文件属性（包括文件权限）进行操作的方法。这可以在需要更精细地操作文件权限时使用。
+		如果且仅当操作成功时返回true。如果用户没有更改此抽象路径名的访问权限的权限，则操作将失败。如果可执行文件为false，并且底层文件系统未实现执行权限，则操作将失败。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写入访问。
 	setLastModified(long time):boolean 
+		time - 上次修改的新时间，从新纪元开始以毫秒为单位（格林尼治标准时间00:00，1970年1月1日）
+		设置此抽象路径名命名的文件或目录的做近一次修改时间。
+		所有平台都支持将文件修改时间精确到秒，但有些平台提供了更高的精度。参数将被截断以适应支持的精度。如果操作成功，并且没有对文件执行干预操作，则下次调用lastModified()方法将返回传递给此方法的（可能被截断的）时间参数。
+		【Throws】：
+			IllegalArgumentException 如果参数为负数
+			SecurityException 如果存在安全管理器，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写入访问。
 	setReadable(boolean readable):boolean 
+		readable - 如果为true，则将访问权限设置为允许读取操作；如果为false，则设置为不允许读取操作。
+		设置所有者对此抽象路径名的读取权限的方便方法。在某些平台上，可以启动Java虚拟机，并允许它读取标记为不可读的文件。
+		对形式为file.setReadable(arg)的此方法的调用与下面调用的行为完全等效：
+			 file.setReadable(arg, true) 
+		如果且仅当操作成功时返回true。如果用户没有更改此抽象路径名的访问权限的权限，则操作将失败。如果readable为false，并且底层文件系统不实现读取权限，则操作将失败。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写访问。
 	setReadable(boolean readable, boolean ownerOnly):boolean 
+		readable - 如果为true，则将访问权限设置为允许读取操作；如果为false，则设置为不允许读取操作。
+		ownerOnly - 如果为true，则读权限仅适用于所有者的读权限；否则，它适用于所有人。如果底层文件系统无法区分所有者的读取权限与其他文件系统的读取权限，那么无论该值如何，该权限都将应用于所有人。
+		设置此抽象路径名的所有者或所有人的读取权限。在某些平台上，可以启动Java虚拟机，并允许它读取标记为不可读的文件。
+		Files类定义对文件属性（包括文件权限）进行操作的方法。这可以在需要更精细地操作文件权限时使用。
+		如果且仅当操作成功时返回true。如果用户没有更改此抽象路径名的访问权限的权限，则操作将失败。如果readable为false，并且底层文件系统不实现读取权限，则操作将失败。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对文件的写访问。
 	setReadOnly():boolean 
+		标记以此抽象路径名命名的文件或目录，以便只允许读取操作。调用此方法后，文件或目录在被删除或标记为允许写访问之前不会更改。在某些平台上，可以启动Java虚拟机，使其能够修改标记为只读的文件。是否可以删除只读文件或目录取决于底层系统。
+		如果且仅当操作成功时返回true；否则返回false。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对命名文件的写访问。
 	setWritable(boolean writable):boolean 
+		
 	setWritable(boolean writable, boolean ownerOnly):boolean 
-	toPath():Path 
+		writable - 如果为true，则将访问权限设置为允许写操作；如果为false，则设置为不允许写操作。
+		ownerOnly - 如果为true，则写入权限仅适用于所有者的写入权限；否则，它适用于所有人。如果底层文件系统不能区分所有者的写权限和其他人的写权限，那么不管这个值是多少，该权限都将应用于所有人。
+		设置此抽象路径名的所有者或所有人的写入权限。在某些平台上，可以启动Java虚拟机，使其能够修改不允许写入操作的文件。
+		Files类定义对文件属性（包括文件权限）进行操作的方法。这可以在需要更精细地操作文件权限时使用。
+		如果且仅当操作成功时返回true。如果用户没有更改此抽象路径名的访问权限的权限，则操作将失败。
+		【Throws】：
+			SecurityException 如果存在安全管理器，并且其SecurityManager.checkWrite(java.lang.String)方法拒绝对命名文件的写访问。
+	toPath():Path
+		 返回从此抽象路径构造的a java.nio.file.Path对象。结果路径与默认文件系统相关联。
+		 第一次调用此方法的工作方式就像调用它等同于计算表达式：
+		 	FileSystems.getDefault().getPath(this.getPath());
+		此方法的后续调用返回相同的路径。
+		如果此抽象路径名是空的抽象路径名，则此方法返回一个可用于访问当前用户目录的路径。
+		【Throws】：
+			InvalidPathException - 如果无法从抽象路径构造Path对象（请参见FileSystem.getPath）
 	toString():String 
+		返回此抽象路径名的路径名字符串。这只是getPath()方法返回的字符串。
 	toURI():URI 
+		构造表示此抽象路径名的file:URI。
+		URI的确切形式取决于系统。如果可以确定这个抽象路径名表示的文件是一个目录，那么得到的URI将以斜杠结束。
+		对于给定的抽象路径名f，可以保证：
+			new File( f.toURI()).equals( f.getAbsoluteFile())
+		只要原始抽象路径名、URI和新抽象路径名都在同一Java虚拟机中创建（可能是不同的调用）。但是，由于抽象路径名的系统依赖性，当在一个操作系统上的虚拟机中创建的file:URI转换为另一个操作系统上的虚拟机中的抽象路径名时，此关系通常不成立。
+		请注意，当这个抽象路径名表示一个UNC路径名时，该UNC的所有组件（包括服务器名称组件）都编码在URI路径中。权限组件未定义，这意味着它表示为空。Path类定义toUri方法，以便在生成的URI的authority组件中对服务器名进行编码。toPath方法可用于获取表示此抽象路径名的Path。
+		返回一个绝对的、层次结构的URI，其scheme等于“文件”，表示此抽象路径名的路径，以及未定义的权限、查询和片段组件。
+		【Throws】：
+			SecurityException 如果无法访问所需的系统属性值。
 	toURL():URL 
-	
-	
-	
+		✘ 已淘汰。此方法不会自动转义URL中非法的字符。建议新代码首先通过toURI方法将抽象路径名转换为url，然后通过URI.toURL方法将该URI转换为URL。
+		将此抽象路径名转换为file:URL。URL的确切形式取决于系统。如果可以确定这个抽象路径名表示的文件是一个目录，那么得到的URL将以斜杠结束。
+		【Throws】：
+			MalformedURLException 如果无法将路径解析为URL
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
 	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
-
-
+	3、UNC：（Universal Naming Convention）路径：UNC指的是通用命名规则，也称通用命名规范、通用命名约定。UNC路径就是类似\\softer这样的形式的网络路径。
+		格式：\\servername\sharename，其中servername是服务器名。sharename是共享资源的名称。UNC共享就是指网络硬盘的共享当访问softer计算机中名为it168的共享文件夹，用UNC表示就是\\softer\it168；如果是softer计算机的默认管理共享C$则用\\softer\c$来表示。我们访问网上邻居所采用的命令行访问法，实际上应该称作UNC路径访问法。
+	4、echo：回显。
 
 
 
