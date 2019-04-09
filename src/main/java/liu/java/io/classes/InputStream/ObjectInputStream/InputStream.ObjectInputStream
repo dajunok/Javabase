@@ -41,181 +41,228 @@ ObjectInputStream：对象输入流	【Since:JDK1.1】
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
 	protected ObjectInputStream()
+		为完全重新实现ObjectInputStream的子类提供一种方法，使其不必分配仅由该ObjectInputStream实现使用的私有数据。
+		如果安装了安全管理器，则此方法首先使用SerializablePermission("enableSubclassImplementation") 权限调用安全管理器的checkPermission方法，以确保可以启用子类化。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其checkPermission方法拒绝启用子类化。
+			IOException  如果在创建此流时发生I/O错误。
 	public ObjectInputStream(InputStream in)
-	
-	
+		in - 要读取的输入流
+		创建从指定的InputStream中读取的ObjectInputStream。从流中读取序列化流头并进行验证。在相应的ObjectOutputStream写入并刷新头之前，此构造函数将一直阻塞。
+		如果安装了安全管理器，则此构造函数将在重写ObjectInputStream.readFields或ObjectInputStream.readUnshared方法的子类的构造函数直接或间接调用时检查“enableSubclassImplementation”序列化权限。
+		【Throws】：
+			StreamCorruptedException 如果流头不正确
+			SecurityException 如果安全管理器存在，并且其checkPermission方法拒绝启用子类化。
+			IOException  如果在创建此流时发生I/O错误。
+			NullPointerException 如果in为null。
+		
 Method Summary（方法概要）：
 	available():int 
-		△ 返回可以从此输入流中读取（或跳过）的字节数的估计值，而不受此输入流下一次方法调用的阻塞。下一次调用可能是同一个线程或另一个线程。单个读取或跳过这么多字节不会阻塞，但可能会读取或跳过更少的字节。
-		注意，虽然一些InputStream的实现将返回流中的字节总数，但许多实现不会返回。使用此方法的返回值分配用于保存此流中所有数据的缓冲区永远不正确。
-		如果通过调用close()方法关闭了此输入流，则此方法的子类实现可以选择引发IOException异常。
-		类InputStream的available方法始终返回0。
-		此方法应被子类重写。
+		△ 返回可以在不阻塞的情况下读取的字节数。
+		返回可用字节数。
 		【Throws】：
-			IOException 如果发生I/O错误。
+			IOException 如果从底层输入流读取时出现I/O错误
 	close():void 
-		△ 关闭此输入流并释放与该流关联的任何系统资源。
-		InputStream的close方法不起任何作用。
+		△ 关闭输入流。必须调用以释放与流关联的任何资源。
 		【Throws】：
 			IOException 如果发生I/O错误。
 	defaultReadObject():void 
-	
+		从此流中读取当前类的非静态（non-static）和非瞬态（non-transient）字段。这只能从被反序列化的类的readObject方法调用。如果不是这样调用，它将抛出NotActiveException异常。
+		【Throws】：
+			ClassNotFoundException 如果找不到序列化对象的类。
+			IOException  如果发生I/O错误。
+			NotActiveException 如果流当前没有读取对象。
 	enableResolveObject(boolean enable):protected boolean 
-	
+		enable - 如果打算为每个被反序列化的对象启用resolveObject，则指定为true。
+		启用流以允许替换从流中读取的对象。启用后，将为反序列化的每个对象调用resolveObject方法。
+		如果enable为true，并且安装了安全管理器，则此方法首先调用安全管理器的checkPermission方法，并具有SerializablePermission("enableSubstitution")权限，以确保可以启用流以允许从流中读取的对象被替换。
+		返回调用此方法之前的上一个设置。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其checkPermission方法拒绝启用流以允许替换从流中读取的对象。
 	read():int 
-		△ 从输入流中读取数据的下一个字节。值byte在0到255之间作为int返回。如果由于到达流结尾而没有字节可用，则返回值-1。此方法将一直阻塞，直到输入数据可用、检测到流的结尾或引发异常为止。
-		子类必须提供此方法的实现。
+		△ 读取一个字节的数据。如果没有可用的输入，此方法将阻塞。
+		返回一个字节读取，如果到达流的结尾，则返回-1。
 		【Throws】：
 			IOException 如果发生I/O错误。
 	read(byte b[], int off, int len):int
 		b - 读取数据的缓冲区。
 		off - 数组b中写入数据的起始偏移量。
 		len - 要读取的最大字节数。		
-		△ 从输入流读取最多len个字节的数据到一个字节数组中。试图读取最多len字节，但可以读取较小的数字。实际读取的字节数返回为整数。
-		此方法将一直阻塞，直到输入数据可用、检测到文件结尾或引发异常为止。
-		如果len为零，则不读取任何字节并返回0；否则，将尝试读取至少一个字节。如果由于流位于文件末尾而没有字节可用，则返回值-1；否则，至少读取一个字节并将其存储到b中。
-		第一个字节读取被存储到元素b[off]中，下一个字节读取到b[off+1]中，依此类推。读取的字节数最多等于len。设k为实际读取的字节数；这些字节将存储在元素b[off]到b[off+k-1]中，使元素b[off+k]到b[off+len-1]不受影响。
-		在任何情况下，元素b[0]到b[off]和元素b[off+len]到b[b.length-1]都不受影响。
-		类InputStream的read(b, off, len)方法只需重复调用方法read() 。如果第一个此类调用导致IOException，则从对read(b, off, len)方法的调用中返回该异常。如果对read()的任何后续调用导致IOException，则会捕获该异常并将其视为文件结尾；到该点为止读取的字节将存储到b中，并返回在发生异常之前读取的字节数。此方法的默认实现将一直阻塞，直到读取请求的输入数据长度、检测到文件结尾或引发异常为止。鼓励子类提供更有效的方法实现。		
+		△ 读取一个字节数组。此方法将一直阻塞，直到某些输入可用。考虑使用java.io.DataInputStream.readFully精确读取'length'字节。
+		返回实际读取的字节数，当到达流结尾时，返回-1。		
 		【Throws】：
-			IOException 如果第一个字节由于除文件结尾以外的任何原因无法读取，或者输入流已关闭，或者发生其他I/O错误。
-			NullPointerException 如果b为null。
-			IndexOutOfBoundsException 如果off为负，len为负，或者len大于b.length-off。	
+			IOException 如果发生I/O错误。	
 	readBoolean():boolean 
-		△ 读取一个输入字节，如果该字节非零，则返回true；如果该字节为零，则返回false。此方法适用于读取DataOutput接口的writeBoolean方法写入的字节。
+		△ 读取布尔值。
+		返回读取的布尔值。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readByte():byte 
-		△ 读取并返回一个输入字节。字节被视为-128到127（含）范围内的有符号值。此方法适用于读取接口DataOutput的writeByte方法写入的字节。
+		△ 读取8位字节。
+		返回读取的8位字节。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readChar():char 
-		△ 读取两个输入字节并返回char值。让a为第一个读取字节，b为第二个字节。返回的值为：
-			(char)((a << 8) | (b & 0xff))
-		此方法适用于读取接口DataOutput的writeChar方法写入的字节。
+		△ 读取16位字符。
+		返回读取的16位字符。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
-			IOException 如果发生I/O错误。
-	
+			EOFException 如果到达文件结尾。
+			IOException 如果发生I/O错误。	
 	readClassDescriptor():protected ObjectStreamClass 
-	
+		从序列化流中读取类描述符。当ObjectInputStream期望类描述符作为序列化流中的下一项时，调用此方法。ObjectInputStream的子类可以重写此方法以读取以非标准格式编写的类描述符（由ObjectOutputStream的子类重写writeClassDescriptor方法）。默认情况下，此方法根据Object序列化规范中定义的格式读取类描述符。
+		返回读取的类描述符。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			ClassNotFoundException 如果找不到类描述符表示形式中使用的序列化对象的类。
 	readDouble():double 
-		△ 读取八个输入字节并返回一个double值。它首先以readLong方法的方式构造一个long值，然后以Double.longBitsToDouble方法的方式将这个long值转换为double。此方法适用于读取DataOutput接口的writeDouble方法写入的字节。
+		△ 读取64位double值。
+		返回读取的64位double值。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
-			IOException 如果发生I/O错误。
-	
+			EOFException 如果到达文件结尾。
+			IOException 如果发生I/O错误。		
 	readFields():ObjectInputStream.GetField 
-	
+		从流中读取持久字段并按名称使其可用。
+		返回表示被反序列化对象的持久字段的GetField对象
+		【Throws】：
+			ClassNotFoundException 如果找不到序列化对象的类。
+			IOException 如果发生I/O错误。	
+			NotActiveException 如果流当前没有读取对象。
 	readFloat():float 
-		△ 读取四个输入字节并返回float值。它首先以readInt方法的方式构造一个int值，然后以Float.intBitsToFloat方法的方式将该int值转换为一个float。此方法适用于读取DataOutput接口的writeFloat方法写入的字节。
+		△ 读取32位float值。
+		返回读取的32位float值。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
-	readFully(byte b[]):void 
-		△ 从输入流中读取一些字节，并将它们存储到缓冲区数组b中。读取的字节数等于b的长度。
-		此方法将一直阻塞，直到出现以下情况之一：
-			● b.length长度的输入数据字节是可用的，在这种情况下，返回正常值。
-			● 检测到文件结尾，在这种情况下会引发EOFException异常。
-			● 发生I/O错误，在这种情况下会引发除EOFException以外的IOException。
-		如果b为null，则引发NullPointerException异常。如果b.length为零，则不读取任何字节。否则，第一个字节读取被存储到元素b[0]中，下一个字节读取到b[1]中，依此类推。如果从这个方法中抛出异常，那么可能是b的一些字节（但不是所有字节）已经用来自输入流的数据进行了更新。
+	readFully(byte[] buf):void 
+		buf - 读取数据的缓冲区
+		△ 读取字节，阻塞直到读取所有字节。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readFully(byte b[], int off, int len):void 
 		b -   读取数据的缓冲区。
 		off - 指定数据偏移量的int。
 		len - 指定要读取的字节数的int。
-		△ 从输入流读取len长度字节。
-		此方法将一直阻塞，直到出现以下情况之一：
-			● 输入数据的len长度字节是可用的，在这种情况下，返回正常值。
-			● 检测到文件结尾，在这种情况下会引发EOFException异常。
-			● 发生I/O错误，在这种情况下会引发除EOFException以外的IOException。
-		如果b为null，则引发NullPointerException。如果off为负，或者len为负，或者off+len大于数组b的长度，则会引发IndexOutOfBoundsException异常。如果len为零，则不读取字节。否则，第一个字节读取被存储到元素b[off]中，下一个字节读取到b[off+1]中，依此类推。读取的字节数最多等于len。
+		△ 读取字节，阻塞直到读取所有字节。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readInt():int 
-		△ 读取四个输入字节并返回一个int值。让a-d作为第一个到第四个字节的读取。返回的值为：
-			 (((a & 0xff) << 24) | ((b & 0xff) << 16) |
-			  ((c & 0xff) <<  8) | (d & 0xff))	
-		此方法适用于读取DataOutput接口的writeInt方法写入的字节。
-	readLine():String 
-		△ 从输入流中读取下一行文本。它读取连续的字节，将每个字节分别转换为一个字符，直到遇到行终止符或文件结尾；然后将读取的字符作为字符串返回。注意，因为这个方法处理字节，所以它不支持完整的Unicode字符集的输入。
-		如果在读取一个字节之前遇到文件结尾，则返回null。否则，读取的每个字节都将被零扩展名转换为char类型。如果遇到字符'\n'，则将丢弃该字符并停止读取。如果遇到字符'\r'，它将被丢弃，如果下面的字节转换为字符'\n'，那么它也将被丢弃；然后读取将停止。如果在遇到字符'\n'和'\r'之前遇到文件结尾，则读取将停止。一旦停止读取，将返回一个字符串，其中包含所有已读取但未丢弃的字符，并按顺序排列。请注意，此字符串中的每个字符的值都小于\u0100，即，(char)256。
+		△ 读取32位int。
+		返回读取的32位整数。
 		【Throws】：
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
+	readLine():String 
+		✘ 已淘汰。此方法无法将字节正确转换为字符。有关详细信息和备选方案，请参阅DataInputStream。
+		读取已被\n、\r、\r\n或eof终止的行。
+		【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
 	readLong():long 
-		△ 读取八个输入字节并返回一个长值。让a-h作为第一个到第八个字节的读取。返回的值为：
-			 (((long)(a & 0xff) << 56) |
-			  ((long)(b & 0xff) << 48) |
-			  ((long)(c & 0xff) << 40) |
-			  ((long)(d & 0xff) << 32) |
-			  ((long)(e & 0xff) << 24) |
-			  ((long)(f & 0xff) << 16) |
-			  ((long)(g & 0xff) <<  8) |
-			  ((long)(h & 0xff)))
-		此方法适用于读取DataOutput接口的writeLong方法写入的字节。
+		△ 读取64位long值。
+		返回读取的64位long值。
+		【Throws】：
+			EOFException 如果到达文件结尾。
+			IOException 如果发生I/O错误。
 	readObject():final Object 
-		△ 读取并返回对象。实现此接口的类定义对象的“读取”位置。
-		返回从流中读取的对象
+		△ 从ObjectInputStream读取对象。读取对象的类、类的签名以及类及其所有父类型的非瞬态（non-transient）和非静态（non-static）字段的值。可以使用writeObject和readObject方法重写类的默认反序列化。此对象引用的Object是通过传递方式读取的，以便由readObject重新构造对象的完整等效图。
+		当根（root）对象的所有字段及其引用的对象都被完全还原时，根（root）对象将被完全还原。此时，对象验证回调将根据注册的优先级按顺序执行。回调由对象（在readObject特殊方法中）注册，因为它们是单独还原的。
+		对于InputStream和不应反序列化的类的问题，会引发异常。所有异常对InputStream都是致命的，并使其处于不确定状态；由调用方来忽略或恢复流状态。
+		返回从流中读取的对象。
 		【Throws】：
-			ClassNotFoundException 如果找不到序列化对象的类。
-			IOException 如果出现任何与输入/输出相关的常见异常。		
+			ClassNotFoundException 找不到序列化对象的类。
+			InvalidClassException 序列化使用的类有问题。
+			StreamCorruptedException 流中的控制信息不一致。
+			OptionalDataException 在流中而不是对象中找到了原始数据。
+			IOException 任何与输入/输出相关的常见异常。		
 	readObjectOverride():protected Object 
-	
-	readShort():short 
-		读取两个输入字节并返回一个short值。让a为第一个读取字节，b为第二个字节。返回的值为：
-			(short)((a << 8) | (b & 0xff))
-		此方法适用于读取DataOutput接口的writeShort方法写入的字节。
+		此方法由ObjectOutputStream的受信任子类调用，该子类使用受保护的无参数构造函数构造了ObjectOutputStream。子类应提供带有修饰符“final”的重写方法。
+		返回从流中读取的对象。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			ClassNotFoundException 找不到序列化对象的类定义。
+			OptionalDataException 在流中找到原始数据，而不是对象。
+			IOException 如果从底层流读取时发生I/O错误。
+	readShort():short 
+		读取16位short值。
+		返回读取的16位short值。
+		【Throws】：
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readStreamHeader():protected void 
-	
+		提供readStreamHeader方法以允许子类读取和验证自己的流头。它读取并验证幻数和版本号。
 	readUnshared():Object 
-	
-	readUnsignedByte():int 
-		△ 读取一个输入字节，零将其扩展到int类型，并返回结果，因此结果在0到255之间。此方法适用于读取DataOutput接口的writeByte方法写入的字节（如果writeByte的参数是0到255之间的值）。
-		返回读取的无符号8位值。
+		从ObjectInputStream读取“非共享”对象。此方法与readObject相同，只是它防止后续调用readObject和readUnshared返回通过此调用获得的反序列化实例的其他引用。按特性：
+			● 如果调用readUnshared反序列化后引用（以前写入流的对象的流表示形式），则将引发ObjectStreamException异常。
+			● 如果readUnshared成功返回，则任何随后尝试反序列化对readUnshared反序列化的流句柄的引用都将导致引发ObjectStreamException异常。
+		通过readUnshared反序列化对象将使与返回对象关联的流句柄无效。请注意，这本身并不总是保证readUnshared返回的引用是唯一的；反序列化对象可以定义一个readResolve方法，该方法返回对其他方可见的对象，或者readUnshared可以返回类对象或枚举常量，该类对象或枚举常量可以在流中的其他位置或通过外部方法获得。如果反序列化对象定义了readResolve方法，并且该方法的调用返回一个数组，则readUnshared返回该数组的浅克隆；这保证返回的数组对象是唯一的，并且不能从对ObjectInputStream的readObject或readUnshared调用中第二次获取，即使底层数据流已被操作。
+		重写此方法的ObjectInputStream子类只能在具有“enableSubclassImplementation”序列化权限的安全上下文中构造；任何尝试在没有此权限的情况下实例化此类子类都将导致引发SecurityException异常。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			ClassNotFoundException 如果找不到要反序列化的对象的类。
+			StreamCorruptedException 如果流中的控制信息不一致
+			ObjectStreamException 如果要反序列化的对象已出现在流中。
+			OptionalDataException 如果原始数据是流中的下一个。
+			IOException 如果反序列化期间发生I/O错误。	
+	readUnsignedByte():int 
+		△ 读取无符号8位字节。
+		返回读取的无符号8位字节值。
+		【Throws】：
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readUnsignedShort():int 
-		△ 读取两个输入字节并返回一个介于0到65535之间的int值。让a是第一个读取的字节，b是第二个字节。返回的值为：
-			(((a & 0xff) << 8) | (b & 0xff))
-		此方法适用于读取DataOutput接口的writeShort方法写入的字节，前提是writeShort的参数的范围是0到65535之间的值。
+		△ 读取无符号16位short值。
+		返回读取的无符号16位short值。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
+			EOFException 如果到达文件结尾。
 			IOException 如果发生I/O错误。
 	readUTF():String 
-		△ 读取使用修改后的UTF-8格式编码的字符串。readUTF的一般约定是读取以修改后的UTF-8格式编码的Unicode字符串的表示形式；然后将此字符串作为String返回。
-		首先，读取两个字节，并使用与readUnsignedShort方法完全相同的方式构造无符号16位整数。这个整数值称为UTF长度，并指定要读取的额外字节数。然后，通过分组考虑这些字节，将它们转换为字符。每个组的长度是根据组的第一个字节的值计算的。组后面的字节（如果有）是下一组的第一个字节。
-		如果一个组的第一个字节与位模式0xxxxxxx匹配（其中x表示“可能是0或1”），则该组仅由该字节组成。字节被零扩展以形成一个字符。
-		如果一个组的第一个字节与位模式110xxxxx匹配，则该组由该字节a和第二个字节b组成。如果没有字节b（因为字节a是要读取的最后一个字节），或者如果字节b与位模式10xxxxxx不匹配，则引发UTFDataFormatException异常。否则，组将转换为字符：
-			(char)(((a & 0x1F) << 6) | (b & 0x3F))
-		如果一个组的第一个字节与位模式1110xxxx匹配，则该组由该字节a和另外两个字节b和c组成。如果没有字节c（因为字节a是要读取的最后两个字节之一），或者字节b或字节c与位模式10xxxxxx不匹配，则会引发UTFDataFormatException异常。否则，组将转换为字符：
-			(char)(((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F))
-		如果组的第一个字节与模式1111xxxx或模式10xxxxxx匹配，则引发UTFDataFormatException异常。
-		在此过程将每个组转换为字符后，将按照从输入流中读取相应组的相同顺序收集字符，以形成返回的字符串。
-		DataOutput接口的writeUTF方法可用于写入适合此方法读取的数据。
+		△ 以修改后的UTF-8格式读取字符串。
+		返回字符串。
 		【Throws】：
-			EOFException 如果此流在读取所有字节之前到达末尾。
-			IOException 如果发生I/O错误。
-			UTFDataFormatException 如果字节不代表字符串的有效修改的UTF-8编码。
+			IOException 如果从底层输入流读取时出现I/O错误
+			UTFDataFormatException 如果读取字节不代表字符串的有效修改的UTF-8编码
 	registerValidation(ObjectInputValidation obj, int prio):void 
-	
+		obj - 接收验证回调的对象。
+		prio - 控制回调的顺序；零是一个好的默认值。使用更高的号码提前回拨，使用更低的号码稍后回拨。在优先级中，回调不按特定顺序处理。
+		在返回图形之前注册要验证的对象。虽然与resolveObject类似，但这些验证是在整个图形重新构建之后调用的。通常，readObject方法会将对象注册到流中，以便在还原所有对象时，可以执行最后一组验证。
+		【Throws】：
+			NotActiveException 流当前未读取对象，因此注册回调无效。
+			InvalidObjectException 验证对象为null。
 	resolveClass(ObjectStreamClass desc):protected Class<?> 
-	
+		desc - 类ObjectStreamClass的实例
+		加载与指定流类描述等效的本地类。子类可以实现此方法以允许从备用源中提取类。
+		ObjectOutputStream中对应的方法是annotateClass。对于流中的每个唯一类，此方法只调用一次。此方法可以由子类实现，以使用备用加载机制，但必须返回类对象。返回后，如果该类不是数组类，则将其serialVersionUID与序列化类的serialVersionUID进行比较，如果不匹配，则反序列化失败，并引发InvalidClassException异常。
+		此方法在ObjectInputStream中的默认实现返回调用的结果
+			Class.forName(desc.getName(), false, loader)
+		其中，加载器确定如下：如果当前线程栈上有一个方法，其声明类是由用户定义的类加载器定义的（并且不是为实现反射调用而生成的），则加载器是与当前执行帧最近的此类方法对应的类加载器；否则，加载器为null。如果此调用导致ClassNotFoundException异常，并且传递的ObjectStreamClass实例的名称是原始类型或Java语言关键字void，则将返回表示该原始类型的类对象或void（例如，将名称“int”的ObjectStreamClass解析为Integer.TYPE）。否则，将向此方法的调用方引发ClassNotFoundException异常。
+		返回与desc对应的Class对象。
+		【Throws】：
+			IOException 任何常见的输入/输出异常。
+			ClassNotFoundException 如果找不到序列化对象的类。
 	resolveObject(Object obj):protected Object 
-	
+		obj - 要替换的对象
+		此方法将允许ObjectInputStream的可信子类在反序列化期间用一个对象替换另一个对象。在调用enableResolveObject之前，将禁用替换对象。enableResolveObject方法检查请求解析对象的流是否可以信任。对可序列化对象的每个引用都传递给resolveObject。为了确保对象的private状态不会无意中暴露，只有受信任的流才可以使用resolveObject。
+		此方法在对象被读取之后，但在从readObject返回之前调用。默认的resolveObject方法只返回相同的对象。
+		当子类替换对象时，它必须确保被替换对象与存储引用的每个字段都兼容。如果对象的类型不是字段或数组元素类型的子类，则通过引发异常中止序列化，并且不会存储该对象。
+		第一次遇到每个对象时，只调用一次此方法。对该对象的所有后续引用都将重定向到新对象。
+		返回被替换的对象（原对象）。
+		【Throws】：
+			IOException 任何常见的输入/输出异常。
 	resolveProxyClass(String[] interfaces):protected Class<?> 
-	
+		interfaces - 代理类描述符中反序列化的接口名称列表
+		返回一个代理类，该代理类实现代理类描述符中指定的接口；子类可以实现此方法以从流中读取自定义数据以及动态代理类的描述符，从而允许它们对接口和代理类使用备用加载机制。
+		对于流中的每个唯一代理类描述符，只调用一次此方法。
+		ObjectOutputStream中对应的方法是annotateProxyClass。对于覆盖此方法的ObjectInputStream给定子类，ObjectOutputStream相应子类中的annotateProxyClass方法必须写入此方法读取的任何数据或对象。
+		ObjectInputStream中此方法的默认实现返回调用Proxy.getProxyClass的结果，其中包含在interfaces参数中命名的接口的类对象列表。每个接口名i的类对象是通过调用
+			Class.forName(i, false, loader)
+		其中，loader是执行栈上第一个非空（non-null）类加载器的类型，或者如果栈上没有非空（non-null）类加载器，则为null（resolveClass方法使用相同的类加载器选择）。除非任何已解析的接口是non-public的，否则该加载程序的相同值也是传递给Proxy.getProxyClass的类加载程序；如果存在non-public接口，则传递它们的类加载程序（如果遇到多个non-public接口类加载程序，则抛出IllegalAccessError异常）。如果Proxy.getProxyClass抛出IllegalArgumentException，resolveProxyClass将抛出包含IllegalArgumentException的ClassNotFoundException异常。
+		【Throws】：
+			IOException 底层InputStream引发的任何异常。
+			ClassNotFoundException 如果找不到代理类或任何命名接口。
 	skipBytes(int n):int 
 		n - 要跳过的字节数。
-		△ 尝试从输入流中跳过n个字节以上的数据，放弃跳过的字节。但是，它可能跳过一些较小的字节数，可能为零。这可能是由多个条件中的任何一个造成的；在跳过n个字节之前到达文件结尾只是一种可能。此方法从不引发EOFException异常。将返回跳过的实际字节数。
+		△ 跳过字节。
 		返回实际跳过的字节数。
 		【Throws】：
 			IOException 如果发生I/O错误。
