@@ -5,7 +5,7 @@ Reader：阅读器	【Since:JDK1.0】
 	
 	
 	类定义	：public abstract class Reader implements Readable, Closeable
-	实现接口	：Readable, Closeable
+	实现接口	：AutoCloseable, Closeable ,Readable
 	直接子类	：BufferedReader, CharArrayReader, FilterReader, InputStreamReader, PipedReader, StringReader
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）

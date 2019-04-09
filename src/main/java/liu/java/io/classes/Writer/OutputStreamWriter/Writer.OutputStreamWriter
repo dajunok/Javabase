@@ -1,0 +1,89 @@
+----------------------------------------OutputStreamWriter--------------------------------------------------------------------------------------------------------------
+OutputStreamWriter：输出流写入器	【Since:JDK1.1】
+	OutputStreamWriter是从字符流到字节流的桥梁：写入它的字符使用指定的字符编码为字节。它使用的字符集可以通过名称指定，也可以显式给定，或者可以接受平台的默认字符集。
+	每次调用write()方法都会导致对给定字符调用编码转换器。结果字节在被写入底层输出流之前被累积到缓冲区中。可以指定此缓冲区的大小，但默认情况下，它的大小足以满足大多数目的。注意，传递给write()方法的字符不会被缓冲。
+	为了达到最高效率，请考虑将OutputStreamWriter包装在BufferedWriter中，以避免频繁调用转换器。例如：
+		Writer out   = new BufferedWriter(new OutputStreamWriter(System.out));
+	代理项对是一个由两个字符值序列表示的字符：高代理项在范围'\uD800'到'\uDBFF'之间，低代理项在范围'\uDC00'到'\uDFFF'之间。
+	格式不正确的代理项元素是高代理项，后面不跟低代理项，或者低代理，后面不跟高代理项。
+	此类总是用字符集的默认替换序列替换格式错误的代理项元素和不可映射的字符序列。当需要对编码过程进行更多控制时，应该使用CharsetEncoder类。
+	
+	
+	类定义	：public class OutputStreamWriter extends Writer
+	实现接口	：Closeable, Flushable, Appendable, AutoCloseable
+	直接子类	：FileWriter
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	Writer.lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+Constructor Summary（构造器概要）：
+	public OutputStreamWriter(OutputStream out)		
+		out - 输出流
+		创建使用默认字符集编码的OutputStreamWriter。
+	public OutputStreamWriter(OutputStream out, String charsetName)
+		out - 输出流
+		charsetName - 支持的字符集的名称
+		创建使用命名字符集的OutputStreamWriter。
+		【Throws】：
+			UnsupportedEncodingException 如果不支持命名字符集编码。
+	public OutputStreamWriter(OutputStream out, Charset cs)
+		out - 输出流
+		cs - 字符集
+		创建使用给定字符集的OutputStreamWriter。
+	public OutputStreamWriter(OutputStream out, CharsetEncoder enc)
+		out - 输出流
+		enc - 字符集编码器
+		创建使用给定字符集编码器的OutputStreamWriter。
+	
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭流，首先对其进行刷新。关闭流后，进一步的write()或flush()调用将导致引发IOException。关闭以前关闭的流没有效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	flush():void 
+		△ 刷新流。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	getEncoding():String 
+		返回此流使用的字符集编码的名称。
+		如果编码具有历史名称，则返回该名称；否则返回编码的规范名称。
+		如果此实例是用OutputStreamWriter（OutputStream，String）构造函数创建的，则返回的编码唯一的名称可能与传递给构造函数的名称不同。如果流已关闭，则此方法可能返回空值。
+	write(char cbuf[], int off, int len):void 
+		cbuf - 字符缓冲区
+		off - 开始写入字符的偏移量
+		len - 要写入的字符数量
+		△ 写入字符数组的一部分。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(int c):void 
+		c - 使用int类型指定要写入的字符
+		△ 只写一个字符。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(String str, int off, int len):void 
+		str - 要写入的字符串
+		off - 开始写入字符的偏移量
+		len - 要写入的字符数量
+		△ 写入字符串的一部分。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

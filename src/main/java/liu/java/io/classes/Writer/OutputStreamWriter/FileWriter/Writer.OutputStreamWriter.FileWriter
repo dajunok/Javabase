@@ -1,0 +1,60 @@
+----------------------------------------FileWriter--------------------------------------------------------------------------------------------------------------
+FileWriter：文件写入器	【Since:JDK1.1】
+	用于写入字符文件的便利类。此类的构造函数假定默认字符编码和默认字节缓冲区大小是可接受的。要自己指定这些值，请在FileOutputStream上构造OutputStreamWriter。
+	文件是否可用或是否可以创建取决于底层平台。特别是一些平台，一次只允许一个文件写入器（或其他文件写入对象）打开一个文件进行写入。在这种情况下，如果所涉及的文件已经打开，则此类中的构造函数将失败。
+	FileWriter用于编写字符流。对于写入原始字节流，请考虑使用FileOutputStream。
+	
+	
+	类定义	：public class FileWriter extends OutputStreamWriter
+	实现接口	：Closeable, Flushable, Appendable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	Writer.lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+Constructor Summary（构造器概要）：
+	public FileWriter(File file)
+		file - 要写入的文件对象。
+		为给定的文件对象构造FileWriter对象。
+		【Throws】：
+			IOException 如果该文件存在，但是目录而不是常规文件，则该文件不存在但无法创建，或者由于任何其他原因无法打开。
+	public FileWriter(File file, boolean append)
+		file - 要写入的文件对象。
+		append - 如果为true，则字节将写入文件的结尾而不是开头	（即追加）
+		为给定的文件对象构造FileWriter对象。如果第二个参数为true，那么字节将写入文件的结尾而不是开头。
+		【Throws】：
+			IOException 如果该文件存在，但是目录而不是常规文件，则该文件不存在但无法创建，或者由于任何其他原因无法打开。
+	public FileWriter(FileDescriptor fd)
+		fd - 要写入的FileDescriptor（文件描述符）对象。
+		构造与文件描述符关联的文件写入器对象。
+	public FileWriter(String fileName)
+		fileName - 将系统相关文件名字符串化。
+		在给定文件名的情况下构造FileWriter对象。
+		【Throws】：
+			IOException 如果该文件存在，但是目录而不是常规文件，则该文件不存在但无法创建，或者由于任何其他原因无法打开。
+	public FileWriter(String fileName, boolean append)	
+		fileName - 将系统相关文件名字符串化。
+		append - 如果为true，则字节将写入文件的结尾而不是开头	（即追加）
+		构造一个给定文件名的FileWriter对象，该对象的布尔值指示是否要追加写入的数据。
+		【Throws】：
+			IOException 如果该文件存在，但是目录而不是常规文件，则该文件不存在但无法创建，或者由于任何其他原因无法打开。
+
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

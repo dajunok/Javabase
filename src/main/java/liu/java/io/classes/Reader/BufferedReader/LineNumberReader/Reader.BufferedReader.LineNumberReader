@@ -1,0 +1,83 @@
+----------------------------------------LineNumberReader--------------------------------------------------------------------------------------------------------------
+LineNumberReader：行编号阅读器	【Since:JDK1.1】
+	一种缓冲字符输入流，用于跟踪行号。此类定义方法setLineNumber(int)和getLineNumber()，分别用于设置和获取当前行号。
+	默认情况下，行编号从0开始。当读取数据时，此数字在每个行终止符处递增，并且可以通过调用setLineNumber(int)来更改。但是，请注意，setLineNumber(int)实际上不会更改流中的当前位置；它只更改getLineNumber()将返回的值。
+	行被认为是由换行符（“\n”）、回车符（“\r”）或紧跟换行符的回车符中的任何一个终止的。
+	
+	
+	类定义	：public class LineNumberReader extends BufferedReader
+	实现接口	：Readable, Closeable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	Reader.lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+
+Constructor Summary（构造器概要）：
+	public LineNumberReader(Reader in)
+		in - 提供底层流的阅读器对象
+		使用默认输入缓冲区大小创建新的行编号阅读器。
+	public LineNumberReader(Reader in, int sz)
+		in - 提供底层流的阅读器对象
+		sz - 指定缓冲区大小的int类型值
+		创建一个新的行编号阅读器，将字符读取到给定大小的缓冲区中。
+	
+Method Summary（方法概要）：
+	getLineNumber():int 
+		获取当前行号。
+	mark(int readAheadLimit):void 
+		readAheadLimit - 限制在保留标记的同时可以读取的字符数。读取字符达到或超过此限制后，尝试重置流可能会失败。
+		△ 标记流中的当前位置。对reset()的后续调用将尝试将流重新定位到此点，并将相应地重置行号。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read():int 
+		△ 读一个字符。行终止符被压缩为单个换行符（“\n”）。每当读取行终止符时，当前的行数就会递增。
+		返回读取的字符，如果到达流的结尾，则为-1
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(char cbuf[], int off, int len):int 
+		cbuf - 目标缓存
+		off - 开始存储字符的偏移量
+		len - 要读取的最大字符数量
+		△  将字符读入数组的一部分。每当读取行终止符时，当前的行数就会递增。
+		返回读取的字节数，如果已到达流的结尾，则为-1
+		【Throws】：
+			IOException 如果发生I/O错误。
+	readLine():String 	
+		△ 读取一行文字。每当读取行终止符时，当前的行数就会递增。
+		返回包含行内容（不包括任何行终止字符）的字符串，如果已到达流的结尾，则为null。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	reset():void 
+		△ 将流重置为最新标记。
+		【Throws】：
+			IOException 如果流未被标记，或者标记已失效。
+	setLineNumber(int lineNumber):void 
+		lineNumber - 指定行号的int类型值
+		设置当前行号。
+	skip(long n):long 
+		n - 要跳过的字符数
+		△ 跳过n个字符。
+		返回实际跳过的字符数。
+		【Throws】：
+			IllegalArgumentException 如果n为负数。
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
