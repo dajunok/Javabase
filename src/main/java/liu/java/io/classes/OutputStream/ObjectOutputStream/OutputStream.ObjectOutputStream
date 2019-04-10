@@ -1,0 +1,220 @@
+----------------------------------------ObjectOutputStream--------------------------------------------------------------------------------------------------------------
+ObjectOutputStream：对象输出流	【Since:JDK1.1】
+	ObjectOutputStream将原始数据类型和Java对象的图形写入OutputStream。可以使用ObjectInputStream读取（重组）对象。对象的持久存储可以通过使用流的文件来完成。如果流是网络套接字（socket）流，则可以在另一台主机或另一个进程中重新构建对象。
+	只有支持java.io.Serializable接口的对象才能写入流。对每个可序列化对象的类进行编码，包括类的类名和签名、对象字段和数组的值以及从初始对象引用的任何其他对象的闭包。
+	方法writeObject用于将对象写入流。任何对象（包括字符串和数组）都是用writeObject写入的。可以将多个对象或原始类型写入流。必须从相应的ObjectInputstream中读取对象，这些对象的类型和写入顺序必须相同。
+	也可以使用来自DataOutput的适当方法将原始数据类型写入流。也可以使用writeUTF方法写入字符串（String）。
+	对象的默认序列化机制写入对象的类、类签名以及所有non-transient字段和non-static字段的值。对其他对象的引用（transient或static字段除外）也会导致这些对象被写入。使用引用共享机制对单个对象的多个引用进行编码，以便可以将对象的图形还原为与写入原始对象时相同的图形。
+	例如，要编写一个可以由ObjectInputStream中的示例读取的对象：
+	      FileOutputStream fos = new FileOutputStream("t.tmp");
+	      ObjectOutputStream oos = new ObjectOutputStream(fos);
+	
+	      oos.writeInt(12345);
+	      oos.writeObject("Today");
+	      oos.writeObject(new Date());
+	
+	      oos.close();	
+	在序列化和反序列化过程中需要特殊处理的类必须实现具有这些确切签名的特殊方法：
+		 private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException;
+		 private void writeObject(java.io.ObjectOutputStream stream) throws IOException
+		 private void readObjectNoData() throws ObjectStreamException;	
+	writeObject方法负责为它的特定类编写对象的状态，以便相应的readObject方法可以恢复它。该方法不需要关注属于对象的超类或子类的状态。通过使用writeObject方法将单个字段写入ObjectOutputStream或使用DataOutput支持的基本数据类型的方法来保存状态。
+	序列化不会写出任何未实现java.io.Serializable接口的对象的字段。不能序列化的对象的子类可以序列化。在这种情况下，不可序列化的类必须有一个无参构造函数，以允许初始化其字段。在这种情况下，子类负责保存和恢复不可序列化类的状态。通常情况下，该类的字段是可访问的（public、package或protected），或者存在可用于恢复状态的get和set方法。
+	通过实现引发NotSerializableException异常的writeObject和readObject方法，可以阻止对象的序列化。ObjectOutputStream将捕获异常并中止序列化过程。
+	实现Externalizable接口允许对象对对象的序列化形式的内容和格式进行完全控制。调用Externalizable接口writeExternal和readExternal的方法来保存和恢复对象状态。当由类实现时，它们可以使用ObjectOutput和ObjectInput的所有方法来写入和读取自己的状态。对象负责处理发生的任何版本控制。
+	枚举常量的序列化方式与普通的可序列化或可外部化对象不同。枚举常量的序列化形式仅由其名称组成；不传输该常量的字段值。要序列化枚举常量，ObjectOutputStream将写入常量的name方法返回的字符串。与其他可序列化或可外部化的对象一样，枚举常量可以作为随后出现在序列化流中的反向引用的目标。无法自定义序列化枚举常量的过程；在序列化过程中忽略由枚举类型定义的任何类特定的writeObject和writeReplace方法。类似地，任何serialPersistentFields或serialVersionUID字段声明也将被忽略————所有枚举类型都具有固定的serialVersionUID 0L。
+	原始数据（不包括可序列化字段和可外部化数据）写入块数据记录中的ObjectOutputStream。块数据记录由一个头和数据组成。块数据头由一个标记和头后面的字节数组成。连续的原始数据写入被合并到一个块数据记录中。块数据记录使用的阻塞因子将为1024字节。每个块数据记录最多可填充1024个字节，或在块数据模式终止时写入。对ObjectOutputStream方法writeObject、defaultWriteObject和writeFields的调用最初会终止任何现有的块数据记录。
+	
+	
+	
+	
+	
+	类定义	：public class ObjectOutputStream  extends OutputStream implements ObjectOutput, ObjectStreamConstants
+	实现接口	：AutoCloseable, Closeable ,Flushable ,DataOutput ,ObjectOutput, ObjectStreamConstants
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected ObjectOutputStream()
+		为完全重新实现ObjectOutputStream的子类提供一种方法，使其不必分配仅由此ObjectOutputStream实现使用的private数据。
+		如果安装了安全管理器，则此方法首先调用安全管理器的checkPermission方法，并具有SerializablePermission（“enableSubclassImplementation”）权限，以确保可以启用子类化。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其checkPermission方法拒绝启用子类化。
+			IOException 如果在创建此流时发生I/O错误。
+	public ObjectOutputStream(OutputStream out)
+		out - 要写入的输出流
+		创建写入指定输出流的ObjectOutputStream。此构造函数将序列化流头写入底层流；调用方可能希望立即刷新流，以确保在读取头时，用于接收ObjectInputStream的构造函数不会阻塞。
+		如果安装了安全管理器，则当子类的构造函数直接或间接调用时，此构造函数将检查“enableSubclassImplementation”序列化权限，该子类重写ObjectOutputStream.putFields或ObjectOutputStream.writeUnshared方法。
+		【Throws】：
+			SecurityException 如果不受信任的子类非法重写安全敏感的方法
+			IOException 如果在写入流头时发生I/O错误。
+			NullPointerException 如果out为null。
+		
+Method Summary（方法概要）：
+	annotateClass(Class<?> cl):protected void 
+		cl - 要为其注释自定义数据的类。
+		子类可以实现此方法以允许类数据存储在流中。默认情况下，此方法不执行任何操作。ObjectInputStream中对应的方法是resolveClass。对于流中的每个唯一类，此方法只调用一次。类名称和签名将已写入流。此方法可以自由使用ObjectOutputStream来保存它认为合适的类的任何表示（例如，类文件的字节）。ObjectInputStream对应子类中的resolveClass方法必须读取和使用由annotateClass编写的任何数据或对象。
+		【Throws】：
+			IOException 底层输出流引发的任何异常。			
+	annotateProxyClass(Class<?> cl):protected void 
+		cl - 为其注释自定义数据的代理类
+		子类可以实现此方法来在流中存储自定义数据以及动态代理类的描述符。
+		对于流中的每个唯一代理类描述符，此方法只调用一次。ObjectOutputStream中此方法的默认实现不起任何作用。
+		ObjectInputStream中的相应方法是resolveProxyClass。对于重写此方法的ObjectOutputStream的给定子类，ObjectOutputStream的相应子类中的resolveProxyClass方法必须读取由annotateProxyClass写入的任何数据或对象。
+		【Throws】：
+			IOException 底层输出流引发的任何异常。
+	close():void 
+		△ 关闭此输出流并释放与此流关联的任何系统资源。关闭的一般约定是关闭输出流。关闭的流无法执行输出操作，无法重新打开。
+		OutputStream的Close方法不起任何作用。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	defaultWriteObject():void 
+	drain():protected void 
+	enableReplaceObject(boolean enable):protected boolean 
+	
+	flush():void 
+		△ 刷新此输出流并强制写出任何缓冲的输出字节。flush的一般约定是，调用它表示，如果以前写入的任何字节已被输出流的实现缓冲，则这些字节应立即写入其预期目标。
+		如果此流的预期目标是底层操作系统（例如文件）提供的抽象，则刷新流仅保证将以前写入流的字节传递给操作系统进行写入；它不能保证实际写入物理设备（如磁盘驱动器）。
+		OutputStream的flush方法不起任何作用。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	putFields():ObjectOutputStream.PutField 
+	replaceObject(Object obj):protected Object 
+	reset():void 
+	useProtocolVersion(int version):void 
+	
+	write(byte b[]):void 
+		b - 数据。
+		△ 将b.length字节从指定的字节数组写入此输出流。write(b)的一般约定是它应该与调用write(b, 0, b.length)具有完全相同的效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		△ 将指定字节数组中以偏移量off开始的len字节写入此输出流。write(b, off, len)的一般约定是数组b中的一些字节按顺序写入输出流；元素b[off]是第一个写入的字节，b[off+len-1]是此操作写入的最后一个字节。
+		OutputStream的write方法对要写出的每个字节调用一个参数的write方法。鼓励子类重写此方法并提供更有效的实现。
+		如果b为空，则引发NullPointerException异常。
+		如果off为负，或者len为负，或者off+len大于数组b的长度，那么将引发IndexOutOfBoundsException异常。
+		【Throws】：
+			IOException 如果发生I/O错误。特别是，如果输出流关闭，则引发IOException。
+	write(int b):abstract void 
+		b - 字节。
+		△ 将指定的字节写入此输出流。写入的一般约定是将一个字节写入输出流。要写入的字节是参数b的8个低阶位。忽略b的24个高阶位。
+		OutputStream的子类必须提供此方法的实现。
+		【Throws】：
+			IOException 如果发生I/O错误。特别是，如果输出流关闭，则引发IOException。
+	writeBoolean(boolean v):void 
+		v - 要写入的布尔值。
+		△ 将布尔值写入此输出流。如果参数v为true，则写入值（字节）1；如果v为false，则写入值（字节）0。此方法写入的字节可以由DataInput接口的readBoolean方法读取，然后返回等于v的布尔值。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeByte(int v):void 
+		v - 要写入的字节值。
+		△ 将参数v的8个低阶位写入输出流。忽略v的24个高阶位。（这意味着writeByte与整型参数的write操作完全相同。）此方法写入的字节可以由DataInput接口的readByte方法读取，然后返回等于（byte）v的字节。
+	writeBytes(String s):void 
+		s - 要写入的字节字符串。
+		△ 将字符串写入输出流。对于字符串s中的每个字符，按顺序将一个字节写入输出流。如果s为null，则引发NullPointerException异常。
+		如果s.length为零，则不写入任何字节。否则，首先写入字符s[0]，然后写入s[1]，依此类推；最后写入的字符是s[s.length-1]。对于每个字符，一个字节，即低位字节，完全按照writeByte方法的方式写入。忽略字符串中每个字符的高阶8位。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeChar(int v):void 
+		v - 要写入的char值。
+		△ 将由两个字节组成的char值写入输出流。要按所示顺序写入的字节值为：
+			 (byte)(0xff & (v >> 8))
+			 (byte)(0xff & v)	
+		此方法写入的字节可以由DataInput接口的readChar方法读取，然后返回等于(char)v的char。
+		【Throws】：
+			IOException 如果发生I/O错误。	
+	writeChars(String s):void 
+		s - 要写入的字符串值。
+		△ 按顺序将字符串s中的每个字符写入输出流，每个字符两个字节。如果s为null，则引发NullPointerException异常。如果s.length为零，则不写入任何字符。否则，首先写入字符s[0]，然后写入s[1]，依此类推；最后写入的字符是s[s.length-1]。对于每个字符，实际上是以writeChar方法的方式写入两个字节，第一个是高阶字节。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeClassDescriptor(ObjectStreamClass desc):protected void 
+	
+	writeDouble(double v):void 
+		v - 要写入的double值。
+		△ 将由八个字节组成的double值写入输出流。这样做就好像它首先以Double.doubleToLongBits方法的方式将此double值转换为long，然后以writeLong方法的方式写入long值。此方法写入的字节可以通过DataInput接口的readDouble方法读取，然后该方法将返回一个等于v的double。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeFields():void 
+	
+	writeFloat(float v):void 
+		v - 要写入的float值。
+		△ 将由四个字节组成的float值写入输出流。这样做就好像它首先以Float.floatToIntBits方法的方式将此float值转换为int，然后以writeInt方法的方式写入int值。此方法写入的字节可以由DataInput接口的readFloat方法读取，然后返回等于v的float。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeInt(int v):void 
+		v - 要写入的int值。
+		△ 将由四个字节组成的int值写入输出流。要按所示顺序写入的字节值为：
+		 (byte)(0xff & (v >> 24))
+		 (byte)(0xff & (v >> 16))
+		 (byte)(0xff & (v >>  8))
+		 (byte)(0xff & v)
+		此方法写入的字节可以由DataInput接口的readInt方法读取，然后返回等于v的int。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeLong(long v):void 
+		v - the long value to be written.
+		△ 将包含八个字节的long值写入输出流。要按所示顺序写入的字节值为：
+			 (byte)(0xff & (v >> 56))
+			 (byte)(0xff & (v >> 48))
+			 (byte)(0xff & (v >> 40))
+			 (byte)(0xff & (v >> 32))
+			 (byte)(0xff & (v >> 24))
+			 (byte)(0xff & (v >> 16))
+			 (byte)(0xff & (v >>  8))
+			 (byte)(0xff & v)
+		此方法写入的字节可以通过DataInput接口的readLong方法读取，然后返回等于v的long。
+		【Throws】：
+			IOException 如果发生I/O错误。		
+	writeObject(Object obj):void 
+		obj - 要写入的对象
+		△ 将对象写入底层存储或流。实现此接口的类定义如何写入对象。
+		【Throws】：
+			IOException 任何与输入/输出相关的常见异常。
+	writeShort(int v):void 
+		v - 要写入的short值。
+		△ 将两个字节写入输出流以表示参数的值。要按所示顺序写入的字节值为：
+		 (byte)(0xff & (v >> 8))
+		 (byte)(0xff & v)
+		此方法写入的字节可以通过DataInput接口的readShort方法读取，然后返回等于（short）v的short。	
+		【Throws】：
+			IOException 如果发生I/O错误。	
+	
+	writeStreamHeader():protected void 
+	
+	writeUnshared(Object obj):void 
+	
+	void writeUTF(String s)
+		s - 要写入的字符串值。
+		△ 将两个字节的长度信息写入输出流，后跟字符串s中每个字符的修改后的UTF-8表示形式。如果s为null，则引发NullPointerException异常。根据字符的值，字符串s中的每个字符都被转换为一个1、2或3字节的组。
+		如果字符c在\u0001到\u007f范围内，则用一个字节表示：
+			(byte)c 
+		如果字符c是\u0000或在\u0080到\u07ff的范围内，则用两个字节表示，并按如下顺序写入：
+			(byte)(0xc0 | (0x1f & (c >> 6)))
+ 			(byte)(0x80 | (0x3f & c))	
+ 		如果字符c在从\u0800到uffff的范围内，则它由三个字节表示，按如下顺序写入：
+			 (byte)(0xe0 | (0x0f & (c >> 12)))
+			 (byte)(0x80 | (0x3f & (c >>  6)))
+			 (byte)(0x80 | (0x3f & c)) 	
+		首先，计算表示s的所有字符所需的字节总数。如果此数字大于65535，则引发UTFDataFormatException。否则，该长度将完全按照writeShort方法的方式写入输出流；在此之后，将写入字符串s中每个字符的单字节、双字节或三字节表示。	
+ 		此方法写入的字节可以由DataInput接口的readUTF方法读取，该方法将返回一个等于s的字符串。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

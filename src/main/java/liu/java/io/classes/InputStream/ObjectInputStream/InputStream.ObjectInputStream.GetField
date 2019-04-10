@@ -1,0 +1,98 @@
+----------------------------------------ObjectInputStream.GetField--------------------------------------------------------------------------------------------------------------
+GetField：获取字段	【Since:JDK1.1】
+	提供对从输入流读取的持久字段的访问。
+	
+	类定义	：public static abstract class GetField
+	封闭类	：ObjectInputStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public GetField()
+	
+Method Summary（方法概要）：
+	defaulted(String name):abstract boolean 
+		name - 字段的名称
+		如果命名字段是默认字段，并且在此流中没有值，则返回true。
+		如果且仅当命名字段为默认值时返回true。
+		【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称与可序列化字段不对应
+	get(String name, boolean val):abstract boolean 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		从持久字段中获取已命名布尔字段的值。	
+		返回已命名布尔字段的值。
+		【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, byte val):abstract byte 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		从持久字段中获取命名字节字段的值。
+		返回命名byte字段的值。
+		【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, char val):abstract char
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名char字段的值。
+		 返回命名char字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, double val):abstract double 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名double字段的值。
+		 返回命名double字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, float val):abstract float 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名float字段的值。
+		 返回命名float字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, int val):abstract int 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名int字段的值。
+		 返回命名int字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, Object val):abstract Object 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名Object字段的值。
+		 返回命名Object字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, long val):abstract long 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名long字段的值。
+		 返回命名long字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	get(String name, short val):abstract short 
+		name - 字段的名称
+		val - 如果名称没有值，则使用的默认值
+		 从持久字段中获取命名short字段的值。
+		 返回命名short字段的值。
+		 【Throws】：
+			IOException 如果从底层输入流读取时出现I/O错误。
+			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
+	getObjectStreamClass():abstract ObjectStreamClass 
+		获取描述流中字段的ObjectStreamClass。
+		返回描述可序列化字段的描述符类。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
