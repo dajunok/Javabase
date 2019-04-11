@@ -1,0 +1,56 @@
+----------------------------------------ObjectStreamField--------------------------------------------------------------------------------------------------------------
+ObjectStreamField：对象流字段	【Since:JDK1.2】
+		Serializable类中可序列化字段的说明。ObjectStreamFields数组用于声明类的可序列化字段。
+	
+	
+	类定义	：public class ObjectStreamField  implements Comparable<Object>
+	实现接口	：Comparable<Object>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public ObjectStreamField(String name, Class<?> type)
+		name - 可序列化字段的名称
+		type - 可序列化字段的类对象
+		创建具有指定类型的可序列化字段。此字段应使用serialField标记进行记录。
+	public ObjectStreamField(String name, Class<?> type, boolean unshared)
+		name - 字段名称
+		type - 字段类型
+		unshared - 如果为false，则以与writeObject/readObject相同的方式写入/读取字段值；如果为true，则以与writeUnshared/readUnshared相同的方式写入/读取字段值。
+		创建一个ObjectStreamField，该字段表示具有给定名称和类型的可序列化字段。如果unshared为false，则表示字段的值将以默认方式序列化和反序列化————如果字段是非原始字段，则对象值将被序列化和反序列化，就像通过调用writeObject和readObject对其进行写入和读取一样。如果unshared为true，则对表示字段的值进行序列化和反序列化，就像对writeUnshared和readUnshared的调用对这些值进行了写入和读取一样。
+
+Method Summary（方法概要）：
+	compareTo(Object obj):int 
+		obj - 要比较的对象。
+		将此字段与另一个ObjectStreamField进行比较。如果此值较小，则返回-1；如果相等，则返回0；如果大于，则返回1。原始类型比对象类型“小”。如果相等，则比较字段名。
+		返回负整数、零或正整数，因为此对象小于、等于或大于指定对象。
+	getName():String 
+	getOffset():int 
+	getType():Class<?> 
+	getTypeCode():char 
+	getTypeString():String 
+	isPrimitive():boolean 
+	isUnshared():boolean 
+	setOffset(int offset):protected void 
+	toString():String 
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、UNC：（Universal Naming Convention）路径：UNC指的是通用命名规则，也称通用命名规范、通用命名约定。UNC路径就是类似\\softer这样的形式的网络路径。
+		格式：\\servername\sharename，其中servername是服务器名。sharename是共享资源的名称。UNC共享就是指网络硬盘的共享当访问softer计算机中名为it168的共享文件夹，用UNC表示就是\\softer\it168；如果是softer计算机的默认管理共享C$则用\\softer\c$来表示。我们访问网上邻居所采用的命令行访问法，实际上应该称作UNC路径访问法。
+	4、echo：回显。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

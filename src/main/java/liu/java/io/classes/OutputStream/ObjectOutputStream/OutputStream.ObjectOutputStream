@@ -62,143 +62,160 @@ Method Summary（方法概要）：
 		【Throws】：
 			IOException 底层输出流引发的任何异常。
 	close():void 
-		△ 关闭此输出流并释放与此流关联的任何系统资源。关闭的一般约定是关闭输出流。关闭的流无法执行输出操作，无法重新打开。
-		OutputStream的Close方法不起任何作用。
+		△ 关闭流。必须调用此方法以释放与流关联的任何资源。
 		【Throws】：
 			IOException 如果发生I/O错误。
 	defaultWriteObject():void 
+		将当前类的非静态（non-static）和非瞬态（non-transient）字段写入此流。只能从要序列化的类的writeObject方法调用此函数。如果不是这样调用，它将抛出NotActiveException异常。
+		【Throws】：
+			IOException 如果在写入底层输出流时发生I/O错误。
 	drain():protected void 
+		排出ObjectOutputStream中的所有缓冲数据。类似于flush，但不会将flush传播到底层流。
+		【Throws】：
+			IOException 如果在写入底层流时发生I/O错误。
 	enableReplaceObject(boolean enable):protected boolean 
-	
+		enable - 用于启用对象替换的布尔参数
+		使流能够替换流中的对象。启用后，将为正在序列化的每个对象调用replaceObject方法。
+		如果enable为true，并且安装了安全管理器，则此方法首先调用安全管理器的checkPermission方法，并具有SerializablePermission("enableSubstitution")权限，以确保允许流替换流中的对象。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其checkPermission方法拒绝允许流替换流中的对象。
 	flush():void 
-		△ 刷新此输出流并强制写出任何缓冲的输出字节。flush的一般约定是，调用它表示，如果以前写入的任何字节已被输出流的实现缓冲，则这些字节应立即写入其预期目标。
-		如果此流的预期目标是底层操作系统（例如文件）提供的抽象，则刷新流仅保证将以前写入流的字节传递给操作系统进行写入；它不能保证实际写入物理设备（如磁盘驱动器）。
-		OutputStream的flush方法不起任何作用。
+		△ 刷新流。这将写入任何缓冲的输出字节并刷新到底层流。
 		【Throws】：
 			IOException 如果发生I/O错误。
 	putFields():ObjectOutputStream.PutField 
+		检索用于缓冲要写入流的持久字段的对象。调用writeFields方法时，这些字段将写入流。
+		返回保存可序列化字段的Putfield类实例。
+		【Throws】：
+			IOException 如果发生I/O错误。
 	replaceObject(Object obj):protected Object 
+		obj - 要替换的对象。
+		此方法将允许ObjectOutputStream的可信子类在序列化期间用一个对象替换另一个对象。在调用enableReplaceObject之前，将禁用替换对象。enableReplaceObject方法检查请求进行替换的流是否可以信任。写入序列化流的每个对象的第一次出现将传递给replaceObject。对该对象的后续引用将由对replaceObject的原始调用返回的对象替换。为了确保对象的private状态不会无意中公开，只有受信任的流才能使用replaceObject。
+		ObjectOutputStream.writeObject方法采用一个Object类型的参数（与Serializable类型不同），以便在不可序列化对象被可序列化对象替换的情况下使用。
+		当子类替换对象时，它必须确保在反序列化期间必须进行互补替换，或者被替换对象与将存储引用的每个字段都兼容。如果对象的类型不是字段或数组元素类型的子类，则通过引发异常中止序列化，并且不会存储该对象。
+		第一次遇到每个对象时，只调用一次此方法。对该对象的所有后续引用都将重定向到新对象。此方法应返回要替换的对象或原始对象。
+		可以返回null作为要替换的对象，但在包含对原始对象的引用的类中可能会导致NullReferenceException异常，因为它们可能需要一个对象而不是null。
+		【Throws】：
+			IOException 底层输出流引发的任何异常。
 	reset():void 
+		△ 重置将忽略已写入流的任何对象的状态。状态被重置为与新的ObjectOutputStream相同。流中的当前点标记为“重置”，因此相应的ObjectInputStream将在同一点重置。以前写入流的对象将不会被引用已存在于流中。它们将被再次写入流中。
+		【Throws】：
+			IOException 如果在序列化对象时调用reset()。
 	useProtocolVersion(int version):void 
-	
+		version - 使用java.io.ObjectStreamConstants中的ProtocolVersion。
+		指定写入流时要使用的流协议版本。
+		此例程提供一个钩子，使当前版本的序列化能够以与流格式的早期版本向后兼容的格式写入。
+		将尽一切努力避免引入额外的向后不兼容性；但是，有时没有其他选择。
+		【Throws】：
+			IllegalStateException 如果在序列化任何对象之后调用。
+			IllegalArgumentException 如果传入无效版本。
+			IOException 如果发生I/O错误。
 	write(byte b[]):void 
-		b - 数据。
-		△ 将b.length字节从指定的字节数组写入此输出流。write(b)的一般约定是它应该与调用write(b, 0, b.length)具有完全相同的效果。
+		b - 要写入的数据。
+		△ 写入字节数组。在实际写入字节之前，此方法将一直阻塞。
 		【Throws】：
 			IOException 如果发生I/O错误。
 	write(byte b[], int off, int len):void 
-		b - 数据。
+		b - 要写入的数据。
 		off - 数据中的起始偏移量。
 		len - 要写入的字节数。
-		△ 将指定字节数组中以偏移量off开始的len字节写入此输出流。write(b, off, len)的一般约定是数组b中的一些字节按顺序写入输出流；元素b[off]是第一个写入的字节，b[off+len-1]是此操作写入的最后一个字节。
-		OutputStream的write方法对要写出的每个字节调用一个参数的write方法。鼓励子类重写此方法并提供更有效的实现。
-		如果b为空，则引发NullPointerException异常。
-		如果off为负，或者len为负，或者off+len大于数组b的长度，那么将引发IndexOutOfBoundsException异常。
+		△ 写入字节的子数组。在实际写入字节之前，此方法将一直阻塞。
 		【Throws】：
 			IOException 如果发生I/O错误。特别是，如果输出流关闭，则引发IOException。
 	write(int b):abstract void 
 		b - 字节。
-		△ 将指定的字节写入此输出流。写入的一般约定是将一个字节写入输出流。要写入的字节是参数b的8个低阶位。忽略b的24个高阶位。
-		OutputStream的子类必须提供此方法的实现。
+		△ 写入一个字节。此方法将一直阻塞，直到实际写入字节为止。
 		【Throws】：
 			IOException 如果发生I/O错误。特别是，如果输出流关闭，则引发IOException。
 	writeBoolean(boolean v):void 
 		v - 要写入的布尔值。
-		△ 将布尔值写入此输出流。如果参数v为true，则写入值（字节）1；如果v为false，则写入值（字节）0。此方法写入的字节可以由DataInput接口的readBoolean方法读取，然后返回等于v的布尔值。
+		△ 写入布尔值。
 		【Throws】：
 			IOException 如果发生I/O错误。
-	writeByte(int v):void 
-		v - 要写入的字节值。
-		△ 将参数v的8个低阶位写入输出流。忽略v的24个高阶位。（这意味着writeByte与整型参数的write操作完全相同。）此方法写入的字节可以由DataInput接口的readByte方法读取，然后返回等于（byte）v的字节。
-	writeBytes(String s):void 
-		s - 要写入的字节字符串。
-		△ 将字符串写入输出流。对于字符串s中的每个字符，按顺序将一个字节写入输出流。如果s为null，则引发NullPointerException异常。
-		如果s.length为零，则不写入任何字节。否则，首先写入字符s[0]，然后写入s[1]，依此类推；最后写入的字符是s[s.length-1]。对于每个字符，一个字节，即低位字节，完全按照writeByte方法的方式写入。忽略字符串中每个字符的高阶8位。
+	writeByte(int val):void 
+		val - 要写入的字节值。
+		△ 写入8位字节。
 		【Throws】：
-			IOException 如果发生I/O错误。
-	writeChar(int v):void 
-		v - 要写入的char值。
-		△ 将由两个字节组成的char值写入输出流。要按所示顺序写入的字节值为：
-			 (byte)(0xff & (v >> 8))
-			 (byte)(0xff & v)	
-		此方法写入的字节可以由DataInput接口的readChar方法读取，然后返回等于(char)v的char。
+			IOException 果在写入底层流时发生I/O错误。
+	writeBytes(String str):void 
+		str - 要写入的字节字符串。
+		△ 以字节序列写入字符串。
 		【Throws】：
-			IOException 如果发生I/O错误。	
-	writeChars(String s):void 
-		s - 要写入的字符串值。
-		△ 按顺序将字符串s中的每个字符写入输出流，每个字符两个字节。如果s为null，则引发NullPointerException异常。如果s.length为零，则不写入任何字符。否则，首先写入字符s[0]，然后写入s[1]，依此类推；最后写入的字符是s[s.length-1]。对于每个字符，实际上是以writeChar方法的方式写入两个字节，第一个是高阶字节。
+			IOException 果在写入底层流时发生I/O错误。
+	writeChar(int val):void 
+		val - 要写入的char值。
+		△ 写入16位字符。
 		【Throws】：
-			IOException 如果发生I/O错误。
+			IOException 果在写入底层流时发生I/O错误。
+	writeChars(String str):void 
+		str - 要写入的字符串值。
+		△ 以字符序列形式写入字符串。
+		【Throws】：
+			IOException 果在写入底层流时发生I/O错误。
 	writeClassDescriptor(ObjectStreamClass desc):protected void 
-	
-	writeDouble(double v):void 
-		v - 要写入的double值。
-		△ 将由八个字节组成的double值写入输出流。这样做就好像它首先以Double.doubleToLongBits方法的方式将此double值转换为long，然后以writeLong方法的方式写入long值。此方法写入的字节可以通过DataInput接口的readDouble方法读取，然后该方法将返回一个等于v的double。
+		desc - 要写入流的描述符类。
+		将指定的描述符类写入ObjectOutputStream。类描述符用于标识写入流的对象的类。ObjectOutputStream的子类可以重写此方法以自定义类描述符写入序列化流的方式。然后，应重写ObjectOutputStream中的对应方法readClassDescriptor，以从其自定义流表示形式重新构造类描述符。默认情况下，此方法根据对象序列化规范中定义的格式写入类描述符。
+		注意，只有当ObjectOutputStream未使用旧的序列化流格式（通过调用ObjectOutputStream的useProtocolVersion方法设置）时，才会调用此方法。如果此序列化流使用旧格式（PROTOCOL_VERSION_1），则类描述符将以无法重写或自定义的方式在内部写入。
 		【Throws】：
 			IOException 如果发生I/O错误。
+	writeDouble(double val):void 
+		val - 要写入的double值。
+		△ 写入64位double值。
+		【Throws】：
+			IOException 果在写入底层流时发生I/O错误。
 	writeFields():void 
-	
-	writeFloat(float v):void 
-		v - 要写入的float值。
-		△ 将由四个字节组成的float值写入输出流。这样做就好像它首先以Float.floatToIntBits方法的方式将此float值转换为int，然后以writeInt方法的方式写入int值。此方法写入的字节可以由DataInput接口的readFloat方法读取，然后返回等于v的float。
+		将缓冲字段写入流。
 		【Throws】：
-			IOException 如果发生I/O错误。
+			IOException 果在写入底层流时发生I/O错误。
+			NotActiveException 当没有调用Classes writeObject方法来写入对象的状态时调用。
+	writeFloat(float val):void 
+		val - 要写入的float值。
+		△ 写入32位float值。
+		【Throws】：
+			IOException 果在写入底层流时发生I/O错误。
 	writeInt(int v):void 
-		v - 要写入的int值。
-		△ 将由四个字节组成的int值写入输出流。要按所示顺序写入的字节值为：
-		 (byte)(0xff & (v >> 24))
-		 (byte)(0xff & (v >> 16))
-		 (byte)(0xff & (v >>  8))
-		 (byte)(0xff & v)
-		此方法写入的字节可以由DataInput接口的readInt方法读取，然后返回等于v的int。
+		val - 要写入的int值。
+		△ 写入32位int值。
 		【Throws】：
-			IOException 如果发生I/O错误。
+			IOException 果在写入底层流时发生I/O错误。
 	writeLong(long v):void 
-		v - the long value to be written.
-		△ 将包含八个字节的long值写入输出流。要按所示顺序写入的字节值为：
-			 (byte)(0xff & (v >> 56))
-			 (byte)(0xff & (v >> 48))
-			 (byte)(0xff & (v >> 40))
-			 (byte)(0xff & (v >> 32))
-			 (byte)(0xff & (v >> 24))
-			 (byte)(0xff & (v >> 16))
-			 (byte)(0xff & (v >>  8))
-			 (byte)(0xff & v)
-		此方法写入的字节可以通过DataInput接口的readLong方法读取，然后返回等于v的long。
+		val - 要写入的long值。
+		△ 写入64位long值。
 		【Throws】：
-			IOException 如果发生I/O错误。		
+			IOException 果在写入底层流时发生I/O错误。
 	writeObject(Object obj):void 
 		obj - 要写入的对象
-		△ 将对象写入底层存储或流。实现此接口的类定义如何写入对象。
+		△ 将指定的对象写入ObjectOutputStream。写入对象的类、类的签名以及类及其所有父类型的非瞬态（non-transient）和非静态（non-static）字段的值。可以使用writeObject和readObject方法重写类的默认序列化。此对象引用的对象是以可传递的方式写入的，以便由ObjectInputStream重新构造完整的等效对象图。
+		对于OutputStream问题和不应序列化的类，会引发异常。所有异常对OutputStream都是致命的，而OutputStream仍处于不确定状态，调用方可以忽略或恢复流状态。
 		【Throws】：
-			IOException 任何与输入/输出相关的常见异常。
-	writeShort(int v):void 
-		v - 要写入的short值。
-		△ 将两个字节写入输出流以表示参数的值。要按所示顺序写入的字节值为：
-		 (byte)(0xff & (v >> 8))
-		 (byte)(0xff & v)
-		此方法写入的字节可以通过DataInput接口的readShort方法读取，然后返回等于（short）v的short。	
+			InvalidClassException 序列化使用的类有问题。
+			NotSerializableException 要序列化的某些对象未实现java.io.Serializable接口。
+			IOException 底层输出流引发的任何异常。
+	writeShort(int val):void 
+		val - 要写入的short值。
+		△ 写入16位short值。
 		【Throws】：
-			IOException 如果发生I/O错误。	
-	
+			IOException 果在写入底层流时发生I/O错误。	
 	writeStreamHeader():protected void 
-	
+		提供了writeStreamHeader方法，因此子类可以将自己的头追加或提前追加到流中。它将幻数和版本写入流。
+		【Throws】：
+			IOException 果在写入底层流时发生I/O错误。	
 	writeUnshared(Object obj):void 
-	
-	void writeUTF(String s)
-		s - 要写入的字符串值。
-		△ 将两个字节的长度信息写入输出流，后跟字符串s中每个字符的修改后的UTF-8表示形式。如果s为null，则引发NullPointerException异常。根据字符的值，字符串s中的每个字符都被转换为一个1、2或3字节的组。
-		如果字符c在\u0001到\u007f范围内，则用一个字节表示：
-			(byte)c 
-		如果字符c是\u0000或在\u0080到\u07ff的范围内，则用两个字节表示，并按如下顺序写入：
-			(byte)(0xc0 | (0x1f & (c >> 6)))
- 			(byte)(0x80 | (0x3f & c))	
- 		如果字符c在从\u0800到uffff的范围内，则它由三个字节表示，按如下顺序写入：
-			 (byte)(0xe0 | (0x0f & (c >> 12)))
-			 (byte)(0x80 | (0x3f & (c >>  6)))
-			 (byte)(0x80 | (0x3f & c)) 	
-		首先，计算表示s的所有字符所需的字节总数。如果此数字大于65535，则引发UTFDataFormatException。否则，该长度将完全按照writeShort方法的方式写入输出流；在此之后，将写入字符串s中每个字符的单字节、双字节或三字节表示。	
- 		此方法写入的字节可以由DataInput接口的readUTF方法读取，该方法将返回一个等于s的字符串。
+		obj - 要写入流的对象。
+		将“非共享”对象写入ObjectOutputStream。此方法与writeObject相同，只是它总是将给定对象作为流中新的唯一对象写入（而不是指向以前序列化的实例的反向引用）。明确地：
+			● 通过writeUnshared写入的对象总是以与新出现的对象（尚未写入流的对象）相同的方式序列化，而不管该对象以前是否写入过。
+			● 如果writeObject用于写入以前用writeUnshared写入的对象，则以前的writeUnshared操作将被视为是单独对象的写入操作。换句话说，ObjectOutputStream将永远不会生成对通过调用writeUnshared写入的对象数据的反向引用。
+		虽然通过writeUnshared写入对象本身并不保证反序列化时对该对象的唯一引用，但它允许在流中多次定义单个对象，以便接收器对readUnshared的多次调用不会发生冲突。注意，上面描述的规则只适用于用writeUnshared写入的基本级对象，而不适用于要序列化的对象图中任何可传递引用的子对象。
+		重写此方法的ObjectOutputStream子类只能在具有“enableSubclassImplementation”序列化权限的安全上下文中构造；任何尝试在没有此权限的情况下实例化此类子类都将导致引发SecurityException异常。
+		【Throws】：
+			InvalidClassException 如果要序列化的对象的类存在问题
+			NotSerializableException 如果要序列化的图形中的对象未实现Serializable接口
+			IOException 如果在序列化过程中发生I/O错误。
+	void writeUTF(String str)
+		str - 要写入的字符串值。
+		△ 以修改后的UTF-8格式写入此字符串的原始数据。请注意，将字符串作为原始数据或对象写入流之间存在显著差异。由writeObject写入的String实例最初作为字符串写入流中。Future writeObject()调用将对字符串的引用写入流中。
+		【Throws】：
+			IOException 果在写入底层流时发生I/O错误。	
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：

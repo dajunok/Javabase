@@ -11,7 +11,7 @@ Constructor Summary（构造器概要）：
 Method Summary（方法概要）：
 	defaulted(String name):abstract boolean 
 		name - 字段的名称
-		如果命名字段是默认字段，并且在此流中没有值，则返回true。
+		★ 如果命名字段是默认字段，并且在此流中没有值，则返回true。
 		如果且仅当命名字段为默认值时返回true。
 		【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -19,7 +19,7 @@ Method Summary（方法概要）：
 	get(String name, boolean val):abstract boolean 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		从持久字段中获取已命名布尔字段的值。	
+		★ 从持久字段中获取已命名布尔字段的值。	
 		返回已命名布尔字段的值。
 		【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -27,7 +27,7 @@ Method Summary（方法概要）：
 	get(String name, byte val):abstract byte 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		从持久字段中获取命名字节字段的值。
+		★ 从持久字段中获取命名字节字段的值。
 		返回命名byte字段的值。
 		【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -43,7 +43,7 @@ Method Summary（方法概要）：
 	get(String name, double val):abstract double 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		 从持久字段中获取命名double字段的值。
+		★  从持久字段中获取命名double字段的值。
 		 返回命名double字段的值。
 		 【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -51,7 +51,7 @@ Method Summary（方法概要）：
 	get(String name, float val):abstract float 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		 从持久字段中获取命名float字段的值。
+		★  从持久字段中获取命名float字段的值。
 		 返回命名float字段的值。
 		 【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -59,7 +59,7 @@ Method Summary（方法概要）：
 	get(String name, int val):abstract int 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		 从持久字段中获取命名int字段的值。
+		★  从持久字段中获取命名int字段的值。
 		 返回命名int字段的值。
 		 【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -67,7 +67,7 @@ Method Summary（方法概要）：
 	get(String name, Object val):abstract Object 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		 从持久字段中获取命名Object字段的值。
+		★  从持久字段中获取命名Object字段的值。
 		 返回命名Object字段的值。
 		 【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -75,7 +75,7 @@ Method Summary（方法概要）：
 	get(String name, long val):abstract long 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		 从持久字段中获取命名long字段的值。
+		★  从持久字段中获取命名long字段的值。
 		 返回命名long字段的值。
 		 【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
@@ -83,13 +83,13 @@ Method Summary（方法概要）：
 	get(String name, short val):abstract short 
 		name - 字段的名称
 		val - 如果名称没有值，则使用的默认值
-		 从持久字段中获取命名short字段的值。
+		★  从持久字段中获取命名short字段的值。
 		 返回命名short字段的值。
 		 【Throws】：
 			IOException 如果从底层输入流读取时出现I/O错误。
 			IllegalArgumentException 如果名称类型不可序列化或字段类型不正确
 	getObjectStreamClass():abstract ObjectStreamClass 
-		获取描述流中字段的ObjectStreamClass。
+		★ 获取描述流中字段的ObjectStreamClass。
 		返回描述可序列化字段的描述符类。
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		

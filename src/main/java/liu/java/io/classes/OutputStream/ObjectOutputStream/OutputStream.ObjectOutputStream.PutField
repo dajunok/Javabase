@@ -1,0 +1,89 @@
+----------------------------------------ObjectOutputStream.PutField--------------------------------------------------------------------------------------------------------------
+PutField：推入字段	【Since:JDK1.2】
+	提供对要写入ObjectOutput的持久字段的编程访问。
+	
+	类定义	：public static abstract class PutField
+	封闭类	：ObjectOutputStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public PutField()
+	
+Method Summary（方法概要）：
+	put(String name, boolean val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名boolean字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是boolean。
+	put(String name, byte val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名byte字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是byte。
+	put(String name, char val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名char字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是char。
+	put(String name, double val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名double字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是double。
+	put(String name, float val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名float字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是float。
+	put(String name, int val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值（可能为null）
+		★ 将已命名Object字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是int。
+	put(String name, Object val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名Object字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段不是引用类型。
+	put(String name, long val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名long字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是long。
+	put(String name, short val):abstract void 
+		name - 可序列化字段的名称
+		val - 要分配给字段的值
+		★ 将已命名short字段的值放入持久字段。	
+		【Throws】：
+			IllegalArgumentException 如果名称与要写入其字段的类的可序列化字段的名称不匹配，或者如果已命名字段的类型不是short。
+	write(ObjectOutput out):abstract void 
+		out - 将数据和字段写入的流
+		✘ 已淘汰。此方法不以正确的格式写入此PutField对象所包含的值，可能导致序列化流损坏。写入PutField数据的正确方法是调用ObjectOutputStream.writeFields()方法。
+		★ 将数据和字段写入指定的ObjectOutput流，该流必须与生成此PutField对象的流相同。
+		【Throws】：
+			IOException 如果在写入底层流时发生I/O错误
+			IllegalArgumentException 如果指定的流与生成此PutField对象的流不同。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

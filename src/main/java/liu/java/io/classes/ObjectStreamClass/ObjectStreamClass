@@ -1,0 +1,63 @@
+----------------------------------------ObjectStreamClass--------------------------------------------------------------------------------------------------------------
+ObjectStreamClass：对象流类	【Since:JDK1.1】
+	类的序列化描述符。它包含类的名称和serialVersionUID。可以使用lookup方法查找/创建在Java VM中加载的特定类的ObjectStreamClass。
+	计算SerialVersionUID的算法在对象序列化规范第4.6节“流唯一标识符”中进行了描述。
+	
+	类定义	：public class ObjectStreamClass implements Serializable
+	实现接口	：Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	NO_FIELDS : ObjectStreamField[]
+		serialPersistentFields值，指示没有可序列化字段。
+
+
+Method Summary（方法概要）：
+	lookup(Class<?> cl):static ObjectStreamClass 
+		cl - 获取描述符的类。
+		查找可以序列化的类的描述符。如果类还不存在ObjectStreamClass实例，则创建该实例。如果指定的类不实现java.io.Serializable或java.io.Externalizable接口，则返回null。
+		返回指定类的类描述符。
+	lookupAny(Class<?> cl):static ObjectStreamClass 
+		cl - 获取描述符的类。
+		返回任何类的描述符，无论它是否实现Serializable接口。
+		返回指定类的类描述符。
+	forClass():Class<?> 
+		返回此版本映射到的本地虚拟机（VM）中的类。如果没有相应的本地类，则返回null。
+		返回此描述符表示的类实例。
+	getField(String name):ObjectStreamField 
+		name - 要查找的数据字段的名称
+		按名称获取此类的字段。
+		返回命名字段的ObjectStreamField对象，如果没有此类命名字段，则返回null。
+	getFields():ObjectStreamField[] 
+		返回此可序列化类的字段数组。
+		返回包含此类的每个持久字段的元素的数组。如果没有字段，则返回长度为零的数组。
+	getName():String 
+		返回此描述符描述的类的名称。此方法以Class.getName()方法使用的格式返回类的名称。
+		返回表示类名称的字符串。
+	getSerialVersionUID():long 
+		返回此类的serialVersionUID。serialVersionUID定义了一组具有相同名称的类，这些类都是从普通根（root）类进化而来的，并且同意使用公共格式进行序列化和反序列化。不可序列化类的serialVersionUID为0L。
+		返回该描述符所描述的类的SUID。
+	toString():String 
+		△ 返回描述此ObjectStreamClass的字符串。
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、UNC：（Universal Naming Convention）路径：UNC指的是通用命名规则，也称通用命名规范、通用命名约定。UNC路径就是类似\\softer这样的形式的网络路径。
+		格式：\\servername\sharename，其中servername是服务器名。sharename是共享资源的名称。UNC共享就是指网络硬盘的共享当访问softer计算机中名为it168的共享文件夹，用UNC表示就是\\softer\it168；如果是softer计算机的默认管理共享C$则用\\softer\c$来表示。我们访问网上邻居所采用的命令行访问法，实际上应该称作UNC路径访问法。
+	4、echo：回显。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
