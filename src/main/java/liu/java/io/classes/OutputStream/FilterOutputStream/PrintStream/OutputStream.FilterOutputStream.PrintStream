@@ -1,0 +1,123 @@
+----------------------------------------PrintStream--------------------------------------------------------------------------------------------------------------
+PrintStream：打印输出流	【Since:JDK1.0】
+	PrintStream为其他输出流添加了功能，即方便地打印各种数据值的表示形式。另外还提供了两个功能。与其他输出流不同，PrintStream从不抛出IOException异常；相反，异常情况只设置可以通过checkError方法测试的内部标志。或者，可以创建一个PrintStream以便自动刷新；这意味着在写入字节数组、调用println方法之一或写入换行符或字节（“\n”）后，将自动调用刷新方法。
+	PrintStream打印的所有字符都使用平台的默认字符编码转换为字节。在需要写入字符而不是字节的情况下，应该使用PrintWriter类。
+	
+	
+	类定义	：public class PrintStream extends FilterOutputStream implements Appendable, Closeable
+	实现接口	：AutoCloseable, Closeable ,Flushable, Appendable
+	直接子类	：LogStream
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	FilterOutputStream.out : OutputStream
+		要过滤的底层输出流。
+
+Constructor Summary（构造器概要）：
+	public PrintStream(File file)
+		file - 用作此打印流目标的文件。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		使用指定的文件创建新的打印流，而不自动刷新行。这个方便的构造函数创建了必要的中间OutputStreamWriter，它将使用Java虚拟机的这个实例使用默认字符集来编码字符。
+		【Throws】：
+			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
+			SecurityException 如果存在安全管理器，并且checkWrite(file.getPath())拒绝对该文件的写访问。
+	public PrintStream(File file, String csn)
+		file - 用作此打印流目标的文件。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		csn - 支持的字符集的名称
+		使用指定的文件和字符集创建新的打印流，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用提供的字符集对字符进行编码。
+		【Throws】：
+			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
+			SecurityException 如果存在安全管理器，并且checkWrite(file.getPath())拒绝对该文件的写访问。
+			UnsupportedEncodingException 如果不支持命名字符集。
+	public PrintStream(OutputStream out)
+		out - 将值和对象打印到的输出流。
+		创建新的打印流。此流不会自动刷新。
+	public PrintStream(OutputStream out, boolean autoFlush)
+		out - 将值和对象打印到的输出流。
+		autoFlush - 布尔值；如果为true，则每当写入字节数组、调用println方法之一或写入换行符或字节（“\n”）时，都将刷新输出缓冲区。
+		创建新的打印流。
+	public PrintStream(OutputStream out, boolean autoFlush, String encoding)
+		out - 将值和对象打印到的输出流。
+		autoFlush - 布尔值；如果为true，则每当写入字节数组、调用println方法之一或写入换行符或字节（“\n”）时，都将刷新输出缓冲区。
+		encoding - 支持的字符编码的名称
+		创建新的打印流。
+		【Throws】：
+			UnsupportedEncodingException 如果不支持命名编码。
+	public PrintStream(String fileName)
+		fileName - 用作此打印流目标的文件的名称。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		使用指定的文件名创建新的打印流，而不自动刷新行。这个方便的构造函数创建了必要的中间OutputStreamWriter，它将使用Java虚拟机的这个实例使用默认字符集来编码字符。
+		【Throws】：
+			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
+			SecurityException 如果存在安全管理器，并且checkWrite(fileName)拒绝对该文件的写访问。
+	public PrintStream(String fileName, String csn)
+		fileName - 用作此打印流目标的文件的名称。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		csn - 支持的字符集的名称
+		使用指定的文件名和字符集创建新的打印流，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用提供的字符集对字符进行编码。
+		【Throws】：
+			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
+			SecurityException 如果存在安全管理器，并且checkWrite(fileName)拒绝对该文件的写访问。
+			UnsupportedEncodingException 如果不支持命名字符集。
+	
+Method Summary（方法概要）：
+	append(char c):PrintStream 
+		c - 要追加的16位字符
+		△  将指定的字符追加到此输出流。
+		对out.append(c)形式的此方法的调用与下面调用的行为完全等效：
+			out.print(c) 
+		返回此输出流。
+	append(CharSequence csq):PrintStream
+		csq - 要追加的字符序列。如果csq为null，那么将向该输出流追加四个字符“null”。 
+		△ 将指定的字符序列追加到此输出流。
+		对out.append(csq)形式的此方法的调用与下面调用的行为完全等效：
+			out.print(csq.toString()) 
+		根据字符序列csq的toString规范，不能追加整个序列。例如，调用字符缓冲区的toString方法将返回一个子序列，其内容取决于缓冲区的位置和限制。
+		返回此输出流。
+	append(CharSequence csq, int start, int end):PrintStream 
+	checkError():boolean 
+	clearError():protected void 
+	close():void 
+	flush():void 
+	format(String format, Object ... args):PrintStream 
+	format(Locale l, String format, Object ... args):PrintStream 
+	print(boolean b):void 
+	print(char c):void 
+	print(char s[]):void 
+	print(double d):void 
+	print(float f):void 
+	print(int i):void 
+	print(Object obj):void 
+	print(String s):void 
+	print(long l):void 
+	printf(String format, Object ... args):PrintStream 
+	printf(Locale l, String format, Object ... args):PrintStream 
+	println():void 
+	println(boolean x):void 
+	println(char x):void 
+	println(char x[]):void 
+	println(double x):void 
+	println(float x):void 
+	println(int x):void 
+	println(Object x):void 
+	println(String x):void 
+	println(long x):void 
+	setError():protected void 
+	write(byte buf[], int off, int len):void 
+	write(int b):void 
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

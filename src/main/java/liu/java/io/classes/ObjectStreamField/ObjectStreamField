@@ -1,6 +1,9 @@
 ----------------------------------------ObjectStreamField--------------------------------------------------------------------------------------------------------------
 ObjectStreamField：对象流字段	【Since:JDK1.2】
 		Serializable类中可序列化字段的说明。ObjectStreamFields数组用于声明类的可序列化字段。
+		
+		ObjectStreamClass里主要存放类描述信息，ObjectStreamField存放成员变量描述信息，ObjectStreamConstants存放的主要是一些16进制的常量（文章最后会列举出主要的常量信息）。
+	
 	
 	
 	类定义	：public class ObjectStreamField  implements Comparable<Object>
@@ -23,15 +26,41 @@ Method Summary（方法概要）：
 		将此字段与另一个ObjectStreamField进行比较。如果此值较小，则返回-1；如果相等，则返回0；如果大于，则返回1。原始类型比对象类型“小”。如果相等，则比较字段名。
 		返回负整数、零或正整数，因为此对象小于、等于或大于指定对象。
 	getName():String 
+		获取此字段的名称。
+		返回表示可序列化字段名称的字符串。
 	getOffset():int 
-	getType():Class<?> 
+		设置实例数据中字段的偏移量。
+		返回此字段的偏移量。
+	getType():Class<?>
+		 获取字段的类型。如果类型不是原始类型，并且此ObjectStreamField是从反序列化的ObjectStreamClass实例获取的，则返回Object.class。否则，将返回字段类型的类对象。
+		 返回表示可序列化字段类型的类对象。
 	getTypeCode():char 
+		返回字段类型的字符编码。编码如下：
+			 B            byte
+			 C            char
+			 D            double
+			 F            float
+			 I            int
+			 J            long
+			 L            class or interface
+			 S            short
+			 Z            boolean
+			 [            array		
+		返回可序列化字段的类型代码。
 	getTypeString():String 
-	isPrimitive():boolean 
+		返回JVM类型签名。
+		如果此字段具有原始类型，则为null。
+	isPrimitive():boolean
+		 如果此字段具有原始类型，则返回true。
+		 如果且仅当此字段对应于原始类型时返回true。
 	isUnshared():boolean 
+		返回一个布尔值，该值指示此ObjectStreamField实例表示的可序列化字段是否为非共享（unshared）字段。
+		如果此字段为unshared，则返回true。
 	setOffset(int offset):protected void 
+		offset - 字段的偏移量。
+		实例数据中的偏移量。
 	toString():String 
-	
+		返回描述此字段的字符串。
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：

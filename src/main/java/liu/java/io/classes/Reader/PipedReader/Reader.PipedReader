@@ -1,0 +1,88 @@
+----------------------------------------PipedReader--------------------------------------------------------------------------------------------------------------
+PipedReader：管道阅读器	【Since:JDK1.0】
+	管道字符输入流。
+	
+	
+	
+	类定义	：public class PipedReader extends Reader
+	实现接口	：AutoCloseable, Closeable ,Readable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	Reader.lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+
+Constructor Summary（构造器概要）：
+	public PipedReader()
+		创建PipedReader，使其尚未连接。在使用之前，它必须连接到PipedWriter。
+	public PipedReader(int pipeSize)
+		pipeSize - 管道缓冲区的大小。
+		创建PipedReader，使其尚未连接，并为管道缓冲区使用指定的管道大小。在使用之前，它必须连接到PipedWriter。
+		【Throws】：
+			IllegalArgumentException 如果pipeSize <= 0
+	public PipedReader(PipedWriter src)
+		src - 要连接的流（管道写入器）。
+		创建PipedReader，以便将其连接到管道写入器src。然后，写入src的数据将可用作此流的输入。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	public PipedReader(PipedWriter src, int pipeSize)
+		src - 要连接的流（管道写入器）。
+		pipeSize - 管道缓冲区的大小。
+		创建PipedReader，以便将其连接到管道写入器src，并为管道缓冲区使用指定的管道大小。然后，写入src的数据将可用作此流的输入。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			IllegalArgumentException 如果pipeSize <= 0。
+			
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭此管道流并释放与该流关联的任何系统资源。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	connect(PipedWriter src):void 
+		src - 要连接的管道写入器。
+		使此管道读卡器连接到管道编写器src。如果此对象已连接到其他管道写入器，则会引发IOException异常。
+		如果src是未连接的管道写入器，而snk是未连接的管道读取器，则可以通过以下任一调用连接它们：
+			snk.connect(src) 
+		或者调用：
+			src.connect(snk) 
+		这两个调用有相同的效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read():int 
+		△ 从该管道流读取数据的下一个字符。如果由于到达流的结尾而没有字符可用，则返回值-1。此方法将一直阻塞，直到输入数据可用、检测到流的结尾或引发异常为止。
+		返回数据的下一个字符，如果到达流的结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(char cbuf[], int off, int len): int 
+		cbuf - 目标缓存
+		off - 开始存储字符的偏移量
+		len - 要读取的最大字符数量
+		△ 将此管道流中的最多len个数据字符读取到一个字符数组中。如果到达数据流的结尾或len超过管道的缓冲区大小，将读取小于len的字符。此方法将一直阻塞，直到至少有一个输入字符可用。
+		返回读取到缓冲区的字符总数，如果由于到达流的结尾而没有更多的数据，则返回-1。
+		【Throws】：
+			IOException 如果管道断开、未连接、关闭或发生I/O错误。
+	ready():boolean 
+		△ 告诉此流是否已准备好读取。如果循环缓冲区不为空，则管道字符流已就绪。
+		如果保证下一个read()不会阻塞输入，则返回true，否则返回false。请注意，返回false并不保证下一次读取将被阻塞。
+		【Throws】：
+			IOException 如果管道断开、未连接、关闭或发生I/O错误。
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

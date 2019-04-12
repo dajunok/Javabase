@@ -1,0 +1,68 @@
+----------------------------------------PipedOutputStream--------------------------------------------------------------------------------------------------------------
+PipedOutputStream：管道输出流	【Since:JDK1.0】
+	管道输出流可以连接到管道输入流以创建通信管道。管道输出流是管道的发送端。通常，数据由一个线程写入PipedOutputStream对象，数据由其他线程从连接的PipedInputStream读取。不建议同时使用单个线程中的两个对象，因为这可能会导致线程死锁。如果从连接的管道输入流中读取数据字节的线程不再活动，则称管道已断开。
+	
+	
+	类定义	：public class PipedOutputStream extends OutputStream
+	实现接口	：Flushable,  Closeable, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public PipedOutputStream()
+		创建尚未连接到管道输入流的管道输出流。在使用之前，它必须由接收器或发送器连接到管道输入流。
+	public PipedOutputStream(PipedInputStream snk)
+		snk - 要连接到的管道输入流。
+		创建连接到指定管道输入流的管道输出流。然后，写入此流的数据字节将作为snk的可用输入。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭此管道输出流并释放与此流关联的任何系统资源。此流可能不再用于写入字节。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	connect(PipedInputStream snk):synchronized void 
+		snk - 要连接到的管道输入流。
+		将此管道输出流连接到接收器（即管道输入流）。如果此对象已连接到其他管道输入流，则会引发IOException异常。
+		如果snk是一个未连接的管道输入流，而src是一个未连接的管道输出流，则可以通过以下任一调用连接它们：
+			src.connect(snk)
+		或者调用：
+			snk.connect(src)
+		这两个调用有相同的效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	flush():synchronized void 
+		△ 刷新此输出流并强制写出任何缓冲的输出字节。这将通知任何读取器读取管道中等待的字节数。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据。
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		△ 将指定字节数组中以偏移量off开始的len字节写入此管道输出流。此方法将一直阻塞，直到所有字节都写入输出流。
+		【Throws】：
+			IOException 如果管道断开、未连接、关闭或发生I/O错误。
+	write(int b):void 
+		b - 要写入的字节。
+		△ 将指定的字节写入管道输出流。
+		实现OutputStream的写入方法。
+		【Throws】：
+			IOException 如果管道断开、未连接、关闭或发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -3,6 +3,8 @@ ObjectStreamClass：对象流类	【Since:JDK1.1】
 	类的序列化描述符。它包含类的名称和serialVersionUID。可以使用lookup方法查找/创建在Java VM中加载的特定类的ObjectStreamClass。
 	计算SerialVersionUID的算法在对象序列化规范第4.6节“流唯一标识符”中进行了描述。
 	
+	ObjectStreamClass里主要存放类描述信息，ObjectStreamField存放成员变量描述信息，ObjectStreamConstants存放的主要是一些16进制的常量（文章最后会列举出主要的常量信息）。
+	
 	类定义	：public class ObjectStreamClass implements Serializable
 	实现接口	：Serializable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
