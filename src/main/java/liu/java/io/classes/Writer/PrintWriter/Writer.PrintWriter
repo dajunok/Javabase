@@ -1,121 +1,120 @@
-----------------------------------------PrintStream--------------------------------------------------------------------------------------------------------------
-PrintStream：打印输出流	【Since:JDK1.0】
-	PrintStream为其他输出流添加了功能，即方便地打印各种数据值的表示形式。另外还提供了两个功能。与其他输出流不同，PrintStream从不抛出IOException异常；相反，异常情况只设置可以通过checkError方法测试的内部标志。或者，可以创建一个PrintStream以便自动刷新；这意味着在写入字节数组、调用println方法之一或写入换行符或字节（“\n”）后，将自动调用刷新方法。
-	PrintStream打印的所有字符都使用平台的默认字符编码转换为字节。在需要写入字符而不是字节的情况下，应该使用PrintWriter类。
+----------------------------------------PrintWriter--------------------------------------------------------------------------------------------------------------
+PrintWriter：打印机	【Since:JDK1.1】
+	将对象的格式化表示形式打印到文本输出流。此类实现了PrintStream中找到的所有print方法。它不包含用于写入原始字节的方法，对于这些方法，程序应该使用未编码的字节流。
+	与PrintStream类不同，如果启用了自动刷新，则只在调用println、printf或format方法之一时执行，而不是每当输出换行符时执行。这些方法使用平台自己的行分隔符概念，而不是换行符。
+	此类中的方法从不抛出I/O异常，尽管它的一些构造函数可能会抛出。客户端可以通过调用checkError()来查询是否发生了任何错误。
 	
-	
-	类定义	：public class PrintStream extends FilterOutputStream implements Appendable, Closeable
-	实现接口	：AutoCloseable, Closeable ,Flushable, Appendable
-	直接子类	：LogStream
+	类定义	：public class PrintWriter extends Writer
+	实现接口	：Closeable, Flushable, Appendable, AutoCloseable
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）
-	FilterOutputStream.out : OutputStream
-		要过滤的底层输出流。
+	lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+	out : Writer
+		此打印机的底层字符输出流。
 
 Constructor Summary（构造器概要）：
-	public PrintStream(File file)
-		file - 用作此打印流目标的文件。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
-		使用指定的文件创建新的打印流，而不自动刷新行。这个方便的构造函数创建了必要的中间OutputStreamWriter，它将使用Java虚拟机的这个实例使用默认字符集来编码字符。
+	public PrintWriter(File file)
+		file - 用作此写入器目标的文件。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		使用指定的文件创建一个新的PrintWriter，而不自动刷新行。这个方便的构造函数创建了必要的中间OutputStreamWriter，它将使用Java虚拟机的这个实例使用默认字符集来编码字符。
 		【Throws】：
 			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
 			SecurityException 如果存在安全管理器，并且checkWrite(file.getPath())拒绝对该文件的写访问。
-	public PrintStream(File file, String csn)
-		file - 用作此打印流目标的文件。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
-		csn - 支持的字符集的名称
-		使用指定的文件和字符集创建新的打印流，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用提供的字符集对字符进行编码。
+	public PrintWriter(File file, String csn)
+		file - 用作此写入器目标的文件。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		csn - 所支持字符集的名称。
+		使用指定的文件和字符集创建一个新的PrintWriter，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用提供的字符集对字符进行编码。
 		【Throws】：
 			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
 			SecurityException 如果存在安全管理器，并且checkWrite(file.getPath())拒绝对该文件的写访问。
-			UnsupportedEncodingException 如果不支持命名字符集。
-	public PrintStream(OutputStream out)
-		out - 将值和对象打印到的输出流。
-		创建新的打印流。此流不会自动刷新。
-	public PrintStream(OutputStream out, boolean autoFlush)
-		out - 将值和对象打印到的输出流。
-		autoFlush - 布尔值；如果为true，则每当写入字节数组、调用println方法之一或写入换行符或字节（“\n”）时，都将刷新输出缓冲区。
-		创建新的打印流。
-	public PrintStream(OutputStream out, boolean autoFlush, String encoding)
-		out - 将值和对象打印到的输出流。
-		autoFlush - 布尔值；如果为true，则每当写入字节数组、调用println方法之一或写入换行符或字节（“\n”）时，都将刷新输出缓冲区。
-		encoding - 支持的字符编码的名称
-		创建新的打印流。
-		【Throws】：
-			UnsupportedEncodingException 如果不支持命名编码。
-	public PrintStream(String fileName)
-		fileName - 用作此打印流目标的文件的名称。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
-		使用指定的文件名创建新的打印流，而不自动刷新行。这个方便的构造函数创建了必要的中间OutputStreamWriter，它将使用Java虚拟机的这个实例使用默认字符集来编码字符。
-		【Throws】：
-			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
-			SecurityException 如果存在安全管理器，并且checkWrite(fileName)拒绝对该文件的写访问。
-	public PrintStream(String fileName, String csn)
-		fileName - 用作此打印流目标的文件的名称。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
-		csn - 支持的字符集的名称
-		使用指定的文件名和字符集创建新的打印流，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用提供的字符集对字符进行编码。
+			UnsupportedEncodingException 如果不支持命名字符集
+	public PrintWriter(OutputStream out)
+		out - 输出流
+		从现有的输出流创建新的PrintWriter，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用默认字符编码将字符转换为字节。
+	public PrintWriter(OutputStream out, boolean autoFlush)
+		out - 输出流
+		autoFlush 布尔值；如果为true，则println、printf或format方法将刷新输出缓冲区。
+		从现有的OutputStream创建新的PrintWriter。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用默认字符编码将字符转换为字节。
+	public PrintWriter (Writer out)
+		out - 字符输出流
+		创建新的PrintWriter，而不自动刷新行。
+	public PrintWriter(Writer out,boolean autoFlush)
+		out - 字符输出流
+		autoFlush 布尔值；如果为true，则println、printf或format方法将刷新输出缓冲区。
+		创建新的PrintWriter。
+	public PrintWriter(String fileName)
+		fileName - 用作此写入器目标的文件的名称。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		使用指定的文件名创建一个新的PrintWriter，而不自动刷新行。这个方便的构造函数创建了必要的中间OutputStreamWriter，它将使用Java虚拟机的这个实例使用默认字符集来编码字符。
 		【Throws】：
 			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
-			SecurityException 如果存在安全管理器，并且checkWrite(fileName)拒绝对该文件的写访问。
-			UnsupportedEncodingException 如果不支持命名字符集。
-	
+			SecurityException 如果存在安全管理器，并且checkWrite(file.getPath())拒绝对该文件的写访问。
+	public PrintWriter(String fileName, String csn)
+		fileName - 用作此写入器目标的文件的名称。如果文件存在，那么它将被截断为零大小；否则，将创建一个新文件。输出将写入文件并进行缓冲。
+		csn - 所支持字符集的名称。
+		使用指定的文件名和字符集创建一个新的PrintWriter，而不自动刷新行。这个方便的构造函数创建必要的中间OutputStreamWriter，它将使用提供的字符集对字符进行编码。
+		【Throws】：
+			FileNotFoundException 如果给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者在打开或创建文件时发生其他错误。
+			SecurityException 如果存在安全管理器，并且checkWrite(file.getPath())拒绝对该文件的写访问。
+			UnsupportedEncodingException 如果不支持命名字符集
+			
 Method Summary（方法概要）：
-	append(char c):PrintStream 
+	append(char c):PrintWriter 
 		c - 要追加的16位字符
-		△  将指定的字符追加到此输出流。
+		△ 将指定字符追加到此写入程序。
 		对out.append(c)形式的此方法的调用与下面调用的行为完全等效：
-			out.print(c) 
-		返回此输出流。
-	append(CharSequence csq):PrintStream
-		csq - 要追加的字符序列。如果csq为null，那么将向该输出流追加四个字符“null”。 
-		△ 将指定的字符序列追加到此输出流。
+			 out.write(c) 
+		返回此写入器。
+	append(CharSequence csq):PrintWriter 
+		csq - 要追加的字符序列。如果csq为null，那么将向该编写器追加四个字符“null”。
+		△ 将指定的字符序列追加到此写入器。
 		对out.append(csq)形式的此方法的调用与下面调用的行为完全等效：
-			out.print(csq.toString()) 
+			out.write(csq.toString()) 
 		根据字符序列csq的toString规范，不能追加整个序列。例如，调用字符缓冲区的toString方法将返回一个子序列，其内容取决于缓冲区的位置和限制。
-		返回此输出流。
-	append(CharSequence csq, int start, int end):PrintStream 
-		csq - 要追加的字符序列。如果csq为null，那么将向该输出流追加四个字符“null”。 
-		start - 子序列中第一个字符的索引 
+		返回此写入器。
+	append(CharSequence csq, int start, int end):PrintWriter
+		csq - 要追加的字符序列。如果csq为null，那么将向该编写器追加四个字符“null”。
+		start - 子序列中第一个字符的索引
 		end - 子序列中最后一个字符后面的字符的索引
-		将指定字符序列的子序列追加到此输出流。
-		当csq不为空时，对out.append(csq, start, end)形式的此方法的调用与下面的调用的行为完全等效：
-			out.print(csq.subSequence(start, end).toString()) 
-		返回此输出流。
+		△ 返回此写入器。
 		【Throws】：
-			IndexOutOfBoundsException 如果start或end为负，或者start大于end，或者end大于csq.length()。		
+			IndexOutOfBoundsException 如果start或end为负，或者start大于end，或者end大于csq.length()。
 	checkError():boolean 
-		刷新流并检查其错误状态。当底层输出流抛出InterruptedIOException以外的IOException时，以及当调用setError方法时，内部错误状态设置为true。如果底层输出流上的操作引发InterruptedIOException，则PrintStream通过执行以下操作将异常转换回中断：
-			Thread.currentThread().interrupt();
-		或等效操作。
-		如果且仅当此流遇到InterruptedIOException以外的IOException，或已调用setError方法时返回true。
+		如果流未关闭，则刷新该流并检查其错误状态。
+		如果打印流在底层输出流或格式转换过程中遇到错误，则返回true。
 	clearError():protected void 
-		清除此流的内部错误状态。
+		清除此流的错误状态。
 		此方法将导致随后对checkError()的调用返回false，直到另一个写入操作失败并调用setError()。
 	close():void 
-		△ 关闭流。这是通过刷新流，然后关闭底层输出流来完成的。
+		△ 关闭流并释放与其关联的任何系统资源。关闭以前关闭的流没有效果。
 	flush():void 
-		△ 刷新流。这是通过将任何缓冲输出字节写入底层输出流，然后刷新该流来完成的。
-	format(String format, Object ... args):PrintStream 
+		△ 刷新此流。
+	format(String format, Object ... args):PrintWriter 
 		format - Format字符串语法中描述的格式字符串。
-		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的数目是可变的，可以是零。最大数量的参数受Java Java虚拟机规范定义的Java阵列的最大尺寸的限制。null参数的行为取决于转换。
-		使用指定的格式字符串和参数将格式化字符串写入此输出流。
+		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的数目是可变的，可以是零。最大数量的参数受Java Java虚拟机规范定义的Java阵列的最大尺寸的限制。null参数的行为取决于转换。	
+		使用指定的格式字符串和参数将格式化字符串写入此写入器。如果启用自动刷新，则对此方法的调用将刷新输出缓冲区。
 		始终使用的区域设置是由Locale.getDefault()返回的区域设置，而不考虑以前对此对象调用其他格式化方法的情况。
-		返回此输出流。
+		返回此写入器。
 		【Throws】：
 			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序类规范的详细信息部分。
 			NullPointerException 如果format为null。
-	format(Locale l, String format, Object ... args):PrintStream
-		l - 格式化期间要应用的区域设置(locale)。如果l为null，则不应用本地化。
+	format(Locale l, String format, Object ... args):PrintWriter 
+		l - 格式化期间要应用的区域设置（locale）。如果L为空，则不应用本地化。
 		format - Format字符串语法中描述的格式字符串。
 		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的数目是可变的，可以是零。最大数量的参数受Java Java虚拟机规范定义的Java阵列的最大尺寸的限制。null参数的行为取决于转换。
-		使用指定的格式字符串和参数将格式化字符串写入此输出流。
+		使用指定的格式字符串和参数将格式化字符串写入此写入器的方便方法。如果启用自动刷新，则对此方法的调用将刷新输出缓冲区。
+		对out.printf(l, format, args)形式的此方法的调用与下面调用的行为完全等效：
+			out.format(l, format, args) 
+		返回此写入器。
 		【Throws】：
 			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序类规范的详细信息部分。
 			NullPointerException 如果format为null。
 	print(boolean b):void 
 		b - 要打印的boolean值。
-		打印boolean值。由String.valueOf(boolean)生成的字符串根据平台的默认字符编码转换为字节，这些字节完全按照write(int)方法写入。
+		打印boolean值。由string.valueof(boolean)生成的字符串根据平台的默认字符编码转换为字节，这些字节完全按照write(int)方法写入。
 	print(char c):void 
 		c - 要打印的char值。
 		打印字符。根据平台的默认字符编码，字符被转换成一个或多个字节，并且这些字节完全按照write(int)方法的方式写入。
-	print(char s[]):void 
+	print(char s[]):void
 		s - 要打印的字符数组
 		打印字符数组。字符根据平台的默认字符编码转换为字节，这些字节完全按照write(int)方法写入。
 		【Throws】：
@@ -138,29 +137,26 @@ Method Summary（方法概要）：
 	print(long l):void 
 		l - 要打印的long值。
 		打印一个long值。由String.valueOf(long)生成的字符串根据平台的默认字符编码转换为字节，这些字节完全按照write(int)方法写入。
-	printf(String format, Object ... args):PrintStream 
+	printf(String format, Object ... args):PrintWriter 
 		format - Format字符串语法中描述的格式字符串。
 		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的数目是可变的，可以是零。最大数量的参数受Java Java虚拟机规范定义的Java阵列的最大尺寸的限制。null参数的行为取决于转换。
-		使用指定的格式字符串和参数将格式化字符串写入此输出流的方便方法。
-		对out.printf(format, args)形式的此方法的调用与下面的调用的行为完全等效。
-			out.format(format, args) 
+		使用指定的格式字符串和参数将格式化字符串写入此编写器。如果启用自动刷新，则对此方法的调用将刷新输出缓冲区。
+		始终使用的区域设置是由Locale.getDefault()返回的区域设置，而不考虑以前对此对象调用其他格式化方法的情况。
 		返回此输出流。
 		【Throws】：
 			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序类规范的详细信息部分。
 			NullPointerException - 如果format为null。
-	printf(Locale l, String format, Object ... args):PrintStream 
+	printf(Locale l, String format, Object ... args):PrintWriter 
 		l - 格式化期间要应用的区域设置（locale）。如果l为null，则不应用本地化。
 		format - Format字符串语法中描述的格式字符串。
 		args - 格式字符串中格式说明符引用的参数。如果参数多于格式说明符，则忽略多余的参数。参数的数目是可变的，可以是零。最大数量的参数受Java Java虚拟机规范定义的Java阵列的最大尺寸的限制。null参数的行为取决于转换。
-		使用指定的格式字符串和参数将格式化字符串写入此输出流的方便方法。
-		对out.printf(l, format, args)形式的此方法的调用与下面的调用的行为完全等效。
-			out.format(l, format, args) 
-		返回此输出流。
+		使用指定的格式字符串和参数将格式化字符串写入此写入器。如果启用自动刷新，则对此方法的调用将刷新输出缓冲区。
+		返回此写入器。
 		【Throws】：
 			IllegalFormatException 如果格式字符串包含非法语法、与给定参数不兼容的格式说明符、给定格式字符串的参数不足或其他非法条件。有关所有可能的格式错误的规范，请参阅格式化程序类规范的详细信息部分。
-			NullPointerException - 如果format为null。
+			NullPointerException - 如果format为null。		
 	println():void 
-		通过写入行分隔符字符串终止当前行。行分隔符字符串由系统属性line.separator定义，不一定是单个换行符（“\n”）。
+		通过写入行分隔符字符串终止当前行。行分隔符字符串由系统属性line.separator定义，不一定是单个换行符（“\n”）。		
 	println(boolean x):void 
 		x - 要打印的boolean值。
 		打boolean值，然后终止行。此方法的行为就像它调用print(boolean)然后调用println()。
@@ -189,18 +185,27 @@ Method Summary（方法概要）：
 		x - 要打印的long值。
 		打印long值，然后终止行。此方法的行为就像它调用print(long)然后调用println()。
 	setError():protected void 
-		将流的错误状态设置为true。
+		指示发生了错误。
 		此方法将导致随后对checkError()的调用返回true，直到调用clearError()。
-	write(byte buf[], int off, int len):void 
-		buf - 字节数组。
+	write(char buf[]):void 
+		buf - 要写入的字符数组
+		△ 写入字符数组。此方法不能从Writer类继承，因为它必须抑制I/O异常。
+	write(char buf[], int off, int len):void 
+		buf - 要写入的字符数组
 		off - 开始接收字节的偏移量。
 		len - 要写入的字节数。
-		△ 将指定字节数组中从偏移量开始的len字节写入此流。如果启用自动刷新，则将调用flush方法。
-		请注意，字节将按给定方式写入；要写入将根据平台的默认字符编码进行转换的字符，请使用print(char)或println(char)方法。
-	write(int b):void 
-		b - 要写入的字节。
-		△ 将指定的字节写入此流。如果字节是换行符，并且启用了自动刷新，那么将调用flush方法。
-		请注意，字节将按给定方式写入；要写入将根据平台的默认字符编码进行转换的字符，请使用print(char)或println(char)方法。
+		△ 写入字符数组的一部分。
+	write(int c):void 
+		c - int类型指定要写入的字符。
+		△ 写入单个字符。
+	write(String s):void 
+		s - 要写入的字符串。
+		△ 写入字符串。此方法不能从Writer类继承，因为它必须抑制I/O异常。
+	write(String s, int off, int len):void 
+		s - 字符串
+		off - 开始写入字符的偏移量
+		len - 要写入的字符数量
+		△  写入字符串的一部分。
 	
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
