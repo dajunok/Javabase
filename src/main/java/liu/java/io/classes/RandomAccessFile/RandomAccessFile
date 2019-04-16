@@ -1,0 +1,312 @@
+----------------------------------------RandomAccessFile--------------------------------------------------------------------------------------------------------------
+RandomAccessFile：随机访问文件	【Since:JDK1.0】
+	此类的实例支持对随机访问文件的读写。随机访问文件的行为类似于存储在文件系统中的大容量字节数组。有一种指针，或隐式数组中的索引，称为文件指针；输入操作从文件指针开始读取字节，并将文件指针向前移过读取的字节。如果随机访问文件是在读/写模式下创建的，那么输出操作也可用；输出操作从文件指针开始写入字节，并将文件指针向前移过写入的字节。写入隐式数组当前末尾的输出操作会导致数组被扩展。文件指针可以由getFilePointer方法读取，也可以由seek方法设置。	
+	对于此类中的所有读取例程，通常情况下都是这样的：如果在读取所需字节数之前到达文件结尾，则会抛出一个EOFException（这是一种IOException）异常。如果由于除文件结尾以外的任何原因而无法读取任何字节，则会引发除EOFException之外的IOException异常。特别是，如果流已关闭，则可能引发IOException异常。
+	
+	类定义	：public class RandomAccessFile implements DataOutput, DataInput, Closeable
+	实现接口	：Closeable, DataInput, DataOutput, AutoCloseable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	public RandomAccessFile(File file, String mode)
+		file - 文件对象。
+		mode - 	访问模式，如下所述	
+		创建一个随机访问文件流，用于读取或写入由文件参数指定的文件。将创建一个新的FileDescriptor对象来表示此文件连接。
+		mode参数指定要打开文件的访问模式。允许值及其含义如下：
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+			Value		Meaning
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+			"r"			仅供读取。调用结果对象的任何写入方法都将导致引发IOException。
+			"rw"		以读写方式打开，如果文件不存在，则将尝试创建该文件。
+			"rws"		以读写方式打开，如果文件尚不存在，则将尝试创建该文件。与“rw”一样，以读写方式打开，并要求对文件内容或原始数据的每次更新都同步写入底层存储设备。
+			"rwd"  		与“rw”一样，以读写方式打开，还要求对文件内容的每次更新都同步写入底层存储设备。
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		“rws”和“rwd”模式的工作原理与FileChannel类的force(boolean)方法非常相似，分别传递true和false参数，但它们总是应用每个I/O操作，因此通常效率更高。如果文件驻留在本地存储设备上，那么当调用此类的方法返回时，可以确保该调用对文件所做的所有更改都已写入该设备。这对于确保关键信息在系统崩溃时不会丢失非常有用。如果文件不在本地设备上，则不提供此类保证。
+		“rwd”模式可用于减少执行的I/O操作次数。使用“rwd”只需要将文件内容的更新写入存储；使用“rws”需要同时写入文件内容及其原始数据的更新，这通常需要至少一个低级I/O操作。
+		如果有安全管理器，则以file参数的路径名作为参数调用其checkRead方法，以查看是否允许对文件进行读取访问。如果模式允许写入，安全管理器的checkWrite方法也将使用路径参数调用，以查看是否允许对文件进行写入访问。
+		【Throws】：
+			IllegalArgumentException 如果模式参数不等于“r”、“rw”、“rws”或“rwd”之一。
+			FileNotFoundException 如果模式为“r”，但给定的文件对象不表示现有的常规文件，或者如果模式以“rw”开头，但给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者打开或创建文件时发生其他错误。
+			SecurityException 如果安全管理器存在，并且其checkRead方法拒绝对文件的读访问，或者模式为“rw”，并且安全管理器的checkWrite方法拒绝对文件的写访问。
+	public RandomAccessFile(String name, String mode)
+		name - 依赖系统的文件名
+		mode - 	访问模式
+		创建随机访问文件流，以从指定名称的文件中读取或写入指定名称的文件。将创建一个新的FileDescriptor对象来表示与该文件的连接。
+		mode参数指定打开文件的访问模式。允许的值及其含义与RandomAccessFile(file,string)构造函数的指定相同。
+		如果存在安全管理器，则使用name参数调用其checkRead方法，以查看是否允许对文件进行读取访问。如果模式允许写入，安全管理器的checkWrite方法也将以name参数作为参数调用，以查看是否允许对文件进行写入访问。
+		【Throws】：
+			IllegalArgumentException 如果模式参数不等于“r”、“rw”、“rws”或“rwd”之一。
+			FileNotFoundException 如果模式为“r”，但给定的文件对象不表示现有的常规文件，或者如果模式以“rw”开头，但给定的文件对象不表示现有的可写常规文件，并且无法创建该名称的新常规文件，或者打开或创建文件时发生其他错误。
+			SecurityException 如果安全管理器存在，并且其checkRead方法拒绝对文件的读访问，或者模式为“rw”，并且安全管理器的checkWrite方法拒绝对文件的写访问。
+	
+Method Summary（方法概要）：
+	close():void 
+		关闭此随机访问文件流并释放与该流关联的任何系统资源。关闭的随机访问文件无法执行输入或输出操作，无法重新打开。
+		如果此文件具有关联的通道（channel），则该通道（channel）也将关闭。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	getChannel():final FileChannel 
+		返回与此文件关联的唯一FileChannel对象。
+		返回通道的位置将始终等于getFilePointer方法返回的该对象的文件指针偏移量。无论是显式地还是通过读取或写入字节来更改此对象的文件指针偏移量，都将更改通道的位置，反之亦然。通过此对象更改文件的长度将更改通过文件通道看到的长度，反之亦然。
+		返回与此文件关联的文件通道。
+	getFD():final FileDescriptor 
+		返回与此流关联的不透明文件描述符对象。
+		返回与此流关联的文件描述符对象。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	getFilePointer():native long 
+		返回此文件中的当前偏移量。
+		返回从文件开头开始的偏移量（以字节为单位），在该偏移量下一次读取或写入发生时。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	length():native long 
+		返回此文件的长度。
+		返回此文件的长度，以字节为单位。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read():int 
+		从这个文件中读取一个字节的数据。字节作为0到255（0x00-0x0ff）范围内的整数返回。如果没有可用的输入，则此方法将阻塞。
+		尽管RandomAccessFile不是InputStream的子类，但此方法的行为与InputStream的InputStream.read()方法完全相同。
+		返回数据的下一个字节，如果已到达文件结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。如果已到达文件结尾，则不抛出。
+	read(byte b[]):int 
+		b - 读取数据的缓冲区。
+		将此文件中长达b.length个字节的数据读取到一个字节数组中。此方法将一直阻塞，直到至少有一个输入字节可用。
+		尽管RandomAccessFile不是InputStream的子类，但此方法的行为方式与InputStream的InputStream.read(byte[])方法完全相同。
+		返回读取到缓冲区的总字节数，如果由于已到达该文件的结尾而没有更多数据，则返回-1。
+		【Throws】：
+			IOException 如果第一个字节由于除文件结尾以外的任何原因无法读取，或者如果随机访问文件已关闭，或者发生了其他I/O错误。
+			NullPointerException 如果b为 null。
+	read(byte b[], int off, int len):int
+		b - 读取数据的缓冲区。
+		off - 数组b中写入数据的起始偏移量。
+		len - 读取的最大字节数。
+		将此文件中最多len个字节的数据读取到一个字节数组中。此方法将一直阻塞，直到至少有一个输入字节可用。
+		尽管RandomAccessFile不是InputStream的子类，但此方法的行为方式与InputStream的InputStream.read(byte[], int, int)方法完全相同。
+		返回读取到缓冲区的总字节数，如果由于已到达文件结尾而没有更多数据，则返回-1。
+		【Throws】：
+			IOException 如果第一个字节由于除文件结尾以外的任何原因无法读取，或者如果随机访问文件已关闭，或者发生了其他I/O错误。
+			NullPointerException 如果b为 null。
+			IndexOutOfBoundsException 如果off为负，len为负，或者len大于b.length-off
+	readBoolean():final boolean 
+		△ 从该文件读取boolean值。此方法从当前文件指针开始从文件中读取单个字节。值0表示false。任何其他值表示true。此方法将一直阻塞，直到读取字节、检测到流结尾或引发异常为止。
+		返回读取的boolean值。
+		【Throws】：
+			EOFException 如果此文件已到达结尾。
+			IOException 如果发生I/O错误。
+	readByte():final byte 
+		△ 从该文件读取有符号的8位值。此方法从当前文件指针开始从文件中读取一个字节。如果字节读取为b，其中0<=b<=255，则结果为：
+			(byte)(b)
+		此方法将一直阻塞，直到读取字节、检测到流结尾或引发异常为止。
+		返回文件的下一个字节，作为有符号的8位字节。
+		【Throws】：
+			EOFException 如果此文件已到达结尾。
+			IOException 如果发生I/O错误。
+	readChar():final char 
+		△ 从该文件读取字符。此方法从文件中读取两个字节，从当前文件指针开始。如果按顺序读取的字节是b1和b2，其中0<=b1，b2<=255，则结果等于：
+			(char)((b1 << 8) | b2)
+		此方法将一直阻塞，直到读取两个字节、检测到流结尾或引发异常为止。
+		返回这个文件的随后两个字节，解释为一个字符。
+		【Throws】：
+			EOFException 如果此文件已到达结尾。
+			IOException 如果发生I/O错误。
+	readDouble():final double 
+		△ 从该文件读取double值。此方法读取一个long值，从当前文件指针开始，就像使用readLong方法一样，然后使用类Double中的longBitsToDouble方法将该long值转换为double值。
+		此方法将一直阻塞，直到读取八个字节、检测到流结尾或引发异常为止。
+		返回该文件的随后八个字节，解释为double值。
+		【Throws】：
+			EOFException 如果此文件已到达结尾。
+			IOException 如果发生I/O错误。
+	readFloat():final float 
+		△ 从该文件读取float值。这个方法从当前文件指针开始读取一个int值，就像用readInt方法一样，然后使用Float类中的intBitsToFloat方法将该int转换为float。
+		此方法将一直阻塞，直到读取四个字节、检测到流结尾或引发异常为止。
+		返回这个文件的随后四个字节，解释为一个float。
+		【Throws】：
+			EOFException 如果此文件已到达结尾。
+			IOException 如果发生I/O错误。
+	readFully(byte b[]):final void 
+		b - 读取数据的缓冲区。
+		△ 从当前文件指针开始，将b.length字节从该文件读取到字节数组中。此方法从文件中重复读取，直到读取请求的字节数。此方法将一直阻塞，直到读取请求的字节数、检测到流结尾或引发异常为止。
+		【Throws】：
+			EOFException 如果此文件在读取所有字节之前到达末尾。
+			IOException 如果发生I/O错误。
+	readFully(byte b[], int off, int len):final void 
+		b - 读取数据的缓冲区。
+		off - 数据的起始偏移量。
+		len - 要读取的字节数。
+		△ 从当前文件指针开始，将此文件中的len字节精确读取到字节数组中。此方法从文件中重复读取，直到读取请求的字节数。此方法将一直阻塞，直到读取请求的字节数、检测到流结尾或引发异常为止。
+		【Throws】：
+			EOFException 如果此文件在读取所有字节之前到达末尾。
+			IOException 如果发生I/O错误。
+	readInt():final int 
+		△ 从此文件中读取带符号的32位整数。此方法从文件中读取4个字节，从当前文件指针开始。如果按顺序读取的字节是b1、b2、b3和b4，其中0<=b1、b2、b3、b4<=255，则结果等于：
+			(b1 << 24) | (b2 << 16) + (b3 << 8) + b4
+		此方法将一直阻塞，直到读取四个字节、检测到流结尾或引发异常为止。
+		返回文件的随后四个字节，解释为int。
+		【Throws】：
+			EOFException 如果此文件在读取四个字节之前到达末尾。
+			IOException 如果发生I/O错误。
+	readLine():final String 
+		△ 从该文件读取下一行文本。此方法从当前文件指针开始连续读取文件中的字节，直到到达行终止符或文件结尾。每一个字节都被转换成一个字符，方法是取字符的低8位的字节值，并将字符的高8位设置为零。因此，此方法不支持完整的Unicode字符集。
+		一行文本以回车符（“\r”）、换行符（“\n”）、紧跟换行符的回车符或文件结尾终止。行终止字符将被丢弃，并且不作为返回字符串的一部分包括在内。
+		此方法将一直阻塞，直到读取换行符、回车和其后的字节（查看是否是换行符）、到达文件结尾或引发异常为止。
+		返回此文件的下一行文本，如果在读取一个字节之前遇到文件结尾，则返回null。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	readLong():final long 
+		△ 从此文件中读取带符号的64位整数。此方法从当前文件指针开始读取文件中的八个字节。如果按顺序读取的字节是b1、b2、b3、b4、b5、b6、b7和b8，其中：
+			0 <= b1, b2, b3, b4, b5, b6, b7, b8 <=255,
+		则结果等于：
+		     ((long)b1 << 56) + ((long)b2 << 48)
+		     + ((long)b3 << 40) + ((long)b4 << 32)
+		     + ((long)b5 << 24) + ((long)b6 << 16)
+		     + ((long)b7 << 8) + b8			
+		此方法将一直阻塞，直到读取八个字节、检测到流结尾或引发异常为止。
+		返回此文件的随后八个字节，解释为long。
+		【Throws】：
+			EOFException 如果此文件在读取八个字节之前到达末尾。
+			IOException 如果发生I/O错误。
+	readShort():final short 
+		△ 从这个文件中读取一个有符号的16位数字。方法从当前文件指针开始从该文件读取两个字节。如果按顺序读取的两个字节是b1和b2，其中两个值都在0和255之间（包括0和255），则结果等于：
+			(short)((b1 << 8) | b2)
+		此方法将一直阻塞，直到读取两个字节、检测到流结尾或引发异常为止。
+		返回此文件的随后两个字节，解释为带符号的16位数字。
+		【Throws】：
+			EOFException 如果此文件在读取两个字节之前到达末尾。
+			IOException 如果发生I/O错误。
+	readUnsignedByte():final int 
+		△ 从该文件中读取一个无符号的8位数字。此方法从当前文件指针开始读取此文件中的一个字节，并返回该字节。
+		此方法将一直阻塞，直到读取字节、检测到流结尾或引发异常为止。
+		返回此文件的下一个字节，解释为无符号8位数字。
+		【Throws】：
+			EOFException 如果此文件已到达结尾。
+			IOException 如果发生I/O错误。
+	readUnsignedShort():final int 
+		△ 从该文件读取无符号16位数字。此方法从文件中读取两个字节，从当前文件指针开始。如果按顺序读取的字节是b1和b2，其中0<=b1，b2<=255，则结果等于：
+			(b1 << 8) | b2
+		此方法将一直阻塞，直到读取两个字节、检测到流结尾或引发异常为止。
+		返回此文件的随两个字节，解释为无符号16位整数。
+		【Throws】：
+			EOFException 如果此文件在读取两个字节之前到达末尾。
+			IOException 如果发生I/O错误。
+	readUTF():final String 
+		△ 从该文件中读取字符串。字符串已使用修改后的UTF-8格式进行编码。
+		前两个字节是从当前文件指针开始读取的，就好像是由readUnsignedShort读取的一样。该值给出编码字符串中的随后字节数，而不是结果字符串的长度。然后，随后字节将被解释为修改后的UTF-8格式中的字节编码字符，并转换为字符。
+		此方法将一直阻塞，直到读取所有字节、检测到流结尾或引发异常为止。
+		返回Unicode字符串。
+		【Throws】：
+			EOFException 如果此文件在读取所有字节之前到达末尾。
+			IOException 如果发生I/O错误。
+			UTFDataFormatException 如果字节不代表Unicode字符串的有效修改的UTF-8编码。
+	seek(long pos):void 
+		pos - 设置文件指针的偏移位置，以文件开头的字节为单位。
+		设置文件指针偏移量（从该文件开始测量），在该偏移量处进行下一次读取或写入。偏移量可以设置在文件结尾之外。设置超出文件结尾的偏移不会更改文件长度。文件长度只有在偏移量设置超过文件末尾后才能通过写入来更改。
+		【Throws】：
+			IOException 如果pos小于0或发生I/O错误。
+	setLength(long newLength):native void 
+		newLength - 所需的文件长度
+		设置此文件的长度。
+		如果length方法返回的文件的当前长度大于newLength参数，则文件将被截断。在这种情况下，如果getFilePointer方法返回的文件偏移量大于newLength，那么在该方法返回之后，偏移量将等于newLength。
+		如果length方法返回的文件的当前长度小于newlength参数，则该文件将被扩展。在这种情况下，不定义文件扩展部分的内容。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	skipBytes(int n):int 
+		n - 要跳过的字节数。
+		△ 尝试跳过n个字节的输入，放弃跳过的字节。
+		此方法可能跳过一些较小的字节数，可能为零。这可能是由许多条件中的任何一种造成的；在跳过n个字节之前到达文件结尾只是一种可能。此方法从不引发EOFException。将返回跳过的实际字节数。如果n为负，则不跳过任何字节。
+		返回跳过的实际字节数。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[]):void 
+		b - 数据
+		△ 从当前文件指针开始，将b.length字节从指定的字节数组写入此文件。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	write(byte b[], int off, int len):void 
+		b - 数据
+		off - 数据中的起始偏移量。
+		len - 要写入的字节数。
+		△ 将指定字节数组中从偏移量off开始的len字节写入此文件。
+	write(int b):void 
+		b - 要写入的字节。
+		△ 将指定的字节写入此文件。写入从当前文件指针开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeBoolean(boolean v):final void 
+		v - 要写入的boolean值。
+		△ 将boolean值作为一个单字节值写入文件。值“true”写为值（字节）1；值“false”写为值（字节）0。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeByte(int v):final void 
+		v - 要写入的字节值。
+		△ 将一个字节作为一个字节值写入文件。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeBytes(String s):final void 
+		s - 要写入的字节字符串。
+		△ 以字节序列的形式将字符串写入文件。字符串中的每个字符都是通过丢弃其高位8位按顺序写出的。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeChar(int v):final void 
+		v - 要写入的char值。
+		△ 将一个字符作为两个字节的值写入文件，首先是高字节。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。		
+	writeChars(String s):final void 
+		s - 要写入的字符串值。
+		△ 将字符串作为字符序列写入文件。每个字符都像通过writeChar方法一样写入数据输出流。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeDouble(double v):final void 
+		v - 要写入的double值。
+		△ 使用Double类中的doubleToLongBits方法将double参数转换为long，然后将该long值作为8字节的数目（首先是高字节）写入文件。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeFloat(float v):final void 
+		v - 要写入的float值。
+		△ 在类Float中使用floatToIntBits方法将Float参数转换为int，然后将该int值作为一个四字节的数目（首先是高字节）写入文件。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeInt(int v):final void 
+		v - 要写入的int值。
+		△ 将int作为四个字节写入文件，首先是高字节。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeLong(long v):final void 
+		v - 要写入的long值。
+		△ 以八个字节的形式向文件写入一个long字节，首先是高字节。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeShort(int v):final void 
+		v - 要写入的short值。
+		△ 将short字节作为两个字节写入文件，首先是高字节。写入从文件指针的当前位置开始。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	writeUTF(String str):final void 
+		str - 要写入的字符串。
+		△ 使用修改后的UTF-8编码以独立于机器的方式将字符串写入文件。
+		首先，从当前文件指针开始，向文件写入两个字节，就好像是由writeShort方法给出了要遵循的字节数。这个值是实际写出的字节数，而不是字符串的长度。在长度之后，使用修改后的每个字符的UTF-8编码，依次输出字符串中的每个字符。
+		【Throws】：
+			IOException 如果发生I/O错误。
+				
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、UNC：（Universal Naming Convention）路径：UNC指的是通用命名规则，也称通用命名规范、通用命名约定。UNC路径就是类似\\softer这样的形式的网络路径。
+		格式：\\servername\sharename，其中servername是服务器名。sharename是共享资源的名称。UNC共享就是指网络硬盘的共享当访问softer计算机中名为it168的共享文件夹，用UNC表示就是\\softer\it168；如果是softer计算机的默认管理共享C$则用\\softer\c$来表示。我们访问网上邻居所采用的命令行访问法，实际上应该称作UNC路径访问法。
+	4、echo：回显。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

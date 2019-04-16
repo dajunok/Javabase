@@ -1,0 +1,71 @@
+----------------------------------------StreamTokenizer--------------------------------------------------------------------------------------------------------------
+StreamTokenizer：流化器【Since:1.0】
+	StreamTokenizer类接受一个输入流并将其解析为“tokens”，允许一次读取一个tokens。解析过程由一个表和一些可以设置为各种状态的标志控制。流标记器可以识别标识符、数字、带引号的字符串和各种注释样式。
+	从输入流中读取的每个字节都被视为一个字符，其范围是从“\u0000”到“\u00FF”。字符值用于查找字符的五个可能属性：空白、字母、数字、字符串引号和注释字符。每个字符可以有零个或多个这些属性。
+	另外，一个实例有四个标志。这些标志表示：
+		● 行终止符是作为令牌返回还是作为仅分隔令牌的空白区处理。
+		● 是否识别和跳过C样式的注释。
+		● 是否可以识别和跳过C++风格的注释。
+		● 标识符的字符是否转换为小写。
+	一个典型的应用程序首先构造这个类的一个实例，设置语法表，然后在循环的每个迭代中重复调用nextToken方法，直到它返回值TT_EOF。
+	
+	
+	类定义	：public class StreamTokenizer
+	实现接口	：Guard, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	TT_EOF : int
+	TT_EOL : int
+	TT_NOTHING : int
+	TT_NUMBER : int
+	TT_WORD : int
+	nval : double
+	sval : String
+	ttype : int
+
+Constructor Summary（构造器概要）：
+	public StreamTokenizer(InputStream is)
+	public StreamTokenizer(Reader r)
+
+Method Summary（方法概要）：
+	commentChar(int ch):void 
+	eolIsSignificant(boolean flag):void 
+	lineno():int 
+	lowerCaseMode(boolean fl):void 
+	nextToken():int 
+	ordinaryChar(int ch):void 
+	ordinaryChars(int low, int hi):void 
+	parseNumbers():void 
+	pushBack():void 
+	quoteChar(int ch):void 
+	resetSyntax():void 
+	slashSlashComments(boolean flag):void 
+	slashStarComments(boolean flag):void 
+	toString():String 
+	whitespaceChars(int low, int hi):void 
+	wordChars(int low, int hi):void 
+	
+	
+
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、UNC：（Universal Naming Convention）路径：UNC指的是通用命名规则，也称通用命名规范、通用命名约定。UNC路径就是类似\\softer这样的形式的网络路径。
+		格式：\\servername\sharename，其中servername是服务器名。sharename是共享资源的名称。UNC共享就是指网络硬盘的共享当访问softer计算机中名为it168的共享文件夹，用UNC表示就是\\softer\it168；如果是softer计算机的默认管理共享C$则用\\softer\c$来表示。我们访问网上邻居所采用的命令行访问法，实际上应该称作UNC路径访问法。
+	4、echo：回显。
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
