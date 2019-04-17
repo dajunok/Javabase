@@ -1,9 +1,9 @@
 ----------------------------------------StreamTokenizer--------------------------------------------------------------------------------------------------------------
-StreamTokenizer：流化器【Since:1.0】
-	StreamTokenizer类接受一个输入流并将其解析为“tokens”，允许一次读取一个tokens。解析过程由一个表和一些可以设置为各种状态的标志控制。流标记器可以识别标识符、数字、带引号的字符串和各种注释样式。
+StreamTokenizer：流标记器【Since:1.0】
+	StreamTokenizer类接受一个输入流并将其解析为“token”，允许一次读取一个tokens。解析过程由一个表和一些可以设置为各种状态的标志控制。流标记器可以识别标识符、数字、带引号的字符串和各种注释样式。
 	从输入流中读取的每个字节都被视为一个字符，其范围是从“\u0000”到“\u00FF”。字符值用于查找字符的五个可能属性：空白、字母、数字、字符串引号和注释字符。每个字符可以有零个或多个这些属性。
 	另外，一个实例有四个标志。这些标志表示：
-		● 行终止符是作为令牌返回还是作为仅分隔令牌的空白区处理。
+		● 行终止符是作为标记返回还是作为仅分隔标记的空白区处理。
 		● 是否识别和跳过C样式的注释。
 		● 是否可以识别和跳过C++风格的注释。
 		● 标识符的字符是否转换为小写。
@@ -15,35 +15,92 @@ StreamTokenizer：流化器【Since:1.0】
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）：
 	TT_EOF : int
+		指示已读取流结尾的常量。
 	TT_EOL : int
-	TT_NOTHING : int
+		一个常量，指示行的结尾已被读取。
 	TT_NUMBER : int
+		一个常量，指示已读取数字标记。
 	TT_WORD : int
+		指示已读取单词标记的常量。
 	nval : double
+		如果当前标记是数字，则此字段包含该数字的值。当ttype字段的值为TT_NUMBER时，当前标记是一个数字。
 	sval : String
+		如果当前标记是单词标记，则此字段包含一个提供单词标记字符的字符串。当当前标记是带引号的字符串标记时，此字段包含字符串的正文。
 	ttype : int
+		当ttype字段的值为TT_WORD时，当前标记是一个单词。当ttype字段的值为引号字符时，当前标记是带引号的字符串标记。
 
 Constructor Summary（构造器概要）：
 	public StreamTokenizer(InputStream is)
+		已淘汰。从JDK 1.1版开始，标记输入流的首选方法是将其转换为字符流，例如：
+			Reader r = new BufferedReader(new InputStreamReader(is));
+  			StreamTokenizer st = new StreamTokenizer(r);
 	public StreamTokenizer(Reader r)
+		创建一个标记器来解析给定的字符流。
 
 Method Summary（方法概要）：
 	commentChar(int ch):void 
+		ch - 字符
+		指定字符参数启动单行注释。从注释字符到行尾的所有字符都被流标记器忽略。
+		将清除指定字符的任何其他属性设置。
 	eolIsSignificant(boolean flag):void 
+		flag - true表示行尾字符是单独的标记；false表示行尾字符是空白。
+		确定是否将行尾视为标记。如果flag参数为true，则此tokenizer将行尾视为标记；nextToken方法返回TT_EOL，并在读取行尾时将ttype字段设置为该值。
+		行是以回车符（“\r”）或换行符（“\n”）结尾的字符序列。此外，紧跟换行符的回车符被视为一个行尾标记。
+		如果flag为false，行尾字符将被视为空白字符，仅用于分隔标记。
 	lineno():int 
+		返回当前行号。
+		返回流标记器的当前行号。
 	lowerCaseMode(boolean fl):void 
+		fl - 如果为true，则表示所有单词标记都应为小写字母。
+		确定单词标记是否自动小写。如果flag参数为true，则每当返回单词标记时，sval字段中的值都会小写（ttype字段通过该标记器的nextToken方法具有值TT_WORD）。
 	nextToken():int 
-	ordinaryChar(int ch):void 
+		从该标记器的输入流解析下一个标记。下一个标记的类型将在ttype字段中返回。有关标记的其他信息可以在该标记器的nval字段或sval字段中。
+		此类的典型客户机首先设置语法表，然后坐在一个循环中调用nextToken来解析连续的标记，直到返回TT_EOF。
+	ordinaryChar(int ch):void
+		ch -字符
+		指定字符参数在此标记器中是作为“普通”字符的。它删除了字符作为注释字符、单词组件、字符串分隔符、空格或数字字符所具有的任何特殊意义。当解析器遇到这样的字符时，解析器将其视为单个字符标记，并将ttype字段设置为此字符值。
+		使行终止符字符作为“ordinary”（普通）字符可能会干扰流标记器计算行的能力。lineno方法可能不再反映其行计数中存在此类终止符字符。
 	ordinaryChars(int low, int hi):void 
+		low - 范围的低端。
+		hi - 范围的高端。
+		指定范围low<=c<=high中的所有字符c在此标记器中都是“普通”字符。有关普通字符的更多信息，请参见ordinaryChar方法。		
 	parseNumbers():void 
+		指定此标记器应解析数字。这个标记器的语法表被修改为12个字符中的每一个：
+			0 1 2 3 4 5 6 7 8 9 . -
+		具有“numeric”属性。
+		当解析器遇到具有double精度浮点数格式的单词标记时，它将标记视为数字而不是单词，方法是将ttype字段设置为值TT_NUMBER，并将标记的数值放入nval字段。
 	pushBack():void 
+		使对该标记器的nextToken方法的下一个调用返回ttype字段中的当前值，而不修改nval或sval字段中的值。
 	quoteChar(int ch):void 
+		ch - 引号字符
+		指定此字符的匹配对限定此标记器中的字符串常量。
+		当nextToken方法遇到字符串常量时，ttype字段设置为字符串分隔符，sval字段设置为字符串的主体。
+		如果遇到一个字符串引号字符，则可以识别一个字符串，该字符串由字符串引号字符之后（但不包括）的所有字符、到（但不包括）同一字符串引号字符的下一次出现、或行终止符或文件结尾组成。在解析字符串时，通常的转义序列（如“\n”和“\t”）会被识别并转换为单个字符。
+		将清除指定字符的任何其他属性设置。
 	resetSyntax():void 
+		重置此标记器的语法表，使所有字符都为“普通”字符。有关普通字符的详细信息，请参阅ordinaryChar方法。
 	slashSlashComments(boolean flag):void 
-	slashStarComments(boolean flag):void 
+		flag - 如果为true指示识别和忽略C++风格的注释。
+		确定标记器是否识别C++风格的注释。如果flag参数为true，则此流标记器识别C++风格的注释。任何出现的两个连续斜杠字符（“//”）都被视为扩展到行结尾的注释的开头。
+		如果flag参数为false，那么C++风格的注释不被专门处理。
+	slashStarComments(boolean flag):void 	
+		flag - 如果为true表示识别和忽略C样式的注释。
+		确定标记器是否识别C样式的注释。如果flag参数为true，则流标记器识别C样式的注释。连续出现的/*和*/之间的所有文本都将被丢弃。
+		如果标志参数为false，则不专门处理C样式的注释。
 	toString():String 
+		返回当前流标记的字符串表示形式及其所在的行号。
+		返回的精确字符串未指定，尽管以下示例被认为是典型的：
+			Token['a'], line 10
+		返回标记的字符串表示形式。
 	whitespaceChars(int low, int hi):void 
+		low - 范围的低端。
+		hi - 范围的高端。	
+		指定范围low<=c<=high中的所有字符c都是空白字符。空白字符仅用于分隔输入流中的标记。
+		清除指定范围内字符的任何其他属性设置。
 	wordChars(int low, int hi):void 
+		low - 范围的低端。
+		hi - 范围的高端。
+		指定范围low<=c<=high中的所有字符c都是单词组件。一个单词标记由一个单词部分后接零个或多个单词部分或数字部分组成。
 	
 	
 

@@ -1,0 +1,84 @@
+----------------------------------------Buffer--------------------------------------------------------------------------------------------------------------
+Buffer：缓冲器	【Since:JDK1.4】
+	用于特定原始类型的数据的容器。
+	缓冲区是特定原始类型的线性有限元素序列。除了其内容之外，缓冲区的基本特性是其容量（capacity）、限制（limit）和位置（position）：
+		● 缓冲区的容量是它包含的元素数量。缓冲区的容量永远不会是负数，也不会改变。
+		● 缓冲区的限制是不应读取或写入的第一个元素的索引。缓冲区的限制从不为负，也从不大于其容量。
+		● 缓冲区的位置是要读取或写入的下一个元素的索引。缓冲区的位置从不为负，也不大于其限制。
+	对于每个非布尔（non-boolean）原始类型，该类有一个子类。
+	
+	Transferring data（传输数据）：
+		此类的每个子类定义了两种get和put操作：	
+			● 相对操作从当前位置开始读取或写入一个或多个元素，然后按传输的元素数量增加位置。如果请求的传输超过限制，则相对get操作将引发BufferUnderflowException异常，而相对put操作将引发BufferOverflowException异常；在这两种情况下，都不会传输任何数据。
+			● 绝对操作采用显式元素索引，不影响位置。如果index参数超出限制，则绝对get和put操作将引发IndexOutOfBoundsException异常。
+		当然，数据也可以通过适当通道（channel）的I/O操作传入或传出缓冲区，该通道（channel）始终与当前位置相关。
+	
+	Marking and resetting（标记与重置）：
+		缓冲区的标记是在调用reset方法时将其位置重置到的索引。mark并不总是被定义的，但是当它被定义时，它从不为负数，也不大于位置。如果定义了mark，则当位置或限制调整为小于标记的值时，该标记将被丢弃。如果未定义标记，则调用reset方法会导致引发InvalidMarkException异常。
+	
+	Invariants（不变量）：
+		以下不变量用于标记（mark）、位置(position)、限制（limit）和容量（capacity）值：
+			0<=标记<=位置<=极限<=容量
+		新创建的缓冲区始终具有零的位置和未定义的标记。初始限制可以是零，也可以是其他一些值，这取决于缓冲区的类型和构造方式。新分配的缓冲区的每个元素都初始化为零。
+		
+	Clearing, flipping, and rewinding（清除、翻转、倒带）：
+		除了访问位置、限制和容量值以及标记和重置的方法外，此类还定义了对缓冲区的以下操作：
+			● clear()	使缓冲区为新的通道读取或相对放置操作序列做好准备：它将容量限制和位置设置为零。
+			● flip()	使缓冲区为新的通道写入或相对获取操作序列做好准备：它将限制设置为当前位置，然后将位置设置为零。
+			● rewind()	使缓冲区准备好重新读取它已经包含的数据：它保持限制不变，并将位置设置为零。
+	
+	Read-only buffers（只读缓冲区）：	
+		每个缓冲区都是可读的，但不是每个缓冲区都是可写的。每个缓冲区类的mutation方法被指定为可选操作，当对只读缓冲区调用时，这些操作将引发ReadOnlyBufferException异常。只读缓冲区不允许更改其内容，但其标记、位置和限制值是可变的。缓冲区是否为只读可以通过调用其isReadOnly方法来确定。
+	
+	Thread safety（线程安全）：
+		多个并发线程使用缓冲区不安全。如果一个缓冲区要由多个线程使用，那么对该缓冲区的访问应该由适当的同步控制。
+	
+	Invocation chaining（调用链接）：	
+		此类中没有要返回的值的方法被指定为返回调用它们的缓冲区。这允许将方法调用连接起来；例如，语句序列：
+			 b.flip();
+			 b.position(23);
+			 b.limit(42);
+		可以用更简洁的语句替换：
+			b.flip().position(23).limit(42);
+			
+	
+	类定义	：public abstract class Buffer
+	直接子类	：ByteBuffer, CharBuffer, DoubleBuffer, FloatBuffer, IntBuffer, LongBuffer, ShortBuffer
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	array():abstract Object 
+	arrayOffset():abstract int 
+	capacity():final int 
+	clear():final Buffer 
+	flip():final Buffer 
+	hasArray():abstract boolean 
+	hasRemaining():final boolean 
+	isDirect():abstract boolean 
+	isReadOnly():abstract boolean 
+	limit():final int 
+	limit(int newLimit):final Buffer 
+	mark():final Buffer 
+	position():final int 
+	position(int newPosition):final Buffer 
+	remaining():final int 
+	reset():final Buffer 
+	rewind():final Buffer 
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

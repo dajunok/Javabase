@@ -1,0 +1,69 @@
+------------------------------------------Package java.io--------------------------------------------------------------------------------------------------------------
+											【Since 1.4】
+Package Description（包描述说明）：
+	定义缓冲区，缓冲区是数据容器，并提供其他NIO包的概述。
+	NIO API的核心抽象是：
+		● 缓冲器（Buffer），是数据容器；
+		● 字符集（Charset），及其相关的解码器和编码器，在字节和Unicode字符之间转换；
+		● 通道（Channel），表示连接的各种类型的通道，能够执行I/O操作的实体；以及
+		● 选择器（Selector）和选择键（selection key），可选通道定义多路复用、非阻塞输入输出设备。
+	java.nio包定义缓冲区类，这些类在整个NIO API中使用。字符集 API在java.nio.charset包中定义，通道（Channel）和选择器API在java.nio.channels包中定义。每个子包都有自己的服务提供者（Service-Provider）SPI子包，其中的内容可用于扩展平台的默认实现或构建替代实现。
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+			Buffers（缓冲器）				Description	
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————	
+			Buffer						位置（position）、限制（limit）和容量（capacity）；清除（clear）、翻转（flip）、倒带（rewind）和标记（mark）/重置（reset）。
+			ByteBuffer					get/put, compact, views; allocate, wrap 
+			MappedByteBuffer  			映射到文件的字节缓冲区
+			CharBuffer					Get/put, compact; allocate, wrap
+			DoubleBuffer	    		' '
+			FloatBuffer	    			' '
+			IntBuffer	    			' '
+			LongBuffer	    			' '
+			ShortBuffer	    			' '
+			ByteOrder					字节顺序的类型安全枚举
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		缓冲区是特定原始类型的固定数据量的容器。除了内容（content）之外，缓冲区还有一个位置（position），即要读取或写入的下一个元素的索引，以及一个限制（limit），即不应该读取或写入的第一个元素的索引。底层Buffer类定义这些属性以及清除、翻转和回放、标记当前位置以及将位置重置为上一个标记的方法。
+		每个非boolean原始类型都有一个缓冲区类。每个类定义了一系列用于将数据移出缓冲区和移入缓冲区的get和put方法，压缩、复制和切片缓冲区的方法，以及用于分配新缓冲区以及将现有数组包装到缓冲区的static静态方法。
+		字节缓冲区的区别在于它们可以用作I/O操作的源和目标。它们还支持在其他缓冲区类中找不到的几个功能：
+			● 字节缓冲区可以被分配为直接缓冲区，在这种情况下，Java虚拟机将尽最大努力在其上直接执行本地I/O操作。
+			● 字节缓冲区可以通过将文件的一个区域直接映射到内存中来创建，在这种情况下，可以使用MappedByteBuffer类中定义的一些与文件相关的操作。
+			● 字节缓冲区提供对其内容的访问，可以是任何非boolean原始类型的二进制数据的混合或相同序列，可以是高位字节顺序，也可以是低位字节顺序。
+		除非另有说明，否则将null参数传递给此包中任何类或接口中的构造函数或方法将导致引发NullPointerException异常。
+		
+Class Summary(类概要)
+	Buffer
+	ByteBuffer
+	ByteOrder
+	CharBuffer
+	DoubleBuffer
+	FloatBuffer
+	IntBuffer
+	LongBuffer
+	MappedByteBuffer
+	ShortBuffer	
+	
+Exceptions Summary（异常概要）
+	BufferOverflowException
+	BufferUnderflowException
+	InvalidMarkException
+	ReadOnlyBufferException	
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -62,7 +62,7 @@ Method Summary（方法概要）：
 			ReadOnlyBufferException - 如果目标是只读缓冲区
 	ready():boolean 
 		指示是否已准备好读取此流。
-		如果保证下一个read()不会阻止输入，则返回true，否则返回false。请注意，返回false并不保证下一次读取将被阻塞。
+		如果保证下一个read()不会阻塞输入，则返回true，否则返回false。请注意，返回false并不保证下一次读取将被阻塞。
 		【Throws】：
 			IOException 如果发生I/O错误。
 	reset():void 

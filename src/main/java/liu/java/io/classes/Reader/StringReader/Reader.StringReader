@@ -1,0 +1,82 @@
+----------------------------------------StringReader--------------------------------------------------------------------------------------------------------------
+StringReader：字符串读取器	【Since:JDK1.1】
+	源为字符串的字符流。
+	
+	
+	
+	类定义	：public class StringReader extends Reader
+	实现接口	：AutoCloseable, Closeable ,Readable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	Reader.lock : Object
+		用于同步此流上的操作的对象。为了提高效率，字符流对象可以使用自身以外的对象来保护关键部分。因此，子类应该在此字段中使用对象，而不是此方法或同步方法。
+
+
+Constructor Summary（构造器概要）：
+	public StringReader(String s)
+		s - 提供字符流的字符串。
+		创建新的字符串读取器。
+	
+Method Summary（方法概要）：
+	close():void 
+		△ 关闭流并释放与其关联的任何系统资源。流关闭后，进一步的read()、ready()、mark()、reset()或skip()调用将引发IOException。关闭以前关闭的流没有效果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	mark(int readAheadLimit):void 
+		readAheadLimit - 限制在保留标记的同时可以读取的字符数。因为流的输入来自字符串，所以没有实际限制，所以此参数不能为负数，否则将被忽略。
+		△ 标记流中的当前位置。随后调用reset()会将流重新定位到此点。
+		【Throws】：
+			IllegalArgumentException 如果readAheadLimit < 0。
+			IOException 如果流不支持mark()，或者发生其他I/O错误。
+	markSupported():boolean 
+		△ 指示此流是否支持mark()操作。
+		如果且仅当此流支持mark操作时返回true。
+	read():int 
+		△ 读取单个字符。
+		返回读取的字符，或者如果已达到流的结尾，返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	read(char cbuf[], int off, int len):int 
+		cbuf - 目标缓存
+		off - 开始存储字符的偏移量
+		len - 要读取的最大字符数量
+		△ 将字符读入数组的一部分。
+		返回已读取的字符数，如果已到达流的结尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	ready():boolean 
+		△ 指示是否已准备好读取此流。
+		如果保证下一个read()不会阻塞输入，则返回true，否则返回false。
+		【Throws】：
+			IOException 如果流已关闭。
+	reset():void 
+		△ 将流重置为最新标记，如果从未标记，则重置为字符串的开头。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	skip(long ns):long 
+		ns - 要跳过的字符数
+		△ 跳过流中指定的字符数。返回跳过的字符数。
+		ns参数可能为负，即使在这种情况下，Reader超类的skip方法抛出了一个异常。ns的负值导致流向后跳过。负返回值表示向后跳过。不能向后跳过字符串的开头。
+		如果已读取或跳过整个字符串，则此方法无效，并始终返回0。
+		返回实际跳过的字符数。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
