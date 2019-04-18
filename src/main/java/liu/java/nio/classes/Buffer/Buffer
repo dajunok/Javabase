@@ -40,35 +40,113 @@ Buffer：缓冲器	【Since:JDK1.4】
 			 b.limit(42);
 		可以用更简洁的语句替换：
 			b.flip().position(23).limit(42);
+	
+	**********************************************************************************
+	Buffer的基本用法：Java NIO中的Buffer用于和NIO通道进行交互。如你所知，数据是从通道读入缓冲区，从缓冲区写入到通道中的。使用Buffer读写数据一般遵循以下四个步骤：
+		● 写入数据到Buffer
+		● 调用flip()方法
+		● 从Buffer中读取数据：如直接读取或读取到Channel中
+		● 调用clear()方法或者compact()方法
+	当向buffer写入数据时，buffer会记录下写了多少数据。一旦要读取数据，需要通过flip()方法将Buffer从写模式切换到读模式。在读模式下，可以读取之前写入到buffer的所有数据。
+	一旦读完了所有的数据，就需要清空缓冲区，让它可以再次被写入。有两种方式能清空缓冲区：调用clear()或compact()方法。clear()方法会清空整个缓冲区。compact()方法只会清除已经读过的数据。任何未读的数据都被移到缓冲区的起始处，新写入的数据将放到缓冲区未读数据的后面。
 			
+	
+	
 	
 	类定义	：public abstract class Buffer
 	直接子类	：ByteBuffer, CharBuffer, DoubleBuffer, FloatBuffer, IntBuffer, LongBuffer, ShortBuffer
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Method Summary（方法概要）：
 	array():abstract Object 
+		★ 返回此缓冲区的支持数组（可选操作）。
+		此方法旨在更有效地将数组支持的缓冲区传递给本机代码。具体的子类为该方法提供更强类型的返回值。
+		对该缓冲区内容的修改将导致返回的数组内容被修改，反之亦然。
+		在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读。
+			UnsupportedOperationException 如果此缓冲区没有可访问的支持数组
 	arrayOffset():abstract int 
+		★ 返回缓冲区第一个元素的缓冲区的支持数组中的偏移量。（可选操作）
+		如果此缓冲区由数组支持，则缓冲区位置p对应于数组索引p+arrayOffset()。
+		在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		返回缓冲区第一个元素的缓冲区数组中的偏移量。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读。
+			UnsupportedOperationException 如果此缓冲区没有可访问的支持数组
 	capacity():final int 
+		返回此缓冲区的容量。
 	clear():final Buffer 
-	flip():final Buffer 
+		清除此缓冲区。位置（position）设置为零，限制（limit）设置为容量，标记（mark）被丢弃。
+		在使用通道读取（channel-read ）或put操作序列填充此缓冲区之前调用此方法。例如：
+			 buf.clear();     // Prepare buffer for reading
+			 in.read(buf);    // Read data	
+		此方法实际上不会擦除缓冲区中的数据，但它的命名方式与此类似，因为在这种情况下，通常会使用它。	
+		返回此缓冲器。
+	flip():final Buffer
+		 翻转此缓冲区（即将Buffer从写模式切换到读模式）。将限制（limit）设置为当前位置，然后将位置（position）设置为零。如果定义了该标记，则该标记将被丢弃。
+		 在通道读取（channel-read）或put操作序列之后，调用此方法以准备通道写入（channel-write）或相对获取（get）操作序列。例如：
+			 buf.put(magic);    // Prepend header
+			 in.read(buf);      // Read data into rest of buffer
+			 buf.flip();        // Flip buffer
+			 out.write(buf);    // Write header + data to channel	
+		在将数据从一个地方传输到另一个地方时，此方法通常与compact方法结合使用。	 
+		返回此缓冲器。
 	hasArray():abstract boolean 
+		★ 指示此缓冲区是否由可访问的数组支持。
+		如果此方法返回true，则可以安全地调用数组和ArrayOffset方法。
+		如果且仅当此缓冲区由数组支持且不是只读时返回true。
 	hasRemaining():final boolean 
+		指示当前位置（position）和限制（limit）之间是否存在任何元素。
+		如果且仅当此缓冲区中至少还有一个元素时返回true。
 	isDirect():abstract boolean 
+		★ 指示此缓冲区是否为直接缓冲区。
+		如果且仅当此缓冲区是直接缓冲区，则返回true。
 	isReadOnly():abstract boolean 
+		指示此缓冲区是否为只读。
+		如果且仅当此缓冲区为只读时返回true。
 	limit():final int 
+		返回此缓冲区的限制。
 	limit(int newLimit):final Buffer 
+		newLimit - 新的限制值；必须为非负值，且不大于此缓冲区的容量。
+		设置此缓冲区的限制。如果位置大于新限制，则设置为新限制。如果该标记已定义且大于新限制，则该标记将被丢弃。
+		返回此缓冲器。
+		【Throws】：
+			IllegalArgumentException 如果newlimit上的前提条件不成立。
 	mark():final Buffer 
+		将此缓冲区的标记设置在其位置（position）。通过调用此方法，可以标记Buffer中的一个特定位置（position）。之后可以通过调用Buffer.reset()方法恢复到这个位置（position）。
+		返回此缓冲器。
 	position():final int 
+		返回此缓冲区的位置。当你写数据到Buffer中时，position表示当前的位置。初始的position值为0.当一个byte、long等数据写到Buffer后， position会向前移动到下一个可插入数据的Buffer单元。position最大可为capacity – 1。当读取数据时，也是从某个特定位置读。当将Buffer从写模式切换到读模式，position会被重置为0. 当从Buffer的position处读取数据时，position向前移动到下一个可读的位置。
 	position(int newPosition):final Buffer 
+		newPosition - 新的位置值；必须为非负且不大于当前限制。
+		设置此缓冲区的位置。如果标记已定义且大于新位置，则该标记将被丢弃。
+		返回此缓冲器。
+		【Throws】：
+			IllegalArgumentException 如果newPosition上的前提条件不成立。
 	remaining():final int 
+		返回当前位置和限制之间的元素数量。
 	reset():final Buffer 
+		将此缓冲区的位置重置为以前标记（mark）的位置。
+		调用此方法既不会更改也不会丢弃标记的值。
+		返回此缓冲器。
+		【Throws】：
+			InvalidMarkException 如果未设置标记。
 	rewind():final Buffer 
-			
+		回倒缓冲区。位置设置为零，标记被丢弃。
+		在通道写入（channel-write）或获取（get）操作序列之前调用此方法，假定已经适当设置了限制。例如：
+			 out.write(buf);    // Write remaining data
+			 buf.rewind();      // Rewind buffer
+			 buf.get(array);    // Copy data into array		
+		返回此缓冲器。	
+		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
 	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
-
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
 
 
 

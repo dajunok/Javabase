@@ -1,0 +1,245 @@
+----------------------------------------ByteBuffer--------------------------------------------------------------------------------------------------------------
+ByteBuffer：字节缓冲器	【Since:JDK1.4】
+	此类定义了对字节缓冲区的六类操作：	
+		● 读写单个字节的绝对和相对的get和put方法；
+		● 相对批量获取（get）方法，将连续的字节序列从此缓冲区传输到数组中；
+		● 将字节数组或其他字节缓冲区中的连续字节序列传输到此缓冲区的相对大容量放置（put）方法；
+		● 绝对和相对的get和put方法，用于读取和写入其他原始类型的值，并按特定的字节顺序将这些值与字节序列进行转换；
+		● 创建视图缓冲区的方法，该方法允许将字节缓冲区视为包含某些其他原始类型值的缓冲区；以及
+		● 压缩、复制和切片字节缓冲区的方法。
+	字节缓冲区可以通过分配（为缓冲区的内容分配空间）或将现有的字节数组包装到缓冲区中来创建。
+	
+	Direct vs. non-direct buffers（直接缓冲区与非直接缓冲区）：
+		字节缓冲区可以是直接缓冲区，也可以是非直接缓冲区。给定一个直接字节缓冲区，Java虚拟机将尽最大努力在其上直接执行本地I/O操作。也就是说，在每次调用底层操作系统的一个本机I/O操作之前（或之后），它将尝试避免将缓冲区的内容复制到（或从）中间缓冲区。
+		可以通过调用此类的allocateDirect工厂方法来创建直接字节缓冲区。此方法返回的缓冲区通常比非直接缓冲区具有更高的分配和释放成本。直接缓冲区的内容可能位于正常垃圾收集堆之外，因此它们对应用程序内存占用的影响可能不明显。因此，建议将直接缓冲区主要分配给受底层系统本机I/O操作影响的大型长期缓冲区。一般来说，最好是在只有当直接缓冲区在程序性能上产生可测量的收益时，才分配直接缓冲区。
+		直接字节缓冲区也可以通过将文件的一个区域直接映射到内存中来创建。Java平台的实现可以可选地支持通过JNI从本机代码创建直接字节缓冲区。如果这类缓冲区的一个实例引用了一个不可访问的内存区域，那么访问该区域的尝试将不会更改缓冲区的内容，并将导致在访问时或稍后某个时间引发不确定的异常。
+		字节缓冲区是直接缓冲区还是非直接缓冲区可以通过调用其is direct方法来确定。提供了这种方法，以便在性能关键的代码中进行显式缓冲区管理。
+		
+	Access to binary data（访问二进制数据）：	
+		此类定义了用于读取和写入除布尔值以外的所有其他原始类型的值的方法。根据缓冲区的当前字节顺序，将原始值转换为（或从）字节序列，这些字节顺序可以通过order方法进行检索和修改。特定的字节顺序由ByteOrder类的实例表示。字节缓冲区的初始顺序总是BIG_ENDIAN。
+		对于访问异构二进制数据（即不同类型的值序列），该类为每种类型定义一系列绝对和相对的get和put方法。例如，对于32位浮点值，此类定义：
+			 float  getFloat()
+			 float  getFloat(int index)
+			 void  putFloat(float f)
+			 void  putFloat(int index, float f)	
+		为char、short、int、long和double类型定义了相应的方法。绝对get和put方法的索引参数是以字节为单位的，而不是以正在读取或写入的类型为单位的。	
+		对于对同构二进制数据（即相同类型的值序列）的访问，该类定义可以创建给定字节缓冲区视图的方法。视图缓冲区只是另一个内容由字节缓冲区支持的缓冲区。对字节缓冲区内容的更改将在视图缓冲区中可见，反之亦然；两个缓冲区的位置（position）、限制（limit）和标记（mark）值是独立的。例如，asFloatBuffer方法创建FloatBuffer类的实例，该实例由调用该方法的字节缓冲区支持。为char、short、int、long和double类型定义了相应的视图创建方法。
+		与上面描述的特定于类型的get和put方法相比，视图缓冲区有三个重要优势：
+			● 视图缓冲区不是按字节索引的，而是按其值的类型特定大小索引的；
+			● 视图缓冲区提供了相对批量的get和put方法，这些方法可以在缓冲区和数组或其他相同类型的缓冲区之间传输连续的值序列；以及
+			● 视图缓冲区的效率可能更高，因为只有当其支持字节缓冲区是直接的时，它才是直接的。
+		视图缓冲区的字节顺序固定为创建视图时其字节缓冲区的字节顺序。
+	
+	Invocation chaining（调用链接）
+		此类中没有要返回值的方法被指定为返回调用它们的缓冲区。这允许将方法调用链接起来。语句的顺序：
+			 bb.putInt(0xCAFEBABE);
+			 bb.putShort(3);
+			 bb.putShort(45);
+		例如，可以用单个语句替换：
+			 bb.putInt(0xCAFEBABE).putShort(3).putShort(45);			
+		
+		
+	
+	类定义	：public abstract class ByteBuffer extends Buffer implements Comparable<ByteBuffer>
+	实现接口	：Comparable<ByteBuffer>
+	直接子类	：MappedByteBuffer
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	allocate(int capacity):static ByteBuffer 
+		capacity - 新缓冲区容量（字节）。
+		分配新的字节缓冲区。
+		新缓冲区的位置（position）将为零，其限制（limit）将等于其容量，其标记（mark）将未定义，并且其每个元素都将初始化为零。它将有一个支持数组，其数组偏移量将为零。
+		返回新的字节缓冲器。
+		【Throws】：
+			IllegalArgumentException 如果容量为负整数。
+	allocateDirect(int capacity):static ByteBuffer 
+		capacity - 新缓冲区容量（字节）。
+		分配新的直接字节缓冲区。
+		新缓冲区的位置（position）将为零，其限制（limit）将等于其容量，其标记（mark）将未定义，并且其每个元素都将初始化为零。它是否有一个支持数组是不确定的。
+		返回新的字节缓冲器。
+		【Throws】：
+			IllegalArgumentException 如果容量为负整数。
+	wrap(byte[] array):static ByteBuffer 
+		array - 缓冲区的支持数组。
+		将字节数组包装到缓冲区中。
+		新的缓冲区将由给定的字节数组支持；也就是说，对缓冲区的修改将导致数组被修改，反之亦然。新缓冲区的容量（capacity ）和限制（limit ）将等于array.length，其位置（position）将为零，其标记（mark）将未定义。它的支持数组将是给定的数组，其数组偏移量>0。
+		返回新的字节缓冲器。
+	wrap(byte[] array,int offset, int length):static ByteBuffer 
+		array - 新缓冲区的支持数组
+		offset - 要使用的子数组的偏移量;必须是非负的，且不大于array.length。新缓冲区的位置将设置为这个值。
+		length - 要使用的子数组的长度；必须为非负且不大于array.length-offset。新缓冲区的限制将设置为偏移量 + 长度。
+		将字节数组封装到缓冲区中。
+		新的缓冲区将由给定的字节数组支持;也就是说，对缓冲区的修改将导致数组被修改，反之亦然。新缓冲区的容量（capacity ）将是array.length，其位置（position）将是offset，其限制（limit ）将是offset+length，其标记（mark）将未定义。它的支持数组将是给定的数组，它的数组偏移量为零。
+		返回新的字节缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException  如果offset和length参数上的前提条件不成立。
+	array():final byte[]
+		 返回此缓冲区的后备字节数组（可选操作）。
+		 对该缓冲区内容的修改将导致返回的数组内容被修改，反之亦然。
+		 在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		 【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
+			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
+	arrayOffset():final int 
+		返回缓冲区第一个元素（可选操作）的缓冲区的支持数组中的偏移量。
+		如果此缓冲区由数组支持，则缓冲区位置p对应于数组索引p+arrayOffset()。
+		在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
+			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
+	asCharBuffer():abstract CharBuffer 
+		将此字节缓冲区的视图创建为字符缓冲区。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量及其限制将是该缓冲区中剩余字节数除以2，并且其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的字符缓冲器。
+	asDoubleBuffer():abstract DoubleBuffer 
+		将此字节缓冲区的视图创建为double缓冲区。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量及其限制将是该缓冲区中剩余字节数除以8，并且其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的double缓冲器。
+	asFloatBuffer():abstract FloatBuffer 
+		将此字节缓冲区的视图创建为float缓冲区。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量及其限制将是该缓冲区中剩余字节数除以4，并且其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的float缓冲器。
+	asIntBuffer():abstract IntBuffer 
+		将此字节缓冲区的视图创建为int缓冲区。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量及其限制将是该缓冲区中剩余字节数除以4，并且其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的int缓冲器。
+	asLongBuffer():abstract LongBuffer 
+		将此字节缓冲区的视图创建为long缓冲区。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量及其限制将是该缓冲区中剩余字节数除以8，并且其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的long缓冲器。
+	asReadOnlyBuffer():abstract ByteBuffer 
+		创建共享此缓冲区内容的新只读字节缓冲区。
+		新缓冲区的内容就是这个缓冲区的内容。对该缓冲区内容的更改将在新缓冲区中可见；但是，新缓冲区本身将是只读的，不允许修改共享内容。两个缓冲器的位置、限值和标记值是独立的。
+		新缓冲区的容量、限制、位置和标记值将与此缓冲区的相同。
+		如果此缓冲区本身是只读的，则此方法的行为方式与复制方法完全相同。
+		返回新的只读缓冲器。
+	asShortBuffer():abstract ShortBuffer 
+		将此字节缓冲区的视图创建为short缓冲区。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量及其限制将是该缓冲区中剩余字节数除以2，并且其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的long缓冲器。
+	compact():abstract ByteBuffer 
+		压缩此缓冲区（可选操作）。
+		缓冲区的当前位置与其限制（如果有）之间的字节将被复制到缓冲区的开头。也就是说，在索引p=position()处的字节被复制到索引0处，在索引p+1处的字节被复制到索引1处，依此类推，直到在索引limit()-1处的字节被复制到索引n=limit()-1-p处为止。然后缓冲区的位置被设置为n+1，其限制被设置为其容量。如果定义了该标记，则该标记将被丢弃。
+		缓冲区的位置被设置为复制的字节数，而不是设置为零，这样，对该方法的调用之后，可以立即调用另一个相对的put方法。
+		如果写入未完成，请在从缓冲区写入数据后调用此方法。例如，下面的循环通过缓冲区buf将字节从一个通道复制到另一个通道：
+		   buf.clear();          // Prepare buffer for use
+		   while (in.read(buf) >= 0 || buf.position != 0) {
+		       buf.flip();
+		       out.write(buf);
+		       buf.compact();    // In case of partial write
+		   }
+		返回此缓冲器。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区为只读
+	compareTo(ByteBuffer that):int 
+		that - 要比较的对象。
+		将此缓冲区与另一个缓冲区进行比较。
+		两个字节的缓冲区通过在词典中比较其剩余元素的序列来进行比较，而不考虑每个序列在其相应缓冲区中的起始位置。通过调用Byte.compare(byte,byte)对字节元素进行比较。
+		字节缓冲区与任何其他类型的对象都不可比较。
+		返回负整数、零或正整数，因为此缓冲区小于、等于或大于给定缓冲区。
+	duplicate():abstract ByteBuffer 
+		创建共享此缓冲区内容的新字节缓冲区。
+		新缓冲区的内容就是这个缓冲区的内容。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的容量、限制、位置和标记值将与此缓冲区的相同。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的字节缓冲器。
+	equals(Object ob):boolean 
+		ob - 要与此缓冲区进行比较的对象。
+		指示此缓冲区是否等于另一个对象。
+		如果且仅当
+			1、它们具有相同的元素类型，
+			2、它们具有相同数量的剩余元素，以及
+			3、其余两个元素的序列，独立于它们的起始位置，是点相等的。
+		字节缓冲区不等于任何其他类型的对象。
+		如果且仅当此缓冲区等于给定对象时返回true。
+	get():abstract byte 
+		相对获取（get）方法。读取缓冲区当前位置的字节，然后增加该位置。
+		返回缓冲区当前位置的字节。
+		【Throws】：
+			BufferUnderflowException 如果缓冲器的当前位置不小于其限值。
+	get(byte[] dst):ByteBuffer 
+	get(byte[] dst, int offset, int length):ByteBuffer 
+	get(int index):abstract byte 
+	getChar():abstract char 
+	getChar(int index):abstract char 
+	getDouble():abstract double 
+	getDouble(int index):abstract double 
+	getFloat():abstract float 
+	getFloat(int index):abstract float 
+	getInt():abstract int 
+	getInt(int index):abstract int 
+	getLong():abstract long 
+	getLong(int index):abstract long 
+	getShort():abstract short 
+	getShort(int index):abstract short 
+	hasArray():inal boolean 
+	hashCode():int 
+	isDirect():abstract boolean 
+	order():final ByteOrder 
+	order(ByteOrder bo):final ByteBuffer 
+	put(byte b):abstract ByteBuffer 
+	put(byte[] src):final ByteBuffer 
+	put(byte[] src, int offset, int length):ByteBuffer 
+	put(int index, byte b):abstract ByteBuffer 
+	put(ByteBuffer src):ByteBuffer 
+	putChar(char value):abstract ByteBuffer 
+	putChar(int index, char value):abstract ByteBuffer 
+	putDouble(double value):abstract ByteBuffer 
+	putDouble(int index, double value):abstract ByteBuffer 
+	putFloat(float value):abstract ByteBuffer 
+	putFloat(int index, float value):abstract ByteBuffer 
+	putInt(int value):abstract ByteBuffer 
+	putInt(int index, int value):abstract ByteBuffer 
+	putLong(int index, long value):abstract ByteBuffer 
+	putLong(long value):abstract ByteBuffer 
+	putShort(int index, short value):abstract ByteBuffer 
+	putShort(short value):abstract ByteBuffer 
+	slice():abstract ByteBuffer 
+	toString():String 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		
