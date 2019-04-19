@@ -6,7 +6,7 @@ ByteBuffer：字节缓冲器	【Since:JDK1.4】
 		● 将字节数组或其他字节缓冲区中的连续字节序列传输到此缓冲区的相对大容量放置（put）方法；
 		● 绝对和相对的get和put方法，用于读取和写入其他原始类型的值，并按特定的字节顺序将这些值与字节序列进行转换；
 		● 创建视图缓冲区的方法，该方法允许将字节缓冲区视为包含某些其他原始类型值的缓冲区；以及
-		● 压缩、复制和切片字节缓冲区的方法。
+		● 压缩（compacting）、复制（duplicating）和切片（slicing）字节缓冲区的方法。
 	字节缓冲区可以通过分配（为缓冲区的内容分配空间）或将现有的字节数组包装到缓冲区中来创建。
 	
 	Direct vs. non-direct buffers（直接缓冲区与非直接缓冲区）：
@@ -74,14 +74,14 @@ Method Summary（方法概要）：
 		【Throws】：
 			IndexOutOfBoundsException  如果offset和length参数上的前提条件不成立。
 	array():final byte[]
-		 返回此缓冲区的后备字节数组（可选操作）。
+		△  返回此缓冲区支持的字节数组（可选操作）。
 		 对该缓冲区内容的修改将导致返回的数组内容被修改，反之亦然。
 		 在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
 		 【Throws】：
 			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
 			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
 	arrayOffset():final int 
-		返回缓冲区第一个元素（可选操作）的缓冲区的支持数组中的偏移量。
+		△ 返回缓冲区第一个元素（可选操作）的缓冲区的支持数组中的偏移量。
 		如果此缓冲区由数组支持，则缓冲区位置p对应于数组索引p+arrayOffset()。
 		在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
 		【Throws】：
@@ -139,7 +139,7 @@ Method Summary（方法概要）：
 			ReadOnlyBufferException 如果此缓冲区为只读
 	compareTo(ByteBuffer that):int 
 		that - 要比较的对象。
-		将此缓冲区与另一个缓冲区进行比较。
+		△ 将此缓冲区与另一个缓冲区进行比较。
 		两个字节的缓冲区通过在词典中比较其剩余元素的序列来进行比较，而不考虑每个序列在其相应缓冲区中的起始位置。通过调用Byte.compare(byte,byte)对字节元素进行比较。
 		字节缓冲区与任何其他类型的对象都不可比较。
 		返回负整数、零或正整数，因为此缓冲区小于、等于或大于给定缓冲区。
@@ -150,7 +150,7 @@ Method Summary（方法概要）：
 		返回新的字节缓冲器。
 	equals(Object ob):boolean 
 		ob - 要与此缓冲区进行比较的对象。
-		指示此缓冲区是否等于另一个对象。
+		△ 指示此缓冲区是否等于另一个对象。
 		如果且仅当
 			1、它们具有相同的元素类型，
 			2、它们具有相同数量的剩余元素，以及
@@ -158,49 +158,294 @@ Method Summary（方法概要）：
 		字节缓冲区不等于任何其他类型的对象。
 		如果且仅当此缓冲区等于给定对象时返回true。
 	get():abstract byte 
-		相对获取（get）方法。读取缓冲区当前位置的字节，然后增加该位置。
+		相对get方法。读取缓冲区当前位置的字节，然后增加该位置。
 		返回缓冲区当前位置的字节。
 		【Throws】：
 			BufferUnderflowException 如果缓冲器的当前位置不小于其限值。
 	get(byte[] dst):ByteBuffer 
+		dst - 目标数组
+		相对批量get方法。
+		此方法将字节从该缓冲区传输到给定的目标数组。对src.get(a)形式的此方法的调用与下面调用的行为完全相同：
+			 src.get(a, 0, a.length) 
+		返回此缓冲器。
+		【Throws】：
+			BufferUnderflowException 如果此缓冲区中剩余的字节少于length。
 	get(byte[] dst, int offset, int length):ByteBuffer 
+		dst - 要写入字节的数组
+		offset - 要写入的第一个字节数组中的偏移量；必须为非负且不大于dst.length。
+		length - 要写入给定数组的最大字节数；必须为非负且不大于dst.length-offset。
+		相对批量get方法。
+		此方法将字节从该缓冲区传输到给定的目标数组。如果缓冲区中剩余的字节数少于满足请求所需的字节数，即，如果length>remaining()，则不会传输任何字节，并引发BufferUnderflowException异常。
+		否则，此方法会将此缓冲区中的length字节复制到给定的数组中，从该缓冲区的当前位置开始，并在数组中的给定偏移量处开始。然后，这个缓冲区的位置按length递增。
+		换句话说，对src.get(dst，off，len)形式的此方法的调用与下面循环具有完全相同的效果：
+		     for (int i = off; i < off + len; i++)
+		         dst[i] = src.get():
+		除了它首先检查缓冲区中是否有足够的字节，而且它的效率可能更高。
+		返回此缓冲器。
+		【Throws】：
+			BufferUnderflowException  如果此缓冲区中剩余的字节少于length。
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
 	get(int index):abstract byte 
+		index - 从中读取字节的索引
+		绝对get方法。读取给定索引处的字节。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制。
 	getChar():abstract char 
+		读取char值的相对get方法。
+		在这个缓冲区的当前位置读取接下来的两个字节，根据当前字节顺序将它们组合成一个char值，然后将位置增加两个。
+		返回缓冲区当前位置的char值
+		【Throws】：
+			IndexOutOfBoundsException 如果此缓冲区中剩余的少于两个字节。
 	getChar(int index):abstract char 
+		index - 从中读取字节的索引。
+		用于读取char值的绝对get方法。
+		在给定索引处读取两个字节，并根据当前字节顺序将它们组合成一个char值。
+		返回给定索引处的char值。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去1
 	getDouble():abstract double 
+		读取double值的相对get方法。
+		在这个缓冲区的当前位置读取接下来的8个字节，根据当前字节顺序将它们组合成一个double值，然后将位置增加8个。
+		返回缓冲区当前位置的double值
+		【Throws】：
+			IndexOutOfBoundsException 如果此缓冲区中剩余的少于八个字节。
 	getDouble(int index):abstract double 
+		index - 从中读取字节的索引。
+		用于读取double值的绝对get方法。
+		在给定索引处读取8个字节，并根据当前字节顺序将它们组合成一个double值。
+		返回给定索引处的double值。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去7
 	getFloat():abstract float 
+		读取float值的相对get方法。
+		在这个缓冲区的当前位置读取接下来的4个字节，根据当前字节顺序将它们组合成一个float值，然后将位置增加4个。
+		返回缓冲区当前位置的float值
+		【Throws】：
+			IndexOutOfBoundsException 如果此缓冲区中剩余的少于四个字节。
 	getFloat(int index):abstract float 
+		index - 从中读取字节的索引。
+		用于读取float值的绝对get方法。
+		在给定索引处读取4个字节，并根据当前字节顺序将它们组合成一个float值。
+		返回给定索引处的float值。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减3
 	getInt():abstract int 
+		读取int值的相对get方法。
+		在这个缓冲区的当前位置读取接下来的4个字节，根据当前字节顺序将它们组合成一个int值，然后将位置增加4个。
+		返回缓冲区当前位置的int值
+		【Throws】：
+			IndexOutOfBoundsException 如果此缓冲区中剩余的少于四个字节。
 	getInt(int index):abstract int 
+		index - 从中读取字节的索引。
+		用于读取int值的绝对get方法。
+		在给定索引处读取4个字节，并根据当前字节顺序将它们组合成一个int值。
+		返回给定索引处的int值。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减3
 	getLong():abstract long 
+		读取long值的相对get方法。
+		在这个缓冲区的当前位置读取接下来的8个字节，根据当前字节顺序将它们组合成一个long值，然后将位置增加8个。
+		返回缓冲区当前位置的long值
+		【Throws】：
+			IndexOutOfBoundsException 如果此缓冲区中剩余的少于八个字节。
 	getLong(int index):abstract long 
+		index - 从中读取字节的索引。
+		用于读取long值的绝对get方法。
+		在给定索引处读取8个字节，并根据当前字节顺序将它们组合成一个long值。
+		返回给定索引处的long值。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减7
 	getShort():abstract short 
+		读取short值的相对get方法。
+		在这个缓冲区的当前位置读取接下来的2个字节，根据当前字节顺序将它们组合成一个short值，然后将位置增加2个。
+		返回缓冲区当前位置的short值
+		【Throws】：
+			IndexOutOfBoundsException 如果此缓冲区中剩余的少于两个字节。
 	getShort(int index):abstract short 
+		index - 从中读取字节的索引。
+		用于读取short值的绝对get方法。
+		在给定索引处读取2个字节，并根据当前字节顺序将它们组合成一个short值。
+		返回给定索引处的short值。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减1
 	hasArray():inal boolean 
+		指示此缓冲区是否由可访问的字节数组支持。
+		△ 如果此方法返回true，则可以安全地调用数组和arrayOffset方法。
+		如果且仅当此缓冲区由数组支持且不是只读时返回true。
 	hashCode():int 
+		△ 返回此缓冲区的当前哈希代码。
+		字节缓冲区的散列代码仅取决于其剩余的元素；也就是说，取决于从position()到limit()-1的元素（包括元素）。
+		由于缓冲区哈希代码依赖于内容，因此不建议将缓冲区用作哈希图或类似数据结构中的键，除非知道缓冲区的内容不会更改。
+		返回此缓冲区的当前哈希代码。
 	isDirect():abstract boolean 
+		△ 指示此字节缓冲区是否为直接缓冲区。
+		如果且仅当此缓冲区是直接的，则返回true。
 	order():final ByteOrder 
+		检索此缓冲区的字节顺序。
+		字节顺序用于读取或写入多字节值，以及创建作为此字节缓冲区视图的缓冲区。新创建的字节缓冲区的顺序总是BIG_ENDIAN。
+		返回这个缓冲区的字节顺序。
 	order(ByteOrder bo):final ByteBuffer 
+		bo - 新的字节顺序， BIG_ENDIAN或者LITTLE_ENDIAN。
+		修改此缓冲区的字节顺序。
+		返回此缓冲器。
 	put(byte b):abstract ByteBuffer 
+		b - 要写入的字节
+		相对put方法（可选操作）。
+		在当前位置将给定的字节写入缓冲区，然后增加该位置。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区的当前位置不小于其限制
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	put(byte[] src):final ByteBuffer 
+		src - 源数组
+		相对批量put方法（可选操作）。
+		此方法将给定源字节数组的全部内容传输到此缓冲区。对dst.put(a)形式的此方法的调用与下面调用的行为完全相同
+			 dst.put(a, 0, a.length) 
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	put(byte[] src, int offset, int length):ByteBuffer 
+		src - 从中读取字节的数组
+		offset - 要读取的第一个字节的数组内的偏移量；必须为非负且不大于array.length。
+		length - 要从给定数组中读取的字节数；必须为非负且不大于array.length-offset
+		相对批量put方法（可选操作）。
+		此方法将字节从给定的源数组传输到此缓冲区。如果要从数组中复制的字节大于此缓冲区中的剩余字节空间，即，如果length>remaining()，则不会传输任何字节，并引发BufferOverflowException异常。
+		否则，此方法将给定数组中的length字节复制到此缓冲区中，从数组中的给定偏移量（offset）开始，并在此缓冲区的当前位置开始。然后，这个缓冲区的位置按length递增。
+		换句话说，对dst.put(src, off, len)形式的此方法的调用与下面循环具有完全相同的效果
+		     for (int i = off; i < off + len; i++)
+		         dst.put(a[i]);	
+		但它首先检查缓冲区中是否有足够的空间，并且可能更高效。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	put(int index, byte b):abstract ByteBuffer 
+		index - 写入字节的索引
+		b - 要写入的字节值
+		绝对put方法（可选操作）。	
+		在给定索引处将给定字节写入此缓冲区。
+		返回此缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException 如果index为负数或者不小于缓冲区的限制。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	put(ByteBuffer src):ByteBuffer 
+		src - 要从中读取字节的源缓冲区；不能是此缓冲区
+		相对批量put方法（可选操作）。
+		此方法将给定源缓冲区中剩余的字节传输到此缓冲区。如果源缓冲区中的剩余字节多于此缓冲区中的剩余字节，也就是说，如果src.remaining()>remaining()，则不会传输任何字节，并引发BufferOverflowException异常。
+		否则，此方法将n=src.remaining()字节从给定缓冲区复制到此缓冲区，从此缓冲区的当前位置开始。然后两个缓冲区的位置都会增加n。
+		换句话说，对dst.put(src)形式的此方法的调用与下面循环具有完全相同的效果
+		     while (src.hasRemaining())
+		         dst.put(src.get()); 			
+		但它首先检查缓冲区中是否有足够的空间，并且可能更高效。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中没有足够的空间容纳源缓冲区中的剩余字节
+			IllegalArgumentException 如果源缓冲区是此缓冲区
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putChar(char value):abstract ByteBuffer 
+		value - 要写入的char值
+		用于写入char值的相对put方法（可选操作）。
+		以当前字节顺序将包含给定char值的两个字节写入当前位置的缓冲区，然后将该位置增加两个字节。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中剩余的字节少于两个
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putChar(int index, char value):abstract ByteBuffer 
+		index - 写入字节的索引
+		value - 要写入的char值
+		用于写入char值的绝对put方法（可选操作）。	
+		按当前字节顺序将包含给定char值的两个字节写入给定索引处的缓冲区。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去1。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putDouble(double value):abstract ByteBuffer 
+		value - 要写入的double值
+		用于写入double值的相对put方法（可选操作）。
+		以当前字节顺序将包含给定double值的8个字节写入当前位置的缓冲区，然后将该位置增加8个字节。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中剩余的字节少于8个
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putDouble(int index, double value):abstract ByteBuffer 
+		index - 写入字节的索引
+		value - 要写入的double值
+		用于写入double值的绝对put方法（可选操作）。	
+		按当前字节顺序将包含给定double值的8个字节写入给定索引处的缓冲区。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去7。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putFloat(float value):abstract ByteBuffer 
+		value - 要写入的float值
+		用于写入float值的相对put方法（可选操作）。
+		以当前字节顺序将包含给定float值的4个字节写入当前位置的缓冲区，然后将该位置增加4个字节。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中剩余的字节少于4个
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putFloat(int index, float value):abstract ByteBuffer 
+		index - 写入字节的索引
+		value - 要写入的float值
+		用于写入float值的绝对put方法（可选操作）。	
+		按当前字节顺序将包含给定float值的4个字节写入给定索引处的缓冲区。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去3。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putInt(int value):abstract ByteBuffer 
+		value - 要写入的int值
+		用于写入int值的相对put方法（可选操作）。
+		以当前字节顺序将包含给定int值的4个字节写入当前位置的缓冲区，然后将该位置增加4个字节。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中剩余的字节少于4个
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putInt(int index, int value):abstract ByteBuffer 
+		index - 写入字节的索引
+		value - 要写入的int值
+		用于写入int值的绝对put方法（可选操作）。	
+		按当前字节顺序将包含给定int值的4个字节写入给定索引处的缓冲区。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去3。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putLong(int index, long value):abstract ByteBuffer 
+		value - 要写入的int值
+		用于写入long值的相对put方法（可选操作）。
+		以当前字节顺序将包含给定long值的8个字节写入当前位置的缓冲区，然后将该位置增加8个字节。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中剩余的字节少于8个
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putLong(long value):abstract ByteBuffer 
+		index - 写入字节的索引
+		value - 要写入的long值
+		用于写入long值的绝对put方法（可选操作）。	
+		按当前字节顺序将包含给定long值的8个字节写入给定索引处的缓冲区。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去7。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putShort(int index, short value):abstract ByteBuffer 
+		value - 要写入的int值
+		用于写入short值的相对put方法（可选操作）。
+		以当前字节顺序将包含给定short值的两个字节写入当前位置的缓冲区，然后将该位置增加两个字节。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果此缓冲区中剩余的字节少于两个
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	putShort(short value):abstract ByteBuffer 
+		index - 写入字节的索引
+		value - 要写入的short值
+		用于写入short值的绝对put方法（可选操作）。	
+		按当前字节顺序将包含给定short值的两个字节写入给定索引处的缓冲区。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制，则减去1。
+			ReadOnlyBufferException 如果此缓冲区是只读的
 	slice():abstract ByteBuffer 
+		创建一个新的字节缓冲区，其内容是该缓冲区内容的共享子序列。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量和限制将是该缓冲区中剩余的字节数，其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回此缓冲器。
 	toString():String 
+		△ 返回汇总此缓冲区状态的字符串。
 	
 	
 	
@@ -228,9 +473,9 @@ Method Summary（方法概要）：
 	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
 	3、java8中nio直接缓冲区与非直接缓冲区的区别：
 		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
-		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
-		
-
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。		
+	4、BIG_ENDIAN 与 LITTLE_ENDIAN
+		BIG_ENDIAN是指低地址存放最高有效字节（MSB），	而LITTLE_ENDIAN则是低地址存放最低有效字节（LSB）。 谈到字节序的问题，必然牵涉到两大CPU派系。那就是Motorola的PowerPC系列CPU和Intel的x86系列CPU。PowerPC系列采用BIG_ENDIAN方式存储数据，而x86系列则采用LITTLE_ENDIAN方式存储数据。
 
 
 

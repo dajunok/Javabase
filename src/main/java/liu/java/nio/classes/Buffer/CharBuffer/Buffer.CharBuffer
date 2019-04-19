@@ -1,0 +1,314 @@
+----------------------------------------CharBuffer--------------------------------------------------------------------------------------------------------------
+CharBuffer：字符缓冲器	【Since:JDK1.4】
+	此类定义了对字符缓冲区的四类操作：
+		● 读写单个字符的绝对和相对的get和put方法；
+		● 相对批量get方法，将连续的字符序列从此缓冲区传输到数组中；以及
+		● 将连续字符序列从char数组、字符串或其他char缓冲区传输到此缓冲区的相对大容量put方法；以及
+		● 压缩（compacting）、复制（duplicating）和切片（slicing）字符缓冲区的方法。
+	可以通过allocation创建char缓冲区，allocation为缓冲区的内容分配空间，将现有的char数组或字符串包装到缓冲区中，或者创建现有字节缓冲区的视图。
+	像字节缓冲区一样，char缓冲区可以是直接缓冲区，也可以是非直接缓冲区。通过此类的wrap方法创建的char缓冲区将是非直接的。创建为字节缓冲区视图的char缓冲区在字节缓冲区本身是直接缓冲区的情况下是直接缓冲区。char缓冲区是否是直接缓冲区可以通过调用isDirect方法来确定。
+	此类实现了CharSequence接口，因此可以在接受字符序列的任何位置使用字符缓冲区，例如在正则表达式包java.util.regex中。
+	此类中没有要返回的值的方法被指定为返回调用它们的缓冲区。这允许将方法调用链接起来。语句的顺序：
+		 cb.put("text/");
+		 cb.put(subtype);
+		 cb.put("; charset=");
+		 cb.put(enc);	
+	例如，可以用单个语句替换：
+		cb.put("text/").put(subtype).put("; charset=").put(enc);
+	
+	
+	
+	
+	
+	
+	
+	类定义	：public abstract class CharBuffer extends Buffer implements Comparable<CharBuffer>, Appendable, CharSequence, Readable
+	实现接口	：Comparable<CharBuffer>, Appendable, CharSequence, Readable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	allocate(int capacity):static CharBuffer 
+		capacity - 新缓冲区容量（字符）。
+		分配新的字符缓冲区。
+		新缓冲区的位置（position）将为零，其限制（limit）将等于其容量，其标记（mark）将未定义，并且其每个元素都将初始化为零。它将有一个支持数组，其数组偏移量将为零。
+		返回新的字符缓冲器。
+		【Throws】：
+			IllegalArgumentException 如果容量为负整数。
+	wrap(char[] array):static CharBuffer 
+		array - 缓冲区的支持数组。
+		将字符组包装到缓冲区中。
+		新的缓冲区将由给定的字符数组支持；也就是说，对缓冲区的修改将导致数组被修改，反之亦然。新缓冲区的容量（capacity ）和限制（limit）将等于array.length，其位置（position）将为零，其标记（mark）将未定义。它的支持数组将是给定的数组，其数组偏移量>0。
+		返回新的字符缓冲器。
+	wrap(char[] array,int offset, int length):static CharBuffer 
+		array - 新缓冲区的支持数组
+		offset - 要使用的子数组的偏移量;必须是非负的，且不大于array.length。新缓冲区的位置将设置为这个值。
+		length - 要使用的子数组的长度；必须为非负且不大于array.length-offset。新缓冲区的限制将设置为偏移量 + 长度。
+		将字符数组封装到缓冲区中。
+		新的缓冲区将由给定的字符数组支持;也就是说，对缓冲区的修改将导致数组被修改，反之亦然。新缓冲区的容量（capacity ）将是array.length，其位置（position）将是offset，其限制（limit ）将是offset+length，其标记（mark）将未定义。它的支持数组将是给定的数组，它的数组偏移量为零。
+		返回新的字符缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException  如果offset和length参数上的前提条件不成立。
+	wrap(CharSequence csq):static CharBuffer 
+		csq - 从中创建新字符缓冲区的字符序列
+		将字符序列包装到缓冲区中。
+		新的只读缓冲区的内容将是给定字符序列的内容。新缓冲区的容量（capacity）和限制（limit）将为csq.length()，其位置（position）将为零，其标记（mark）将未定义。
+		返回新的字符缓冲器。
+	wrap(CharSequence csq, int start, int end):static CharBuffer 
+		csq - 从中创建新字符缓冲区的字符序列
+		start - 要使用的第一个字符的索引；必须为非负且不大于csq.length()。新缓冲区的位置将设置为此值。
+		end - 要使用的最后一个字符后面的字符的索引；不能小于start，也不能大于csq.length()。新缓冲区的限制将设置为此值。	
+		将字符序列包装到缓冲区中。
+		新的只读缓冲区的内容将是给定字符序列的内容。缓冲区的容量将为csq.length()，其位置是start，其限制是end，其标记将未定义。
+		返回新的字符缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException  如果offset和length参数上的前提条件不成立。	
+	append(char c):CharBuffer 
+		c - 要追加的16位字符
+		将指定的字符追加到此缓冲区（可选操作）。
+		对dst.append(c)形式的此方法的调用与下面调用的行为完全相同
+			 dst.put(c) 
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	append(CharSequence csq):CharBuffer 
+		csq - 要追加的字符序列。如果csq为空，则将四个字符“null”追加到此字符缓冲区。
+		将指定的字符序列附加到此缓冲区（可选操作）。
+		对dst.append(csq)形式的此方法的调用与下面调用的行为完全相同。
+			dst.put(csq.toString()) 
+		根据字符序列csq的toString规范，不能追加整个序列。例如，调用字符缓冲区的toString方法将返回一个子序列，其内容取决于缓冲区的位置和限制。
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	append(CharSequence csq, int start, int end):CharBuffer 
+		csq - 要追加的字符序列。如果csq为空，那么将追加字符，就像csq包含四个字符“null”。
+		start - 子序列中第一个字符的索引
+		end - 子序列中最后一个字符后面的字符的索引
+		将指定字符序列的子序列追加到此缓冲区（可选操作）。
+		当csq不为空时，对dst.append(csq，start，end)形式的此方法的调用与下面调用的行为完全相同。
+			 dst.put(csq.subSequence(start, end).toString()) 
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			IndexOutOfBoundsException 如果start或end为负，则start大于end，或者end大于csq.length()。
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	array():final char[] 
+		△  返回此缓冲区支持的字符数组（可选操作）。
+		 对该缓冲区内容的修改将导致返回的数组内容被修改，反之亦然。
+		 在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		 【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
+			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
+	arrayOffset():final int 
+		△ 返回缓冲区第一个元素（可选操作）的缓冲区的支持数组中的偏移量。
+		如果此缓冲区由数组支持，则缓冲区位置p对应于数组索引p+arrayOffset()。
+		在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
+			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
+	asReadOnlyBuffer():abstract CharBuffer
+		创建共享此缓冲区内容的新只读字符缓冲区。
+		新缓冲区的内容就是这个缓冲区的内容。对该缓冲区内容的更改将在新缓冲区中可见；但是，新缓冲区本身将是只读的，不允许修改共享内容。两个缓冲器的位置、限值和标记值是独立的。
+		新缓冲区的容量、限制、位置和标记值将与此缓冲区的相同。
+		如果此缓冲区本身是只读的，则此方法的行为方式与复制方法完全相同。
+		返回新的只读缓冲器。
+	charAt(int index):final char 
+		index - 要读取的字符相对于位置的索引；必须为非负且小于remaining()。
+		读取相对于当前位置的给定索引处的字符。
+		返回position() + index处的字符
+		【Throws】：
+			IndexOutOfBoundsException 如果索引上的前提条件不成立。
+	chars():IntStream 
+		返回从该序列扩展char值的IntStream流。映射到代理代码点的任何字符都将通过uninterpreted传递。
+		如果序列在读取流时发生变异，则结果未定义。
+	compact():abstract CharBuffer 
+		压缩此缓冲区（可选操作）。
+		缓冲区的当前位置与其限制（如果有）之间的字符将被复制到缓冲区的开头。也就是说，在索引p=position()处的字节被复制到索引0处，在索引p+1处的字节被复制到索引1处，依此类推，直到在索引limit()-1处的字符被复制到索引n=limit()-1-p处为止。然后缓冲区的位置被设置为n+1，其限制被设置为其容量。如果定义了该标记，则该标记将被丢弃。
+		缓冲区的位置被设置为复制的字符数，而不是设置为零，这样，对该方法的调用之后，可以立即调用另一个相对的put方法。
+		返回此缓冲器。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区为只读
+	compareTo(CharBuffer that):int 
+		that - 要比较的对象。
+		△ 将此缓冲区与另一个缓冲区进行比较。
+		比较两个char缓冲区，方法是将它们的剩余元素序列按字典顺序进行比较，而不考虑每个序列在其相应缓冲区中的起始位置。像调用Character.compare(char,char)一样，对char元素进行比较。
+		字符缓冲区与任何其他类型的对象都不可比较。
+		返回负整数、零或正整数，因为此缓冲区小于、等于或大于给定缓冲区。
+	duplicate():abstract CharBuffer 
+		创建共享此缓冲区内容的新字符缓冲区。
+		新缓冲区的内容就是这个缓冲区的内容。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的容量、限制、位置和标记值将与此缓冲区的相同。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的字符缓冲器。
+	equals(Object ob):boolean 
+		ob - 要与此缓冲区进行比较的对象。
+		△ 指示此缓冲区是否等于另一个对象。
+		如果且仅当
+			1、它们具有相同的元素类型，
+			2、它们具有相同数量的剩余元素，以及
+			3、其余两个元素的序列，独立于它们的起始位置，是点相等的。
+		字符缓冲区不等于任何其他类型的对象。
+		如果且仅当此缓冲区等于给定对象时返回true。
+	get():abstract char 
+		相对get方法。读取缓冲区当前位置的字符，然后增加该位置。
+		返回缓冲区当前位置的字符。
+		【Throws】：
+			BufferUnderflowException 如果缓冲器的当前位置不小于其限制值。
+	get(char[] dst):CharBuffer 
+		dst - 目标数组
+		相对批量get方法。
+		此方法将字符从该缓冲区传输到给定的目标数组。对src.get(a)形式的此方法的调用与下面调用的行为完全相同：
+			 src.get(a, 0, a.length) 
+		返回此缓冲器。
+		【Throws】：
+			BufferUnderflowException 如果此缓冲区中剩余的字符少于length。
+	get(char[] dst, int offset, int length):CharBuffer 
+		dst - 要写入字符的数组
+		offset - 要写入的第一个字符数组中的偏移量；必须为非负且不大于dst.length。
+		length - 要写入给定数组的最大字符数量；必须为非负且不大于dst.length-offset。
+		相对批量get方法。
+		此方法将字符从该缓冲区传输到给定的目标数组。如果缓冲区中剩余的字符数少于满足请求所需的字符数，即，如果length>remaining()，则不会传输任何字符，并引发BufferUnderflowException异常。
+		否则，此方法会将此缓冲区中的length字节复制到给定的数组中，从该缓冲区的当前位置开始，并在数组中的给定偏移量处开始。然后，这个缓冲区的位置按length递增。
+		换句话说，对src.get(dst，off，len)形式的此方法的调用与下面循环具有完全相同的效果：
+		     for (int i = off; i < off + len; i++)
+		         dst[i] = src.get():
+		除了它首先检查缓冲区中是否有足够的字符，而且它的效率可能更高。
+		返回此缓冲器。
+		【Throws】：
+			BufferUnderflowException  如果此缓冲区中剩余的字符少于length。
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
+	get(int index):abstract char 
+		index - 从中读取字符的索引
+		绝对get方法。读取给定索引处的字符。
+		【Throws】：
+			IndexOutOfBoundsException 如果索引为负或不小于缓冲区的限制。
+	hasArray():final boolean 
+		指示此缓冲区是否由可访问的char数组支持。
+		如果此方法返回true，则可以安全地调用数组和arrayOffset方法。
+		如果且仅当此缓冲区由数组支持且不是只读时返回true。
+	hashCode():int
+		 返回此缓冲区的当前哈希代码。
+		 char缓冲区的散列代码只依赖于其剩余的元素；也就是说，取决于从position()到limit()-1的元素（包括元素）。
+		 由于缓冲区哈希代码依赖于内容，因此不建议将缓冲区用作哈希图或类似数据结构中的键，除非知道缓冲区的内容不会更改。
+	isDirect():abstract boolean 
+		△ 指示此字符缓冲区是否为直接缓冲区。
+		如果且仅当此缓冲区是直接缓冲区，则返回true。
+	length():final int
+		返回此字符缓冲区的长度。 
+		当作为字符序列查看时，字符缓冲区的长度只是position (inclusive)和 limit (exclusive)之间的字符数；也就是说，它相当于 limit (exclusive)。
+	order():abstract ByteOrder 
+		检索此缓冲区的字节顺序。
+		通过分配或包装现有char数组创建的char缓冲区的字节顺序是底层硬件的本机顺序。创建为字节缓冲区视图的char缓冲区的字节顺序是创建视图时字节缓冲区的字节顺序。
+		返回此缓冲区字节顺序。
+	put(char c):abstract CharBuffer 
+		c - 要写的字符
+		相对put方法（可选操作）。
+		在当前位置将给定的字符写入缓冲区，然后增加位置。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区的当前位置不小于其限制
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	put(char[] src):final CharBuffer 
+		src - 源数组
+		相对批量put方法（可选操作）。
+		此方法将给定源字符数组的全部内容传输到此缓冲区。对dst.put(a)形式的此方法的调用与下面调用的行为完全相同
+			 dst.put(a, 0, a.length) 
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	put(char[] src, int offset, int length):CharBuffer 
+		src - 从中读取字符的数组
+		offset - 要读取的第一个字节的数组内的偏移量；必须为非负且不大于array.length。
+		length - 要从给定数组中读取的字节数；必须为非负且不大于array.length-offset
+		相对批量put方法（可选操作）。
+		此方法将字符从给定的源数组传输到此缓冲区。如果要从数组中复制的字节大于此缓冲区中的剩余字符空间，即，如果length>remaining()，则不会传输任何字符，并引发BufferOverflowException异常。
+		否则，此方法将给定数组中的length字符复制到此缓冲区中，从数组中的给定偏移量（offset）开始，并在此缓冲区的当前位置开始。然后，这个缓冲区的位置按length递增。
+		换句话说，对dst.put(src, off, len)形式的此方法的调用与下面循环具有完全相同的效果
+		     for (int i = off; i < off + len; i++)
+		         dst.put(a[i]);	
+		但它首先检查缓冲区中是否有足够的空间，并且可能更高效。
+		返回此缓冲器。
+		【Throws】：
+			BufferOverflowException 如果缓冲区中没有足够的空间
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	put(int index, char c):abstract CharBuffer 
+		index - 写入字符的索引
+		c - 要写入的字符值
+		绝对put方法（可选操作）。	
+		在给定索引处将给定字节写入此缓冲区。
+		返回此缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException 如果index为负数或者不小于缓冲区的限制。
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	put(String src):final CharBuffer 
+		src - 源字符串
+		相对批量put方法（可选操作）。
+		此方法将给定源字符串的全部内容传输到此缓冲区。对dst.put(s)形式的此方法的调用与下面调用的行为完全相同
+			dst.put(s, 0, s.length()) 
+		返回此缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException 如果index为负数或者不小于缓冲区的限制。
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	put(String src, int start, int end):CharBuffer
+		src - 从中读取字符的字符串
+		start - 要读取的第一个字符的字符串中的偏移量；必须为非负且不大于string.length()。
+		end - 要读取的最后一个字符的字符串中的偏移量，加上一个；必须是非负的，并且不能大于string.length()。	
+		相对批量put方法（可选操作）。	
+		此方法将给定字符串中的字符传输到此缓冲区。如果要从字符串复制的字符数超过了此缓冲区中的剩余字符数，即，如果end-start>remaining()，则不会传输任何字符，并引发BufferOverflowException异常。
+		否则，此方法将n=end-start字符从给定的字符串复制到这个缓冲区中，从给定的开始索引开始，在这个缓冲区的当前位置开始。然后这个缓冲区的位置增加n。
+		换句话说，对dst.put(src, start, end)形式的此方法的调用与下面循环的效果完全相同
+		     for (int i = start; i < end; i++)
+		         dst.put(src.charAt(i));
+		但它首先检查缓冲区中是否有足够的空间，并且可能更高效。			
+	put(CharBuffer src):CharBuffer 
+		【Throws】：
+			BufferOverflowException	如果缓冲区中没有足够的空间
+			IndexOutOfBoundsException 如果开始和结束参数的前提条件不成立
+			ReadOnlyBufferException 如果此缓冲区是只读的
+	read(CharBuffer target):int 
+		target - 读取字符的缓冲区。
+		尝试将字符读取到指定的字符缓冲区。缓冲区按原样用作字符存储库：所做的唯一更改是put操作的结果。不执行缓冲区的翻转（flipping）或重绕（rewinding ）。
+		返回添加到缓冲区的字符数，如果此字符源在其末尾，则返回-1。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			NullPointerException 如果target为null。
+			ReadOnlyBufferException 如果目标是只读缓冲区
+	slice():abstract CharBuffer 
+		创建一个新的char缓冲区，其内容是该缓冲区内容的共享子序列。
+		新缓冲区的内容将在此缓冲区的当前位置开始。对该缓冲区内容的更改将在新缓冲区中可见，反之亦然；两个缓冲区的位置、限制和标记值将是独立的。
+		新缓冲区的位置将为零，其容量和限制将是该缓冲区中剩余的字符数，其标记将未定义。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲区，并且只有当此缓冲区是只读的时才是只读的。
+	subSequence(int start, int end):abstract CharBuffer 
+		start - 子序列中第一个字符相对于当前位置的索引；必须为非负且不大于remaining()。
+		end - 	相对于当前位置，在子序列中最后一个字符后面的字符的索引；不得小于开始字符，也不得大于remaining()。	
+		创建一个新的字符缓冲区，该缓冲区表示相对于当前位置的该缓冲区的指定子序列。
+		新的缓冲区将共享这个缓冲区的内容；也就是说，如果这个缓冲区的内容是可变的，那么对一个缓冲区的修改将导致对另一个缓冲区的修改。新缓冲区的容量将是这个缓冲区的容量，其位置将是position()+start，其限制将是position()+end。新的缓冲区将是直接缓冲区，如果并且仅当此缓冲区是直接缓冲去，并且只有当此缓冲区是只读的时才是只读的。
+		返回新的字符缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException 如果start和end的前提条件不成立
+	toString():String 
+		返回包含此缓冲区中的字符的字符串。
+		结果字符串的第一个字符将是缓冲区位置处的字符，而最后一个字符将是limit()-1索引处的字符。调用此方法不会更改缓冲区的位置。
+	
+	
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		
