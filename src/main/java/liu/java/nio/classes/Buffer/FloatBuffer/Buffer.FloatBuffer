@@ -1,0 +1,68 @@
+----------------------------------------FloatBuffer--------------------------------------------------------------------------------------------------------------
+FloatBuffer：float缓冲器	【Since:JDK1.4】
+	此类定义了对float缓冲区的四类操作：
+		● 读写单float的绝对和相对的get和put方法；
+		● 相对批量get方法，将连续的float序列从此缓冲区传输到数组中；以及
+		● 相对大容量put方法，将连续的float序列从float数组或其他float缓冲区传输到此缓冲区；以及
+		● 压缩（compacting）、复制（duplicating）和切片（slicing）Float缓冲器的方法。
+	可以通过分配（为缓冲区的内容分配空间）、将现有的double数组包装到缓冲区中或创建现有字节缓冲区的视图来创建float缓冲区。
+	与字节缓冲区类似，Double缓冲区既可以是直接缓冲区，也可以是非直接缓冲区。通过此类的wrap方法创建的float缓冲区将是非直接缓冲区。创建为字节缓冲区视图的float缓冲区在字节缓冲区本身是直接缓冲区的情况下是直接缓冲区。float缓冲区是否直接缓冲区可以通过调用isDirect方法来确定。
+	此类中没有要返回的值的方法被指定为返回调用它们的缓冲区。这允许方法调用被链接。	
+	
+	
+	
+	类定义	：public abstract class FloatBuffer extends Buffer implements Comparable<FloatBuffer>
+	实现接口	：Comparable<FloatBuffer>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	allocate(int capacity):static FloatBuffer 
+	wrap(float[] array):static FloatBuffer 
+	wrap(float[] array,int offset, int length):static FloatBuffer 
+	array():final float[] 
+	arrayOffset():final int 
+	asReadOnlyBuffer():abstract FloatBuffer 
+	compact():abstract FloatBuffer 
+	compareTo(FloatBuffer that):int 
+	duplicate():abstract FloatBuffer 
+	equals(Object ob):boolean 
+	get():abstract float 
+	get(float[] dst):FloatBuffer 
+	get(float[] dst, int offset, int length):FloatBuffer 
+	get(int index):abstract float 
+	hasArray():final boolean 
+	hashCode():int 
+	isDirect():abstract boolean 
+	order():abstract ByteOrder 
+	put(float f):abstract FloatBuffer 
+	put(float[] src):final FloatBuffer 
+	put(float[] src, int offset, int length):FloatBuffer 
+	put(int index, float f):abstract FloatBuffer 
+	put(FloatBuffer src):FloatBuffer 
+	slice():abstract FloatBuffer 
+	toString():String 
+	
+	
+	
+	
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

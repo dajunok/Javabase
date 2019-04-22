@@ -1,0 +1,97 @@
+----------------------------------------DoubleBuffer--------------------------------------------------------------------------------------------------------------
+DoubleBuffer：double缓冲器	【Since:JDK1.4】
+	此类定义了对Double缓冲区的四类操作：
+		● 读写单double的绝对和相对的get和put方法；
+		● 相对批量get方法，将连续的double序列从此缓冲区传输到数组中；以及
+		● 将连续的double序列从double数组或其他double缓冲区传输到此缓冲区的相对大容量put方法；以及
+		● 压缩（compacting）、复制（duplicating）和切片（slicing）Double缓冲器的方法。
+	可以通过分配（为缓冲区的内容分配空间）、将现有的double数组包装到缓冲区中或创建现有字节缓冲区的视图来创建Double缓冲区。
+	与字节缓冲区类似，Double缓冲区既可以是直接缓冲区，也可以是非直接缓冲区。通过此类的wrap方法创建的Double缓冲区将是非直接缓冲区。创建为字节缓冲区视图的double缓冲区在字节缓冲区本身是直接缓冲区的情况下是直接缓冲区。Double缓冲区是否直接缓冲区可以通过调用isDirect方法来确定。
+	此类中没有要返回的值的方法被指定为返回调用它们的缓冲区。这允许方法调用被链接。	
+	
+	
+	
+	类定义	：public abstract class FloatBuffer extends Buffer implements Comparable<FloatBuffer>
+	实现接口	：Comparable<FloatBuffer>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	allocate(int capacity):static DoubleBuffer 
+		capacity - 新缓冲区容量（double）。
+		分配新的double缓冲区。
+		新缓冲区的位置（position）将为零，其限制（limit）将等于其容量，其标记（mark）将未定义，并且其每个元素都将初始化为零。它将有一个支持数组，其数组偏移量将为零。
+		返回新的double缓冲器。
+		【Throws】：
+			IllegalArgumentException 如果容量为负整数。
+	wrap(double[] array):static DoubleBuffer 
+		array - 缓冲区的支持数组。
+		将double数组包装到缓冲区中。
+		新的缓冲区将由给定的double数组支持；也就是说，对缓冲区的修改将导致数组被修改，反之亦然。新缓冲区的容量（capacity ）和限制（limit ）将等于array.length，其位置（position）将为零，其标记（mark）将未定义。它的支持数组将是给定的数组，其数组偏移量>0。
+		返回新的double缓冲器。
+	wrap(double[] array,int offset, int length):static DoubleBuffer 
+		array - 新缓冲区的支持数组
+		offset - 要使用的子数组的偏移量;必须是非负的，且不大于array.length。新缓冲区的位置将设置为这个值。
+		length - 要使用的子数组的长度；必须为非负且不大于array.length-offset。新缓冲区的限制将设置为偏移量 + 长度。
+		将double数组封装到缓冲区中。
+		新的缓冲区将由给定的字节数组支持;也就是说，对缓冲区的修改将导致数组被修改，反之亦然。新缓冲区的容量（capacity ）将是array.length，其位置（position）将是offset，其限制（limit ）将是offset+length，其标记（mark）将未定义。它的支持数组将是给定的数组，它的数组偏移量为零。
+		返回新的double缓冲器。
+		【Throws】：
+			IndexOutOfBoundsException  如果offset和length参数上的前提条件不成立。
+	array():final double[] 
+		△  返回此缓冲区支持的double数组（可选操作）。
+		 对该缓冲区内容的修改将导致返回的数组内容被修改，反之亦然。
+		 在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		 【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
+			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
+	arrayOffset():final int 
+		△ 返回缓冲区第一个元素（可选操作）的缓冲区的支持数组中的偏移量。
+		如果此缓冲区由数组支持，则缓冲区位置p对应于数组索引p+arrayOffset()。
+		在调用此方法之前调用hasArray方法，以确保此缓冲区具有可访问的支持数组。
+		【Throws】：
+			ReadOnlyBufferException 如果此缓冲区由数组支持，但为只读
+			UnsupportedOperationException 如果此缓冲区没有可访问的数组支持。
+	asReadOnlyBuffer():abstract DoubleBuffer 
+	compact():abstract DoubleBuffer 
+	compareTo(DoubleBuffer that):int 
+	duplicate():abstract DoubleBuffer 
+	equals(Object ob):boolean 
+	get():abstract double 
+	get(double[] dst):DoubleBuffer 
+	get(double[] dst, int offset, int length):DoubleBuffer 
+	get(int index):abstract double 
+	hasArray():final boolean 
+	hashCode():int 
+	isDirect():abstract boolean 
+	order():abstract ByteOrder 
+	put(double d):abstract DoubleBuffer 
+	put(double[] src):final DoubleBuffer 
+	put(double[] src, int offset, int length):DoubleBuffer 
+	put(int index, double d):abstract DoubleBuffer 
+	put(DoubleBuffer src):DoubleBuffer 
+	slice():abstract DoubleBuffer 
+	toString():String 
+	
+	
+	
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		
