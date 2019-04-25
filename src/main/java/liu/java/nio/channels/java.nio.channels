@@ -1,0 +1,157 @@
+------------------------------------------Package java.nio.channels--------------------------------------------------------------------------------------------------------------
+											【Since 1.4】
+Package Description（包描述说明）：
+	定义通道，该通道表示与能够执行I/O操作（如文件和套接字）的实体的连接；为多路复用、非阻塞I/O操作定义选择器。
+		——————————————————————————————————————————————————————————————————————————————————————————
+		Channels							Description
+		——————————————————————————————————————————————————————————————————————————————————————————
+		Channel								I/O操作的连接
+		  ReadableByteChannel				可以读取到缓冲区中
+		    ScatteringByteChannel  			可以读取到缓冲区序列中
+		  WritableByteChannel				可以从缓冲区写入
+		    GatheringByteChannel			无法从缓冲区序列写入
+		  ByteChannel						可以读/写缓冲区
+		    SeekableByteChannel				连接到包含可变长度字节序列的实体的字节通道。
+		  AsynchronousChannel				支持异步I/O操作。
+		    AsynchronousByteChannel			可以异步读写字节
+		  NetworkChannel					网络插座的通道
+		    MulticastChannel				可以加入Internet协议（IP）多播组
+		Channels							通道/流互操作的实用方法
+		——————————————————————————————————————————————————————————————————————————————————————————
+	通道表示与一个实体（如硬件设备、文件、网络套接字或程序组件）的开放连接，该实体能够执行一个或多个不同的I/O操作，例如读取或写入。正如在Channel接口中指定的那样，通道要么是打开的，要么是关闭的，并且它们都是异步关闭的和可中断的。
+	Channel接口由其他几个接口扩展。
+	ReadableByteChannel接口指定一种读取方法，该方法将字节从通道读取到缓冲区；同样，WritableByteChannel接口指定一种写入方法，该方法将字节从缓冲区写入通道。ByteChannel接口将这两个接口统一起来，用于可以读写字节的通道的常见情况。SeekableByteChannel接口通过查询和修改通道当前位置及其大小的方法扩展了ByteChannel接口。
+	ScatteringByteChannel接口和GatheringByteChannel接口分别扩展于ReadableByteChannel和WritableByteChannel接口，添加采用一系列缓冲区而不是单个缓冲区的读写方法。
+	NetworkChannel接口指定绑定通道套接字的方法、获取套接字绑定到的地址以及获取和设置套接字选项的方法。多播通道接口指定加入Internet协议（IP）多播组的方法。
+	Channels实用程序类定义静态方法，支持java.io包的流类与该包的通道类的互操作。可以从输入流或输出流构造适当的通道，反之，可以从通道构造InputStream或OutputStream。可以构造使用给定字符集对给定可读字节通道中的字节进行解码的Reader，也可以构造使用给定字符集将字符编码为字节并将其写入给定可写字节通道的写入器（Writer）。
+		——————————————————————————————————————————————————————————————————————————————————————————
+			File channels				Description
+		——————————————————————————————————————————————————————————————————————————————————————————
+			FileChannel					读取、写入、映射和操作文件
+			FileLock					文件（区域）上的锁
+			MappedByteBuffer  			映射到文件区域的直接字节缓冲区。
+		——————————————————————————————————————————————————————————————————————————————————————————		
+	FileChannel类支持从连接到文件的通道读取字节和向其写入字节的常规操作，以及查询和修改当前文件位置并将文件截断到特定大小的操作。它定义了获取整个文件或文件特定区域的锁的方法；这些方法返回FileLock类的实例。最后，它定义了强制将文件更新写入包含该文件的存储设备的方法，以有效地在文件和其他通道之间传输字节，并将文件的一个区域直接映射到内存中。	
+	FileChannel是通过调用它的一个静态open方法创建的，或者通过调用FileInputStream、FileOutputStream或RandomAccessFile的getChannel方法来返回与java.io类连接到相同底层文件的文件通道。	
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			Multiplexed, non-blocking I/O（多路、非阻塞I/O）							Description
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			SelectableChannel											可以多路复用的信道
+			  DatagramChannel											到面向数据报的套接字的通道
+			  Pipe.SinkChannel											管道的写入端
+			  Pipe.SourceChannel										管道的读取端
+			  ServerSocketChannel  										指向面向流的侦听套接字的通道
+			  SocketChannel												面向流的连接套接字的通道
+			Selector													可选通道的多路复用器
+			SelectionKey												表示用选择器注册通道的令牌
+			Pipe														形成单向管道的两个通道
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+	选择器（selector）、可选通道（selectable channels）和选择键（selection keys）提供多路、非阻塞I/O，比面向线程、阻塞I/O更具可扩展性。	
+	选择器（selector）是可选通道的多路复用器，而可选通道又是一种特殊类型的信道，可以进入非阻塞模式。要执行多路I/O操作，首先创建一个或多个可选通道，将其置于非阻塞模式，并向选择器注册。注册一个通道指定一组I/O操作，选择器将测试这些操作是否就绪，并返回一个表示注册的选择键。
+	一旦某些通道已向选择器注册，就可以执行选择操作，以发现哪些通道（如果有的话）已准备好执行一个或多个先前声明感兴趣的操作。如果某个通道已就绪，则在注册时返回的键将添加到选择器的选定键集。可以检查键集及其内部的键，以确定每个通道准备就绪的操作。从每个键可以检索相应的通道，以便执行所需的任何I/O操作。	
+	选择键指示其通道已准备好执行某些操作，这是一个提示，但不能保证线程可以执行此类操作而不会导致线程阻塞。必须编写执行多路I/O的代码，以便在证明这些提示不正确时忽略它们。
+	此包定义与java.net包中定义的DatagramSocket、ServerSocket和Socket类相对应的可选通道类。为了支持与通道相关联的套接字（Socket），对这些类进行了细微的更改。这个包还定义了一个实现单向管道的简单类。在所有情况下，通过调用相应类的静态open方法来创建一个新的可选通道。如果一个通道需要一个关联的套接字，那么将创建一个套接字作为此操作的副作用。
+	选择器、可选通道和选择键的实现可以替换为“插入”java.nio.channels.spi包中定义的SelectorProvider类的替代定义或实例。不指望许多开发人员会真正使用这种功能；它的提供主要是为了让高级用户在需要非常高的性能时能够利用操作系统特定的I/O多路复用机制。
+	实现多路I/O抽象所需的大部分记录和同步是由java.nio.channels.spi包中的AbstractInterruptibleChannel、AbstractSelectableChannel、AbstractSelectionKey和AbstractSelector类执行的。定义自定义选择器提供程序时，只有AbstractSelector和AbstractSelectionKey类应直接子类化；自定义通道类应扩展在此包中定义的适当的SelectableChannel子类。
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			Asynchronous I/O（异步I/O）						Description
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			AsynchronousFileChannel						用于读取、写入和操作文件的异步通道
+			AsynchronousSocketChannel					到面向流的连接套接字的异步通道
+			AsynchronousServerSocketChannel  			到面向流的侦听套接字的异步通道
+			CompletionHandler							使用异步操作结果的处理器
+			AsynchronousChannelGroup					用于资源共享的一组异步通道
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+	异步通道是一种特殊类型的通道，能够进行异步I/O操作。异步通道是非阻塞的，并定义启动异步操作的方法，返回表示每个操作的挂起结果的Future。Future可以用来轮询或等待操作的结果。异步I/O操作还可以指定操作完成时要调用的CompletionHandler。完成处理器是用户提供的代码，用于使用I/O操作的结果。
+	此包定义异步通道类，这些类连接到面向流的连接或侦听套接字（socket）或面向数据报的套接字（socket）。它还定义AsynchronousFileChannel类，用于异步读取、写入和操作文件。与FileChannel一样，它支持将文件截断到特定大小、强制将文件更新写入存储设备或获取整个文件或文件特定区域的锁的操作。与FileChannel不同，它不定义将文件区域直接映射到内存中的方法。如果需要内存映射I/O，则可以使用文件通道。
+	为了共享资源，异步通道被绑定到异步通道组。一个组有一个关联的ExecutorService，向其提交任务以处理I/O事件，并将任务分派到使用对组中通道执行的异步操作结果的完成处理器。可以在创建通道时指定组，也可以将通道绑定到默认组。成熟的用户可能希望创建自己的异步通道组，或者配置将用于默认组的ExecutorService。
+	与选择器（selector）一样，异步通道的实现可以替换为“插入”java.nio.channels.spi包中定义的异步通道提供程序类的替代定义或实例。预计许多开发人员不会真正使用此功能；它的提供主要是为了让成熟的用户在需要非常高的性能时能够利用操作系统特定的异步I/O机制。
+	
+	除非另有说明，否则将null参数传递给此包中任何类或接口中的构造函数或方法将导致引发NullPointerException异常。
+	
+Interface Summary（接口概要）
+	AsynchronousByteChannel
+	AsynchronousChannel
+	ByteChannel
+	Channel
+	CompletionHandler
+	GatheringByteChannel
+	InterruptibleChannel
+	MulticastChannel
+	NetworkChannel
+	ReadableByteChannel
+	ScatteringByteChannel
+	SeekableByteChannel
+	WritableByteChannel
+	
+	
+Class Summary(类概要)
+	AsynchronousChannelGroup
+	AsynchronousFileChannel
+	AsynchronousServerSocketChannel
+	AsynchronousSocketChannel
+	Channels
+	DatagramChannel
+	FileChannel
+	FileChannel.MapMode
+	FileLock
+	MembershipKey
+	Pipe
+	Pipe.SinkChannel
+	Pipe.SourceChannel
+	SelectableChannel
+	SelectionKey
+	Selector
+	ServerSocketChannel
+	SocketChannel
+	
+	
+Exceptions Summary（异常概要）
+	AcceptPendingException
+	AlreadyBoundException
+	AlreadyConnectedException
+	AsynchronousCloseException
+	CancelledKeyException
+	ClosedByInterruptException
+	ClosedChannelException
+	ClosedSelectorException
+	ConnectionPendingException
+	FileLockInterruptionException
+	IllegalBlockingModeException
+	IllegalChannelGroupException
+	IllegalSelectorException
+	InterruptedByTimeoutException
+	NoConnectionPendingException
+	NonReadableChannelException
+	NonWritableChannelException
+	NotYetBoundException
+	NotYetConnectedException
+	OverlappingFileLockException
+	ReadPendingException
+	ShutdownChannelGroupException
+	UnresolvedAddressException
+	UnsupportedAddressTypeException
+	WritePendingException	
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、I/O多路复用：阻塞式I/O和I/O复用，两个阶段都阻塞，那区别在哪里呢？就在于第三节讲述的Selector，虽然第一阶段都是阻塞，但是阻塞式I/O如果要接收更多的连接，就必须创建更多的线程。I/O复用模式下在第一个阶段大量的连接统统都可以过来直接注册到Selector复用器上面，同时只要单个或者少量的线程来循环处理这些连接事件就可以了，一旦达到“就绪”的条件，就可以立即执行真正的I/O操作。这就是I/O复用与传统的阻塞式I/O最大的不同。也正是I/O复用的精髓所在。
+	        当服务程序需要承载大量TCP链接的时候，比如我们的消息推送系统，IM通讯，web聊天等等，在我们已经理解Selector原理的情况下，知道使用I/O复用可以用少量的线程处理大量的链接。I/O多路复用技术以事件驱动编程为基础。它运行在单一进程上下文中，因此每个逻辑流都能访问该进程的全部地址空间，这样在流之间共享数据变得很容易。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

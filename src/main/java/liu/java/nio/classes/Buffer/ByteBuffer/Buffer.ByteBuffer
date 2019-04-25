@@ -161,7 +161,7 @@ Method Summary（方法概要）：
 		相对get方法。读取缓冲区当前位置的字节，然后增加该位置。
 		返回缓冲区当前位置的字节。
 		【Throws】：
-			BufferUnderflowException 如果缓冲器的当前位置不小于其限值。
+			BufferUnderflowException 如果缓冲器的当前位置不小于其极限值。
 	get(byte[] dst):ByteBuffer 
 		dst - 目标数组
 		相对批量get方法。
