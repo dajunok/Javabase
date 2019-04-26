@@ -1,0 +1,73 @@
+-----------------------------------------MulticastChannel-----------------------------------------------------------------------------------------------------------------------------		
+MulticastChannel：多播通道 【Since:1.7】
+	支持Internet协议（IP）多播的网络通道。
+	IP多播是将IP数据报传输到由单个目标地址标识的零个或多个主机组的成员。
+	对于到IPv4套接字的通道，底层操作系统支持RFC2236:Internet组管理协议，版本2（IGMPv2）。它可以选择支持由RFC3376:Internet组管理协议第3版（IGMPv3）指定的源过滤。对于到IPv6套接字的通道，等效标准是RFC 2710:IPv6的多播侦听器发现（MLD）和RFC 3810:IPv6的多播侦听器发现版本2（MLDV2）。
+	join(InetAddress,NetworkInterface)方法用于加入一个组并接收发送到该组的所有多播数据报。一个通道可以加入几个多播组，也可以在几个接口上加入同一个组。通过对返回的MembershipKey调用drop方法来除去成员资格。如果底层平台支持源过滤，那么可以使用block和unblock方法阻止或取消阻止来自特定源地址的多播数据报。
+	join(InetAddress,NetworkInterface,InetAddress)方法用于开始接收发送到其源地址与给定源地址匹配的组的数据报。如果底层平台不支持源筛选，则此方法将引发UnsupportedOperationException异常。成员资格是累积的，可以使用相同的组和接口再次调用此方法，以允许从其他源地址接收数据报。方法返回一个MembershipKey，它表示从给定源地址接收数据报的成员资格。调用键的drop方法会删除成员资格，因此无法再从源地址接收数据报。
+	
+	Platform dependencies(平台依赖)：
+		多播实现旨在直接映射到本地多播设备。因此，在开发接收IP多播数据报的应用程序时，应考虑以下各项：
+			1、通道的创建应该指定对应于通道将加入的多播组的地址类型的协议族。当多播组的地址对应于另一个协议系列时，无法保证到一个协议系列中套接字的通道可以加入和接收多播数据报。例如，如果到ipv6套接字的通道可以加入ipv4多播组并接收发送到该组的多播数据报，则这是特定于实现的。
+			2、通道的套接字应绑定到通配符地址。如果套接字绑定到一个特定的地址，而不是通配符地址，那么如果套接字接收到多播数据报，那么它是特定于实现的。
+			3、在绑定套接字之前，应启用SO_REUSEADDR选项。这是允许组中多个成员绑定到同一地址所必需的。
+		
+		使用案例：
+		     // join multicast group on this interface, and also use this
+		     // interface for outgoing multicast datagrams
+		     NetworkInterface ni = NetworkInterface.getByName("hme0");
+		
+		     DatagramChannel dc = DatagramChannel.open(StandardProtocolFamily.INET)
+		         .setOption(StandardSocketOptions.SO_REUSEADDR, true)
+		         .bind(new InetSocketAddress(5000))
+		         .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
+		
+		     InetAddress group = InetAddress.getByName("225.4.5.6");
+		
+		     MembershipKey key = dc.join(group, ni);			
+	
+	
+
+	接口定义	：public interface MulticastChannel extends NetworkChannel
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	close():void 
+		关闭此通道。
+		如果通道是多播组的成员，则会删除成员资格。返回时，成员资格密钥将无效。
+		否则，此方法的行为与Channel接口指定的行为完全相同。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	join(InetAddress group, NetworkInterface interf):MembershipKey 
+		group - 要加入的多播地址
+		interf - 要加入组的网络接口
+		加入多播组以开始接收发送到该组的所有数据报，并返回成员资格密钥（key）。
+		如果此通道当前是给定接口上接收所有数据报的组的成员，则返回表示该成员身份的成员身份密钥。否则，此通道将加入组，并返回生成的新成员身份密钥。生成的成员资格密钥不是特定于源的。
+		多播通道可以加入多个多播组，包括多个接口上的同一组。一个实现可以对可以同时加入的组的数量施加限制。
+		返回成员身份密钥。
+		【Throws】：
+			IllegalArgumentException 如果group参数不是多播地址，或者group参数是此通道不支持的地址类型。
+			IllegalStateException 如果通道在接口上已经具有特定于源的组成员身份。
+			UnsupportedOperationException 如果通道的套接字不是Internet协议套接字
+			ClosedChannelException 如果该通道关闭
+			IOException  如果发生I/O错误。
+			SecurityException 如果设置了安全管理器，并且其checkMulticast方法拒绝访问多播组。
+	join(InetAddress group, NetworkInterface interf, InetAddress source):MembershipKey 
+		group - 要加入的多播地址
+		interf - 要加入组的网络接口
+		source - 源地址
+		加入多播组以开始接收从给定源地址发送到组的数据报。
+		如果此通道当前是给定接口上要从给定源地址接收数据报的组的成员，则返回表示该成员身份的成员身份密钥。否则，此通道将加入组，并返回生成的新成员身份密钥。生成的成员密钥是特定于源的。
+		成员身份是累积的，可以使用相同的组和接口再次调用此方法，以允许接收由其他源地址发送到组的数据报。
+		返回成员身份密钥。
+		【Throws】：
+			IllegalArgumentException 如果group参数不是多播地址，source参数不是单播地址，group参数是此通道不支持的地址类型，或者source参数与group的地址类型不同。
+			IllegalStateException 如果通道当前是给定接口上接收所有数据报的组的成员。
+			UnsupportedOperationException 如果通道的套接字不是Internet协议套接字
+			ClosedChannelException 如果该通道关闭
+			IOException  如果发生I/O错误。
+			SecurityException 如果设置了安全管理器，并且其checkMulticast方法拒绝访问多播组。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+		

@@ -1,0 +1,61 @@
+-----------------------------------------GatheringByteChannel-----------------------------------------------------------------------------------------------------------------------------		
+GatheringByteChannel：聚集字节通道 【Since:1.4】
+	可以从缓冲器序列写入字节的通道。
+	聚集写入操作在一次调用中从一个或多个给定缓冲区序列写入一个字节序列。在实现网络协议或文件格式（例如，将数据分组到由一个或多个固定长度的头段和一个可变长度的正文组成的段）时，聚集写入操作通常很有用。类似的分散读取操作在ScatteringByteChannel接口中定义。
+	
+	
+	
+	接口定义	：public interface GatheringByteChannel extends WritableByteChannel
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	write(ByteBuffer[] srcs):long 
+		srcs - 从中检索字节的缓冲区
+		从给定缓冲区向此通道写入一个字节序列。
+		这种形式的c.write(srcs)方法的调用与下面调用的方式完全相同。
+			c.write(srcs, 0, srcs.length);
+		返回写入的字节数，可能为零。
+		【Throws】：
+			NonWritableChannelException 如果没有打开此频道进行写入
+			ClosedChannelException 如果该通道关闭
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道
+			ClosedByInterruptException 如果另一个线程在写操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误
+	write(ByteBuffer[] srcs, int offset, int length):long 
+		srcs - 从中检索字节的缓冲区
+		offset - 要从中检索字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于srcs.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于srcs.length-offset。
+		从给定缓冲区的子序列向此通道写入字节序列。
+		尝试向该通道写入最多r个字节，其中r是给定缓冲区数组的指定子序列中剩余的总字节数，即，
+		 srcs[offset].remaining()
+		     + srcs[offset+1].remaining()
+		     + ... + srcs[offset+length-1].remaining()		
+		此时调用此方法。
+		假设写入长度为n的字节序列，其中0<=n<=r。该序列的第一个srcs[offset].remaining()字节从缓冲区srcs[offset]写入，下一个srcs[offset+1].remaining()字节从缓冲区srcs[offset+1]写入，以此类推，直到写入整个字节序列。从每个缓冲区写入尽可能多的字节，因此，除最后一个更新的缓冲区外，每个更新的缓冲区的最终位置都保证等于该缓冲区的限制（limit）。
+		除非另有规定，写入操作只有在写入所有r请求的字节之后才会返回。某些类型的通道，取决于它们的状态，可能只写一些字节，或者可能根本不写。例如，在非阻塞模式下，套接字通道不能写入比套接字的输出缓冲器中的空闲字节更多的字节。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个写操作，那么这个方法的调用将被阻塞，直到第一个操作完成。
+		【Throws】：
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
+			NonWritableChannelException 如果没有打开此频道进行写入。
+			ClosedChannelException 如果该通道关闭
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
