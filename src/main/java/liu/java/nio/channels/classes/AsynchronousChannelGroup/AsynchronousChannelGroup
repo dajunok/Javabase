@@ -1,0 +1,101 @@
+----------------------------------------AsynchronousChannelGroup--------------------------------------------------------------------------------------------------------------
+AsynchronousChannelGroup：异步通道组【Since:JDK1.7】
+	用于资源共享的一组异步通道。	
+	异步通道组封装了处理由绑定到组的异步通道启动的I/O操作完成所需的机制。一个组有一个关联的线程池，向该线程池提交任务以处理I/O事件并分派到使用对组中通道执行的异步操作结果的完成处理器。除了处理I/O事件外，池线程还可以执行支持异步I/O操作所需的其他任务。
+	通过调用此处定义的withFixedThreadPool或withCachedThreadPool方法创建异步通道组。通道通过在构建通道时指定组绑定到组。关联的线程池归该组所有；终止该组会导致关联的线程池关闭。
+	除了显式创建的组之外，Java虚拟机还维护自动构建的系统范围默认组。在构建时未指定组的异步通道被绑定到默认组。默认组有一个关联的线程池，可以根据需要创建新线程。可以通过下表中定义的系统属性配置默认组。如果没有配置默认组的threadFactory，则默认组的池线程是守护进程线程。
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		System property																	Description
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		java.nio.channels.DefaultThreadPool.threadFactory			此属性的值被视为具体ThreadFactory类的完全限定名。该类是使用系统类加载器加载并实例化的。调用工厂的newThread方法为默认组的线程池创建每个线程。如果加载和实例化属性值的过程失败，则在构造默认组期间会引发未指定的错误。
+		java.nio.channels.DefaultThreadPool.initialSize				默认组的initialSize参数的值（请参见withCachedThreadPool）。属性的值被视为整数的字符串表示形式，该整数是初始大小参数。如果无法将该值解析为整数，则会导致在构造默认组期间引发未指定的错误。
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	Threading(多线程处理)
+	在绑定到组的通道上启动的I/O操作的完成处理器保证由组中的一个池线程调用。这样可以确保完成处理器由具有预期标识的线程运行。
+	如果I/O操作立即完成，并且启动线程是组中的池线程之一，则启动线程可以直接调用完成处理器。为了避免堆栈溢出，实现可能会对线程堆栈上的激活次数施加限制。某些I/O操作可能会禁止启动线程直接调用完成处理器（请参见accept）。
+	Shutdown and Termination（关闭和终止）
+	shutdown方法用于启动组的有序关闭。有序关闭将组标记为关闭；进一步尝试构造绑定到组的通道将引发ShutdownChannelGroupException异常。可以使用isShutdown方法测试组是否关闭。一旦关闭，当绑定到组的所有异步通道都关闭，所有活动执行的完成处理器都运行到完成，并且释放组使用的资源时，组将终止。没有试图停止或中断正在执行完成处理器的线程。isTerminated方法用于测试组是否已终止，awaitTermination方法可用于阻塞，直到组终止。
+	shutdownNow方法可用于启动强制关闭组。除了有序关闭执行的操作之外，shutdownNow方法还通过调用close方法关闭组中所有打开的通道。
+	
+	类定义	：public abstract class AsynchronousChannelGroup
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary(构造器概要)：
+	protected AsynchronousChannelGroup(AsynchronousChannelProvider provider)
+		provider - 此组的异步通道提供器。
+		初始化此类的新实例。
+		
+
+Method Summary（方法概要）：
+	withCachedThreadPool(ExecutorService executor,int initialSize):static AsynchronousChannelGroup 
+		executor - 结果组的线程池
+		initialSize - 特定于实现的默认值：>=0或负值。
+		创建具有给定线程池的异步通道组，该线程池根据需要创建新线程。
+		executor参数是一个ExecutorService类型，它根据需要创建新的线程来执行提交的任务，以处理I/O事件，并为在组中异步通道上启动的操作分派完成结果。当先前构造的线程可用时，它可以重用它们。
+		实现可以使用initialSize参数作为提示，说明它可以提交的初始任务数。例如，它可以用来指示等待I/O事件的初始线程数。
+		执行器将专门由产生的异步通道组使用。组的终止导致执行器服务有序关闭。通过其他方式关闭执行器服务会导致不确定的行为。
+		该组是通过调用系统范围内默认AsynchronousChannelProvider对象的openAsynchronousChannelGroup(ExecutorService,int)方法创建的。
+		返回一种新的异步通道组。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	withFixedThreadPool(int nThreads,ThreadFactory threadFactory):static AsynchronousChannelGroup 
+		nThreads - 池中的线程数。
+		threadFactory - 创建新线程时要使用的工厂。
+		创建具有固定线程池的异步通道组。
+		生成的异步通道组重用固定数量的线程。在任何时候，最多nThreads个线程都是活动的可处理任务，它们被提交来处理I/O事件，并为在组中异步通道上启动的操作分派完成结果。
+		该组是通过调用系统范围内默认AsynchronousChannelProvider对象的openAsynchronousChannelGroup(int,ThreadFactory)方法创建的。
+		返回一种新的异步通道组。
+		【Throws】：
+			IllegalArgumentException 如果nThreads<= 0。
+			IOException 如果发生I/O错误。
+	withThreadPool(ExecutorService executor):static AsynchronousChannelGroup 
+		executor - 结果组的线程池。
+		创建具有给定线程池的异步通道组。
+		executor参数是一个ExecutorService类型，它执行提交给调度组中异步通道上启动的操作的完成结果的任务。
+		配置执行器服务时应该小心。它应该支持提交任务的直接移交或无限制排队，并且调用execute方法的线程不应该直接调用任务。实施可能要求附加限制。
+		执行器将专门由产生的异步通道组使用。组的终止导致执行器服务有序关闭。通过其他方式关闭执行器服务会导致不确定的行为。
+		该组是通过调用系统范围内默认AsynchronousChannelProvider对象的openAsynchronousChannelGroup(ExecutorService,int)方法创建的，初始大小为0。
+		返回一种新的异步通道组。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	awaitTermination(long timeout, TimeUnit unit):abstract boolean 
+		★ 关闭组并关闭组中所有打开的通道。
+		除了shutdown方法执行的操作之外，此方法还调用组中所有打开的通道上的close方法。此方法不会尝试停止或中断正在执行完成处理器的线程。当所有正在执行的完成处理器都已运行到完成，并且所有资源都已释放时，该组将终止。可以随时调用此方法。如果其他线程已经调用了它，那么另一个调用将被阻塞，直到第一个调用完成，之后它将返回而不起作用。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	isShutdown():abstract boolean 
+		★ 指示此异步通道组是否关闭。
+		如果此异步通道组已关闭或已标记为关闭，则返回true。
+	isTerminated():abstract boolean 
+		★ 指示此组是否已终止。
+		如果此方法返回true，则关联的线程池也已终止。
+	provider():final AsynchronousChannelProvider 
+		返回创建此通道组的提供器。		
+	shutdown():abstract void 
+		★ 启动组的有序关闭。
+		此方法将组标记为shutdown。进一步尝试构造绑定到此组的通道将引发ShutdownChannelGroupException异常。当组中的所有异步通道都关闭、所有活动执行的完成处理器都已运行到完成，并且所有资源都已释放时，组将终止。如果组已关闭，则此方法无效。
+	shutdownNow():abstract void 
+		★ 关闭组并关闭组中所有打开的通道。
+		除了shutdown方法执行的操作之外，此方法还调用组中所有打开的通道上的close方法。此方法不会尝试停止或中断正在执行完成处理器的线程。当所有正在执行的完成处理器都已运行到完成，并且所有资源都已释放时，该组将终止。可以随时调用此方法。如果其他线程已经调用了它，那么另一个调用将被阻塞，直到第一个调用完成，之后它将返回而不起作用。
+		【Throws】：
+			IOException 如果发生I/O错误。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		
