@@ -1,0 +1,228 @@
+----------------------------------------AsynchronousFileChannel--------------------------------------------------------------------------------------------------------------
+AsynchronousFileChannel：异步文件通道【Since:JDK1.7】
+	用于读取、写入和操作文件的异步通道。
+	当通过调用此类定义的open方法之一打开文件时，将创建异步文件通道。文件包含一个可变长度的字节序列，可以读写，并且可以查询当前大小。当写入的字节超过当前大小时，文件的大小将增大；当文件被截断时，文件的大小将减小。
+	异步文件通道在文件中没有当前位置。相反，文件位置被指定给启动异步操作的每个读写方法。将CompletionHandler指定为参数，并调用它来使用I/O操作的结果。这个类还定义了启动异步操作的读写方法，返回一个Future来表示操作的挂起结果。Future可以用来检查操作是否已完成，等待其完成，并检索结果。
+	除了读写操作外，这个类还定义了以下操作：
+		● 对文件进行的更新可能会强制发送到底层存储设备，以确保在系统崩溃时不会丢失数据。
+		● 文件的某个区域可能被其他程序锁定，无法访问。
+	异步文件通道与线程池相关联，向线程池提交任务以处理I/O事件，并分派到使用通道上I/O操作结果的完成处理器。在通道上启动的I/O操作的完成处理器保证由线程池中的一个线程调用（这确保完成处理器由具有预期标识的线程运行）。如果I/O操作立即完成，并且启动线程本身是线程池中的线程，那么启动线程可以直接调用完成处理器。当在不指定线程池的情况下创建AsynchronousFileChannel时，该通道将与系统相关的默认线程池相关联，该默认线程池可以与其他通道共享。默认线程池由AsynchronousChannelGroup类定义的系统属性配置。
+	这种类型的通道对于多个并发线程的使用是安全的。可以在任何时候调用close方法，如Channel接口所指定的那样。这将导致通道上所有未完成的异步操作都以异常AsynchronousCloseException完成。多个读写操作可能同时未完成。当多个读写操作未完成时，则不指定I/O操作的顺序以及调用完成处理器的顺序；特别是，它们不保证按启动操作的顺序执行。读写时使用的字节缓冲对于多个并发I/O操作来说是不安全的。此外，在启动I/O操作后，应注意确保在操作完成之前不会访问缓冲区。
+	与FileChannel一样，这个类的一个实例提供的文件视图保证与同一程序中其他实例提供的同一文件的其他视图一致。但是，由于底层操作系统执行的缓存和网络文件系统协议导致的延迟，此类实例提供的视图可能与其他同时运行的程序看到的视图一致，也可能不一致。这是真的，不管这些其他程序是用什么语言编写的，也不管它们是在同一台机器上运行还是在其他机器上运行。任何此类不一致的确切性质取决于系统，因此未作说明。
+	
+	
+	
+	类定义	：public abstract class AsynchronousFileChannel implements AsynchronousChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary(构造器概要)：
+	protected AsynchronousFileChannel()
+		初始化此类的新实例。
+		
+
+Method Summary（方法概要）：
+	open(Path file, OpenOption... options):static AsynchronousFileChannel 
+		file - 要打开或创建的文件的路径
+		ptions - 指定文件打开方式的选项
+		打开或创建用于读取和/或写入的文件，返回异步文件通道以访问该文件。
+		此方法的调用与以下调用的行为完全相同
+			ch.open(file, opts, null, new FileAttribute<?>[0]);
+		其中opts是包含为此方法指定的选项的集合。
+		生成的通道与默认线程池相关联，向该线程池提交任务以处理I/O事件，并分派到使用在生成的通道上执行的异步操作结果的完成处理器。
+		返回一个新的异步文件通道
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合
+			UnsupportedOperationException 如果文件与不支持创建文件通道的提供器关联，或者指定了不支持的打开选项
+			IOException 如果发生了I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝实现所需的未指定权限。在默认提供器的情况下，调用SecurityManager.checkRead(String)方法检查打开文件进行读取时的读取访问。调用SecurityManager.checkWrite(String)方法检查打开文件进行写入时的写入权限。
+	open(Path file,Set<? extends OpenOption> options,ExecutorService executor,FileAttribute<?>... attrs):static AsynchronousFileChannel
+		file - 要打开或创建的文件的路径
+		options - 指定文件打开方式的选项
+		executor - 线程池或null以将通道与默认线程池关联
+		attrs - 创建文件时要自动设置的文件属性的可选列表
+		打开或创建用于读取和/或写入的文件，返回异步文件通道以访问该文件。
+		options参数决定如何打开文件。READ和WRITE选项决定是否打开文件进行读和/或写。如果数组中不包含这两个选项，则会打开一个现有文件进行读取。
+		除了READ和WRITE之外，还可能存在以下选项：
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			Option						Description
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			TRUNCATE_EXISTING		打开现有文件时，文件首先被截断为0字节大小。当只打开文件进行读取时，忽略此选项。
+			CREATE_NEW				如果存在此选项，则会创建一个新文件，如果该文件已存在，则会失败。在创建文件时，对于其他文件系统操作，检查文件是否存在以及是否创建了不存在的文件是原子的。当只打开文件进行读取时，忽略此选项。
+			CREATE					如果存在此选项，则打开现有文件（如果存在），否则将创建新文件。在创建文件时，对于其他文件系统操作，检查文件是否存在以及是否创建了不存在的文件是原子的。如果还存在CREATE_NEW选项或只打开文件进行读取，则忽略此选项。
+			DELETE_ON_CLOSE			当存在此选项时，实现将尽最大努力在使用close方法关闭时删除文件。如果没有调用close方法，那么当Java虚拟机终止时，尽力做出删除文件的尝试。
+			SPARSE					创建新文件时，此选项提示新文件将是稀疏文件。不创建新文件时忽略此选项。
+			SYNC					要求对文件内容或元数据的每次更新都同步写入底层存储设备。（请参见同步I/O文件完整性）。
+			DSYNC					要求对文件内容的每个更新都同步写入底层存储设备。（请参见同步I/O文件完整性）		
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+		实现还可以支持其他选项。
+		executor参数是向其提交任务以处理I/O事件和为在生成的通道上启动的操作分配完成结果的ExecutorService。这些任务的性质是高度特定于实现的，因此在配置执行器时应该小心。它至少应该支持一个无边界的工作队列，并且不应该在execute方法的调用线程上运行任务。当通道打开时关闭执行器服务会导致不确定的行为。
+		attrs参数是一个可选的文件属性数组，用于在创建文件时自动设置。
+		新通道是通过在创建路径的提供器上调用newFileChannel方法创建的。
+		返回一个新的异步文件通道
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合
+			UnsupportedOperationException 如果文件与不支持创建文件通道的提供器关联，或者指定了不支持的打开选项，或者数组包含在创建文件时不能自动设置的属性。
+			IOException 如果发生了I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝实现所需的未指定权限。在默认提供器的情况下，调用SecurityManager.checkRead(String)方法检查打开文件进行读取时的读取访问。调用SecurityManager.checkWrite(String)方法检查打开文件进行写入时的写入权限。
+	force(boolean metaData):abstract void 
+		metaData - 如果为true，则需要此方法强制将文件内容和元数据的更改写入存储；否则，只需强制写入内容更改。
+		★ 强制将对此通道文件的任何更新写入包含该文件的存储设备。
+		如果此通道的文件驻留在本地存储设备上，那么当此方法返回时，可以确保自创建此通道以来或自上次调用此方法以来对文件所做的所有更改都已写入该设备。这对于确保关键信息在系统崩溃时不会丢失非常有用。
+		如果文件不在本地设备上，则不提供此类保证。
+		元数据参数可用于限制此方法需要执行的I/O操作数。为该参数传递false表示只需要将对文件内容的更新写入存储；传递true表示必须同时写入对文件内容和元数据的更新，这通常需要至少一个以上的I/O操作。此参数是否具有任何实际效果取决于底层操作系统，因此未指定。
+		调用此方法可能会导致发生I/O操作，即使通道仅打开进行读取。例如，一些操作系统将最后一次访问时间作为文件元数据的一部分进行维护，每次读取文件时都会更新这一时间。是否真的这样做取决于系统，因此还未明确。
+		此方法仅保证通过此类中定义的方法强制对此通道文件进行更改。
+		【Throws】：
+			ClosedChannelException 如果此通道已关闭。
+			IOException 如果发生了I/O错误。
+	lock():final Future<FileLock> 
+		获取此通道文件的独占锁定。
+		此方法启动一个操作以获取此通道文件的独占锁。该方法返回一个表示操作挂起结果的Future值。Future的get方法在成功完成时返回FileLock。
+		此方法的调用与以下调用的行为完全相同
+			ch.lock(0L, Long.MAX_VALUE, false)
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			OverlappingFileLockException 如果这个Java虚拟机已经锁定了，或者已经有锁定区域的未决尝试。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+	lock(A attachment,CompletionHandler<FileLock,? super A> handler):final <A> void 
+		<A> - 附件的类型
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 使用结果的处理器。
+		获取此通道文件的独占锁定。
+		此方法启动一个操作以获取此通道文件的给定区域的锁。handler参数是在获取锁（或操作失败）时调用的完成处理器。传递给完成处理器的结果是结果FileLock。
+		这种形式的ch.lock(att,handler)方法的调用与以下调用的行为完全相同：
+			ch.lock(0L, Long.MAX_VALUE, false, att, handler)
+		【Throws】：
+			OverlappingFileLockException 如果这个Java虚拟机已经锁定了，或者已经有锁定区域的未决尝试。
+			NonWritableChannelException 如果没有打开此通道进行写入。		
+	lock(long position, long size, boolean shared):abstract Future<FileLock> 
+		position - 锁定区域的起始位置；必须为非负
+		size - 锁定区域的大小；必须为非负，并且总和 position + size 必须为非负。
+		shared - 如果请求共享锁，则此通道必须打开以供读取（可能是写入）；如果请求独占锁，则此通道必须打开以供写入（也可能是读取）。
+		★ 获取此通道文件的给定区域的锁。
+		此方法启动一个操作以获取此通道文件的给定区域的锁。该方法的行为方式与lock(long, long, boolean, Object, CompletionHandler)方法完全相同，但该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法在成功完成时返回FileLock。
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			OverlappingFileLockException 如果这个Java虚拟机已经锁定了，或者已经有锁定区域的未决尝试。
+			IllegalArgumentException 如果参数的前提条件不成立。
+			NonReadableChannelException 如果shared为true，但未打开此通道进行读取。
+			NonWritableChannelException 如果shared为false，但未打开此通道进行写入。
+	lock(long position,long size,boolean shared,A attachment,CompletionHandler<FileLock,? super A> handler):abstract <A> void 
+		<A> - 附件的类型
+		position - 锁定区域的起始位置；必须为非负
+		size - 锁定区域的大小；必须为非负，并且总和 position + size 必须为非负。
+		shared - 如果请求共享锁，则此通道必须打开以供读取（可能是写入）；如果请求独占锁，则此通道必须打开以供写入（也可能是读取）。
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 使用结果的处理器。
+		★ 获取此通道文件的给定区域的锁。
+		此方法启动一个操作以获取此通道文件的给定区域的锁。handler参数是在获取锁（或操作失败）时调用的完成处理器。传递给完成处理器的结果是结果FileLock。
+		由position和size参数指定的区域不需要包含在实际底层文件中，甚至不需要重叠。锁定区域的大小是固定的；如果锁定区域最初包含文件的结尾，并且文件超出了该区域，则文件的新部分将不会被锁定覆盖。如果一个文件的大小预计会增加，并且需要对整个文件进行锁定，那么应该锁定一个从零开始且不小于文件预期最大大小的区域。双参数lock(Object,CompletionHandler)方法只锁定Long.MAX_VALUE区域。如果这个Java虚拟机已经保存了一个与请求区域重叠的锁，或者这个方法已经被调用来锁定一个重叠区域，并且这个操作还没有完成，那么这个方法就会抛出OverlappingFileLockException异常。
+		有些操作系统不支持以异步方式获取文件锁的机制。因此，实现可以从后台线程或关联线程池中的线程执行的任务中获取文件锁。如果有许多锁操作未完成，那么它可能会在Java虚拟机中消耗线程无限期。
+		有些操作系统不支持共享锁，在这种情况下，共享锁的请求会自动转换为独占锁的请求。新获取的锁是共享的还是独占的，可以通过调用结果锁对象的isShared方法来判断。
+		文件锁是代表整个Java虚拟机来保存的。它们不适合控制同一虚拟机中多个线程对文件的访问。
+		【Throws】：
+			OverlappingFileLockException 如果该Java虚拟机已经持有与请求区域重叠的锁，或者已经存在锁定重叠区域的未决尝试。
+			IllegalArgumentException 如果参数的前提条件不成立。
+			NonReadableChannelException 如果shared为true，但未打开此通道进行读取。
+			NonWritableChannelException 如果shared为false，但未打开此通道进行写入。
+	read(ByteBuffer dst, long position):abstract Future<Integer> 
+		dst - 要传输字节的缓冲区
+		position - 开始传输的文件位置；必须为非负
+		★ 从给定的文件位置开始，将一系列字节从这个通道读取到给定的缓冲区中。
+		此方法从给定的文件位置开始，将一系列字节从该通道读取到给定的缓冲区。此方法返回一个表示操作挂起结果的Future。Future的get方法返回读取的字节数，如果给定位置大于或等于尝试读取时文件的大小，则返回-1。
+		此方法与AsynchronousByteChannel.read(ByteBuffer)方法的工作方式相同，只是从给定的文件位置开始读取字节。如果给定的文件位置大于尝试读取时文件的大小，则不会读取任何字节。
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			IllegalArgumentException 如果位置为负或缓冲区为只读。
+			NonReadableChannelException 如果没有打开此通道进行阅读。
+	read(ByteBuffer dst,long position,A attachment,CompletionHandler<Integer,? super A> handler):abstract <A> void 
+		<A> - 附件的类型
+		dst - 要传输字节的缓冲区
+		position - 开始传输的文件位置；必须为非负
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 使用结果的处理器。
+		★ 从给定的文件位置开始，将一系列字节从这个通道读取到给定的缓冲区中。
+		此方法从给定的文件位置开始，将一系列字节从该通道读取到给定的缓冲区。读取的结果是读取的字节数，如果给定位置大于或等于尝试读取时文件的大小，则返回-1。
+		此方法与AsynchronousByteChannel.read(ByteBuffer,Object,CompletionHandler)方法的工作方式相同，只是从给定的文件位置开始读取字节。如果给定的文件位置大于尝试读取时文件的大小，则不会读取任何字节。
+		【Throws】：
+			IllegalArgumentException 如果位置为负或缓冲区为只读。
+			NonReadableChannelException 如果没有打开此通道进行阅读。		
+	size():abstract long 
+		★ 返回此通道文件的当前大小。
+		【Throws】：
+			ClosedChannelException 如果此通道已关闭。
+			IOException 如果发生其他I/O错误。
+	truncate(long size):abstract AsynchronousFileChannel 
+		size - 新的大小，非负字节计数。
+		★ 将此通道的文件截断为给定大小。
+		如果给定的大小小于文件的当前大小，则文件将被截断，丢弃超出新文件结尾的任何字节。如果给定的大小大于或等于文件的当前大小，则不会修改该文件。
+		返回此文件通道。
+		【Throws】：
+			NonWritableChannelException 如果没有打开此通道进行写入。
+			ClosedChannelException 如果此通道已关闭。
+			IllegalArgumentException 如果新大小为负数。
+			IOException 如果发生其他I/O错误。
+	tryLock():final FileLock 
+		尝试获取此通道文件的独占锁定。
+		对ch.tryLock()形式的此方法的调用与下面调用的行为完全相同：
+			ch.tryLock(0L, Long.MAX_VALUE, false) 
+		返回表示新获取的锁的锁对象，如果由于另一个程序持有重叠的锁而无法获取锁，则为null。
+		【Throws】：
+			ClosedChannelException 如果此通道已关闭。
+			OverlappingFileLockException 如果该Java虚拟机已经持有与请求区域重叠的锁，或者如果该方法中已经阻塞了另一个线程，并试图锁定重叠区域。
+			NonWritableChannelException 如果没有打开此通道进行写入。	
+			IOException 如果发生其他I/O错误。
+	tryLock(long position, long size, boolean shared):abstract FileLock 
+		position - 锁定区域的起始位置；必须为非负
+		size - 锁定区域的大小；必须为非负，并且总和 position + size 必须为非负。
+		shared - 如果请求共享锁，则为true；如果请求独占锁，则为false。
+		★ 尝试获取此通道文件的给定区域的锁。
+		此方法不阻塞。调用总是立即返回，要么是在请求的区域上获取了锁，要么是未能这样做。如果由于另一个程序持有重叠锁而未能获取锁，则返回null。如果由于任何其他原因未能获取锁，则会引发适当的异常。
+		返回表示新获取的锁的锁对象，如果由于另一个程序持有重叠的锁而无法获取锁，则返回null。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+			OverlappingFileLockException 如果这个Java虚拟机已经拥有一个与请求区域重叠的锁，或者如果另一个线程已经在这个方法中被阻塞，并试图锁定同一个文件的重叠区域。			
+			NonReadableChannelException 如果shared为true，但未打开此通道进行读取。
+			NonWritableChannelException 如果shared为false，但未打开此通道进行写入。
+			IOException 如果发生其他I/O错误。
+	write(ByteBuffer src, long position):abstract Future<Integer> 
+		src - 从中传输字节的缓冲区。
+		position - 开始传输的文件位置；必须为非负。
+		★ 从给定的缓冲区向该通道写入一个字节序列，从给定的文件位置开始。
+		这个方法从给定的缓冲区开始，从给定的文件位置开始向这个通道写入一个字节序列。该方法返回一个表示写入操作挂起结果的Future值。Future的get方法返回写入的字节数。
+		此方法与AsynchronousByteChannel.write(ByteBuffer)方法的工作方式相同，只是从给定的文件位置开始写入字节。如果给定的位置大于文件的大小，则在尝试写入时，文件将增大以适应新的字节；文件的上一个结尾和新写入的字节之间的任何字节的值未指定。
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			IllegalArgumentException 如果position为负数。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+	write(ByteBuffer src,long position,A attachment,CompletionHandler<Integer,? super A> handler):abstract <A> void 
+		<A> - 附件的类型
+		src - 从中传输字节的缓冲区。
+		position - 开始传输的文件位置；必须为非负。
+	 	attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 使用结果的处理器。
+		★ 从给定的缓冲区向该通道写入一个字节序列，从给定的文件位置开始。
+		此方法与AsynchronousByteChannel.write(ByteBuffer,Object,CompletionHandler)方法的工作方式相同，只是从给定的文件位置开始写入字节。如果给定的位置大于文件的大小，则在尝试写入时，文件将增大以适应新的字节；文件的上一个结尾和新写入的字节之间的任何字节的值未指定。
+		【Throws】：
+			IllegalArgumentException 如果position为负数。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

@@ -1,0 +1,136 @@
+----------------------------------------AsynchronousServerSocketChannel--------------------------------------------------------------------------------------------------------------
+AsynchronousServerSocketChannel：异步服务器套接字通道 【Since:JDK1.7】
+	面向流的侦听套接字的异步通道。
+	异步服务器套接字通道是通过调用此类的open方法创建的。新创建的异步服务器套接字通道已打开，但尚未绑定。它可以绑定到本地地址，并配置为通过调用bind方法来侦听连接。一旦绑定，accept方法将用于启动接受到通道套接字的连接。尝试在未绑定通道上调用accept方法将导致引发NotYetBoundException异常。
+	这种类型的通道对于多个并发线程的使用是安全的，尽管在任何时候最多有一个accept操作是未完成的。如果线程在上一个accept操作完成之前启动了一个accept操作，那么将引发一个AcceptPendingException异常。
+	套接字选项是使用setOption方法配置的。此类型的通道支持以下选项：
+	——————————————————————————————————————————————————————————————
+	 Option Name			Description
+	——————————————————————————————————————————————————————————————
+	 SO_RCVBUF				套接字接收缓冲区的大小
+	 SO_REUSEADDR			再使用地址
+	——————————————————————————————————————————————————————————————
+	还可以支持其他（特定于实现的）选项。
+	
+	用法案例：
+		  final AsynchronousServerSocketChannel listener =
+		      AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(5000));
+		
+		  listener.accept(null, new CompletionHandler<AsynchronousSocketChannel,Void>() {
+		      public void completed(AsynchronousSocketChannel ch, Void att) {
+		          // accept the next connection
+		          listener.accept(null, this);
+		
+		          // handle this connection
+		          handle(ch);
+		      }
+		      public void failed(Throwable exc, Void att) {
+		          ...
+		      }
+		  });	
+	
+	
+	类定义	：public abstract class AsynchronousServerSocketChannel implements AsynchronousChannel, NetworkChannel
+	接口实现	：Closeable, AutoCloseable,Channel, AsynchronousChannel, NetworkChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary(构造器概要)：
+	protected AsynchronousServerSocketChannel(AsynchronousChannelProvider provider)
+		provider - 创建此通道的提供器。
+		初始化此类的新实例。
+
+Method Summary（方法概要）：
+	open():static AsynchronousServerSocketChannel 
+		打开异步服务器套接字通道。
+		此方法返回绑定到默认组的异步服务器套接字通道。此方法相当于计算表达式：
+			open((AsynchronousChannelGroup)null);
+		返回一种新的异步服务器套接字通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	open(AsynchronousChannelGroup group):static AsynchronousServerSocketChannel 
+		group - 新构造的通道应绑定到的组，或默认组为null。
+		打开异步服务器套接字通道。
+		新通道是通过在创建给定组的AsynchronousChannelProvider对象上调用openAsynchronousServerSocketChannel方法创建的。如果group参数为null，则生成的通道由系统范围的默认提供器创建，并绑定到默认组。
+		返回一种新的异步服务器套接字通道。
+		【Throws】：
+			ShutdownChannelGroupException 如果通道组关闭。
+			IOException 如果发生I/O错误。
+	accept():abstract Future<AsynchronousSocketChannel> 
+		接受连接。
+		此方法启动异步操作以接受与此通道套接字（socket）的连接。该方法的行为方式与accept(Object, CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法在成功完成时将AsynchronousSocketChannel返回到新连接。
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			AcceptPendingException 如果此通道上已在进行accept操作。
+			NotYetBoundException 如果此通道的套接字尚未绑定。
+	accept(A attachment,CompletionHandler<AsynchronousSocketChannel,? super A> handler):abstract <A> void
+		<A> - 附件的类型。
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 使用结果的处理器。
+		【Throws】：
+			AcceptPendingException 如果此通道上已在进行accept操作。
+			NotYetBoundException 如果此通道的套接字尚未绑定。
+			ShutdownChannelGroupException 如果通道组已终止。
+	bind(SocketAddress local):final AsynchronousServerSocketChannel 
+		local - 要绑定套接字的本地地址，或要绑定到自动分配的套接字地址的null地址。
+		将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
+		此方法的调用等价于：
+			bind(local, 0);
+		返回此通道。
+		【Throws】：
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型。
+			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。此接口的实现应指定任何必需的权限。
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
+	bind(SocketAddress local, int backlog):abstract AsynchronousServerSocketChannel 
+		local - 要绑定套接字的本地地址，或要绑定到自动分配的套接字地址的null地址。
+		backlog - 挂起连接的最大数目。
+		将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
+		此方法用于在套接字和本地地址之间建立关联。一旦建立了关联，那么套接字将保持绑定状态，直到关联的通道关闭。
+		backlog参数是套接字上挂起的最大连接数。它的确切语义是特定于实现的。具体来说，一个实现可以施加一个最大长度，或者可以选择忽略参数altogther。如果backlog参数的值为0或负值，则使用特定于实现的默认值。
+		返回此通道。
+		【Throws】：
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型。
+			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。此接口的实现应指定任何必需的权限。
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
+	getLocalAddress():abstract SocketAddress 
+		此方法启动异步操作以接受与此通道套接字的连接。该方法的行为方式与accept(Object, CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法在成功完成时将AsynchronousSocketChannel返回到新连接。
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			AcceptPendingException 如果此通道上已在进行accept操作。
+			NotYetBoundException 如果此通道的套接字尚未绑定。
+	provider():final AsynchronousChannelProvider 
+		返回创建此通道的提供器。
+	setOption(SocketOption<T> name, T value):abstract <T> AsynchronousServerSocketChannel 
+		<T> - 套接字选项值的类型。
+		name -  套接字（socket ）选项。
+		value - socket选项的值。对于某些套接字选项，null可能是有效值。
+		设置套接字选项的值。
+		返回此通道。
+		【Throws】：
+			IllegalArgumentException 如果该值不是此套接字选项的有效值。
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生I/O错误。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

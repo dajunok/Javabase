@@ -1,0 +1,79 @@
+----------------------------------------AsynchronousSocketChannel--------------------------------------------------------------------------------------------------------------
+AsynchronousSocketChannel：异步套接字通道 【Since:JDK1.7】
+	用于面向流的连接套接字的异步通道。
+	异步套接字通道以两种方式之一创建。新创建的AsynchronousSocketChannel是通过调用此类定义的一个open方法创建的。新创建的通道已打开，但尚未连接。当连接到AsynchronousServerSocketChannel的套接字时，会创建连接的AsynchronousSocketChannel。不可能为任意的、预先存在的套接字创建异步套接字通道。
+	新创建的通道通过调用其connect方法进行连接；一旦连接，通道将保持连接状态，直到关闭。套接字通道是否连接可以通过调用其getRemoteAddress方法来确定。尝试对未连接的通道调用I/O操作将导致引发NotYetConnectedException异常。
+	这种类型的通道对于多个并发线程的使用是安全的。它们支持并发读写，尽管在任何时候最多只能执行一个读操作和一个写操作。如果一个线程在上一个读取操作完成之前启动了一个读取操作，那么将抛出一个ReadPendingException异常。同样，在上一次写入完成之前尝试启动写入操作将引发一个WritePendingException异常。
+	套接字选项是使用setOption方法配置的。异步套接字通道支持以下选项：
+	——————————————————————————————————————————————————————————————————————————————	
+	 Option Name			Description
+	——————————————————————————————————————————————————————————————————————————————
+	 SO_SNDBUF			套接字发送缓冲区的大小
+	 SO_RCVBUF			套接字接收缓冲区的大小
+	 SO_KEEPALIVE		保持连接活动
+	 SO_REUSEADDR		再使用地址
+	 TCP_NODELAY		禁用Nagle算法
+	——————————————————————————————————————————————————————————————————————————————
+	还可以支持其他（特定于实现的）选项。
+	
+	Timeouts（超时）：
+		此类定义的读和写方法允许在启动读或写操作时指定超时。如果在操作完成之前超时已过，则操作将完成，但出现异常InterruptedByTimeoutException。超时可能会使通道或底层连接处于不一致的状态。如果实现不能保证没有从通道中读取字节，那么它会将通道置于特定于实现的错误状态。随后尝试启动读取操作会引发未指定的运行时异常。同样，如果写入操作超时，并且实现不能保证字节没有写入通道，则进一步尝试写入通道会导致引发未指定的运行时异常。当超时结束时，未定义I/O操作的ByteBuffer或缓冲区序列的状态。应该丢弃缓冲区，或者至少要注意确保在通道保持打开时不访问缓冲区。接受timeout参数的所有方法都将小于或等于零的值视为I/O操作不会超时。
+	
+	
+	
+	类定义	：public abstract class AsynchronousSocketChannel implements AsynchronousByteChannel, NetworkChannel
+	接口实现	：Closeable, AutoCloseable,Channel, AsynchronousChannel, AsynchronousByteChannel, NetworkChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary(构造器概要)：
+	protected AsynchronousSocketChannel(AsynchronousChannelProvider provider)
+		provider - 创建此通道的提供器。
+		初始化此类的新实例。
+		
+Method Summary（方法概要）：
+	open():static AsynchronousSocketChannel 
+		打开异步套接字通道。
+		此方法返回绑定到默认组的异步套接字通道。此方法等效于计算表达式：
+			open((AsynchronousChannelGroup)null);
+		返回一种新的异步套接字通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	open(AsynchronousChannelGroup group):static AsynchronousSocketChannel 
+	bind(SocketAddress local):abstract AsynchronousSocketChannel 
+	connect(SocketAddress remote):abstract Future<Void> 
+	connect(SocketAddress remote,A attachment,CompletionHandler<Void,? super A> handler):abstract <A> void
+	getLocalAddress() :abstract SocketAddress 
+	getRemoteAddress():abstract SocketAddress 
+	provider():final AsynchronousChannelProvider 
+	read(ByteBuffer dst):abstract Future<Integer> 
+	read(ByteBuffer dst,A attachment,CompletionHandler<Integer,? super A> handler):final <A> void \
+	read(ByteBuffer dst,long timeout,TimeUnit unit,A attachment,CompletionHandler<Integer,? super A> handler):abstract <A> void
+	read(ByteBuffer[] dsts,int offset,int length,long timeout,TimeUnit unit,A attachment,CompletionHandler<Long,? super A> handler):abstract <A> void
+	setOption(SocketOption<T> name, T value):abstract <T> AsynchronousSocketChannel 
+	shutdownInput():abstract AsynchronousSocketChannel 
+	shutdownOutput():abstract AsynchronousSocketChannel 
+	write(ByteBuffer src):abstract Future<Integer> 
+	write(ByteBuffer src,A attachment,CompletionHandler<Integer,? super A> handler):final <A> void 
+	write(ByteBuffer src,long timeout,TimeUnit unit,A attachment,CompletionHandler<Integer,? super A> handler):abstract <A> void
+	write(ByteBuffer[] srcs,int offset,int length,long timeout,TimeUnit unit,A attachment,CompletionHandler<Long,? super A> handler):abstract <A> void 
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		
