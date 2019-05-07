@@ -1,0 +1,69 @@
+----------------------------------------FileChannel--------------------------------------------------------------------------------------------------------------
+FileChannel：文件通道 【Since:1.4】
+	用于读取、写入、映射和操作文件的通道。
+	文件通道是连接到文件的SeekableByteChannel。它在文件中有一个当前位置，可以查询和修改。文件本身包含一个可变长度的字节序列，这些字节可以读写，并且可以查询其当前大小。当写入的字节超过其当前大小时，文件的大小将增大；当文件被截断时，文件的大小将减小。该文件还可能具有一些关联的元数据，如访问权限、内容类型和上次修改时间；此类不定义元数据访问的方法。
+	除了熟悉的字节通道的读、写和关闭操作外，这个类还定义了以下特定于文件的操作：
+		● 字节可以在文件的绝对位置以不影响通道当前位置的方式读取或写入。
+		● 文件的一个区域可以直接映射到内存中；对于大型文件，这通常比调用通常的读或写方法要高效得多。
+		● 对文件进行的更新可能会强制发送到底层存储设备，以确保在系统崩溃时不会丢失数据。
+		● 字节可以从文件传输到某个其他通道，反之亦然，可以通过许多操作系统将其优化为快速或直接从文件系统高速缓存传输。
+		● 文件的区域可以被锁定以防止其他程序的访问。
+	多个并发线程可以安全使用文件通道。可以在任何时候调用close方法，如通道接口所指定的那样。在任何给定时间内，只有一个涉及通道位置或可以更改其文件大小的操作正在进行；当第一个操作仍在进行时，试图启动第二个此类操作将被阻止，直到第一个操作完成。其他操作，特别是那些采取明确立场的操作，可能会同时进行；它们实际上是否这样做，取决于底层实现，因此是未指明的。
+	此类实例提供的文件视图保证与同一程序中其他实例提供的同一文件的其他视图一致。然而，由于底层操作系统执行的缓存和网络文件系统协议导致的延迟，此类实例提供的视图可能与其他同时运行的程序看到的视图一致，也可能不一致。这是真的，不管这些其他程序是用什么语言编写的，也不管它们是在同一台机器上运行还是在其他机器上运行。任何此类不一致的确切性质取决于系统，因此未作说明。
+	通过调用此类定义的open方法之一创建文件通道。也可以通过调用对象的getChannel方法从现有的FileInputStream、FileOutputStream或RandomAccessFile对象获取文件通道，该方法返回连接到同一底层文件的文件通道。如果文件通道是从现有的流或随机访问文件获得的，那么文件通道的状态与对象的状态紧密相连，对象的getChannel方法返回通道。改变通道的位置，无论是显式的还是通过读取或写入字节，都将改变始发对象的文件位置，反之亦然。通过文件通道改变文件的长度将改变通过始发对象看到的长度，反之亦然。通过写入字节来改变文件的内容将改变起始对象所看到的内容，反之亦然。
+	在不同的点上，这个类指定需要一个“开放读取”、“开放写入”或“开放读写”的实例。通过FileInputStream实例的getChannel方法获取的通道将打开以供读取。通过FileOutputStream实例的getChannel方法获取的通道将打开进行写入。最后，如果使用模式“r”创建实例，则通过RandomAccessFile实例的getChannel方法获取的通道将打开进行读取；如果使用模式“rw”创建实例，则将打开进行读取和写入。
+	打开进行写入的文件通道可能处于追加模式，例如，如果它是从通过调用FileOutputStream(File,boolean)构造函数并为第二个参数传递true而创建的文件输出流获取的。在这种模式下，每次调用相对写入操作都首先将位置推进到文件的末尾，然后写入请求的数据。位置的提升和数据的写入是在单个原子操作中完成的，这取决于系统，因此不确定。
+	
+	
+	类定义	：public abstract class FileChannel extends AbstractInterruptibleChannel implements SeekableByteChannel, GatheringByteChannel, ScatteringByteChannel
+	实现接口	：Closeable, AutoCloseable, ByteChannel, Channel, GatheringByteChannel, InterruptibleChannel, ReadableByteChannel, ScatteringByteChannel, SeekableByteChannel, WritableByteChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected FileChannel()
+		初始化此类的新实例。
+		
+Method Summary（方法概要）：
+	open(Path path, OpenOption... options):static FileChannel 
+	open(Path path,Set<? extends OpenOption> options,FileAttribute<?>... attrs):static FileChannel
+	force(boolean metaData):abstract void 
+	lock():final FileLock 
+	lock(long position, long size, boolean shared):abstract FileLock 
+	map(MapMode mode,long position, long size):abstract MappedByteBuffer 
+	position():abstract long 
+	position(long newPosition):abstract FileChannel 
+	read(ByteBuffer dst):abstract int 
+	read(ByteBuffer dst, long position):abstract int 
+	read(ByteBuffer[] dsts):final long 
+	read(ByteBuffer[] dsts, int offset, int length):abstract long 
+	size():abstract long 
+	transferFrom(ReadableByteChannel src,long position, long count):abstract long 
+	transferTo(long position, long count,WritableByteChannel target):abstract long 
+	truncate(long size):abstract FileChannel 
+	tryLock():final FileLock 
+	tryLock(long position, long size, boolean shared):abstract FileLock 
+	write(ByteBuffer src):abstract int 
+	write(ByteBuffer src, long position):abstract int 
+	write(ByteBuffer[] srcs):final long 
+	write(ByteBuffer[] srcs, int offset, int length):abstract long 
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

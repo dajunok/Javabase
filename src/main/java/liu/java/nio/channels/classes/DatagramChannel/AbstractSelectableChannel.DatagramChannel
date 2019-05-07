@@ -1,0 +1,233 @@
+----------------------------------------DatagramChannel--------------------------------------------------------------------------------------------------------------
+DatagramChannel：数据报通道 【Since:1.4】
+	面向数据报的套接字的可选通道。
+	通过调用此类的一个打开的方法来创建数据报通道。不可能为任意的、预先存在的数据报套接字创建通道。新创建的数据报通道已打开，但未连接。为了使用发送（send）和接收（receive）方法，不需要连接数据报通道。数据报通道可以通过调用其connect方法进行连接，以避免在每次发送和接收操作中执行安全检查的开销。为了使用read和write方法，必须连接数据报通道，因为这些方法不接受或返回套接字地址。
+	一旦连接，数据报通道将保持连接，直到断开或关闭。数据报通道是否连接可以通过调用其isConnected方法来确定。
+	套接字选项是使用setoption方法配置的。到Internet协议套接字的数据报通道支持以下选项：
+	——————————————————————————————————————————————————————————————————————————————	
+	 Option Name				Description
+	—————————————————————————————————————————————————————————————————————————————— 
+	 SO_SNDBUF				套接字发送缓冲区的大小
+	 SO_RCVBUF				套接字接收缓冲区的大小
+	 SO_REUSEADDR			再使用地址
+	 SO_BROADCAST			允许传输广播数据报
+	 IP_TOS					Internet协议（IP）头中的服务类型（ToS）八位字节
+	 IP_MULTICAST_IF		Internet协议（IP）多播数据报的网络接口
+	 IP_MULTICAST_TTL		Internet协议（IP）多播数据报的生存时间
+	 IP_MULTICAST_LOOP		Internet协议（IP）多播数据报的环回
+	——————————————————————————————————————————————————————————————————————————————
+	还可以支持其他（特定于实现的）选项。
+	数据报通道可供多个并发线程安全使用。它们支持并发读写，尽管在任何给定的时间内，至多有一个线程在读，至多有一个线程在写。
+	
+	
+	类定义	：public abstract class DatagramChannel extends AbstractSelectableChannel implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, MulticastChannel
+	实现接口	：Closeable, AutoCloseable, ByteChannel, Channel, GatheringByteChannel, InterruptibleChannel, MulticastChannel, NetworkChannel, ReadableByteChannel, ScatteringByteChannel, WritableByteChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected DatagramChannel(SelectorProvider provider)
+		provider - 创建此通道的提供器
+		初始化此类的新实例。
+
+Method Summary（方法概要）：
+	open():static DatagramChannel 
+		打开数据报通道。
+		新通道是通过调用系统范围的默认SelectorProvider对象的openDatagramChannel方法创建的。通道将无法连接。
+		通道套接字的ProtocolFamily依赖于平台（也可能是配置），因此未指定。打开允许在打开数据报通道时选择协议系列，并应用于打开用于Internet协议多播的数据报通道。
+		返回一个新的数据报通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	open(ProtocolFamily family):static DatagramChannel 
+		family - 协议族
+		打开数据报通道。
+		family参数用于指定ProtocolFamily。如果数据报通道将用于IP多播，那么这应该与该通道将加入的多播组的地址类型相对应。
+		新通道是通过调用系统范围的默认SelectorProvider对象的openDatagramChannel方法创建的。通道将无法连接。
+		【Throws】：
+			UnsupportedOperationException 如果不支持指定的协议族。例如，假设参数指定为StandardProtocolFamily.inet6，但平台上未启用IPv6。
+			IOException 如果发生I/O错误。
+	bind(SocketAddress local):abstract DatagramChannel 
+		local - 绑定套接字（socket）的地址，或者为null，套接字绑定到自动分配的套接字地址。
+		★ △ 将通道的套接字绑定到本地地址。
+		此方法用于在套接字和本地地址之间建立关联。一旦建立了关联，那么套接字将保持绑定状态，直到通道关闭。如果本地参数的值为null，那么套接字将绑定到自动分配的地址。
+		返回此通道。
+		【Throws】：
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型
+			ClosedChannelException 如果通道关闭
+			IOException 如果发生其他I/O错误
+			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。此接口的实现应指定任何必需的权限。
+	connect(SocketAddress remote):abstract DatagramChannel 
+		remote - 此通道要连接到的远程地址。
+		★ 连接此通道的套接字。
+		通道的套接字配置为只接收来自给定远程对等地址的数据报，并将数据报发送到给定远程对等地址。一旦连接，数据报就不能从任何其他地址接收或发送。数据报套接字保持连接，直到显式断开连接或关闭为止。
+		此方法执行与DatagramSocket类的connect方法完全相同的安全检查。也就是说，如果安装了安全管理器，那么此方法将验证其checkAccept和checkConnect方法是否允许分别从给定的远程地址接收和发送数据报。
+		可以随时调用此方法。它不会对调用时已经在进行的读或写操作产生任何影响。如果未绑定此通道的套接字，则此方法将首先使套接字绑定到自动分配的地址，就像调用参数为null的bind方法一样。
+		返回数据报通道。
+		【Throws】：
+			ClosedChannelException 如果通道关闭
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。			
+			SecurityException 如果安装了安全管理器，并且不允许访问给定的远程地址。
+			IOException 如果发生其他I/O错误
+	disconnect():abstract DatagramChannel 
+		★ 断开此通道的套接字。
+		通道的套接字被配置为可以从任何远程地址接收数据报，并将数据报发送到任何远程地址，只要安全管理器（如果安装）允许。
+		可以随时调用此方法。它不会对调用时已经在进行的读或写操作产生任何影响。
+		如果该通道的套接字未连接，或者该通道已关闭，则调用该方法没有任何效果。
+		返回此数据报通道。
+		【Throws】：
+			IOException 如果发生其他I/O错误。
+	getLocalAddress():abstract SocketAddress 
+		★ △ 返回此通道套接字绑定到的套接字地址。
+		如果通道绑定到Internet协议套接字地址，则此方法的返回值的类型为InetSocketAddress。
+		如果存在安全管理器集，则使用本地地址和-1作为参数调用其checkConnect方法，以查看是否允许该操作。如果不允许该操作，则返回表示环回地址的SocketAddress和通道套接字的本地端口。
+		返回套接字绑定到的SocketAddress，或者表示环回地址的SocketAddress（如果安全管理器拒绝），或者如果通道的套接字未绑定，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道关闭。
+			IOException 如果发生I/O错误。
+	getRemoteAddress():abstract SocketAddress 
+		★ 返回此通道套接字连接到的远程地址。
+		返回远程地址；如果通道的套接字未连接，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道关闭。
+			IOException 如果发生I/O错误。
+	isConnected():abstract boolean 
+		★ 指示此通道的套接字是否已连接。
+		如果且仅当此通道的套接字打开并连接时返回true。
+	read(ByteBuffer dst):abstract int
+		dst - 要传输字节的缓冲区。
+		★ △ 从这个通道读取数据报。
+		只有连接了此通道的套接字，并且只接受来自套接字对等方的数据报时，才能调用此方法。如果数据报中的字节多于给定缓冲区中的字节，那么数据报的其余部分将被静默丢弃。否则，此方法的行为与ReadableByteChannel接口中指定的行为完全相同。
+		返回读取的字节数，如果通道已到达流的末尾，则可能为零或-1。
+		【Throws】：
+			NotYetConnectedException 如果这个通道的套接字没有连接。
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	read(ByteBuffer[] dsts):final long 
+		dsts - 要传输字节的缓冲区。
+		△ 从这个通道读取数据报。
+		只有连接了此通道的套接字，并且只接受来自套接字对等方的数据报时，才能调用此方法。如果数据报中的字节多于给定缓冲区中的字节，那么数据报的其余部分将被静默丢弃。否则，此方法的行为与ScatteringByteChannel接口中指定的行为完全相同。
+		返回读取的字节数，如果通道已到达流的末尾，则可能为零或-1。
+		【Throws】：
+			NotYetConnectedException 如果这个通道的套接字没有连接。
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	read(ByteBuffer[] dsts, int offset, int length):abstract long 
+		dsts - 要传输字节的缓冲区。
+		offset - 要传输字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于dsts.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于dsts.length-offset。
+		★ △ 从这个通道读取数据报。
+		只有连接了此通道的套接字，并且只接受来自套接字对等方的数据报时，才能调用此方法。如果数据报中的字节多于给定缓冲区中的字节，那么数据报的其余部分将被静默丢弃。否则，此方法的行为与ScatteringByteChannel接口中指定的行为完全相同。
+		返回读取的字节数，如果通道已到达流的末尾，则可能为零或-1。
+		【Throws】：
+			NotYetConnectedException 如果这个通道的套接字没有连接。
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	receive(ByteBuffer dst):abstract SocketAddress 
+		dst - 将传输数据报的缓冲区。
+		★ 通过此通道接收数据报。
+		如果数据报立即可用，或者如果此通道处于阻塞模式，并且其中一个通道最终可用，那么数据报将被复制到给定的字节缓冲区中，并返回其源地址。如果此通道处于非阻塞模式，并且数据报不立即可用，则此方法立即返回null。
+		数据报从当前位置开始传输到给定的字节缓冲区，就像通过常规的读取操作一样。如果缓冲区中剩余的字节数少于保存数据报所需的字节数，则数据报的其余部分将被静默丢弃。、
+		此方法执行与DatagramSocket类的receive方法完全相同的安全检查。也就是说，如果套接字没有连接到特定的远程地址，并且安装了安全管理器，那么对于接收到的每个数据报，此方法将验证安全管理器的checkAccept方法是否允许源的地址和端口号。这种安全检查的开销可以通过首先通过connect方法连接套接字来避免。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个读取操作，那么这个方法的调用将被阻塞，直到第一个操作完成。如果未绑定此通道的套接字，则此方法将首先使套接字绑定到自动分配的地址，就像调用参数为null的bind方法一样。
+		返回数据报的源地址，如果此通道处于非阻塞模式且没有立即可用的数据报，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			SecurityException 如果安全管理器已安装，并且不允许从数据报的发送方接受数据报。
+			IOException 如果发生其他I/O错误。
+	send(ByteBuffer src, SocketAddress target):abstract int 
+		src - 包含要发送的数据报的缓冲区。
+		target - 数据报要发送到的地址。
+		★ 通过此通道发送数据报。
+		如果此通道处于非阻塞模式，并且底层输出缓冲区中有足够的空间，或者如果此通道处于阻塞模式并且有足够的空间可用，那么给定缓冲区中的剩余字节将作为单个数据报传输到给定的目标地址。
+		数据报从字节缓冲区传输，就像通过常规的写操作一样。
+		此方法与DatagramSocket类的send方法执行完全相同的安全检查。也就是说，如果套接字没有连接到特定的远程地址，并且安装了安全管理器，那么对于发送的每个数据报，此方法将验证安全管理器的checkConnect方法是否允许目标地址和端口号。这种安全检查的开销可以通过首先通过connect方法连接套接字来避免。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个写操作，那么这个方法的调用将被阻塞，直到第一个操作完成。如果未绑定此通道的套接字，则此方法将首先使套接字绑定到自动分配的地址，就像通过调用参数为null的bind方法一样。
+		返回发送的字节数，这将是调用此方法时源缓冲区中剩余的字节数，或者，如果此通道不阻塞，则如果底层输出缓冲区中没有足够的数据报空间，则该字节数可能为零。
+		【Throws】：
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			SecurityException 如果安全管理器已安装，并且不允许从数据报的发送方接受数据报。
+			IOException 如果发生其他I/O错误。
+	setOption(SocketOption<T> name, T value):abstract <T> DatagramChannel 
+		<T> - 套接字选项值的类型
+		name - 套接字（socket）选项。
+		value - socket选项的值。对于某些套接字选项，null值可能是有效值。
+		★ △ 设置套接字选项的值。
+		返回此通道。
+		【Throws】：
+			UnsupportedOperationException 如果此通道不支持socket选项
+			IllegalArgumentException 如果该值不是此套接字选项的有效值
+			ClosedChannelException 如果该通道关闭
+			IOException 如果发生I/O错误
+	socket():abstract DatagramSocket 
+		★ 检索与此通道关联的数据报套接字。
+		返回的对象不会声明DatagramSocket类中未声明的任何public方法。
+	validOps():final int 
+		△ 返回标识此通道支持的操作的操作集。
+		数据报通道支持读写，因此此方法返回(SelectionKey.OP_READ | SelectionKey.OP_WRITE)。
+	write(ByteBuffer src):abstract int 
+		src - 从中检索字节的缓冲区。
+		★ △ 将数据报写入此通道。
+		只有当这个通道的套接字连接时，才可以调用这个方法，在这种情况下，它将数据报直接发送到套接字的对等端。否则，它的行为与WritableByteChannel接口中指定的行为完全相同。
+		返回写入的字节数，可能为零。
+		【Throws】：
+			NotYetConnectedException 如果这个通道的套接字没有连接。
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	write(ByteBuffer[] srcs):final long 
+		srcs - 从中检索字节的缓冲区。
+		△ 将数据报写入此通道。
+		只有当这个通道的套接字连接时，才可以调用这个方法，在这种情况下，它将数据报直接发送到套接字的对等端。否则，它的行为完全与GatheringByteChannel接口中指定的行为一致。
+		返回发送的字节数，这将是调用此方法时源缓冲区中剩余的字节数，或者，如果此通道不阻塞，则如果底层输出缓冲区中没有足够的数据报空间，则该字节数可能为零。
+		【Throws】：
+			NotYetConnectedException 如果这个通道的套接字没有连接。
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	write(ByteBuffer[] srcs, int offset, int length):abstract long 
+		srcs - 从中检索字节的缓冲区。
+		offset - 要从中检索字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于srcs.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于srcs.length-offset。
+		★ △ 将数据报写入此通道。
+		只有当这个通道的套接字连接时，才可以调用这个方法，在这种情况下，它将数据报直接发送到套接字的对等端。否则，它的行为与GatheringByteChannel接口中指定的行为完全相同。
+		返回发送的字节数，这将是调用此方法时源缓冲区中剩余的字节数，或者，如果此通道不阻塞，则如果底层输出缓冲区中没有足够的数据报空间，则该字节数可能为零。
+		【Throws】：
+			NotYetConnectedException 如果这个通道的套接字没有连接。
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

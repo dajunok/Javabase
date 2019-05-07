@@ -1,0 +1,94 @@
+----------------------------------------Channels--------------------------------------------------------------------------------------------------------------
+Channels：通道静态方法工厂 【Since:1.4】
+	通道和流的实用方法。
+	此类定义了支持java.io包的流类与该包的通道类互操作的静态方法。
+	
+	类定义	：public final class Channels
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	newChannel(final InputStream in):static ReadableByteChannel 
+		in - 从中读取字节的流。
+		构造从给定流中读取字节的通道。
+		产生的通道不会被缓冲；它只会将其I/O操作重定向到给定的流。关闭通道将依次导致流关闭。
+		返回一种新的可读字节通道。
+	newChannel(final OutputStream out):static WritableByteChannel 
+		out - 要写入字节的流。
+		构造将字节写入给定流的通道。
+		产生的通道不会被缓冲；它只会将其I/O操作重定向到给定的流。关闭通道将依次导致流关闭。
+		返回一个新的可写字节通道。
+	newInputStream(final AsynchronousByteChannel ch):static InputStream 
+		ch - 从中读取字节的通道。
+		构造从给定通道读取字节的流。
+		流将不被缓冲，也不支持标记或重置方法。流对于多个并发线程的访问是安全的。关闭流将依次导致通道关闭。
+		返回一种新的输入流。
+	newInputStream(ReadableByteChannel ch):static InputStream 
+		ch - 从中读取字节的通道。
+		构造从给定通道读取字节的流。
+		如果在底层通道处于非阻塞模式时调用，则结果流的读取方法将引发IllegalBlockingModeException异常。流将不被缓冲，也不支持标记或重置方法。流对于多个并发线程的访问是安全的。关闭流将依次导致通道关闭。
+		返回一种新的输入流。
+	newOutputStream(final AsynchronousByteChannel ch):static OutputStream
+		ch - 将写入字节的通道。
+		构造将字节写入给定通道的流。
+		将不缓冲流。流对于多个并发线程的访问是安全的。关闭流将依次导致通道关闭。
+		返回一种新的输出流。
+	newOutputStream(final WritableByteChannel ch):static OutputStream 
+		ch - 将写入字节的通道。
+		构造将字节写入给定通道的流。
+		如果在底层通道处于非阻塞模式时调用，结果流的写入方法将引发IllegalBlockingModeException异常。将不缓冲流。流对于多个并发线程的访问是安全的。关闭流将依次导致通道关闭。
+	newReader(ReadableByteChannel ch,String csName):static Reader 
+		ch - 从中读取字节的通道。
+		csName - 要使用的字符集的名称。
+		构造一个阅读器，该阅读器根据指定的字符集对给定通道中的字节进行解码。
+		对此方法的调用形式：
+			Channels.newReader(ch, csname)
+		与以下表达式的行为方式完全相同：
+			Channels.newReader(ch,Charset.forName(csName).newDecoder(),-1);	
+		返回一种新的阅读器。
+		【Throws】：
+			UnsupportedCharsetException 如果在Java虚拟机的这个实例中不支持命名的字符集。		
+	newReader(ReadableByteChannel ch,CharsetDecoder dec,int minBufferCap):static Reader 
+		ch - 从中读取字节的通道。
+		dec - 要使用的字符集解码器。
+		minBufferCap - 内部字节缓冲区的最小容量，如果要使用依赖于实现的默认容量，则为-1。
+		构造使用给定解码器从给定通道解码字节的读取器。
+		结果流将包含至少minBufferCap字节的内部输入缓冲区。流的读取方法将根据需要通过从底层通道读取字节来填充缓冲区；如果要读取字节时通道处于非阻塞模式，则将引发IllegalBlockingModeException异常。结果流将不会被缓冲，也不支持标记或重置方法。关闭流将依次导致通道关闭。
+		返回一种新的阅读器。
+	newWriter(WritableByteChannel ch,String csName):static Writer 
+		ch - 将写入字节的通道。
+		csName - 要使用的字符集的名称。
+		构造一个根据命名字符集对字符进行编码并将结果字节写入给定通道的写入器。
+		对此方法的调用形式：
+			Channels.newWriter(ch, csname)
+		与以下表达式的行为方式完全相同：
+			Channels.newWriter(ch,Charset.forName(csName).newEncoder(),-1);
+		返回一种新的写入器。
+		【Throws】：
+			UnsupportedCharsetException 如果在Java虚拟机的这个实例中不支持命名的字符集。	
+	newWriter(final WritableByteChannel ch,final CharsetEncoder enc,final int minBufferCap):static Writer 
+		ch - 将写入字节的通道。
+		enc - 要使用的字符集编码器。
+		minBufferCap - 内部字节缓冲区的最小容量，如果要使用依赖于实现的默认容量，则为-1。
+		构造使用给定编码器对字符进行编码并将结果字节写入给定通道的写入器。
+		结果流将包含至少minBufferCap字节的内部输出缓冲区。流的写入方法将根据需要通过向底层通道写入字节来刷新缓冲区；如果要写入字节时通道处于非阻塞模式，则将引发IllegalBlockingModeException异常。否则将不会缓冲生成的流。关闭流将依次导致通道关闭。
+		返回一种新的写入器。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

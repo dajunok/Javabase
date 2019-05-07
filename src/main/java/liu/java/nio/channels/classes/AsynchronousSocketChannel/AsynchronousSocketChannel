@@ -38,24 +38,214 @@ Method Summary（方法概要）：
 		【Throws】：
 			IOException 如果发生I/O错误。
 	open(AsynchronousChannelGroup group):static AsynchronousSocketChannel 
+		group - 新构造的通道应绑定到的组，或默认组为null。
+		打开异步套接字通道。
+		新通道是通过在创建组的异步通道提供器上调用openAsynchronousSocketChannel方法创建的。如果group参数为null，则生成的通道由系统范围的默认提供器创建，并绑定到默认组。
+		返回一个新的异步套接字通道。
+		【Throws】：
+			ShutdownChannelGroupException 如果通道组关闭。
+			IOException 如果发生I/O错误。
 	bind(SocketAddress local):abstract AsynchronousSocketChannel 
+		local - 绑定套接字的地址，或将套接字绑定到自动分配的套接字地址的null值。
+		★ △ 将通道的套接字绑定到本地地址。
+		此方法用于在套接字和本地地址之间建立关联。一旦建立了关联，那么套接字将保持绑定状态，直到通道关闭。如果本地参数的值为null，那么套接字将绑定到自动分配的地址。
+		返回此通道。
+		【Throws】：
+			ConnectionPendingException 如果此通道上已在进行连接操作。
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型。			
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
+			SecurityException 如果已安装安全管理器，并且其checklisten方法拒绝该操作。
 	connect(SocketAddress remote):abstract Future<Void> 
+		remote - 此通道要连接到的远程地址。
+		★ 连接此通道。
+		此方法启动连接此通道的操作。此方法的行为方式与connect(SocketAddress, Object, CompletionHandler)方法完全相同，但此方法返回的Future表示挂起结果，而不是指定完成处理器。成功完成后，Future的get方法返回null。
+		返回表示挂起结果的Future对象。
+		【Throws】：
+			UnresolvedAddressException 如果给定的远程地址没有完全解析。
+			UnsupportedAddressTypeException 如果不支持给定远程地址的类型。
+			AlreadyConnectedException 如果此通道已连接。
+			ConnectionPendingException 如果此通道上已在进行连接操作。
+			SecurityException 如果安装了安全管理器，并且不允许访问给定的远程端点。
 	connect(SocketAddress remote,A attachment,CompletionHandler<Void,? super A> handler):abstract <A> void
+		<A> - 附件的类型。
+		remote - 此通道要连接到的远程地址。
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 使用结果的处理器。
+		★ 连接此通道。
+		此方法启动连接此通道的操作。handler参数是在成功建立连接或无法建立连接时调用的完成处理器。如果无法建立连接，则通道关闭。
+		此方法执行与Socket类完全相同的安全检查。也就是说，如果安装了安全管理器，那么此方法将验证其checkConnect方法是否允许连接到给定远程端点的地址和端口号。
+		【Throws】：
+			UnresolvedAddressException 如果给定的远程地址没有完全解析。
+			UnsupportedAddressTypeException 如果不支持给定远程地址的类型。
+			AlreadyConnectedException 如果此通道已连接。
+			ConnectionPendingException 如果此通道上已在进行连接操作。
+			ShutdownChannelGroupException 如果通道组已终止。
+			SecurityException 如果安装了安全管理器，并且不允许访问给定的远程端点。
 	getLocalAddress() :abstract SocketAddress 
+		★ △ 返回此通道套接字绑定到的套接字地址。
+		如果通道绑定到Internet协议套接字地址，则此方法的返回值的类型为InetSocketAddress。
+		如果存在安全管理器集，则使用本地地址和-1作为参数调用其checkConnect方法，以查看是否允许该操作。如果不允许该操作，则返回表示环回地址的SocketAddress和通道套接字的本地端口。
+		返回套接字绑定到的SocketAddress，或者表示环回地址的SocketAddress（如果安全管理器拒绝），或者如果通道的套接字未绑定，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生I/O错误。
 	getRemoteAddress():abstract SocketAddress 
+		★ 返回此通道套接字连接到的远程地址。
+		如果通道绑定并连接到Internet协议套接字地址，则此方法的返回值的类型为InetSocketAddress。
+		返回远程地址；如果通道的套接字未连接，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生I/O错误。
 	provider():final AsynchronousChannelProvider 
+		返回创建此频道的提供器。		
 	read(ByteBuffer dst):abstract Future<Integer> 
-	read(ByteBuffer dst,A attachment,CompletionHandler<Integer,? super A> handler):final <A> void \
+		dst - 要传输字节的缓冲区。
+		★ △ 将此通道中的一系列字节读取到给定的缓冲区中。
+		此方法启动异步读取操作，将一系列字节从该通道读取到给定缓冲区。该方法的行为方式与read(ByteBuffer,Object,CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法返回读取的字节数，或者如果由于通道已到达流的末尾而无法读取字节，则返回-1。
+		返回表示操作结果的Future。
+		【Throws】：
+			IllegalArgumentException 如果缓冲区是只读的
+			ReadPendingException 如果通道不允许一个以上的读取未完成，并且以前的读取尚未完成。		
+	read(ByteBuffer dst,A attachment,CompletionHandler<Integer,? super A> handler):final <A> void 
+		<A> - 附加的类型
+		dst - 要传输字节的缓冲区
+		attachment - 要附加到I/O操作的对象；可以为null
+		handler - 完成处理器对象。
+		△ 将一系列字节从这个通道读取到给定的缓冲区中。
+		此方法启动异步读取操作，将一系列字节从该通道读取到给定缓冲区。handler参数是在读取操作完成（或失败）时调用的完成处理器。传递给完成处理器的结果是读取的字节数，或者如果由于通道已到达流的末尾而无法读取字节，则返回-1。
+		读取操作最多可以从通道读取r字节，其中r是缓冲区中剩余的字节数，即尝试读取时dst.remaining()。当r为0时，读取操作立即完成，结果为0，而不启动I/O操作。
+		假设读取长度为n的字节序列，其中0<n<=r。该字节序列将被传输到缓冲区，以便序列中的第一个字节位于索引p，最后一个字节位于索引p+n-1，其中p是执行读取时缓冲区的位置。完成后，缓冲器的位置将等于p + n；其极限（limit）不会改变。
+		多个并发线程使用缓冲区不安全，因此应注意在操作完成之前不要访问缓冲区。
+		可以随时调用此方法。某些通道类型可能不允许在任何给定时间有多个未完成的读取。如果一个线程在上一个读取操作完成之前启动了一个读取操作，那么将抛出一个ReadPendingException异常。
+		【Throws】：
+			IllegalArgumentException 如果缓冲区是只读的
+			ReadPendingException 如果通道不允许一个以上的读取未完成，并且以前的读取尚未完成。
+			ShutdownChannelGroupException 如果通道与已终止的组关联	
 	read(ByteBuffer dst,long timeout,TimeUnit unit,A attachment,CompletionHandler<Integer,? super A> handler):abstract <A> void
+		<A> - 附加的类型
+		dst - 要传输字节的缓冲区
+		timeout - I/O操作完成的最长时间。
+		unit - timeout参数的时间单位。
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 完成处理器对象。
+		★ 将此通道中的一系列字节读取到给定的缓冲区中。
+		此方法启动异步读取操作，将一系列字节从该通道读取到给定缓冲区。handler参数是在读取操作完成（或失败）时调用的完成处理器。传递给完成处理器的结果是读取的字节数，或者如果由于通道已到达流的末尾而无法读取字节，则为-1。
+		如果在操作完成之前指定了timeout，并且超时时间已过，则操作将完成，并出现InterruptedByTimeoutException异常。如果发生超时，并且实现无法保证尚未读取字节，或者将不会从通道读取到给定缓冲区，则进一步尝试从通道读取将导致引发非特定的运行时异常。
+		另外，此方法的工作方式与AsynchronousByteChannel.read(ByteBuffer,Object,CompletionHandler)方法相同。
+		【Throws】：
+			IllegalArgumentException 如果缓冲区是只读的
+			ReadPendingException 如果通道不允许一个以上的读取未完成，并且以前的读取尚未完成。
+			NotYetConnectedException 如果此通道尚未连接。
+			ShutdownChannelGroupException 如果通道与已终止的组关联。		
 	read(ByteBuffer[] dsts,int offset,int length,long timeout,TimeUnit unit,A attachment,CompletionHandler<Long,? super A> handler):abstract <A> void
+		<A> - 附加的类型
+		dst - 要传输字节的缓冲区
+		offset - 要传输字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于dsts.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于dsts.length-offset。
+		timeout - I/O操作完成的最长时间。
+		unit - timeout参数的时间单位。
+		attachment - 要附加到I/O操作的对象；可以为null。
+		handler - 完成处理器对象。
+		★ 将一个字节序列从此通道读取到给定缓冲区的子序列中。这种操作有时被称为散射读取，在实现将数据分组成由一个或多个固定长度的报头和一个可变长度的报头组成的段的网络协议时通常很有用。handler参数是在读取操作完成（或失败）时调用的完成处理器。传递给完成处理器的结果是读取的字节数，或者如果由于通道已到达流的末尾而无法读取字节，则为-1。
+		此方法从该通道启动最多r字节的读取，其中r是给定缓冲区数组的指定子序列中剩余的字节总数，即，
+			dsts[offset].remaining()
+			     + dsts[offset+1].remaining()
+			     + ... + dsts[offset+length-1].remaining()		
+		在尝试读取时。
+		假设读取长度为n的字节序列，其中0<n<=r。直到该序列的第一个dsts[offset].remaining()字节被传输到缓冲区dsts[offset]，下一个dsts[offset+1].remaining()字节被传输到缓冲区dsts[offset+1]，以此类推，直到整个字节序列被传输到给定的缓冲区。将尽可能多的字节传输到每个缓冲区，因此，除最后一个更新的缓冲区外，每个更新的缓冲区的最终位置都保证等于该缓冲区的限制（limit）。底层操作系统可能对I/O操作中可能使用的缓冲区数量施加限制。如果缓冲区数（剩余字节数）超过此限制，则使用操作系统允许的最大缓冲区数执行I/O操作。
+		如果指定了超时，并且在操作完成之前超时已过，则它将完成，但出现异常InterruptedByTimeoutException。如果发生超时，并且实现不能保证字节没有被读取，或者将不会从通道读取到给定的缓冲区，那么进一步尝试从通道读取将导致抛出一个不特定的运行时异常。
+		【Throws】：
+			IndexOutOfBoundsException 如果offset和length参数的前提条件不满足。
+			IllegalArgumentException 如果缓冲区是只读的。
+			ReadPendingException 如果通道不允许一个以上的读取未完成，并且以前的读取尚未完成。
+			NotYetConnectedException 如果此通道尚未连接。
+			ShutdownChannelGroupException 如果通道与已终止的组关联。		
 	setOption(SocketOption<T> name, T value):abstract <T> AsynchronousSocketChannel 
+		<T> - 套接字选项值的类型
+		name - 套接字（socket）选项。
+		value - socket选项的值。对于某些套接字选项，null值可能是有效值。
+		★ △ 设置套接字选项的值。
+		返回此通道。
+		【Throws】：
+			UnsupportedOperationException 如果此通道不支持socket选项
+			IllegalArgumentException 如果该值不是此套接字选项的有效值
+			ClosedChannelException 如果该通道关闭
+			IOException 如果发生I/O错误
 	shutdownInput():abstract AsynchronousSocketChannel 
+		★ 关闭连接以便读取而不关闭通道。
+		一旦关闭读取，通道上的进一步读取将返回-1，即流结束指示。如果连接的输入端已经关闭，那么调用此方法没有任何效果。对未完成的读取操作的影响取决于系统，因此未指定。当套接字接收缓冲区中存在尚未读取的数据或随后到达的数据时，这种影响（如果有的话）也取决于系统。
+		返回此通道。
+		【Throws】：
+			NotYetConnectedException 如果此通道尚未连接。
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
 	shutdownOutput():abstract AsynchronousSocketChannel 
+		★ 关闭连接以进行写入而不关闭通道。
+		一旦关闭进行写入，则进一步尝试写入通道将引发ClosedChannelException异常。如果连接的输出端已经关闭，那么调用此方法没有任何效果。对未完成写入操作的影响取决于系统，因此未指定。
+		【Throws】：
+			NotYetConnectedException 如果此通道尚未连接。
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
 	write(ByteBuffer src):abstract Future<Integer> 
+		src - 从中检索字节的缓冲区
+		★ △ 从给定缓冲区向此通道写入一个字节序列。
+		此方法启动异步写入操作，从给定缓冲区向此通道写入一系列字节。该方法的行为方式与write(ByteBuffer,Object,CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法返回写入的字节数。
+		返回表示操作结果的Future。
+		【Throws】：
+			WritePendingException 如果通道不允许有多个写入未完成，并且上一个写入未完成。
 	write(ByteBuffer src,A attachment,CompletionHandler<Integer,? super A> handler):final <A> void 
+		<A> - 附加的类型
+		src - 从中检索字节的缓冲区
+		attachment - 要附加到I/O操作的对象；可以为null
+		handler - 完成处理器对象
+		△ 从给定缓冲区向此通道写入一个字节序列。
+		此方法启动异步写入操作，从给定缓冲区向此通道写入一系列字节。handler参数是完成处理器，在写入操作完成（或失败）时调用。传递给完成处理器的结果是写入的字节数。
+		写入操作最多可以向通道写入r字节，其中r是缓冲区中剩余的字节数，即尝试写入时的src.remaining()。当r为0时，写入操作立即完成，结果为0，而不启动I/O操作。
+		假设写入长度为n的字节序列，其中0<n<=r。该字节序列将从索引p开始的缓冲区传输，其中p是执行写入时缓冲区的位置；最后写入的字节的索引将为p+n-1。完成后，缓冲器的位置将等于p+n；其极限（limit）不会改变。
+		多个并发线程使用缓冲区不安全，因此应注意在操作完成之前不要访问缓冲区。
+		可以随时调用此方法。某些通道类型可能不允许在任何给定时间有多个写入未完成。如果一个线程在上一个写操作完成之前启动了一个写操作，那么会抛出一个WritePendingException异常。		
+		【Throws】：
+			WritePendingException 如果通道不允许有多个写入未完成，并且上一个写入未完成。
+			ShutdownChannelGroupException 如果通道与已终止的组关联
 	write(ByteBuffer src,long timeout,TimeUnit unit,A attachment,CompletionHandler<Integer,? super A> handler):abstract <A> void
+		<A> - 附加的类型
+		src - 从中检索字节的缓冲区
+		timeout - I/O操作完成的最长时间。
+		unit - timeout参数的时间单位。
+		attachment - 要附加到I/O操作的对象；可以为null
+		handler - 完成处理器对象
+		★ 从给定缓冲区向此通道写入一个字节序列。
+		此方法启动异步写入操作，从给定缓冲区向此通道写入一系列字节。handler参数是完成处理器，在写入操作完成（或失败）时调用。传递给完成处理器的结果是写入的字节数。
+		如果指定了超时，并且在操作完成之前超时已过，则它将完成，但出现异常InterruptedByTimeoutException。如果发生超时，并且实现不能保证字节没有被写入，或者不会从给定的缓冲区写入通道，则进一步尝试写入通道将导致引发非特定的运行时异常。
+		另外，此方法的工作方式与AsynchronousByteChannel.write(ByteBuffer,Object,CompletionHandler)方法相同。
+		【Throws】：
+			WritePendingException 如果通道不允许有多个写入未完成，并且上一个写入未完成。
+			NotYetConnectedException 如果此通道尚未连接。
+			ShutdownChannelGroupException 如果通道与已终止的组关联
 	write(ByteBuffer[] srcs,int offset,int length,long timeout,TimeUnit unit,A attachment,CompletionHandler<Long,? super A> handler):abstract <A> void 
-		
+		<A> - 附加的类型
+		src - 从中检索字节的缓冲区
+		offset - 要从中检索字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于srcs.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于srcs.length-offset。
+		timeout - I/O操作完成的最长时间。
+		unit - timeout参数的时间单位。
+		attachment - 要附加到I/O操作的对象；可以为null
+		handler - 完成处理器对象
+		★ 从给定缓冲区的子序列向此通道写入字节序列。此操作有时称为采集写入，在实现将数据分组为由一个或多个固定长度的头和一个可变长度的主体组成的段的网络协议时通常很有用。handler参数是完成处理器，在写入操作完成（或失败）时调用。传递给完成处理器的结果是写入的字节数。
+		此方法向该通道发起最多r字节的写入，其中r是给定缓冲区数组的指定子序列中剩余的字节总数，即，
+			 srcs[offset].remaining()
+		     + srcs[offset+1].remaining()
+		     + ... + srcs[offset+length-1].remaining()	
+		在尝试写入时。
+		假设写入长度为n的字节序列，其中0<n<=r。该序列的第一个srcs[offset].remaining()字节从缓冲区srcs[offset]写入，下一个srcs[offset+1].remaining()字节从缓冲区srcs[offset+1]写入，以此类推，直到写入整个字节序列。从每个缓冲区写入尽可能多的字节，因此每个更新缓冲区的最终位置（除了上次更新的缓冲区）都保证等于该缓冲区的限制（limit）。底层操作系统可能对I/O操作中可能使用的缓冲区数量施加限制。如果缓冲区数（剩余字节数）超过此限制，则使用操作系统允许的最大缓冲区数执行I/O操作。
+		如果指定了超时，并且超时时间在操作完成之前就已经过去，那么它将完成，但出现异常InterruptedByTimeoutException。如果发生超时，并且实现无法保证未写入字节，或者不会从给定缓冲区写入通道，则进一步尝试写入通道将导致引发非特定的运行时异常。
+		【Throws】：
+			IndexOutOfBoundsException 如果偏移和长度参数的前提条件不满足。
+			WritePendingException 如果通道不允许有多个写入未完成，并且上一个写入未完成。
+			NotYetConnectedException 如果此通道尚未连接。
+			ShutdownChannelGroupException 如果通道与已终止的组关联
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	

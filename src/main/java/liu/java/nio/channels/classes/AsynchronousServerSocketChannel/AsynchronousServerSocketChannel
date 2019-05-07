@@ -55,7 +55,7 @@ Method Summary（方法概要）：
 			ShutdownChannelGroupException 如果通道组关闭。
 			IOException 如果发生I/O错误。
 	accept():abstract Future<AsynchronousSocketChannel> 
-		接受连接。
+		★ 接受连接。
 		此方法启动异步操作以接受与此通道套接字（socket）的连接。该方法的行为方式与accept(Object, CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法在成功完成时将AsynchronousSocketChannel返回到新连接。
 		返回表示挂起结果的Future对象。
 		【Throws】：
@@ -65,13 +65,18 @@ Method Summary（方法概要）：
 		<A> - 附件的类型。
 		attachment - 要附加到I/O操作的对象；可以为null。
 		handler - 使用结果的处理器。
+		★ 接受连接。
+		此方法启动异步操作以接受与此通道套接字的连接。handler参数是一个完成处理器，当连接被接受（或操作失败）时调用。传递给完成处理器的结果是新连接的AsynchronousSocketChannel。
+		当接受新连接时，结果AsynchronousSocketChannel将绑定到与此通道相同的AsynchronousChannelGroup。如果组被关闭，并且连接被接受，那么连接被关闭，操作以IOException异常完成，并导致ShutdownChannelGroupException异常。
+		为了允许并发处理新连接，当一个新连接被立即接受时，启动线程不会直接调用完成处理器（参见Threading）。
+		如果安装了安全管理器，那么它将验证安全管理器的checkAccept方法是否允许连接的远程端点的地址和端口号。权限检查是使用受此方法的调用上下文限制的权限执行的。如果权限检查失败，则连接将关闭，操作将以SecurityException异常完成。
 		【Throws】：
 			AcceptPendingException 如果此通道上已在进行accept操作。
 			NotYetBoundException 如果此通道的套接字尚未绑定。
 			ShutdownChannelGroupException 如果通道组已终止。
 	bind(SocketAddress local):final AsynchronousServerSocketChannel 
 		local - 要绑定套接字的本地地址，或要绑定到自动分配的套接字地址的null地址。
-		将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
+		★ △ 将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
 		此方法的调用等价于：
 			bind(local, 0);
 		返回此通道。
@@ -84,7 +89,7 @@ Method Summary（方法概要）：
 	bind(SocketAddress local, int backlog):abstract AsynchronousServerSocketChannel 
 		local - 要绑定套接字的本地地址，或要绑定到自动分配的套接字地址的null地址。
 		backlog - 挂起连接的最大数目。
-		将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
+		★ 将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
 		此方法用于在套接字和本地地址之间建立关联。一旦建立了关联，那么套接字将保持绑定状态，直到关联的通道关闭。
 		backlog参数是套接字上挂起的最大连接数。它的确切语义是特定于实现的。具体来说，一个实现可以施加一个最大长度，或者可以选择忽略参数altogther。如果backlog参数的值为0或负值，则使用特定于实现的默认值。
 		返回此通道。
@@ -95,7 +100,7 @@ Method Summary（方法概要）：
 			ClosedChannelException 如果通道已关闭。
 			IOException 如果发生其他I/O错误。
 	getLocalAddress():abstract SocketAddress 
-		此方法启动异步操作以接受与此通道套接字的连接。该方法的行为方式与accept(Object, CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法在成功完成时将AsynchronousSocketChannel返回到新连接。
+		★ △ 此方法启动异步操作以接受与此通道套接字的连接。该方法的行为方式与accept(Object, CompletionHandler)方法完全相同，只是该方法不指定完成处理器，而是返回表示挂起结果的Future。Future的get方法在成功完成时将AsynchronousSocketChannel返回到新连接。
 		返回表示挂起结果的Future对象。
 		【Throws】：
 			AcceptPendingException 如果此通道上已在进行accept操作。
@@ -106,7 +111,7 @@ Method Summary（方法概要）：
 		<T> - 套接字选项值的类型。
 		name -  套接字（socket ）选项。
 		value - socket选项的值。对于某些套接字选项，null可能是有效值。
-		设置套接字选项的值。
+		★ △ 设置套接字选项的值。
 		返回此通道。
 		【Throws】：
 			IllegalArgumentException 如果该值不是此套接字选项的有效值。
