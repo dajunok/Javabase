@@ -17,6 +17,7 @@ FileChannel：文件通道 【Since:1.4】
 	
 	类定义	：public abstract class FileChannel extends AbstractInterruptibleChannel implements SeekableByteChannel, GatheringByteChannel, ScatteringByteChannel
 	实现接口	：Closeable, AutoCloseable, ByteChannel, Channel, GatheringByteChannel, InterruptibleChannel, ReadableByteChannel, ScatteringByteChannel, SeekableByteChannel, WritableByteChannel
+	嵌套类	：MapMode
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Constructor Summary（构造器概要）：
 	protected FileChannel()
@@ -24,28 +25,289 @@ Constructor Summary（构造器概要）：
 		
 Method Summary（方法概要）：
 	open(Path path, OpenOption... options):static FileChannel 
+		path - 要打开或创建的文件的路径
+		options - 指定文件打开方式的选项。
+		打开或创建文件，返回文件通道以访问该文件。
+		此方法的调用与以下调用的行为完全相同
+			 fc.open(file, opts, new FileAttribute<?>[0]);
+		其中opts是在选项数组中指定的一组选项。
+		返回一种新的文件通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果路径与不支持创建文件通道的提供器关联，或者指定了不受支持的打开选项。
+			IOException 如果发生I/O错误
+			SecurityException 如果安装了安全管理器，并且拒绝实现所需的未指定权限。在默认提供器的情况下，调用SecurityManager.checkRead(String)方法检查打开文件进行读取时的读取访问。调用SecurityManager.checkWrite(String)方法检查打开文件进行写入时的写入权限。
 	open(Path path,Set<? extends OpenOption> options,FileAttribute<?>... attrs):static FileChannel
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		打开或创建文件，返回文件通道以访问该文件。
+		选项参数决定如何打开文件。读和写选项决定是否打开文件进行读和/或写。如果数组中不包含选项（或APPEND选项），则打开文件进行读取。默认情况下，读取或写入从文件开头开始。
+		除了读写之外，还可能存在以下选项：
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 Option													Description
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 APPEND					如果存在此选项，则打开文件进行写入，每次调用通道的写入方法时，首先将位置前进到文件的末尾，然后写入请求的数据。位置的提升和数据的写入是在单个原子操作中完成的，这取决于系统，因此不明确。此选项不能与读取或截断现有选项一起使用。
+		 TRUNCATE_EXISTING		如果存在此选项，则现有文件将被截断为0字节的大小。当只打开文件进行读取时，忽略此选项。
+		 CREATE_NEW				如果存在此选项，则会创建一个新文件，如果该文件已存在，则会失败。在创建文件时，对于其他文件系统操作，检查文件是否存在以及是否创建了不存在的文件是原子的。当只打开文件进行读取时，忽略此选项。
+		 CREATE					如果存在此选项，则打开现有文件（如果存在），否则将创建新文件。在创建文件时，对于其他文件系统操作，检查文件是否存在以及是否创建了不存在的文件是原子的。如果还存在CREATE_NEW选项或只打开文件进行读取，则忽略此选项。
+		 DELETE_ON_CLOSE		当存在此选项时，实现将尽最大努力在使用close方法关闭时删除文件。如果没有调用关闭方法，那么当Java虚拟机终止时，尽力做出删除文件的尝试。
+		 SPARSE					创建新文件时，此选项提示新文件将是稀疏文件。不创建新文件时忽略此选项。
+		 SYNC					要求对文件内容或元数据的每次更新都同步写入底层存储设备。（请参见同步I/O文件完整性）。
+		 DSYNC					要求对文件内容的每个更新都同步写入底层存储设备。（请参见同步I/O文件完整性）。		
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		实现还可以支持其他选项。
+		attrs参数是一个可选的文件属性数组，用于在创建文件时自动设置。
+		新通道是通过在创建路径的提供器上调用newFileChannel方法创建的。
+		返回一种新的文件通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果路径与不支持创建文件通道的提供程序关联，或者指定了不受支持的打开选项，或者数组包含创建文件时无法自动设置的属性。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝实现所需的未指定权限。在默认提供器的情况下，调用SecurityManager.checkRead(String)方法检查打开文件进行读取时的读取访问。调用SecurityManager.checkWrite(String)方法检查打开文件进行写入时的写入权限。
 	force(boolean metaData):abstract void 
+		metaData - 如果为true，则需要此方法强制将文件内容和元数据的更改写入存储；否则，只需强制写入内容更改。
+		★ 强制将对此通道文件的任何更新写入包含该文件的存储设备。
+		如果此通道的文件驻留在本地存储设备上，那么当此方法返回时，可以确保自创建此通道以来或自上次调用此方法以来对文件所做的所有更改都已写入该设备。这对于确保关键信息在系统崩溃时不会丢失非常有用。
+		如果文件不在本地设备上，则不提供此类保证。
+		metaData参数可用于限制此方法需要执行的I/O操作数。为该参数传递false表示只需要将对文件内容的更新写入存储；传递true表示必须同时写入对文件内容和元数据的更新，这通常需要至少一个以上的I/O操作。此参数是否具有任何实际效果取决于底层操作系统，因此未指定。
+		调用此方法可能会导致发生I/O操作，即使通道仅打开进行读取。例如，一些操作系统将最后一次访问时间作为文件元数据的一部分进行维护，每次读取文件时都会更新这一时间。是否真的这样做取决于系统，因此还未明确。
+		此方法仅保证通过此类中定义的方法强制对此通道文件进行更改。通过修改通过调用map方法获得的映射字节缓冲区的内容，它可以强制更改，也可以不强制更改。调用映射字节缓冲区的force方法将强制写入对缓冲区内容所做的更改。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			IOException 如果发生其他I/O错误。
 	lock():final FileLock 
+		获取此通道文件的独占锁。
+		对fc.lock()形式的此方法的调用与下面调用的行为完全相同
+			 fc.lock(0L, Long.MAX_VALUE, false) 
+		返回表示新获取的锁的锁对象
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在此方法中阻塞调用线程时关闭此通道。
+			FileLockInterruptionException 如果调用线程在此方法中被阻塞时被中断。
+			OverlappingFileLockException 如果该Java虚拟机已经持有与请求区域重叠的锁，或者如果该方法中已经阻塞了另一个线程，并试图锁定重叠区域。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+			IOException 如果发生其他I/O错误。
 	lock(long position, long size, boolean shared):abstract FileLock 
+		position - 锁定区域的起始位置；必须为非负。
+		size - 锁定区域的大小；必须为非负，并且总和位置+大小必须为非负。
+		shared - 如果为true，请求共享锁，则此通道必须打开以供读取（可能是写入）；如果为false，请求独占锁，则此通道必须打开以供写入（也可能是读取）。
+		★ 获取此通道文件的给定区域的锁。
+		此方法的调用将被阻塞，直到区域被锁定、此通道被关闭或调用线程被中断为止，以先到者为准。
+		如果此通道在调用此方法期间被另一个线程关闭，则将引发AsynchronousCloseException异常。
+		如果调用线程在等待获取锁时被中断，那么它的中断状态将被设置，并引发FileLockInterruptionException异常。如果调用此方法时设置了调用程序的中断状态，那么该异常将立即抛出；线程的中断状态将不会更改。
+		由position和size参数指定的区域不需要包含在实际底层文件中，甚至不需要重叠。锁定区域的大小是固定的；如果锁定区域最初包含文件的结尾，并且文件超出了该区域，则文件的新部分将不会被锁定覆盖。如果一个文件的大小预计会增加，并且需要对整个文件进行锁定，那么应该锁定一个从零开始且不小于文件预期最大大小的区域。zero-argument lock()方法只锁定大小为Long.MAX_VALUE的区域。
+		有些操作系统不支持共享锁，在这种情况下，共享锁的请求会自动转换为独占锁的请求。新获取的锁是共享的还是独占的，可以通过调用结果锁对象的isShared方法来确定。
+		文件锁是代表整个Java虚拟机来保存的。它们不适合控制同一虚拟机中多个线程对文件的访问。
+		返回表示新获取的锁的锁对象。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在此方法中阻塞调用线程时关闭此通道。
+			FileLockInterruptionException 如果调用线程在此方法中被阻塞时被中断。
+			OverlappingFileLockException 如果该Java虚拟机已经持有与请求区域重叠的锁，或者如果该方法中已经阻塞了另一个线程，并试图锁定重叠区域。
+			NonReadableChannelException 如果shared为true，则未打开此通道进行读取。
+			NonWritableChannelException 如果shared为false，但未打开此通道进行写入
+			IOException 如果发生其他I/O错误。
 	map(MapMode mode,long position, long size):abstract MappedByteBuffer 
+		mode - FileChannel.MapMode类中定义的一个常量READ_ONLY、READ_WRITE或PRIVATE，分别根据文件是只读映射、读/写还是私有映射（copy-on-write）。
+		position - 文件中要开始映射区域的位置；必须为非负。
+		size - 要映射的区域的大小；必须为非负且不大于Integer.MAX_VALUE。
+		★ 将此通道文件的一个区域直接映射到内存中。
+		文件的一个区域可以用三种模式之一映射到内存中：
+			● Read-only（只读模式）：任何修改结果缓冲区的尝试都将导致引发ReadOnlyBufferException异常。（MapMode.READ_ONLY）
+			● Read/write（读写模式）：对结果缓冲区所做的更改最终将传播到该文件；它们可能对映射了同一文件的其他程序可见，也可能不可见。（MapMode.READ_WRITE）
+			● Private：对生成的缓冲区所做的更改将不会传播到文件，并且对映射同一文件的其他程序不可见；相反，它们将导致创建缓冲区修改部分的私有副本。（MapMode.PRIVATE）
+		对于只读映射，必须打开此通道进行读取；对于读/写或专用映射，必须打开此通道进行读取和写入。
+		此方法返回的映射字节缓冲区的位置为零，限制（limit）和容量（capacity）大小；其标记（mark）将未定义。缓冲区及其表示的映射将保持有效，直到缓冲区本身被垃圾回收为止。
+		映射一旦建立，就不依赖于用于创建它的文件通道。尤其是，关闭通道不会影响映射的有效性。
+		内存映射文件的许多细节本质上依赖于底层操作系统，因此未指定。未指定此通道文件中未完全包含请求区域时此方法的行为。未指定此程序或其他程序对底层文件的内容或大小所做的更改是否传播到缓冲区。未指定将对缓冲区的更改传播到文件的速率。
+		对于大多数操作系统，将文件映射到内存比通过通常的读写方法读取或写入几十千字节的数据要贵。从性能的角度来看，通常只值得将相对较大的文件映射到内存中。
+		返回映射的字节缓冲区。
+		【Throws】：
+			NonReadableChannelException 如果模式为READ_ONLY，但未打开此通道进行读取。
+			NonWritableChannelException 如果模式为READ_WRITE或PRIVATE，但此通道未同时打开进行读写。
+			IllegalArgumentException 如果参数的前提条件不成立。
+			IOException  如果发生其他I/O错误。
 	position():abstract long 
+		★ △ 返回此通道的文件位置。
+		返回这个通道的文件位置，一个非负整数，计算从文件开始到当前位置的字节数。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			IOException  如果发生其他I/O错误。
 	position(long newPosition):abstract FileChannel 
+		newPosition - 新位置，一个非负整数，从文件开头开始计算字节数。
+		★ △ 设置此通道的文件位置。
+		将位置设置为大于文件当前大小的值是合法的，但不会更改文件的大小。稍后在该位置读取字节的尝试将立即返回文件结束指示。稍后尝试在该位置写入字节将导致文件增长以适应新的字节；未指定文件前一个结尾和新写入的字节之间的任何字节的值。
+		返回此文件通道。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			IllegalArgumentException 如果newPosition为负数。
+			IOException  如果发生其他I/O错误。
 	read(ByteBuffer dst):abstract int 
-	read(ByteBuffer dst, long position):abstract int 
+		dst - 要传输字节的缓冲区。
+		★ △ 将一系列字节从这个通道读取到给定的缓冲区中。
+		从这个通道的当前文件位置开始读取字节，然后用实际读取的字节数更新文件位置。否则，此方法的行为与ReadableByteChannel接口中指定的行为完全相同。
+		返回读取的字节数，如果通道已到达流的末尾，则可能为零或-1。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
+	read(ByteBuffer dst, long position):abstract int
+		 dst - 要传输字节的缓冲区。
+		 position - 开始传输的文件位置；必须为非负。
+		★   从给定的文件位置开始，将一系列字节从这个通道读取到给定的缓冲区中。
+		  此方法与read(ByteBuffer)方法的工作方式相同，只是从给定的文件位置而不是通道的当前位置开始读取字节。此方法不会修改此通道的位置。如果给定位置大于文件的当前大小，则不会读取任何字节。
+		  如果给定位置大于或等于文件当前大小，则读取的字节数，可能为零或-1。
+		【Throws】：
+			IllegalArgumentException 如果position为负数。
+			NonReadableChannelException 如果没有打开此通道进行读取。
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 	read(ByteBuffer[] dsts):final long 
+		dsts - 要传输字节的缓冲区。
+		△ 从这个通道读取一系列字节到给定的缓冲区。
+		从这个通道的当前文件位置开始读取字节，然后用实际读取的字节数更新文件位置。否则，此方法的行为与ScatteringByteChannel接口中指定的行为完全相同。
+		返回读取的字节数，如果通道已到达流的末尾，则可能为零或-1。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 	read(ByteBuffer[] dsts, int offset, int length):abstract long 
+		dsts - 要传输字节的缓冲区。
+		offset - 要传输字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于dsts.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于dsts.length-offset。
+		★ △ 将一个字节序列从此通道读取到给定缓冲区的子序列中。
+		从这个通道的当前文件位置开始读取字节，然后用实际读取的字节数更新文件位置。否则，此方法的行为与ScatteringByteChannel接口中指定的行为完全相同。
+		返回读取的字节数，如果通道已到达流的末尾，则可能为零或-1。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 	size():abstract long 
+		★ △ 返回此通道文件的当前大小。
+		返回此通道文件的当前大小（以字节为单位）。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			IOException  如果发生其他I/O错误。
 	transferFrom(ReadableByteChannel src,long position, long count):abstract long 
+		src - 源通道。
+		position - 文件中开始传输的位置；必须为非负。
+		count - 要传输的最大字节数；必须为非负。
+		★ 从给定的可读字节通道将字节传输到此通道的文件中。
+		尝试从源通道读取count个字节，并从给定位置开始将它们写入此通道的文件。此方法的调用可以传输也可以不传输所有请求的字节；是否这样做取决于通道的性质和状态。如果源通道的剩余字节数少于count个，或者源通道是非阻塞的，并且其输入缓冲区中立即可用的字节数少于count个，则传输的字节数将少于请求的字节数。
+		此方法不会修改此通道的位置。如果给定位置大于文件的当前大小，则不会传输任何字节。如果源通道有一个位置，则从该位置开始读取字节，然后该位置由读取的字节数递增。
+		这个方法可能比从源通道读取并写入这个通道的简单循环更有效。许多操作系统可以将字节直接从源通道传输到文件系统缓存，而无需实际复制它们。
+		返回实际传输的字节数，可能为零。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+			NonReadableChannelException 如果没有打开源通道进行读取。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+			ClosedChannelException 如果此通道或源通道关闭。
+			AsynchronousCloseException 如果另一个线程在传输过程中关闭任一通道。
+			ClosedByInterruptException 如果另一个线程在传输过程中中断当前线程，从而关闭两个通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
 	transferTo(long position, long count,WritableByteChannel target):abstract long 
+		position - 文件中开始传输的位置；必须为非负。
+		count - 要传输的最大字节数；必须为非负。
+		target - 目标通道。
+		★ target通道将字节从该通道的文件传输到给定的可写字节通道。
+		试图从该通道文件的给定位置开始读取到个字节，并将其写入目标通道。此方法的调用可以传输也可以不传输所有请求的字节；是否这样做取决于通道的性质和状态。如果此通道的文件包含的从给定位置开始的字节数少于count个，或者如果目标通道是非阻塞的，并且其输出缓冲区中的可用字节数少于count个，则传输的字节数少于请求的字节数。
+		此方法不会修改此通道的位置。如果给定位置大于文件的当前大小，则不会传输任何字节。如果目标通道有一个位置，则从该位置开始写入字节，然后该位置由写入的字节数递增。
+		此方法可能比从该通道读取并写入目标通道的简单循环更有效。许多操作系统可以将字节直接从文件系统缓存传输到目标通道，而无需实际复制它们。
+		返回实际传输的字节数，可能为零。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+			NonReadableChannelException 如果没有打开源通道进行读取。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+			ClosedChannelException 如果此通道或源通道关闭。
+			AsynchronousCloseException 如果另一个线程在传输过程中关闭任一通道。
+			ClosedByInterruptException 如果另一个线程在传输过程中中断当前线程，从而关闭两个通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
 	truncate(long size):abstract FileChannel 
+		size - 新的大小，非负字节计数。
+		★ △ 将此通道的文件截断为给定大小。
+		如果给定的大小小于文件的当前大小，则文件将被截断，丢弃超出新文件结尾的任何字节。如果给定的大小大于或等于文件的当前大小，则不会修改该文件。在这两种情况下，如果此通道的文件位置大于给定的大小，则将其设置为该大小。
+		返回此通道。
+		【Throws】：
+			NonWritableChannelException 如果没有打开此频道进行写入。
+			ClosedChannelException 如果该通道关闭。
+			IllegalArgumentException 如果新size为负。
+			IOException 如果发生其他I/O错误。
 	tryLock():final FileLock 
+		尝试获取此通道文件的独占锁。
+		对形式为fc.trylock()的此方法的调用与下面调用的行为完全相同。
+			 fc.tryLock(0L, Long.MAX_VALUE, false) 
+		返回表示新获取的锁的锁对象，如果由于另一个程序持有重叠的锁而无法获取锁，则为null。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			OverlappingFileLockException 如果该Java虚拟机已经保存了与请求区域重叠的锁，或者如果另一线程已经在该方法中被阻塞，并试图锁定重叠区域。
+			IOException  如果发生其他I/O错误。
 	tryLock(long position, long size, boolean shared):abstract FileLock 
+		position - 锁定区域的起始位置；必须为非负。
+		size - 锁定区域的大小；必须为非负，并且总和位置+size必须为非负。
+		shared - 如果请求共享锁，则为true；如果请求独占锁，则为false。
+		★ 尝试获取此通道文件的给定区域的锁。
+		此方法不阻塞。调用总是立即返回，要么是在请求的区域上获取了锁，要么是未能这样做。如果由于另一个程序持有重叠锁而未能获取锁，则返回null。如果由于任何其他原因未能获取锁，则会引发适当的异常。
+		由position和size参数指定的区域不需要包含在实际底层文件中，甚至不需要重叠。锁定区域的大小是固定的；如果锁定区域最初包含文件的结尾，并且文件超出了该区域，则文件的新部分将不会被锁定覆盖。如果一个文件的大小预计会增加，并且需要对整个文件进行锁定，那么应该锁定一个从零开始且不小于文件预期最大大小的区域。零参数tryLock()方法只锁定大小为Long.MAX_VALUE的区域。
+		有些操作系统不支持共享锁，在这种情况下，共享锁的请求会自动转换为独占锁的请求。新获取的锁是共享的还是独占的，可以通过调用结果锁对象的isShared方法来判断。
+		文件锁是代表整个Java虚拟机来保存的。它们不适合控制同一虚拟机中多个线程对文件的访问。
+		返回表示新获取的锁的锁对象，如果由于另一个程序持有重叠的锁而无法获取锁，则返回null。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+			ClosedChannelException 如果该通道关闭。
+			OverlappingFileLockException 如果这个Java虚拟机已经拥有一个与请求区域重叠的锁，或者如果另一个线程已经在这个方法中被阻塞，并试图锁定同一个文件的重叠区域。
+			IOException  如果发生其他I/O错误。		
 	write(ByteBuffer src):abstract int 
+		src - 从中检索字节的缓冲区。
+		★ △ 从给定缓冲区向此通道写入一个字节序列。
+		字节是从这个通道的当前文件位置开始写入的，除非通道处于追加模式，在这种情况下，该位置首先前进到文件的末尾。如有必要，文件会增长以适应写入的字节，然后文件位置会根据实际写入的字节数进行更新。否则，此方法的行为与WritableByteChannel接口指定的行为完全相同。
+		返回写入的字节数，可能为零。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 	write(ByteBuffer src, long position):abstract int 
+		src - 从中传输字节的缓冲区。
+		position - 开始传输的文件位置；必须为非负。
+		★ 从给定的缓冲区向该通道写入一个字节序列，从给定的文件位置开始。
+		此方法与write(ByteBuffer)方法的工作方式相同，只是字节是从给定的文件位置开始而不是从通道的当前位置开始写入的。此方法不会修改此通道的位置。如果给定位置大于文件的当前大小，则文件将增大以适应新的字节；未指定文件前一个结尾和新写入的字节之间的任何字节的值。
+		返回写入的字节数，可能为零。
+		【Throws】：
+			IllegalArgumentException 如果position为负数。
+			NonWritableChannelException 如果没有打开此通道进行写入。
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 	write(ByteBuffer[] srcs):final long 
+		srcs - 从中检索字节的缓冲区。
+		△ 从给定缓冲区向此通道写入一个字节序列。
+		字节是从这个通道的当前文件位置开始写入的，除非通道处于追加模式，在这种情况下，该位置首先前进到文件的末尾。如有必要，文件会增长以适应写入的字节，然后文件位置会根据实际写入的字节数进行更新。否则，此方法的行为与GatheringByteChannel接口中指定的行为完全相同。
+		返回写入的字节数，可能为零。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 	write(ByteBuffer[] srcs, int offset, int length):abstract long 
-			
+		srcs - 从中检索字节的缓冲区。
+		offset - 要从中检索字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于srcs.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于srcs.length-offset。
+		★ △ 从给定缓冲区的子序列向此通道写入字节序列。
+		字节是从这个通道的当前文件位置开始写入的，除非通道处于追加模式，在这种情况下，该位置首先前进到文件的末尾。如有必要，文件会增长以适应写入的字节，然后文件位置会根据实际写入的字节数进行更新。否则，此方法的行为与GatheringByteChannel接口中指定的行为完全相同。
+		返回写入的字节数，可能为零。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写入操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException  如果发生其他I/O错误。
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
 	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	

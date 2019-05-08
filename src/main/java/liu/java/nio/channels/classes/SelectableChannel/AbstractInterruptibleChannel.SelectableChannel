@@ -1,0 +1,97 @@
+----------------------------------------SelectableChannel--------------------------------------------------------------------------------------------------------------
+SelectableChannel：可选通道 【Since:1.4】
+	一种可以通过选择器进行多路复用的通道。
+	为了与选择器一起使用，必须首先通过register方法注册此类的实例。此方法返回一个新的SelectionKey对象，该对象表示通道在选择器中的注册。
+	一旦向选择器注册，通道将保持注册状态，直到取消注册。这涉及到释放选择器分配给通道的任何资源。
+	不能直接注销通道；相反，必须取消代表其注册的键。取消键请求在选择器的下一个选择操作期间取消对通道的注册。键可以通过调用其cancel方法显式取消。当通道关闭时，无论是通过调用其close方法还是通过中断通道上I/O操作中阻塞的线程，都会隐式取消通道的所有键。
+	如果选择器本身关闭，那么通道将被取消注册，代表其注册的键将无效，不会有进一步的延迟。
+	一个通道最多可以用任何特定的选择器注册一次。
+	可以通过调用isRegistered方法来确定通道是否注册到一个或多个选择器。
+	可选通道对于多个并发线程的使用是安全的。
+	
+	Blocking mode（阻塞模式）：
+	可选通道处于阻塞模式或非阻塞模式。在阻塞模式下，对通道调用的每个I/O操作都将阻塞，直到完成为止。在非阻塞模式下，I/O操作将永远不会阻塞，传输的字节数可能少于请求的字节数，或者可能根本没有字节。可选通道的阻塞模式可以通过调用其isBlocking方法来确定。
+	新创建的可选通道始终处于阻塞模式。非阻塞模式与基于选择器的多路复用结合使用最为有用。在向选择器注册之前，必须将通道置于非阻塞模式中，并且在被撤销之前不能返回到阻塞模式。
+	
+	类定义	：public abstract class SelectableChannel extends AbstractInterruptibleChannel implements Channel
+	实现接口	：Closeable, AutoCloseable, Channel, InterruptibleChannel
+	直接子类	：AbstractSelectableChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected SelectableChannel()
+		初始化此类的新实例。
+		
+Method Summary（方法概要）：
+	blockingLock():abstract Object 
+		检索configureBlocking和register方法同步的对象。这在适配器的实现中通常很有用，因为适配器需要在短时间内保持特定的阻塞模式。
+		返回阻塞模式锁对象。
+	configureBlocking(boolean block):abstract SelectableChannel 
+		block - 如果为true，则此通道将置于阻塞模式；如果为false，则将置于非阻塞模式。
+		调整此通道的阻塞模式。
+		如果这个通道是用一个或多个选择器注册的，那么尝试将其放入阻塞模式将导致引发IllegalBlockingModeException异常。
+		可以随时调用此方法。新的阻塞模式将只影响此方法返回后启动的I/O操作。对于某些实现，可能需要阻塞，直到所有挂起的I/O操作完成。
+		如果在该方法或register方法的另一个调用正在进行时调用该方法，那么它将首先阻塞，直到另一个操作完成。
+		返回此可选通道。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			IllegalBlockingModeException 如果block为true，并且此通道已向一个或多个选择器注册。
+			IOException 如果发生I/O错误。
+	isBlocking():abstract boolean
+		 指示此通道上的每个I/O操作在完成之前是否都将阻塞。新创建的通道始终处于阻塞模式。
+		 如果关闭此通道，则不指定此方法返回的值。
+		如果且仅当此通道处于阻塞模式时返回true。 
+	isRegistered():abstract boolean 
+		指示此通道当前是否已向任何选择器注册。新创建的通道未注册。
+		由于键取消和通道撤销之间的固有延迟，在所有键被取消后，通道可以保持注册一段时间。一个通道关闭后也可以保持注册一段时间。
+		如果且仅当此通道已注册时返回true。
+	keyFor(Selector sel):abstract SelectionKey
+		sel - 选择器。
+		检索用给定选择器表示通道注册的键。
+		返回上次使用给定选择器注册此通道时返回的键，或者如果此通道当前未使用该选择器注册，则返回null键。		 
+	provider():abstract SelectorProvider 
+		返回创建此通道的提供器。
+	register(Selector sel, int ops):final SelectionKey 
+		sel - 用于注册此通道的选择器。
+		ops - 结果键的关注集
+		用给定的选择器注册此通道，返回选择键。
+		对这个便利方法的调用形式：
+			sc.register(sel, ops)
+		与下面的调用行为方式完全相同：
+			sc.register(sel, ops, null)
+		返回表示此通道在给定选择器中的注册的键。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			ClosedSelectorException 如果选择器关闭。
+			IllegalBlockingModeException 如果此通道处于阻塞模式。
+			IllegalSelectorException 如果此通道不是由与给定选择器相同的提供器创建的。
+			CancelledKeyException 如果此通道当前已用给定的选择器注册，但相应的键已被取消。
+			IllegalArgumentException 如果在ops中有一个位不对应于这个通道所支持的操作，也就是说，如果set & ~validOps() != 0。
+	register(Selector sel, int ops, Object att):abstract SelectionKey 
+		sel - 用于注册此通道的选择器。
+		ops - 结果键的关注集
+		att - 结果键的附件；可能为null。
+		用给定的选择器注册此通道，返回选择键。
+		如果此通道当前已用给定的选择器注册，则返回表示该注册的选择键。键的关注集将被更改为ops，就像调用interestOps(int)方法一样。如果att参数不是NULL，则键的附件将被设置为该值。如果键已被取消，则将引发CancelledKeyException异常。
+		另外，这个通道还没有用给定的选择器注册，所以它被注册并返回生成的新建。键的初始关注集将是ops，其附件将是att。
+		可以随时调用此方法。如果在另一次调用此方法或configureBlocking方法时调用此方法，则它将首先阻塞，直到另一个操作完成。然后，此方法将在选择器的键集上同步，因此，如果与涉及同一选择器的另一个注册或选择操作同时调用，则可能会阻塞。
+		如果此操作正在进行时，此通道被关闭，那么该方法返回的键将被取消，因此将无效。
+		返回表示此通道在给定选择器中的注册的键。
+		【Throws】：
+			ClosedChannelException 如果该通道关闭。
+			ClosedSelectorException 如果选择器关闭。
+			IllegalBlockingModeException 如果此通道处于阻塞模式。
+			IllegalSelectorException 如果此通道不是由与给定选择器相同的提供器创建的。
+			CancelledKeyException 如果此通道当前已用给定的选择器注册，但相应的键已被取消。
+			IllegalArgumentException 如果在ops中有一个位不对应于这个通道所支持的操作，也就是说，如果set & ~validOps() != 0。
+	validOps():abstract int 
+		返回标识此通道支持的操作的操作集。在这个整数值中设置的位正好表示对这个通道有效的操作。对于给定的具体通道类，此方法始终返回相同的值。
+		返回有效操作集。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
