@@ -1,0 +1,104 @@
+----------------------------------------ServerSocketChannel--------------------------------------------------------------------------------------------------------------
+ServerSocketChannel：服务器套接字通道 【Since:1.4】
+	用于面向流的侦听套接字的可选通道。
+	通过调用此类的open方法创建服务器套接字通道。不可能为任意的、预先存在的ServerSocket创建通道。新创建的服务器套接字通道已打开，但尚未绑定。尝试调用未绑定服务器套接字通道的accept方法将导致引发NotYetBoundException异常。可以通过调用此类定义的绑定方法之一来绑定服务器套接字通道。
+	套接字选项是使用setOption方法配置的。服务器套接字通道支持以下选项：
+	——————————————————————————————————————————————————————————————
+	 Option Name						Description
+	——————————————————————————————————————————————————————————————
+	 SO_RCVBUF				套接字接收缓冲区的大小
+	 SO_REUSEADDR			再使用地址
+	——————————————————————————————————————————————————————————————
+	还可以支持其他（特定于实现的）选项。
+	服务器套接字通道可供多个并发线程安全使用。
+	
+	
+	类定义	：public abstract class ServerSocketChannel extends AbstractSelectableChannel implements NetworkChannel
+	实现接口	：AutoCloseable, Closeable, Channel, InterruptibleChannel, NetworkChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected ServerSocketChannel(SelectorProvider provider)
+		provider - 创建此频道的提供程序。
+		初始化此类的新实例。
+		
+Method Summary（方法概要）：
+	open():static ServerSocketChannel 
+		打开服务器套接字通道。
+		新通道是通过调用系统范围的默认SelectorProvider对象的openServerSocketChannel方法创建的。
+		新通道的套接字最初是未绑定的；必须通过其套接字的绑定方法之一将其绑定到特定地址，然后才能接受连接。
+		返回一个新的套接字通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	accept():abstract SocketChannel 
+		★ 接受与此通道的套接字建立的连接。
+		如果此通道处于非阻塞模式，那么如果没有挂起的连接，此方法将立即返回null。否则，它将无限期阻塞，直到新连接可用或发生I/O错误。
+		无论此通道的阻塞模式如何，此方法返回的套接字通道（如果有）都将处于阻塞模式。
+		此方法执行与ServerSocket类的accept方法完全相同的安全检查。也就是说，如果安装了安全管理器，那么对于每个新连接，此方法将验证安全管理器的checkAccept方法是否允许连接的远程端点的地址和端口号。
+		返回新连接的套接字通道，如果此通道处于非阻塞模式且没有可接受的连接，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道关闭。
+			AsynchronousCloseException 如果另一个线程在accept操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在accept操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			NotYetBoundException 如果此通道的套接字尚未绑定。
+			SecurityException 如果安装了安全管理器，并且不允许访问新连接的远程端点。
+			IOException 如果发生其他I/O错误。
+	bind(SocketAddress local):final ServerSocketChannel 
+		local - 要绑定套接字的本地地址，或为null，绑定到自动分配的套接字地址。
+		△ 将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
+		此方法的调用等价于：
+			bind(local, 0);
+		返回此通道。
+		【Throws】：
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型。
+			ClosedChannelException 如果通道关闭。
+			IOException 如果发生其他I/O错误。
+			SecurityException 如果已安装安全管理器，并且其checkListen方法拒绝该操作。
+	bind(SocketAddress local, int backlog):abstract ServerSocketChannel 
+		local - 要绑定套接字的本地地址，或为null，绑定到自动分配的套接字地址。
+		backlog - 挂起连接的最大数目。
+		★ 将通道的套接字绑定到本地地址，并将套接字配置为侦听连接。
+		此方法用于在套接字和本地地址之间建立关联。一旦建立了关联，那么套接字将保持绑定状态，直到通道关闭。
+		backlog参数是套接字上挂起的最大连接数。它的确切语义是特定于实现的。具体来说，一个实现可以施加一个最大长度，或者可以选择忽略参数altogther。如果backlog参数的值为0或负值，则使用特定于实现的默认值。
+		返回此通道。
+		【Throws】：
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型。
+			ClosedChannelException 如果通道关闭。
+			IOException 如果发生其他I/O错误。
+			SecurityException 如果已安装安全管理器，并且其checkListen方法拒绝该操作。
+	getLocalAddress():abstract SocketAddress 
+		★ △ 返回此通道套接字绑定到的套接字地址。
+		如果通道绑定到Internet协议套接字地址，则此方法的返回值的类型为InetSocketAddress。
+		如果存在安全管理器集，则使用本地地址和-1作为参数调用其checkConnect方法，以查看是否允许该操作。如果不允许该操作，则返回表示环回地址和通道套接字的本地端口的SocketAddress。
+		返回套接字绑定到的SocketAddress，或者表示环回地址的SocketAddress（如果安全管理器拒绝），或者如果通道的套接字未绑定，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道关闭。
+			IOException 如果发生其他I/O错误。
+	setOption(SocketOption<T> name, T value):abstract <T> ServerSocketChannel 
+		<T> - 套接字选项值的类型
+		name - 套接字（socket）选项。
+		value - socket选项的值。对于某些套接字选项，null值可能是有效值。
+		★ △ 设置套接字选项的值。
+		返回此通道。
+		【Throws】：
+			UnsupportedOperationException 如果此通道不支持socket选项
+			IllegalArgumentException 如果该值不是此套接字选项的有效值
+			ClosedChannelException 如果该通道关闭
+			IOException 如果发生I/O错误
+	socket():abstract ServerSocket 
+		★ 检索与此通道关联的服务器套接字。
+		返回的对象不会声明任何未在ServerSocket类中声明的public方法。
+	validOps():final int 
+		△ 返回标识此通道支持的操作的操作集。
+		服务器套接字通道只支持接受新连接，因此此方法返回SelectionKey.OP_ACCEPT。
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。

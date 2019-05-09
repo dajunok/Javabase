@@ -33,18 +33,70 @@ Constructor Summary（构造器概要）：
 		
 Method Summary（方法概要）：
 	attach(Object ob):final Object 
+		ob - 要附加的对象；可以为null。
+		将给定对象附加到此键。
+		以后可以通过attachment方法检索附加的对象。一次只能附加一个对象；调用此方法将丢弃以前的任何附件。附加null可以放弃当前附件。
+		返回以前附加的对象（如果有），否则返回null。
 	attachment():final Object 
+		检索当前附件。
+		返回当前附加到此项的对象，如果没有附件，则返回null。
 	cancel():abstract void 
+		★ 请求取消此键的通道及其选择器的注册。返回时，该键将无效，并已添加到其选择器的已取消键集。在下一次选择操作中，该键将从选择器的所有键集中删除。
+		如果此键已被取消，则调用此方法无效。一旦取消，键将永远无效。
+		可以随时调用此方法。它在选择器的已取消键集上进行同步，因此，如果与涉及同一选择器的取消或selection操作同时调用，它可能会短暂阻塞。
 	channel():abstract SelectableChannel 
+		★ 返回为其创建此键的通道。即使键被取消，此方法仍将继续返回通道。
+		返回此键的通道。
 	interestOps():abstract int 
+		★ 检索此键的关注集。
+		可以保证返回的集合只包含对该键的通道有效的操作位。
+		可以随时调用此方法。它是否阻塞以及阻塞的时间长短取决于实现。
 	interestOps(int ops):abstract SelectionKey 
+		ops - 新的关注集。
+		★ 将此键的关注集设置为给定值。
+		可以随时调用此方法。它是否阻塞以及阻塞的时间长短取决于实现。
 	isAcceptable():final boolean 
+		测试此键的通道是否准备好接受新的套接字连接。
+		对k.isAcceptable()形式的此方法的调用与表达式的行为完全相同
+			 k.readyOps() & OP_ACCEPT != 0
+		如果此键的通道不支持接受套接字操作，则此方法始终返回false。
+		如果且仅当readyOps() & OP_ACCEPT为非零时返回true。
+		【Throws】：
+			CancelledKeyException 如果此键被取消了。
 	isConnectable():final boolean 
-	isReadable():final boolean 
+		测试此键的通道是否已完成或未能完成其套接字连接操作。
+		对k.isConnectable()形式的此方法的调用与表达式的行为完全相同
+			k.readyOps() & OP_CONNECT != 0
+		如果此键的通道不支持套接字连接操作，则此方法始终返回false。
+		【Throws】：
+			CancelledKeyException 如果此键被取消了。
+	isReadable():final boolean
+		测试此键的通道是否准备好读取。 
+		对k.isReadable()形式的此方法的调用与表达式的行为完全相同
+			 k.readyOps() & OP_READ != 0
+		如果此键的通道不支持读取操作，则此方法始终返回false。
+		如果且仅当readyOps() & OP_READ非零时返回true。
+		【Throws】：
+			CancelledKeyException 如果此键被取消了。
 	isValid():abstract boolean 
+		★ 指示此键是否有效。
+		键在创建时有效，并且在取消、关闭通道或关闭选择器之前保持有效。
+		如果且仅当此键有效时返回true。
 	isWritable():final boolean 
+		测试此键的通道是否准备好写入。
+		对 k.isWritable()形式的此方法的调用与表达式的行为完全相同
+			k.readyOps() & OP_WRITE != 0
+		如果此键的通道不支持写操作，则此方法始终返回false。
+		如果且仅当readyOps() & OP_WRITE非零时返回true。
+		【Throws】：
+			CancelledKeyException 如果此键被取消了。
 	readyOps():abstract int 
+		★ 检索此键的就绪操作集。
+		可以保证返回的集合只包含对该键的通道有效的操作位。
+		【Throws】：
+			CancelledKeyException 如果此键被取消了。
 	selector():abstract Selector 
+		★ 返回为此键创建的选择器。即使键被取消，此方法仍将继续返回选择器。
 	
 	
 	

@@ -1,0 +1,247 @@
+----------------------------------------SocketChannel--------------------------------------------------------------------------------------------------------------
+SocketChannel：套接字通道 【Since:1.4】
+	用于面向流的连接套接字的可选通道。
+	通过调用此类的一个open的方法来创建套接字通道。不可能为任意的、预先存在的套接字创建通道。新创建的套接字通道已打开，但尚未连接。尝试对未连接的通道调用I/O操作将导致引发NotYetConnectedException异常。套接字通道可以通过调用其connect方法进行连接；一旦连接，套接字通道将保持连接状态，直到关闭为止。套接字通道是否连接可以通过调用其isConnected方法来确定。
+	套接字通道支持非阻塞连接：可以创建一个套接字通道，并且可以通过connect方法启动与远程套接字的链接的建立过程，以便稍后通过finishConnect方法完成。可以通过调用isConnectionPending方法来确定连接操作是否正在进行。
+	套接字通道支持异步关闭，这类似于Channel类中指定的异步关闭操作。如果一个线程关闭了一个套接字的输入端，而另一个线程在套接字通道上的读取操作中被阻塞，则被阻塞线程中的读取操作将在不读取任何字节的情况下完成，并返回-1。如果一个套接字的输出端被一个线程关闭，而另一个线程在套接字通道上的写入操作中被阻塞，则被阻塞的线程将收到AsynchronousCloseException异常。
+	套接字选项是使用setOption方法配置的。套接字通道支持以下选项：
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————
+	 Option Name								Description
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————
+	 SO_SNDBUF				套接字发送缓冲区的大小
+	 SO_RCVBUF				套接字接收缓冲区的大小
+	 SO_KEEPALIVE			保持连接活动
+	 SO_REUSEADDR			再使用地址
+	 SO_LINGER				如果存在数据，则在关闭时逗留（仅当配置为阻塞模式时）
+	 TCP_NODELAY			禁用Nagle算法	
+	——————————————————————————————————————————————————————————————————————————————————————————————————————————
+	还可以支持其他（特定于实现的）选项。
+	套接字通道可供多个并发线程安全使用。它们支持并发读写，尽管在任何给定的时间内，至多有一个线程在读，至多有一个线程在写。connect和finishConnect方法相互同步，并且在这些方法之一的调用正在进行时尝试启动读或写操作将被阻塞，直到调用完成。
+	
+	
+	
+	类定义	：public abstract class SocketChannel extends AbstractSelectableChannel implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, NetworkChannel
+	实现接口	：Closeable, AutoCloseable, ByteChannel, Channel, GatheringByteChannel, InterruptibleChannel, NetworkChannel, ReadableByteChannel, ScatteringByteChannel, WritableByteChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected SocketChannel(SelectorProvider provider)
+		provider - 创建此频道的提供程序。
+		初始化此类的新实例。
+		
+Method Summary（方法概要）：
+	open():static SocketChannel 
+		打开一个套接字通道。
+		新通道是通过调用系统范围的默认SelectorProvider对象的openSocketChannel方法创建的。
+		返回一个新的套接字通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	open(SocketAddress remote):static SocketChannel 
+		remote - 要连接新通道的远程地址。
+		打开套接字通道并将其连接到远程地址。
+		这个方便方法的工作方式就好像调用open()方法，在生成的套接字通道上调用connect方法，将其远程传递，然后返回该通道。
+		返回一个新的、已连接的套接字通道。
+		【Throws】：
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			UnresolvedAddressException 如果给定的远程地址没有完全解析。
+			UnsupportedAddressTypeException 如果不支持给定远程地址的类型。
+			SecurityException 如果安装了安全管理器，并且不允许访问给定的远程端点。
+			IOException 如果发生其他I/O错误。
+	bind(SocketAddress local):abstract SocketChannel 
+		local - 绑定套接字（socket）的地址，或者为null，套接字绑定到自动分配的套接字地址。
+		★ △ 将通道的套接字绑定到本地地址。
+		此方法用于在套接字和本地地址之间建立关联。一旦建立了关联，那么套接字将保持绑定状态，直到通道关闭。如果本地参数的值为null，那么套接字将绑定到自动分配的地址。
+		返回此通道。
+		【Throws】：
+			AlreadyBoundException 如果套接字已绑定。
+			UnsupportedAddressTypeException 如果不支持给定地址的类型
+			ClosedChannelException 如果通道关闭
+			IOException 如果发生其他I/O错误
+			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。此接口的实现应指定任何必需的权限。
+	connect(SocketAddress remote):abstract boolean 
+		remote - 此通道要连接到的远程地址。
+		★ 连接此通道的套接字。
+		如果此通道处于非阻塞模式，则此方法的调用将启动非阻塞连接操作。如果立即建立连接（本地连接可能会发生这种情况），则此方法返回true。否则，此方法返回false，稍后必须通过调用finishConnect方法完成连接操作。
+		如果此通道处于阻塞模式，则此方法的调用将阻塞，直到建立连接或发生I/O错误。
+		此方法执行与Socket类完全相同的安全检查。也就是说，如果安装了安全管理器，那么此方法将验证其checkConnect方法是否允许连接到给定远程端点的地址和端口号。
+		可以随时调用此方法。如果在调用此方法的过程中调用此通道上的读或写操作，则该操作将首先阻塞，直到该调用完成。如果连接尝试已启动但失败，即，如果此方法的调用引发选中的异常，则通道将关闭。
+		如果建立了连接，则返回true；如果此通道处于非阻塞模式且连接操作正在进行，则返回false。
+		【Throws】：
+			AlreadyConnectedException 如果此通道已连接。
+			ConnectionPendingException 如果此通道上已在进行非阻塞连接操作。
+			ClosedChannelException 如果通道已关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			UnresolvedAddressException 如果给定的远程地址没有完全解析。
+			UnsupportedAddressTypeException 如果不支持给定远程地址的类型。
+			SecurityException 如果安装了安全管理器，并且不允许访问给定的远程端点。
+			IOException 如果发生其他I/O错误。
+	finishConnect():abstract boolean 
+		★ 完成连接套接字通道的过程。
+		通过将套接字通道置于非阻塞模式，然后调用其connect方法来启动非阻塞连接操作。一旦建立了连接，或者尝试失败，套接字通道将成为可连接的，并且可以调用此方法来完成连接序列。如果连接操作失败，那么调用此方法将导致引发适当的IOException异常。
+		如果此通道已连接，则此方法不会阻塞，并将立即返回true。如果此通道处于非阻塞模式，那么如果连接过程尚未完成，则此方法将返回false。如果此通道处于阻塞模式，则此方法将阻塞，直到连接完成或失败，并且始终返回true或引发描述失败的已检查异常。
+		可以随时调用此方法。如果在调用此方法的过程中调用此通道上的读或写操作，则该操作将首先阻塞，直到该调用完成。如果连接尝试失败，也就是说，如果此方法的调用引发了已检查的异常，那么通道将关闭。
+		如果且仅当此通道的套接字现在已连接时返回true。
+		【Throws】：
+			NoConnectionPendingException 如果此通道未连接且连接操作尚未启动。
+			ClosedChannelException 如果通道已关闭。
+			AsynchronousCloseException 如果另一个线程在连接操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在连接操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	getLocalAddress():abstract SocketAddress 
+		★ △ 返回此通道套接字绑定到的套接字地址。
+		如果通道绑定到Internet协议套接字地址，则此方法的返回值的类型为InetSocketAddress。
+		如果存在安全管理器集，则使用本地地址和-1作为参数调用其checkConnect方法，以查看是否允许该操作。如果不允许该操作，则返回表示环回地址和通道套接字的本地端口的SocketAddress。
+		返回套接字绑定到的SocketAddress，或者表示环回地址的SocketAddress（如果安全管理器拒绝），或者如果通道的套接字未绑定，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
+	getRemoteAddress():abstract SocketAddress 
+		★ 返回此通道套接字连接到的远程地址。
+		如果通道绑定并连接到Internet协议套接字地址，则此方法的返回值的类型为InetSocketAddress。
+		返回远程地址；如果通道的套接字未连接，则返回null。
+		【Throws】：
+			ClosedChannelException 如果通道已关闭。
+			IOException 如果发生其他I/O错误。
+	isConnected():abstract boolean 
+		★ 指示此通道的网络套接字是否已连接。
+		如果且仅当此通道的网络套接字打开并连接时返回true。
+	isConnectionPending():abstract boolean 
+		★ 指示此通道上是否正在进行连接操作。
+		如果（并且仅当）连接操作已在此通道上启动，但尚未通过调用finishConnect方法完成，则返回true。
+	read(ByteBuffer dst):abstract int 
+		dst - 要传输字节的缓冲区
+		★ △ 将一系列字节从这个通道读取到给定的缓冲区中。
+		试图从通道中读取最多r个字节，其中r是调用此方法时缓冲区中剩余的字节数，即dst.remaining()。
+		假设读取长度为n的字节序列，其中0<=n<=r。该字节序列将被传输到缓冲区中，以便序列中的第一个字节位于索引p，最后一个字节位于索引p+n-1，其中p是调用此方法时缓冲区的位置。返回时，缓冲区的位置将等于p+n；其限制(limit)将不会改变。
+		读取操作可能不会填充缓冲区，实际上它可能根本不会读取任何字节。是否这样做取决于通道的性质和状态。例如，处于非阻塞模式的套接字通道读取的字节数不能超过从套接字的输入缓冲区立即可用的字节数；同样，文件通道读取的字节数不能超过文件中的剩余字节数。但是，可以保证，如果一个通道处于阻塞模式，并且缓冲区中至少还有一个字节，那么该方法将阻塞，直到至少读取一个字节。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个读取操作，那么这个方法的调用将被阻塞，直到第一个操作完成。
+		返回读取的字节数，如果通道已到达流的末尾，则可能返回零或-1。
+		【Throws】：
+			NonReadableChannelException 如果没有打开此通道进行阅读。
+			ClosedChannelException 如果该通道关闭
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	read(ByteBuffer[] dsts):final long
+		dsts - 要传输字节的缓冲区。
+		△ 从这个通道读取一系列字节到给定的缓冲区。
+		这种形式的c.read(dsts)方法的调用与下面调用的方式完全相同。
+			c.read(dsts, 0, dsts.length);
+		返回读取的字节数，如果通道已到达流的末尾，则可能返回零或-1。
+		【Throws】：
+			NonReadableChannelException 如果没有打开此通道进行读取。
+			ClosedChannelException 如果此通道已关闭。
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误 
+	read(ByteBuffer[] dsts, int offset, int length):abstract long 
+		dsts - 要传输字节的缓冲区。
+		offset - 要传输字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于dsts.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于dsts.length-offset。
+		★ △ 将一个字节序列从此通道读取到给定缓冲区的子序列中。
+		此方法的调用尝试从该通道读取最多r个字节，其中r是给定缓冲区数组的指定子序列剩余的字节总数，即，
+			 dsts[offset].remaining()
+			     + dsts[offset+1].remaining()
+			     + ... + dsts[offset+length-1].remaining()			
+		此时调用此方法。
+		假设读取长度为n的字节序列，其中0<=n<=r。该序列的第一个dsts[offset].remaining()字节被传输到缓冲区dsts[offset]，下一个dsts[offset+1].remaining()字节被传输到缓冲区dsts[offset+1]，以此类推，直到整个字节序列被传输到给定的缓冲区。将尽可能多的字节传输到每个缓冲区，因此，除最后一个更新的缓冲区外，每个更新的缓冲区的最终位置都保证等于该缓冲区的限制（limit）。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个读取操作，那么这个方法的调用将被阻塞，直到第一个操作完成。
+		【Throws】：
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
+			NonReadableChannelException 如果没有打开此通道进行读取。
+			ClosedChannelException 如果此通道已关闭。
+			AsynchronousCloseException 如果另一个线程在读取操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在读取操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误
+	setOption(SocketOption<T> name, T value):abstract <T> SocketChannel 
+		setOption(SocketOption<T> name, T value):<T> NetworkChannel 
+		<T> - 套接字选项值的类型
+		name - 套接字（socket）选项。
+		value - socket选项的值。对于某些套接字选项，null值可能是有效值。
+		★ △ 设置套接字选项的值。
+		返回此通道。
+		【Throws】：
+			UnsupportedOperationException 如果此通道不支持socket选项
+			IllegalArgumentException 如果该值不是此套接字选项的有效值
+			ClosedChannelException 如果该通道关闭
+			IOException 如果发生I/O错误
+	shutdownInput():abstract SocketChannel 
+		★ 关闭连接进行读取，而不关闭通道。
+		一旦关闭读取，通道上的进一步读取将返回-1，即流结束指示。如果连接的输入端已经关闭，那么调用此方法没有任何效果。
+		返回此通道。
+		【Throws】：
+			NotYetConnectedException 如果此通道尚未连接。
+			ClosedChannelException 如果该通道关闭
+			IOException 如果发生I/O错误
+	shutdownOutput():abstract SocketChannel 
+		★ 关闭连接以进行写入而不关闭通道。
+		一旦关闭进行写入，则进一步尝试写入通道将引发ClosedChannelException异常。如果连接的输出端已经关闭，那么调用此方法没有任何效果。
+		返回此通道。
+		【Throws】：
+			NotYetConnectedException 如果此通道尚未连接。
+			ClosedChannelException 如果该通道关闭
+			IOException 如果发生I/O错误
+	socket():abstract Socket 
+		★ 检索与此通道关联的套接字。
+		返回的对象不会声明Socket类中未声明的任何public方法。
+		返回与此通道关联的套接字。
+	validOps():final int 
+		△ 返回标识此通道支持的操作的操作集。
+		套接字通道支持连接、读取和写入，因此此方法返回（SelectionKey.OP_CONNECT | SelectionKey.OP_READ | SelectionKey.OP_WRITE）。
+	write(ByteBuffer src):abstract int 
+		src - 从中检索字节的缓冲区。
+		★ △ 从给定缓冲区向此通道写入一个字节序列。
+		尝试向通道中写入最多r个字节，其中r是调用此方法时缓冲区中剩余的字节数，即src.remaining()。
+		假设写入长度为n的字节序列，其中0<=n<=r。此字节序列将从索引p开始的缓冲区传输，其中p是调用此方法时缓冲区的位置；最后写入的字节的索引将是p+n-1。返回时，缓冲区的位置将等于p+n；其限制（limit）将不会改变。
+		除非另有规定，写入操作只有在写入所有r请求的字节之后才会返回。某些类型的通道，取决于它们的状态，可能只写一些字节，或者可能根本不写。例如，处于非阻塞模式的套接字通道无法写入比套接字输出缓冲区中的空闲字节更多的字节。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个写操作，那么这个方法的调用将被阻塞，直到第一个操作完成。
+		返回写入的字节数，可能为零。
+		【Throws】：
+			NonWritableChannelException 如果没有打开此频道进行写入
+			ClosedChannelException 如果该通道关闭
+			AsynchronousCloseException 如果另一个线程在写入操作正在进行中关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误。
+	write(ByteBuffer[] srcs):final long 
+		srcs - 从中检索字节的缓冲区
+		△ 从给定缓冲区向此通道写入一个字节序列。
+		这种形式的c.write(srcs)方法的调用与下面调用的方式完全相同。
+			c.write(srcs, 0, srcs.length);
+		返回写入的字节数，可能为零。
+		【Throws】：
+			NonWritableChannelException 如果没有打开此频道进行写入
+			ClosedChannelException 如果该通道关闭
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道
+			ClosedByInterruptException 如果另一个线程在写操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误
+	write(ByteBuffer[] srcs, int offset, int length):abstract long 
+		srcs - 从中检索字节的缓冲区
+		offset - 要从中检索字节的第一个缓冲区的缓冲区数组内的偏移量；必须为非负且不大于srcs.length。
+		length - 要访问的缓冲区的最大数目；必须为非负且不大于srcs.length-offset。
+		★ △ 从给定缓冲区的子序列向此通道写入字节序列。
+		尝试向该通道写入最多r个字节，其中r是给定缓冲区数组的指定子序列中剩余的总字节数，即，
+		 srcs[offset].remaining()
+		     + srcs[offset+1].remaining()
+		     + ... + srcs[offset+length-1].remaining()		
+		此时调用此方法。
+		假设写入长度为n的字节序列，其中0<=n<=r。该序列的第一个srcs[offset].remaining()字节从缓冲区srcs[offset]写入，下一个srcs[offset+1].remaining()字节从缓冲区srcs[offset+1]写入，以此类推，直到写入整个字节序列。从每个缓冲区写入尽可能多的字节，因此，除最后一个更新的缓冲区外，每个更新的缓冲区的最终位置都保证等于该缓冲区的限制（limit）。
+		除非另有规定，写入操作只有在写入所有r请求的字节之后才会返回。某些类型的通道，取决于它们的状态，可能只写一些字节，或者可能根本不写。例如，在非阻塞模式下，套接字通道不能写入比套接字的输出缓冲器中的空闲字节更多的字节。
+		可以随时调用此方法。但是，如果另一个线程已经在这个通道上启动了一个写操作，那么这个方法的调用将被阻塞，直到第一个操作完成。
+		【Throws】：
+			IndexOutOfBoundsException 如果offset和length参数上的前提条件不成立。
+			NonWritableChannelException 如果没有打开此频道进行写入。
+			ClosedChannelException 如果该通道关闭
+			AsynchronousCloseException 如果另一个线程在写入操作进行时关闭此通道。
+			ClosedByInterruptException 如果另一个线程在写操作进行时中断当前线程，从而关闭通道并设置当前线程的中断状态。
+			IOException 如果发生其他I/O错误
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
