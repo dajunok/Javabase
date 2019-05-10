@@ -1,0 +1,80 @@
+----------------------------------------AbstractInterruptibleChannel--------------------------------------------------------------------------------------------------------------
+AbstractInterruptibleChannel：抽象可中断通道 【Since:1.4】
+	可中断通道的基本实现类。
+	这个类封装了实现通道异步关闭和中断所需的低级配置。具体的通道类必须分别在调用可能无限期阻塞的I/O操作之前和之后调用begin和end方法。为了确保总是调用end方法，应该在这些方法中使用try ... finally块：
+		 boolean completed = false;
+		 try {
+		     begin();
+		     completed = ...;    // Perform blocking I/O operation
+		     return ...;         // Return result
+		 } finally {
+		     end(completed);
+		 }	
+	end方法的completed参数指示I/O操作是否实际完成，也就是说，它是否具有对调用程序可见的任何效果。例如，在读取字节的操作的情况下，如果某些字节实际上被传输到调用程序的目标缓冲区，则此参数应为true。
+	具体通道类还必须以这样的方式实现implCloseChannel方法：如果在通道上的本地I/O操作中阻塞另一个线程时调用该方法，则该操作将立即返回，方法是引发异常或正常返回。如果一个线程被中断，或者被阻塞的通道被异步关闭，那么通道的end方法将抛出适当的异常。
+	此类执行实现Channel规范所需的同步。implCloseChannel方法的实现不需要与可能试图关闭通道的其他线程同步。
+	
+	
+	类定义	：public abstract class AbstractInterruptibleChannel implements Channel, InterruptibleChannel
+	实现接口	：AutoCloseable, Closeable, Channel, InterruptibleChannel
+	直接子类	：FileChannel, SelectableChannel
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected AbstractInterruptibleChannel()
+		初始化此类的新实例。
+		
+Method Summary（方法概要）：
+	begin():protected final void 
+		标记可能无限期阻塞的I/O操作的开始。
+		这个方法应该和end方法一起调用，使用一个try…最后阻塞如上所示，以实现该通道的异步关闭和中断。
+	close():final void 
+		△ 关闭此通道。
+		如果通道已经关闭，则此方法立即返回。否则，它将通道标记为已关闭，然后调用implCloseChannel方法以完成关闭操作。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	end(boolean completed):protected final void 
+		completed - 如果且仅当I/O操作成功完成，即具有对操作的调用程序可见的某些效果，则返回true。
+		标记可能无限期阻塞的I/O操作的结束。
+		该方法应该与begin方法一起调用，使用try…最后阻塞如上所示，以实现该通道的异步关闭和中断。
+		【Throws】：
+			AsynchronousCloseException 如果通道异步关闭。
+			ClosedByInterruptException 如果在I/O操作中阻塞的线程被中断。
+	implCloseChannel():protected abstract void 
+		★ 关闭此通道。
+		close方法调用此方法以执行关闭通道的实际工作。仅当通道尚未关闭时才调用此方法，并且从未多次调用此方法。
+		此方法的实现必须通过抛出异常或正常返回，安排此通道上I/O操作中阻塞的任何其他线程立即返回。
+		【Throws】：
+			IOException 如果在关闭通道时发生I/O错误。
+	isOpen():final boolean 
+		△ 指示此通道是否打开。
+		如果且仅当此通道打开时返回true。
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		

@@ -1,0 +1,58 @@
+----------------------------------------AsynchronousChannelProvider--------------------------------------------------------------------------------------------------------------
+AsynchronousChannelProvider：异步通道提供器 【Since:1.7】
+	异步通道的服务提供程序类。
+	异步通道提供器是此类的具体子类，它具有零参数构造函数并实现下面指定的抽象方法。Java虚拟机的给定调用维护一个单一的系统范围的默认提供器实例，该实例由provider方法返回。该方法的第一次调用将按下面指定的方式定位默认提供器。
+	此类中的所有方法对于多个并发线程都是安全的。
+	
+	类定义	：public abstract class AsynchronousChannelProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected AsynchronousChannelProvider()
+		初始化此类的新实例。
+
+
+Method Summary（方法概要）：
+	provider():static AsynchronousChannelProvider 
+		返回用于调用Java虚拟机的系统范围默认异步通道提供程序。
+		此方法的第一次调用定位默认提供器对象，如下所示：
+			1、如果定义了系统属性java.nio.channels.spi.AsynchronousChannelProvider，则将其视为具体提供器类的完全限定名。类将被加载并实例化；如果此过程失败，则会引发未指定的错误。
+			2、如果在系统类加载器可见的JAR文件中安装了一个提供器类，并且该JAR文件在资源目录META-INF/services中包含一个名为java.nio.channels.spi.AsynchronousChannelProvider的提供器配置文件，则使用该文件中指定的第一个类名。类将被加载并实例化；如果此过程失败，则会引发未指定的错误。
+			3、最后，如果没有通过上述任何方法指定提供器，那么系统默认提供器类将被实例化并返回结果。
+		此方法的后续调用返回第一次调用返回的提供器。
+	openAsynchronousChannelGroup(int nThreads, ThreadFactory threadFactory):abstract AsynchronousChannelGroup
+		nThreads - 池中的线程数。
+		threadFactory - 创建新线程时要使用的工厂。
+		★ 构造具有固定线程池的新异步通道组。
+		【Throws】：
+			IllegalArgumentException 如果nThreads <= 0。
+			IOException 如果发生I/O错误。
+	openAsynchronousChannelGroup(ExecutorService executor, int initialSize):abstract AsynchronousChannelGroup
+		executor - 线程池。
+		initialSize - 特定于实现的默认值为大于等于0的值或负值。
+		★ 使用给定的线程池构造新的异步通道组。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	openAsynchronousServerSocketChannel(AsynchronousChannelGroup group):abstract AsynchronousServerSocketChannel 
+		group - 通道绑定到的组，或为null以绑定到默认组。
+		★ 打开异步服务器套接字通道。
+		返回新的通道。
+		【Throws】：
+			IllegalChannelGroupException 如果创建组的提供器与此提供器不同。
+			ShutdownChannelGroupException 组已关闭。
+			IOException 如果发生I/O错误。
+	openAsynchronousSocketChannel(AsynchronousChannelGroup group):abstract AsynchronousSocketChannel 
+		group - 通道绑定到的组，或为null以绑定到默认组。
+		★ 打开异步套接字通道。
+		返回新的通道。
+		【Throws】：
+			IllegalChannelGroupException 如果创建组的提供器与此提供器不同。
+			ShutdownChannelGroupException 组已关闭。
+			IOException 如果发生I/O错误。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。

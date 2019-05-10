@@ -1,0 +1,75 @@
+----------------------------------------SelectorProvider--------------------------------------------------------------------------------------------------------------
+SelectorProvider：选择器提供程序 【Since:1.4】
+	选择器和可选通道的服务提供程序类。
+	选择器提供程序是此类的具体子类，它具有零参数构造函数并实现下面指定的抽象方法。Java虚拟机的给定调用维护一个单一的系统范围的默认提供程序实例，该实例由提provider方法返回。该方法的第一次调用将按下面指定的方式定位默认提供程序。
+	系统范围的默认提供程序由DatagramChannel、Pipe、Selector、ServerSocketChannel和SocketChannel类的静态open方法使用。它也由System.inheritedChannel()方法使用。程序可以通过实例化一个提供程序，然后直接调用该类中定义的open方法来使用默认提供程序以外的提供程序。
+	此类中的所有方法对于多个并发线程都是安全的。
+	
+	类定义	：public abstract class SelectorProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected SelectorProvider()
+		初始化此类的新实例。
+
+
+Method Summary（方法概要）：
+	provider():static SelectorProvider 
+		返回用于调用Java虚拟机的系统范围默认选择器提供程序。
+		此方法的第一次调用定位默认提供程序对象，如下所示：
+			1、如果定义了系统属性java.nio.channels.spi.SelectorProvider，则将其视为具体提供程序类的完全限定名。类将被加载并实例化；如果此过程失败，则会引发未指定的错误。
+			2、如果在系统类加载器可见的JAR文件中安装了提供程序类，并且该JAR文件在资源目录META-INF/services中包含名为java.nio.channels.spi.SelectorProvider的提供程序配置文件，则采用该文件中指定的第一个类名。类将被加载并实例化；如果此过程失败，则会引发未指定的错误。
+			3、最后，如果没有通过上述任何方法指定提供程序，那么系统默认提供程序类将被实例化并返回结果。
+		此方法的后续调用返回第一次调用返回的提供程序。
+	inheritedChannel():Channel 
+		返回从创建该Java虚拟机的实体继承的通道。
+		在许多操作系统上，可以以允许进程从创建进程的实体继承通道的方式启动诸如Java虚拟机之类的进程。这样做的方式取决于系统，也取决于可能连接通道的实体。例如，在UNIX系统上，Internet服务守护进程（inetd）用于在请求到达相关网络端口时启动程序以服务请求。在本例中，启动的进程继承表示网络套接字的通道。
+		如果继承的通道表示网络套接字，则此方法返回的通道类型确定如下：
+			● 如果继承的通道表示面向流的连接套接字，则返回SocketChannel。套接字通道至少在最初处于阻塞模式，绑定到套接字地址，并连接到对等端。
+			● 如果继承的通道表示面向流的侦听套接字，则返回ServerSocketChannel。服务器套接字通道至少在最初处于阻塞模式，并绑定到套接字地址。
+			● 如果继承的通道是面向数据报的套接字，则返回DatagramChannel。数据报通道至少在最初处于阻塞模式，并绑定到一个套接字地址。
+		该方法除了可以描述面向网络的通道外，还可以返回其它类型的通道。
+		此方法的第一次调用创建返回的通道。此方法的后续调用返回相同的通道。
+		返回继承的通道（如果有），否则返回null。
+		【Throws】：
+			IOException 如果发生I/O错误
+			SecurityException 如果已安装安全管理器，并且它拒绝RuntimePermission("inheritedChannel")。
+	openDatagramChannel():abstract DatagramChannel 
+		★ 打开数据报通道。
+		返回一个新的通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	openDatagramChannel(ProtocolFamily family):abstract DatagramChannel 
+		family - 协议族。
+		★ 打开数据报通道。
+		返回一个新的数据报通道。
+		【Throws】：
+			UnsupportedOperationException 如果不支持指定的协议系列。
+			IOException 如果发生I/O错误。
+	openPipe():abstract Pipe 
+		★ 打开管道。
+		返回一个新的管道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	openSelector():abstract AbstractSelector 
+		★ 打开选择器。
+		返回新的选择器。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	openServerSocketChannel():abstract ServerSocketChannel 
+		★ 打开服务器套接字通道。
+		返回新的通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	openSocketChannel():abstract SocketChannel 
+		★ 打开套接字通道。
+		返回新的通道。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。

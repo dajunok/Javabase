@@ -1,0 +1,70 @@
+----------------------------------------AbstractSelector--------------------------------------------------------------------------------------------------------------
+AbstractSelector：抽象选择器 【Since:1.4】
+	选择器的基本实现类。
+	此类封装了实现selection操作中断所需的低级配置。具体的选择器类必须分别在调用可能无限期阻塞的I/O操作之前和之后调用begin和end方法。为了确保总是调用end方法，应该在这些方法中使用try ... finally块：
+		 try {
+		     begin();
+		     // Perform blocking I/O operation here
+		     ...
+		 } finally {
+		     end();
+		 }	
+	此类还定义了用于维护选择器的已取消键集和从其通道的键集中删除键的方法，并声明由可选通道的register方法调用的抽象register方法，以便执行注册通道的实际工作。
+	
+	
+	类定义	：public abstract class AbstractSelector extends Selector
+	实现接口	：AutoCloseable, Closeable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected AbstractSelector(SelectorProvider provider)
+		provider - 创建此选择器的提供程序。
+		初始化此类的新实例。
+
+
+Method Summary（方法概要）：
+	begin():protected final void 
+		标记可能无限期阻塞的I/O操作的开始。
+		应使用如上所示的try ... finally块，将此方法与end方法一起调用，以实现此选择器的中断。
+		如果线程的中断（interrupt）方法在对选择器执行I/O操作时被阻塞，则调用此方法将安排调用选择器的唤醒（wakeup）方法。		
+	cancelledKeys():protected final Set<SelectionKey> 
+		检索此选择器的已取消键集。
+		仅当对该集进行同步时，才应使用该集。		
+	close():final void 
+		关闭此选择器。
+		如果选择器已关闭，则此方法立即返回。否则，它将选择器标记为关闭，然后调用implCloseSelector方法以完成关闭操作。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	deregister(AbstractSelectionKey key):protected final void 
+		key - 要删除的选择键。
+		从通道的键集中删除给定键。
+		选择器必须为其注销的每个通道调用此方法。
+	end():protected final void 
+		标记可能无限期阻塞的I/O操作的结束。
+		应该使用如上所示的try ... finally块，与begin方法一起调用此方法，以实现此选择器的中断。
+	implCloseSelector():protected abstract void 
+		关闭此选择器。
+		close方法调用此方法以执行关闭选择器的实际工作。只有在选择器尚未关闭且从未多次调用的情况下，才调用此方法。
+		此方法的实现必须安排在此选择器上的选择（selection）操作中被阻塞的任何其他线程立即返回，就像调用唤醒（wakeup）方法一样。
+		【Throws】：
+			IOException 如果在关闭选择器时发生I/O错误。
+	isOpen():final boolean 
+		指示此选择器是否打开。
+		如果且仅当此选择器打开时返回true。
+	provider():final SelectorProvider 
+		返回创建此通道的提供程序。
+	register(AbstractSelectableChannel ch,int ops, Object att):protected abstract SelectionKey 
+		ch - 要注册的通道。
+		ops - 初始关注集，必须有效。
+		att - 结果键的初始附件。
+		用这个选择器注册给定的通道。
+		此方法由通道的register方法调用，以执行用此选择器注册通道的实际工作。
+		返回一个新的键，用这个选择器表示给定通道的注册。
+		
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
