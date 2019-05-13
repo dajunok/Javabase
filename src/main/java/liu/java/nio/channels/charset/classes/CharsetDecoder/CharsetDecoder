@@ -1,0 +1,190 @@
+----------------------------------------CharsetDecoder--------------------------------------------------------------------------------------------------------------
+CharsetDecoder：字符集解码器 【Since:1.4】
+	可以将特定字符集中的字节序列转换为16位Unicode字符序列的引擎。
+	在字节缓冲区或一系列这样的缓冲区中提供输入字节序列。输出字符序列写入字符缓冲区或一系列这样的缓冲区。解码器应始终通过以下方法调用序列使用，以下简称解码操作：
+		1、通过复位方法复位解码器，除非以前没有使用过；
+		2、调用decode方法零次或多次，只要有额外的输入可用，为endOfInput参数传递false，填充输入缓冲区，并在调用之间刷新输出缓冲区；
+		3、最后一次调用decode方法，为endOfInput参数传递true；然后
+		4、调用flush方法，使解码器可以将任何内部状态刷新到输出缓冲区。
+	decode方法的每个调用将从输入缓冲器尽可能多地解码字节，将所得字符写入输出缓冲器。当需要更多的输入时，当输出缓冲器中没有足够的空间，或者当发生解码错误时，decode方法返回。在每种情况下，都会返回一个CoderResult对象来描述终止的原因。调用程序可以检查此对象并填充输入缓冲区、刷新输出缓冲区，或者根据需要尝试从解码错误中恢复，然后重试。
+	解码错误有两种常见类型。如果此字符集的输入字节序列不合法，则认为输入格式不正确。如果输入字节序列合法，但无法映射到有效的Unicode字符，则会遇到不可映射的字符。
+	解码错误的处理方式取决于为该类型错误请求的操作，该操作由CodingErrorAction类的实例描述。可能的错误操作是忽略错误的输入，通过返回的CoderResult对象向调用程序报告错误，或者用替换字符串的当前值替换错误的输入。替换具有初始值“\uFFFD”，其值可以通过replaceWith方法更改。
+	格式错误的输入和不可映射的字符错误的默认操作是报告它们。格式错误的输入错误操作可以通过onMalformedInput方法更改；不可映射的字符操作可以通过onUnmappableCharacter方法更改。
+	这个类被设计用来处理解码过程的许多细节，包括错误操作的实现。特定字符集的解码器是此类的具体子类，只需要实现抽象的decodeLoop方法，该方法封装了基本的解码循环。另外，维护内部状态的子类应该重写implFlush和implReset方法。
+	这个类的实例对于多个并发线程的使用是不安全的。
+	
+	
+	
+	
+	类定义	：public abstract class CharsetDecoder
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected CharsetDecoder(Charset cs,float averageCharsPerByte,float maxCharsPerByte)
+		cs - 创建此解码器的字符集。
+		averageCharsPerByte - 一个正float值，指示为每个输入字节生成的预期字符数。
+		maxCharsPerByte - 表示每个输入字节将产生的最大字符数的正float值。
+		初始化新的解码器。新的解码器将具有给定的每字节字符值，其替换将是字符串“\uFFFD”。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+Method Summary（方法概要）：
+	averageCharsPerByte():final float 
+		返回将为每个输入字节生成的平均字符数。这个启发式值可以用来估计给定输入序列所需的输出缓冲区的大小。
+		返回每个输入字节产生的平均字符数。
+	charset():final Charset 
+		返回创建此解码器的字符集。
+	decode(ByteBuffer in):final CharBuffer 
+		in - 输入字节缓冲区。
+		将单个输入字节缓冲区的剩余内容解码为新分配的字符缓冲区的方便方法。
+		该方法实现了一个完整的解码操作，即重置该解码器，然后对给定字节缓冲区中的字节进行解码，最后刷新该解码器。因此，如果解码操作已在进行中，则不应调用此方法。
+		返回包含解码操作结果的新分配的字符缓冲区。缓冲区的位置将为零，其限制将跟随写入的最后一个字符。
+		【Throws】：
+			IllegalStateException 如果解码操作已在进行中。
+			MalformedInputException 如果从输入缓冲区当前位置开始的字节序列对此字符集不合法，并且当前格式错误的输入操作是CodingErrorAction.REPORT。
+			UnmappableCharacterException 如果从输入缓冲区当前位置开始的字节序列无法映射到等效的字符序列，并且当前不可映射的字符操作是CodingErrorAction.REPORT。
+			CharacterCodingException
+	decode(ByteBuffer in, CharBuffer out,boolean endOfInput):final CoderResult 
+		in - 输入字节缓冲区。
+		out - 输出字符缓冲区。
+		endOfInput - 如果且仅当调用程序不能提供超出给定缓冲区的额外输入字节时为true。
+		从给定的输入缓冲区解码尽可能多的字节，将结果写入给定的输出缓冲区。
+		缓冲区从当前位置开始读取和写入。最多读取in.remaining()字节，最多写入out.remaining()字符。缓冲区的位置将被提升以反映读取的字节和写入的字符，但它们的标记（mark）和限制（limit）不会被修改。
+		除了从输入缓冲区读取字节并将字符写入输出缓冲区之外，此方法还返回一个CoderResult对象来描述其终止原因：
+			● CoderResult.UNDERFLOW		表示已解码尽可能多的输入缓冲区。如果没有进一步的输入，那么调用程序可以继续解码操作的下一步。否则，应该使用进一步的输入再次调用此方法。
+			● CoderResult.OVERFLOW		表示输出缓冲区中没有足够的空间来解码更多的字节。应该使用剩余字符更多的输出缓冲区再次调用此方法。这通常是通过从输出缓冲区中排出任何解码字符来完成的。
+			● malformed-input			表示检测到格式错误的输入错误。格式错误的字节从输入缓冲区的（可能是递增的）位置开始；格式错误的字节数可以通过调用结果对象的length方法来确定。只有当解码器的错误操作为CodingErrorAction.REPORT时，此情况才适用；否则，将根据请求忽略或替换错误输入。
+			● unmappable-character		表示检测到不可映射字符错误。解码不可映射字符的字节从输入缓冲区（可能递增）的位置开始；这些字节的数目可以通过调用结果对象的length方法来确定。只有当解码器的不可映射操作为CodingErrorAction.REPORT时，此情况才适用；否则将根据要求忽略或替换不可映射字符。
+		在任何情况下，如果要在同一解码操作中重新调用此方法，则应注意保留输入缓冲区中剩余的任何字节，以便它们可用于下一次调用。
+		endOfInput参数通知此方法调用程序是否可以提供超出给定输入缓冲区中包含的更多输入。如果有可能提供额外的输入，那么调用程序应该为此参数传递false；如果没有可能提供进一步的输入，那么调用程序应该传递true。在一次调用中传递false并随后发现实际上没有进一步的输入是可用的，这不是错误的，事实上也是非常常见的。但是，至关重要的是，此方法在一系列调用中的最后一次调用始终传递true，以便将任何剩余的未编码输入视为格式错误。
+		此方法通过调用decodeLoop方法、解释其结果、处理错误条件并在必要时重新调用它来工作。
+		返回描述终止原因的编码器结果对象。
+		【Throws】：
+			IllegalStateException 如果一个解码操作已经在进行中，并且前面的步骤既不是reset方法的调用，也不是该方法具有endOfInput参数的false值，也不是endOfInput参数值为true但返回值指示解码操作不完整的方法的调用。
+			CoderMalfunctionError 如果对decodeLoop方法的调用引发意外的异常。
+	decodeLoop(ByteBuffer in,CharBuffer out):protected abstract CoderResult 
+		in - 输入字节缓冲区。
+		out - 输出字符缓冲区。
+		★ 将一个或多个字节解码为一个或多个字符。
+		此方法封装基本解码循环，尽可能多地解码字节，直到它耗尽输入、在输出缓冲区中耗尽空间或遇到解码错误。decode方法调用此方法，该方法处理结果解释和错误恢复。
+		缓冲区从当前位置开始读取和写入。最多读取in.remaining()字节，最多写入out.remaining()字符。缓冲区的位置将被提升以反映读取的字节和写入的字符，但它们的标记（mark）和限制（limit）不会被修改。
+		此方法返回CoderResult对象，以与decode方法相同的方式描述其终止原因。此方法的大多数实现将通过返回适当的结果对象来处理解码错误，以便由decode方法进行解释。一个优化的实现可以检查相关的错误操作并实现该操作本身。
+		此方法的一个实现可以通过返回coderresult.underflow来执行任意先行，直到它收到足够的输入。
+		返回描述终止原因的编码器结果对象。
+	detectedCharset():Charset 
+		检索此解码器检测到的字符集（可选操作）。
+		如果解码器实现自动检测字符集，则此方法在检测到实际字符集后返回该字符集。在该点之后，此方法返回当前解码操作持续时间内的相同值。如果尚未读取足够的输入字节来确定实际的字符集，则此方法将引发IllegalStateException异常。
+		此方法的默认实现总是引发一个不受支持的操作异常；它应该被自动检测解码器重写以返回适当的值。
+		返回此自动检测解码器检测到的字符集，或者如果尚未确定字符集，则返回null。
+		【Throws】：
+			IllegalStateException 如果读取的字节不足以确定字符集。
+			UnsupportedOperationException 如果解码器不实现自动检测字符集。
+	flush(CharBuffer out):final CoderResult 
+		out - 输出字符缓冲区。
+		刷新此解码器。
+		一些解码器保持内部状态，可能需要在读取整个输入序列后将一些最终字符写入输出缓冲区。
+		任何额外的输出从当前位置开始写入输出缓冲区。最多写入out.remaining()字符。缓冲区的位置将适当提前，但其标记和限制将不被修改。
+		如果此方法成功完成，则返回CoderResult.UNDERFLOW。如果输出缓冲区空间不足，则返回CoderResult.OVERFLOW。如果发生这种情况，则必须再次调用此方法，并使用具有更多空间的输出缓冲区，以便完成当前的解码操作。
+		如果此解码器已刷新，则调用此方法无效。
+		此方法调用implFlush方法来执行实际的刷新操作。
+		返回编码器结果对象，CoderResult.UNDERFLOW或CoderResult.OVERFLOW。
+		【Throws】：
+			IllegalStateException 如果当前解码操作的上一步是对endOfInput参数值为true的flush方法或三参数decode方法的调用。
+	implFlush(CharBuffer out):protected CoderResult 
+		out - 输出字符缓冲区。
+		刷新此解码器。
+		此方法的默认实现不执行任何操作，并且始终返回CoderResult.UNDERFLOW。此方法应被解码器重写，解码器可能需要在读取整个输入序列后将最终字符写入输出缓冲区。
+		返回编码器结果对象，CoderResult.UNDERFLOW或CoderResult.OVERFLOW。
+	implOnMalformedInput(CodingErrorAction newAction):protected void 
+		newAction - 新的动作。
+		报告对此解码器格式错误的输入操作的更改。
+		此方法的默认实现不起任何作用。此方法应被要求通知格式错误的输入操作更改的解码器重写。
+	implOnUnmappableCharacter(CodingErrorAction newAction):protected void 
+		newAction - 新的动作。
+		报告此解码器的不可映射字符操作的更改。
+		此方法的默认实现不起任何作用。此方法应该被需要通知不可映射字符操作的更改的解码器重写。
+	implReplaceWith(String newReplacement):protected void 
+		newReplacement - 重置值。
+		报告此解码器的替换值的更改。
+		此方法的默认实现不起任何作用。此方法应被要求通知替换内容的解码器重写。
+	implReset():protected void 
+		重置此解码器，清除任何字符集特定的内部状态。
+		此方法的默认实现不起任何作用。此方法应被保持内部状态的解码器重写。
+	isAutoDetecting():boolean 
+		告诉解码器是否实现自动检测字符集。
+		此方法的默认实现总是返回false；它应该被自动检测解码器重写以返回true。
+	isCharsetDetected():boolean 
+		告知该解码器是否已经检测到字符集（可选操作）。
+		如果解码器实现自动检测字符集，那么在解码操作期间，该方法可能会开始返回true，以指示在输入字节序列中检测到特定字符集。一旦发生这种情况，可以调用detectedCharset方法来检索检测到的字符集。
+		此方法返回false并不意味着尚未解码任何字节。一些自动检测解码器能够对输入字节序列的部分甚至全部进行解码，而无需固定特定的字符集。
+		此方法的默认实现始终引发一个不受支持的操作异常；一旦确定了输入字符集，自动检测解码器应重写该异常以返回true。
+		如果且仅当此解码器检测到特定字符集时返回true。
+		【Throws】：
+			UnsupportedOperationException 如果解码器不实现自动检测字符集。
+	malformedInputAction():CodingErrorAction 
+		对于格式错误的输入错误，返回此解码器的当前操作。
+		返回当前格式不正确的输入操作，从不返回null。
+	maxCharsPerByte():final float 
+		返回将为每个输入字节生成的最大字符数。该值可用于计算给定输入序列所需的输出缓冲区的最坏情况大小。
+		返回每个输入字节将产生的最大字符数。
+	onMalformedInput(CodingErrorAction newAction):final CharsetDecoder 
+		newAction - 新动作；不能为null。
+		更改此解码器对格式错误的输入错误的操作。
+		此方法调用implOnMalformedInput方法，传递新动作。
+		返回此解码器。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	onUnmappableCharacter(CodingErrorAction newAction):final CharsetDecoder 
+		newAction - 新动作；不能为null。
+		更改解码器对不可映射字符错误的操作。
+		此方法调用implOnUnmappableCharacter方法，传递新动作。
+		返回此解码器。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	replacement():final String 
+		返回此解码器的替换值。
+		返回此解码器的当前替换项从不为null。
+	replaceWith(String newReplacement):final CharsetDecoder 
+		newReplacement - 新的替换值；不能为null，并且必须具有非零长度。
+		更改此解码器的替换值。
+		在检查新替换是否可接受后，此方法调用implReplaceWith方法，并传递新替换值。
+		返回此解码器。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	reset():final CharsetDecoder 
+		重置此解码器，清除任何内部状态。
+		此方法重置字符集独立状态，并调用implReset方法以执行任何特定于字符集的重置操作。
+		返回此解码器。
+	unmappableCharacterAction():CodingErrorAction 
+		返回解码器对不可映射字符错误的当前操作。
+		返回当前不可映射的字符操作，它从不为null。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+
+

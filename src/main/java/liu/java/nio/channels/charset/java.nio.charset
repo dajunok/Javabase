@@ -1,0 +1,56 @@
+------------------------------------------Package java.io--------------------------------------------------------------------------------------------------------------
+											【Since 1.4】
+Package Description（包描述说明）：
+	定义字符集、解码器和编码器，用于在字节和Unicode字符之间进行转换。
+	————————————————————————————————————————————————————————————————————————
+	 Class name							Description
+	————————————————————————————————————————————————————————————————————————
+	 Charset			   		 字符和字节之间的命名映射
+	 CharsetDecoder				将字节解码为字符
+	 CharsetEncoder				将字符编码为字节
+	 CoderResult				描述编码器结果
+	 CodingErrorAction  		描述检测到编码错误时要采取的操作
+	————————————————————————————————————————————————————————————————————————
+	字符集被命名为16位Unicode字符序列和字节序列之间的映射，在RFC 2278中定义。解码器是将特定字符集中的字节转换为字符的引擎，编码器是将字符转换为字节的引擎。编码器和解码器对字节和字符缓冲区进行操作。它们统称为编码器。
+	Charset类定义了为给定字符集创建编码器和检索与字符集关联的各种名称的方法。它还定义了静态方法，用于测试特定的字符集是否被支持，用于根据名称定位字符集实例，以及构造包含当前Java虚拟机中支持可用的每个字符集的映射。
+	大多数用户不会直接使用这些类；相反，他们将使用String类中现有的与字符集相关的构造函数和方法，以及现有的InputStreamReader和OutputStreamWriter类，所有这些类的实现都已重新编写以使用此包中定义的字符集工具。对InputStreamReader和OutputStreamWriter类进行了少量更改，以便在这些类的实例的构造中指定显式的Charset对象。
+	可以通过java.nio.charset.spi包中CharsetProvider类中定义的接口提供对新字符集的支持。
+	除非另有说明，否则将null参数传递给此包中任何类或接口中的构造函数或方法将导致引发NullPointerException。
+	
+	
+Class Summary(类概要)
+	Charset
+	CharsetDecoder
+	CharsetEncoder
+	CoderResult
+	CodingErrorAction
+	StandardCharsets	
+	
+Exceptions Summary（异常概要）
+	CharacterCodingException
+	IllegalCharsetNameException
+	MalformedInputException
+	UnmappableCharacterException
+	UnsupportedCharsetException
+
+Errors(错误)
+	CoderMalfunctionError
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,198 @@
+----------------------------------------Charset--------------------------------------------------------------------------------------------------------------
+Charset：字符集 【Since:1.4】
+	16位Unicode代码单元序列和字节序列之间的命名映射。此类定义用于创建解码器和编码器以及检索与字符集关联的各种名称的方法。此类的实例是不可变的。
+	该类还定义了静态方法，用于测试特定的字符集是否被支持，用于根据名称定位字符集实例，以及构造包含当前Java虚拟机中支持可用的每个字符集的映射。可以通过CharsetProvider类中定义的服务提供程序接口添加对新字符集的支持。
+	此类中定义的所有方法对于多个并发线程都是安全的。
+	
+	Charset names(字符集名称)
+		字符集由以下字符组成的字符串命名：
+			● 大写字母“A”到“Z” ('\u0041' 到 '\u005a')，
+			● 小写字母'a'到'z'('\u0061' 到 '\u007a')，
+			● 数字“0”到“9” ('\u0030' 到 '\u0039')，
+			● 破折号字符“-”('\u002d', HYPHEN-MINUS)，
+			● 加号“+” ('\u002b', PLUS SIGN)，
+			● 句点字符“.” ('\u002e', FULL STOP)，
+			● 冒号字符“：”('\u003a', COLON)，和
+			● 下划线字符 '_' ('\u005f', LOW LINE)。
+		字符集名称必须以字母或数字开头。空字符串不是合法的字符集名称。字符集名称不区分大小写；也就是说，比较字符集名称时总是忽略大小写。字符集名称通常遵循RFC 2278:IANA字符集注册过程中记录的约定。
+		每个字符集都有一个规范名称，也可以有一个或多个别名。此类的name方法返回规范名称。按照惯例，规范名称通常为大写。aliases方法返回字符集的别名。
+		一些字符集具有与Java平台的以前版本兼容的历史名称。字符集的历史名称要么是其规范名称，要么是其别名。历史名称由InputStreamReader和OutputStreamWriter类的getEncoding()方法返回。
+		如果在IANA Charset注册表中列出的字符集是由Java平台的实现支持的，那么它的规范名称必须是注册表中列出的名称。许多字符集在注册表中有多个名称，在这种情况下，注册表将其中一个名称标识为MIME-preferred。如果一个字符集有多个注册表名，则其规范名称必须是MIME-preferred名称，注册表中的其他名称必须是有效别名。如果IANA注册表中没有列出支持的字符集，则其规范名称必须以字符串"X-"或"x-"之一开头。
+		IANA字符集注册表确实会随着时间的推移而变化，因此特定字符集的规范名称和别名也会随着时间的推移而变化。为了确保兼容性，建议不要从字符集中删除别名，并且如果更改了字符集的规范名称，则会将其以前的规范名称改为别名。
+	
+	Standard charsets（标准字符集）
+		Java平台的每一个实现都需要支持以下标准字符集。请参考您的实现的发行文档，以查看是否支持任何其他字符集。这些可选字符集的行为在实现之间可能有所不同。
+		——————————————————————————————————————————————————————————————————————————————————————————
+		 Charset											Description
+		——————————————————————————————————————————————————————————————————————————————————————————
+		 US-ASCII				Seven-bit ASCII, a.k.a. ISO646-US, a.k.a. the Basic Latin block of the Unicode character set
+		 ISO-8859-1  			ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1
+		 UTF-8					Eight-bit UCS Transformation Format
+		 UTF-16BE				Sixteen-bit UCS Transformation Format, big-endian byte order
+		 UTF-16LE				Sixteen-bit UCS Transformation Format, little-endian byte order
+		 UTF-16					Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark	
+		——————————————————————————————————————————————————————————————————————————————————————————	
+		UTF-8字符集由RFC 2279指定；它基于的转换格式在ISO 10646-1的修订版2中指定，并且在Unicode标准中也有描述。
+		UTF-16字符集由RFC2781指定；它们基于的转换格式在ISO 10646-1的修改件1中指定，并在Unicode标准中描述。
+		UTF-16字符集使用16位数量，因此对字节顺序敏感。在这些编码中，流的字节顺序可以用Unicode字符\ufeff'表示的初始字节顺序标记来表示。字节顺序标记处理如下：
+			● 解码时，UTF-16BE和UTF-16LE字符集将初始字节顺序标记解释为零宽度的非中断空格；编码时，它们不写入字节顺序标记。
+			● 解码时，UTF-16字符集解释输入流开始处的字节顺序标记以指示流的字节顺序，但如果没有字节顺序标记，则默认为big-endian；编码时，使用big-endian字节顺序并写入big-endian字节顺序标记。
+		在任何情况下，输入序列的第一个元素之后出现的字节顺序标记都不会被省略，因为相同的代码用于表示零宽度的非中断空格。
+		Java虚拟机的每一个实例都有默认字符集，它可能是或可能不是标准字符集之一。默认字符集是在虚拟机启动期间确定的，通常取决于底层操作系统使用的区域设置和字符集。
+		StandardCharset类为每个标准字符集定义常量。
+	
+	Terminology（术语）
+		这个类的名称取自RFC 2278中使用的术语。在该文档中，字符集定义为一个或多个编码字符集和字符编码方案的组合。（这一定义令人困惑；其他一些软件系统将字符集定义为编码字符集的同义词。）
+		编码字符集是一组抽象字符和一组整数之间的映射。US-ASCII、ISO 8859-1、JIS X 0201和Unicode是编码字符集的示例。
+		一些标准已经定义了一个字符集，它只是一组抽象字符，没有关联的指定编号。字母表就是这样一个字符集的例子。然而，字符集和编码字符集之间的细微差别在实践中很少使用；前者已经成为后者的一种简短形式，包括在Java API规范中。
+		字符编码方案是一个或多个编码字符集与一组八位字节（8位字节）序列之间的映射。UTF-8、UTF-16、ISO 2022和EUC是字符编码方案的示例。编码方案通常与特定的编码字符集相关联；例如，UTF-8仅用于编码Unicode。但是，有些方案与多个编码字符集相关；例如，EUC可以用于对各种亚洲编码字符集中的字符进行编码。
+		当编码字符集专门用于单个字符编码方案时，通常会为编码字符集命名相应的字符集；否则，通常会为编码方案命名字符集，可能还会为其支持的编码字符集的区域设置命名字符集。因此，US-ASCII既是编码字符集的名称，也是编码字符集的名称，而EUC-JP是编码日语的JIS X 0201、 JIS X 0208和JIS X 0212 编码字符集的名称。
+		Java编程语言的本机字符编码是UTF-16。因此，Java平台中的字符集定义了十六位UTF-16代码单元序列（即字符序列）和字节序列之间的映射。
+		
+		
+	
+	类定义	：public abstract class Charset implements Comparable<Charset>
+	实现接口	：Comparable<Charset>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected Charset(String canonicalName, String[] aliases)
+		canonicalName - 此字符集的规范名称。
+		aliases - 此字符集别名的数组，如果没有别名，则为null。
+		用给定的规范名称和别名集初始化新的字符集。
+		【Throws】：
+			IllegalCharsetNameException 如果规范名称或任何别名是非法的。
+			
+Method Summary（方法概要）：
+	availableCharsets():static SortedMap<String,Charset> 
+		构造从规范字符集名称到字符集对象的排序映射。
+		此方法返回的映射将为每个字符集提供一个条目，在当前Java虚拟机中支持可用。如果两个或多个受支持的字符集具有相同的规范名称，则生成的映射将只包含其中一个字符集；未指定将包含哪个字符集。
+		调用此方法以及随后使用生成的映射可能会导致耗时的磁盘或网络I/O操作。此方法适用于需要枚举所有可用字符集的应用程序，例如允许用户选择字符集。forName方法不使用此方法，而是使用有效的增量查找算法。
+		如果新的字符集提供程序动态地提供给当前的Java虚拟机，则该方法可以在不同的时间返回不同的结果。在没有这种更改的情况下，此方法返回的字符集正是那些可以通过forName方法检索到的字符集。
+		返回从规范字符集名称到字符集对象的不可变、不区分大小写的映射。
+	defaultCharset():static Charset 
+		返回此Java虚拟机的默认字符集。
+		默认字符集是在虚拟机启动期间确定的，通常取决于底层操作系统的区域设置（locale）和字符集。
+	forName(String charsetName):static Charset 
+		charsetName - 请求的字符集的名称；可以是规范名称，也可以是别名。
+		返回命名字符集的字符集对象。
+		【Throws】：
+			IllegalCharsetNameException 如果给定的字符集名称非法。
+			IllegalArgumentException 如果给定的charsetName为null。
+			UnsupportedCharsetException 如果在Java虚拟机的这个实例中不支持命名的字符集。
+	isSupported(String charsetName):static boolean 
+		charsetName - 请求的字符集的名称；可以是规范名称，也可以是别名。
+		指示是否支持命名字符集。
+		如果在当前Java虚拟机中提供了对命名字符集的支持，则返回true。
+		【Throws】：
+			IllegalCharsetNameException 如果给定的字符集名称非法。
+			IllegalArgumentException 如果给定的charsetName为null。
+	aliases():final Set<String> 
+		返回包含此字符集别名的集合。		
+	canEncode():boolean 
+		指示此字符集是否支持编码。
+		几乎所有字符集都支持编码。主要的例外是特殊用途的自动检测字符集，其解码器可以通过检查输入字节序列来确定正在使用的几种可能的编码方案中的哪一种。此类字符集不支持编码，因为无法确定在输出上应使用哪种编码。此类字符集的实现应重写此方法以返回false。
+		如果且仅当此字符集支持编码时返回true。
+	compareTo(Charset that):final int 
+		that - 要与此字符集进行比较的字符集。
+		△ 将此字符集与另一个字符集进行比较。
+		字符集按其规范名称排序，不考虑大小写。
+		返回负整数、零或正整数，因为此字符集小于、等于或大于指定的字符集。
+	contains(Charset cs):abstract boolean 
+		cs - 给定字符集。
+		★ 指示此字符集是否包含给定的字符集。
+		一个字符集C被称为包含一个字符集D，如果并且仅如果，在D中可表示的每个字符在C中也可表示。如果这个关系成立，那么就可以保证，可以在D中编码的每个字符串也可以在C中编码，而不执行任何替换。
+		C包含D并不意味着在C中由特定字节序列表示的每个字符都由相同的字节序列表示，尽管有时是这样。
+		每个字符集都包含自己。
+		此方法计算包含关系的近似值：如果返回true，则已知给定的字符集包含在此字符集中；但是，如果返回false，则不一定指定的字符集不包含在此字符集中。
+		如果给定的字符集包含在此字符集中，则返回true。
+	decode(ByteBuffer bb):final CharBuffer 
+		bb - 要解码的字节缓冲区。
+		将此字符集中的字节解码为Unicode字符的方便方法。
+		对字符集cs调用此方法将返回与以下表达式相同的结果
+		     cs.newDecoder()
+		       .onMalformedInput(CodingErrorAction.REPLACE)
+		       .onUnmappableCharacter(CodingErrorAction.REPLACE)
+		       .decode(bb); 	
+		但它可能更高效，因为它可以在连续调用之间缓存解码器。
+		此方法总是用此字符集的默认替换字节数组替换格式错误的输入和不可映射的字符序列。为了检测这些序列，直接使用CharsetDecoder.decode(java.nio.ByteBuffer)方法。	
+		返回包含解码字符的字符缓冲区。
+	displayName():String 
+		为默认区域设置（locale）返回此字符集的可读名称。
+		此方法的默认实现只返回此字符集的规范名称。此类的具体子类可以重写此方法，以便提供本地化的显示名称。
+		返回默认区域设置（locale）中此字符集的显示名称。
+	displayName(Locale locale):String 
+		locale - 要检索显示名称的区域设置。
+		返回给定区域设置（locale）的此字符集的可读名称。
+		此方法的默认实现只返回此字符集的规范名称。此类的具体子类可以重写此方法，以便提供本地化的显示名称。
+	encode(String str):final ByteBuffer 
+		str - 要编码的字符串。
+		将字符串编码为该字符集中的字节的便利方法。
+		对字符集cs调用此方法将返回与以下表达式相同的结果
+			cs.encode(CharBuffer.wrap(s)); 
+		返回包含编码字符的字节缓冲区。
+	encode(CharBuffer cb):final ByteBuffer 
+		cb - 要编码的字符缓冲区。
+		将Unicode字符编码为此字符集中的字节的方便方法。
+		对字符集cs调用此方法将返回与以下表达式相同的结果
+		     cs.newEncoder()
+		       .onMalformedInput(CodingErrorAction.REPLACE)
+		       .onUnmappableCharacter(CodingErrorAction.REPLACE)
+		       .encode(bb); 
+		但它可能更高效，因为它可以在连续调用之间缓存编码器。	
+		此方法总是用此字符集的默认替换字符串替换格式错误的输入和不可映射的字符序列。为了检测这些序列，直接使用CharsetEncoder.encode(java.nio.CharBuffer)方法。
+		返回包含编码字符的字节缓冲区。		
+	equals(Object ob):final boolean 
+		ob - 要与之比较的引用对象。
+		△ 指示此对象是否与另一个对象相等。
+		如果两个字符集具有相同的规范名称，并且仅当它们具有相同的规范名称时，它们才相等。字符集决不等于任何其他类型的对象。
+		如果且仅当此字符集等于给定对象时返回true。
+	hashCode():final int 
+		△ 计算此字符集的哈希代码。
+		返回整数哈希代码。
+	isRegistered():final boolean 
+		指示此字符集是否在IANA字符集注册表中注册。
+		如果且仅当此字符集的实现者知道要在IANA中注册时返回true。
+	name():final String 
+		返回此字符集的规范名称。		
+	newDecoder():abstract CharsetDecoder 
+		★ 为此字符集构造新的解码器。
+		返回这个字符集的新解码器。
+	newEncoder():abstract CharsetEncoder 
+		★ 为此字符集构造新的编码器。
+		返回这个字符集的新编码器。
+		【Throws】：
+			UnsupportedOperationException 如果此字符集不支持编码。
+	toString():final String
+		△ 返回描述此字符集的字符串。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+
+
