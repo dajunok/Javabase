@@ -1,0 +1,98 @@
+------------------------------------------Package java.nio.file--------------------------------------------------------------------------------------------------------------
+											【Since 1.7】
+Package Description（包描述说明）：
+	定义Java虚拟机的接口和类，以访问文件、文件属性和文件系统。
+	java.nio.file包定义了访问文件和文件系统的类。访问文件和文件系统属性的API在java.nio.file.attribute包中定义。希望扩展平台默认提供者或构建其他提供者实现的服务提供器实现者使用java.nio.file.spi包。
+	
+	Symbolic Links（符号链接）
+		许多操作系统和文件系统支持符号链接。符号链接是一个特殊文件，用作对另一个文件的引用。在大多数情况下，符号链接对应用程序是透明的，符号链接上的操作会自动重定向到链接的目标。异常情况是删除或重命名/移动符号链接，在这种情况下，链接将被删除或移动，而不是链接的目标。这个包包括对符号链接的支持，其中实现提供了这些语义。文件系统可能支持语义上关闭的其他类型，但此包中不包括对这些其他类型链接的支持。
+	Interoperability（互操作性）
+		File类定义toPath方法，通过转换java.io.File对象表示的抽象路径来构造路径。结果Path可用于对与文件对象相同的文件进行操作。Path规范提供了有关Path和java.io.File对象之间互操作性的进一步信息。
+	Visibility(可见度)
+		这个包中由类提供的文件和文件系统的视图保证与同一Java虚拟机中其他实例提供的其他视图一致。然而，由于底层操作系统执行的缓存和由网络文件系统协议引起的延迟，视图可能或不可能与其他并发运行的程序所看到的文件系统的视图一致。这是真的，不管这些其他程序是用什么语言编写的，也不管它们是在同一台机器上运行还是在其他机器上运行。任何此类不一致的确切性质取决于系统，因此未作说明。
+	Synchronized I/O File Integrity（同步I/O文件完整性）
+		打开文件时使用SYNC和DSYNC选项，以要求将文件更新同步写入底层存储设备。在默认提供程序的情况下，文件驻留在本地存储设备上，并且可查找的通道连接到使用其中一个选项打开的文件，则只有在该调用对文件所做的所有更改都已写入设备时，才能保证对write方法的调用返回。这些选项对于确保关键信息在系统崩溃时不会丢失非常有用。如果文件不在本地设备上，则不提供此类保证。对于其他提供程序实现，此保证是否可能是特定于提供程序的。
+	General Exceptions（常见异常）
+		除非另有说明，否则将null参数传递给此包中任何类或接口的构造函数或方法将导致引发NullPointerException。此外，使用包含null元素的集合调用方法将导致NullPointerException，除非另有指定。
+		除非另有说明，否则当对与已关闭的文件系统关联的对象调用时，尝试访问文件系统的方法将引发ClosedFileSystemException异常。此外，在与仅提供只读访问的文件系统关联的对象上调用任何尝试对文件系统进行写访问的方法时，都将引发ReadOnlyFileSystemException异常。
+		除非另有说明，否则调用此包中由一个提供程序创建的任何类或接口的方法时，如果参数是另一个提供程序创建的对象，则将引发ProviderMismatchException异常。
+	Optional Specific Exceptions（可选的特定异常）
+		此包中访问文件系统的类定义的大多数方法都指定在发生I/O错误时引发IOException。在某些情况下，这些方法为常见情况定义特定的I/O异常。这些异常被称为可选的特定异常，由实现抛出，在实现中可以检测特定的错误。如果无法检测到特定错误，则会引发更一般的IOException。
+	
+Interface Summary（接口概要）
+	CopyOption
+	DirectoryStream
+	DirectoryStream.Filter
+	FileVisitor
+	OpenOption
+	Path
+	PathMatcher
+	SecureDirectoryStream
+	Watchable
+	WatchEvent
+	WatchEvent.Kind
+	WatchEvent.Modifier
+	WatchKey
+	WatchService	
+	
+	
+Class Summary(类概要)
+	Files
+	FileStore
+	FileSystem
+	FileSystems
+	LinkPermission
+	Paths
+	SimpleFileVisitor
+	StandardWatchEventKinds	
+Enums Summary（枚举概要）
+	AccessMode
+	FileVisitOption
+	FileVisitResult
+	LinkOption
+	StandardCopyOption
+	StandardOpenOption	
+	
+Exceptions Summary（异常概要）
+	AccessDeniedException
+	AtomicMoveNotSupportedException
+	ClosedDirectoryStreamException
+	ClosedFileSystemException
+	ClosedWatchServiceException
+	DirectoryIteratorException
+	DirectoryNotEmptyException
+	FileAlreadyExistsException
+	FileSystemAlreadyExistsException
+	FileSystemException
+	FileSystemLoopException
+	FileSystemNotFoundException
+	InvalidPathException
+	NoSuchFileException
+	NotDirectoryException
+	NotLinkException
+	ProviderMismatchException
+	ProviderNotFoundException
+	ReadOnlyFileSystemException	
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、I/O多路复用：阻塞式I/O和I/O复用，两个阶段都阻塞，那区别在哪里呢？就在于第三节讲述的Selector，虽然第一阶段都是阻塞，但是阻塞式I/O如果要接收更多的连接，就必须创建更多的线程。I/O复用模式下在第一个阶段大量的连接统统都可以过来直接注册到Selector复用器上面，同时只要单个或者少量的线程来循环处理这些连接事件就可以了，一旦达到“就绪”的条件，就可以立即执行真正的I/O操作。这就是I/O复用与传统的阻塞式I/O最大的不同。也正是I/O复用的精髓所在。
+	        当服务程序需要承载大量TCP链接的时候，比如我们的消息推送系统，IM通讯，web聊天等等，在我们已经理解Selector原理的情况下，知道使用I/O复用可以用少量的线程处理大量的链接。I/O多路复用技术以事件驱动编程为基础。它运行在单一进程上下文中，因此每个逻辑流都能访问该进程的全部地址空间，这样在流之间共享数据变得很容易。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,200 @@
+----------------------------------------CharsetEncoder--------------------------------------------------------------------------------------------------------------
+CharsetEncoder：字符集编码器 【Since:1.4】
+	一种引擎，可以将16位Unicode字符序列转换为特定字符集中的字节序列。
+	输入字符序列提供在字符缓冲区或一系列这样的缓冲区中。输出字节序列被写入一个字节缓冲区或一系列这样的缓冲区。编码器应始终通过以下方法调用顺序（以下简称编码操作）来使用：
+		1、通过reset方法复位编码器，除非以前没有使用过；
+		2、调用encode方法零次或多次，只要有额外的输入可用，为endOfInput参数传递false，填充输入缓冲区，并在调用之间刷新输出缓冲区；
+		3、最后一次调用encode方法，为endOfInput参数传递true；然后
+		4、调用flush方法，以便编码器可以将任何内部状态刷新到输出缓冲区。
+	每次调用encode方法都将尽可能多地对输入缓冲区中的字符进行编码，并将结果字节写入输出缓冲区。当需要更多输入、输出缓冲区空间不足或发生编码错误时，encode方法返回。在每一种情况下，都会返回一个CoderResult对象来描述终止的原因。调用程序可以检查此对象并填充输入缓冲区、刷新输出缓冲区，或者根据需要尝试从编码错误中恢复，然后重试。
+	有两种常见的编码错误类型。如果输入字符序列不是合法的16位Unicode序列，则认为输入格式不正确。如果输入字符序列合法，但无法映射到给定字符集中的有效字节序列，则会遇到不可映射的字符。
+	编码错误的处理方式取决于为该类型错误请求的操作，该操作由CodingErrorAction类的实例描述。可能的错误操作是忽略错误的输入，通过返回的CoderResult对象向调用程序报告错误，或者用替换字节数组的当前值替换错误的输入。替换最初设置为编码器的默认替换，通常（但不总是）具有初始值{ (byte)'?' }；它的值可以通过replaceWith方法更改。
+	格式错误的输入和不可映射的字符错误的默认操作是报告它们。格式错误的输入错误操作可以通过onMalformedInput方法更改；不可映射的字符操作可以通过onUnmappableCharacter方法更改。
+	这个类被设计用来处理编码过程的许多细节，包括错误操作的实现。特定字符集的编码器是此类的具体子类，它只需要实现抽象的encodeLoop方法，该方法封装了基本的编码循环。另外，维护内部状态的子类应该重写implFlush和implReset方法。
+	这个类的实例对于多个并发线程的使用是不安全的。
+	
+	
+	
+	类定义	：public abstract class CharsetEncoder
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected CharsetEncoder(Charset cs,float averageBytesPerChar,float maxBytesPerChar)
+		cs - 创建此编码器的字符集。
+		averageBytesPerChar - 一个正浮点值，指示为每个输入字符生成的预期字节数。
+		maxBytesPerChar - 一个正浮点值，指示为每个输入字符生成的最大字节数。
+		初始化新编码器。新编码器将具有给定的每字符字节数值，其替换将是字节数组 { (byte)'?' }。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	protected CharsetEncoder(Charset cs,final float averageBytesPerChar()float averageBytesPerChar,float maxBytesPerChar,byte[] replacement)
+		cs - 创建此编码器的字符集。
+		averageBytesPerChar - 一个正浮点值，指示为每个输入字符生成的预期字节数。
+		maxBytesPerChar - 一个正浮点值，指示为每个输入字符生成的最大字节数。
+		replacement - 初始替换；不能为null，必须具有非零长度，不能长于maxBytesPerChar，并且必须合法。
+		初始化新编码器。新编码器将具有每个字符的给定字节数和替换值。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+		
+Method Summary（方法概要）：
+	averageBytesPerChar():final float 
+		返回将为每个输入字符生成的平均字节数。这个启发式值可以用来估计给定输入序列所需的输出缓冲区的大小。
+	canEncode(char c):boolean 
+		c - 给定的字符。
+		指示此编码器是否可以对给定字符进行编码。
+		如果给定字符是代理项字符，则此方法返回false；只有当这些字符是由高代理项和低代理项组成的对的成员时，才能解释这些字符。canEncode(CharSequence)方法可用于测试是否可以对字符序列进行编码。
+		此方法可能会修改编码器的状态；因此，如果编码操作已在进行中，则不应调用此方法。
+		此方法的默认实现不是非常有效；通常应该重写它以提高性能。
+		如果且仅当此编码器可以对给定字符进行编码时返回true。
+		【Throws】：
+			IllegalStateException 如果编码操作已在进行中。
+	canEncode(CharSequence cs):boolean 
+		cs - 给定的字符序列。
+		告诉编码器是否可以对给定的字符序列进行编码。
+		如果此方法对特定字符序列返回false，则可以通过执行完全编码操作来获取有关无法对序列进行编码的原因的更多信息。
+		此方法可能会修改编码器的状态；因此，如果编码操作已在进行中，则不应调用此方法。
+		此方法的默认实现不是非常有效；通常应该重写它以提高性能。
+		如果且仅当此编码器可以在不引发任何异常和不执行任何替换的情况下对给定字符进行编码时返回true。
+		【Throws】：
+			IllegalStateException 如果编码操作已在进行中。
+	charset():final Charset 
+		返回创建此编码器的字符集。
+	encode(CharBuffer in):final ByteBuffer
+		in - 输入字符缓冲区。
+		 将单个输入字符缓冲区的剩余内容编码为新分配的字节缓冲区的方便方法。
+		这个方法实现了一个完整的编码操作；也就是说，它重置这个编码器，然后对给定字符缓冲区中的字符进行编码，最后刷新这个编码器。因此，如果编码操作已在进行中，则不应调用此方法。
+		返回包含编码操作结果的新分配的字节缓冲区。缓冲区的位置将为零，其限制（limit）将跟随写入的最后一个字节。
+		【Throws】：
+			IllegalStateException 如果编码操作已在进行中。
+			MalformedInputException 如果从输入缓冲区当前位置开始的字符序列不是合法的16位Unicode序列，并且当前格式不正确的输入操作是CodingErrorAction.REPORT。
+			UnmappableCharacterException 如果从输入缓冲区的当前位置开始的字符序列无法映射到等效的字节序列，并且当前不可映射的字符操作是CodingErrorAction.REPORT。
+			CharacterCodingException
+	encode(CharBuffer in, ByteBuffer out,boolean endOfInput):final CoderResult 
+		in - 输入字符缓冲区。
+		out - 输出字节缓冲区。
+		endOfInput - 如果且仅当调用程序不能提供超出给定缓冲区的其他输入字符时为true。
+		从给定的输入缓冲区编码尽可能多的字符，将结果写入给定的输出缓冲区。
+		缓冲区从当前位置开始读取和写入。最多读取in.remaining()个字符，最多写入out.remaining()个字节。缓冲区的位置将被提升以反映读取的字符和写入的字节，但它们的标记（mark）和限制（limit）不会被修改。
+		除了从输入缓冲区读取字符并将字节写入输出缓冲区之外，此方法还返回一个CoderResult对象来描述其终止原因：
+			● CoderResult.UNDERFLOW		表示已对尽可能多的输入缓冲区进行编码。如果没有进一步的输入，那么调用程序可以继续编码操作的下一步。否则，应该使用进一步的输入再次调用此方法。
+			● CoderResult.OVERFLOW		表示输出缓冲区中没有足够的空间来编码更多的字符。应该使用剩余字节更多的输出缓冲区再次调用此方法。这通常是通过从输出缓冲区中排出任何编码的字节来完成的。
+			● malformed-input结果			表示检测到malformed-input错误。格式错误的字符从输入缓冲区的（可能递增）位置开始；格式错误的字符数可以通过调用result对象的length方法来确定。只有当此编码器的错误操作为CodingErrorAction.REPORT时，此情况才适用；否则，将根据请求忽略或替换错误输入。
+			● unmappable-character结果	表示检测到不可映射的字符错误。对不可映射字符进行编码的字符从输入缓冲区（可能递增）的位置开始；这些字符的数目可以通过调用结果对象的length方法来确定。只有当编码器的不可映射操作为CodingErrorAction.REPORT时，此情况才适用；否则将根据要求忽略或替换不可映射字符。
+		在任何情况下，如果要在同一编码操作中重新调用此方法，则应注意保留输入缓冲区中剩余的任何字符，以便它们可用于下一次调用。
+		endOfInput参数通知此方法调用程序是否可以提供超出给定输入缓冲区中包含的更多输入。如果有可能提供额外的输入，那么调用程序应该为此参数传递false；如果没有可能提供进一步的输入，那么调用程序应该传递true。在一次调用中传递false并随后发现实际上没有进一步的输入是可用的，这不是错误的，事实上也是非常常见的。但是，至关重要的是，此方法在一系列调用中的最后一次调用始终传递为true，以便将任何剩余的未编码输入视为格式错误。
+		此方法通过调用encodeLoop方法、解释其结果、处理错误条件并在必要时重新调用它来工作。
+		返回描述终止原因的编码器结果对象。
+		【Throws】：
+			IllegalStateException 如果编码操作已在进行中，并且上一步不是reset方法的调用，也不是endOfInput参数值为false的方法的调用，也不是endOfInput参数值为true但返回值表示编码操作不完整的方法的调用。
+			CoderMalfunctionError 如果调用encodeLoop方法时引发unexpected异常。
+	encodeLoop(CharBuffer in,ByteBuffer out):protected abstract CoderResult 
+		in - 输入字符缓冲区。
+		out - 输出字节缓冲区。
+		★ 将一个或多个字符编码为一个或多个字节。
+		这个方法封装了底层的编码循环，编码尽可能多的字符，直到它耗尽输入、在输出缓冲区中耗尽空间或遇到编码错误。此方法由encode方法调用，该方法处理结果解释和错误恢复。
+		缓冲区从当前位置开始读取和写入。最多读取in.remaining()个字符，最多写入out.remaining()个字节。缓冲区的位置将被提升以反映读取的字符和写入的字节，但它们的标记（mark）和限制（limit）不会被修改。
+		此方法返回CoderResult对象，以与encode方法相同的方式描述其终止原因。此方法的大多数实现将通过返回适当的结果对象来处理编码错误，以便由encode方法进行解释。一个优化的实现可以检查相关的错误操作并实现该操作本身。
+		此方法的一个实现可以通过返回CoderResult.UNDERFLOW来执行任意先行，直到它接收到足够的输入。
+		返回描述终止原因的编码器结果对象。
+	flush(ByteBuffer out):final CoderResult 
+		out - 输出字节缓冲区。
+		刷新此编码器。
+		一些编码器保持内部状态，可能需要在读取整个输入序列后将一些最终字节写入输出缓冲区。
+		任何额外的输出从当前位置开始写入输出缓冲区。最多将写入out.remaining()字节。缓冲区的位置将适当提前，但其标记（mark）和限制（limit）将不被修改。
+		如果此方法成功完成，则返回CoderResult.UNDERFLOW。如果输出缓冲区中没有足够的空间，则返回CoderResult.OVERFLOW。如果发生这种情况，则必须再次调用此方法，并使用具有更多空间的输出缓冲区，以便完成当前的编码操作。
+		如果已刷新此编码器，则调用此方法无效。
+		此方法调用implFlush方法来执行实际的刷新操作。
+		返回编码器结果对象，CoderResult.UNDERFLOW或CoderResult.OVERFLOW。
+		【Throws】：
+			IllegalStateException 如果当前编码操作的前一步是一个调用，那么对于endOfInput参数，flush方法和三参数encode方法都不是值为true的调用。
+	implFlush(ByteBuffer out):protected CoderResult 
+		out - 输出字节缓冲区。
+		刷新此编码器。
+		此方法的默认实现不执行任何操作，并且始终返回CoderResult.UNDERFLOW。这个方法应该被编码器重写，一旦读取了整个输入序列，编码器可能需要将最终字节写入输出缓冲区。
+		返回编码器结果对象，CoderResult.UNDERFLOW或CoderResult.OVERFLOW。
+	implOnMalformedInput(CodingErrorAction newAction):protected void 
+		newAction - 新的操作动作。
+		报告对此编码器格式错误的输入操作的更改。
+		此方法的默认实现不起任何作用。此方法应被要求通知格式错误的输入操作更改的编码器重写。
+	implOnUnmappableCharacter(CodingErrorAction newAction):protected void 
+		newAction - 新的操作动作。
+		报告此编码器的不可映射字符操作的更改。
+		此方法的默认实现不起任何作用。此方法应被要求通知不可映射字符操作更改的编码器重写。
+	implReplaceWith(byte[] newReplacement):protected void 
+		newReplacement - 替换值。
+		报告此编码器的替换值的更改。
+		此方法的默认实现不起任何作用。此方法应被需要通知替换内容更改的编码器重写。
+	implReset():protected void 
+		重置此编码器，清除任何字符集特定的内部状态。
+		此方法的默认实现不起任何作用。此方法应被保持内部状态的编码器重写。
+	isLegalReplacement(byte[] repl):boolean 
+		repl - 要测试的字节数组。
+		表示给定的字节数组是否是此编码器的合法替换值。
+		替换是合法的，前提是它是编码器字符集中的合法字节序列；也就是说，必须能够将替换解码为一个或多个16位Unicode字符。
+		此方法的默认实现不是非常有效；通常应该重写它以提高性能。
+		如果且仅当给定的字节数组是此编码器的合法替换值时返回true。
+	malformedInputAction():CodingErrorAction 
+		返回编码器对malformed-input错误的当前操作。
+		返回编码器对malformed-input错误的当前操作，从不为null。
+	maxBytesPerChar(): final float 
+		返回将为每个输入字符生成的最大字节数。该值可用于计算给定输入序列所需的输出缓冲区的最坏情况大小。
+		返回每个输入字符将产生的最大字节数。
+	onMalformedInput(CodingErrorAction newAction):final CharsetEncoder 
+		newAction - 新的操作动作，不能为null。
+		更改此编码器对malformed-input错误的操作。
+		此方法调用implOnMalformedInput方法，传递新操作。
+		返回此编码器。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	onUnmappableCharacter(CodingErrorAction newAction):final CharsetEncoder 
+		newAction - 新的操作动作，不能为null。
+		更改此编码器对unmappable-character错误的操作。
+		此方法调用implOnUnmappableCharacter方法，传递新操作。
+		返回此编码器。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	replacement():final byte[] 
+		返回编码器的替换值，从不为null。		
+	replaceWith(byte[] newReplacement):final CharsetEncoder 
+		newReplacement - 新替换值；不能为null，必须具有非零长度，不能长于maxBytesPerChar方法返回的值，并且必须合法
+		更改编码器的替换值。
+		在检查新替换是否可接受后，此方法调用implReplaceWith方法，并传递新替换。
+		返回此编码器。
+		【Throws】：
+			IllegalArgumentException 如果参数的前提条件不成立。
+	reset():final CharsetEncoder 
+		重置编码器，清除任何内部状态。
+		此方法重置字符集独立状态，并调用implReset方法以执行任何特定于字符集的重置操作。
+		返回此编码器。
+	unmappableCharacterAction():CodingErrorAction 
+		返回编码器对不可映射字符错误的当前操作，从不为null。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+
+

@@ -1,0 +1,91 @@
+----------------------------------------CoderResult--------------------------------------------------------------------------------------------------------------
+CoderResult：编译结果 【Since:1.4】
+	编译器结果状态的描述。
+	字符集编译器，即解码器或编码器，使用输入缓冲区中的字节（或字符），转换它们，并将结果字符（或字节）写入输出缓冲区。编码过程因以下四类原因之一而终止，这些原因由此类实例描述：
+		● Underflow					当没有更多的输入需要处理，或者输入不足，需要额外输入时，报告Underflow。此条件由唯一的result对象UNDERFLOW表示，其isUnderflow方法返回true。
+		● Overflow					输出缓冲区中剩余空间不足时报告溢出（Overflow）。此条件由唯一的结果对象OVERFLOW表示，其isOverflow方法返回true。
+		● malformed-input错误			当输入单元序列格式不正确时，会报告malformed-input错误。此类错误由此类的实例描述，这些实例的isMalformed方法返回true，其length方法返回格式错误的序列的长度。对于给定长度的所有malformed-input错误，该类有一个唯一的实例。
+		● unmappable-character错误	当输入单元序列表示输出字符集中无法表示的字符时，将报告unmappable-character错误。此类错误由此类的实例描述，这些实例的isUnmappable方法返回true，其length方法返回表示不可映射字符的输入序列的长度。对于给定长度的所有unmappable-character错误，该类有一个唯一的实例。
+	为了方便起见，对于描述malformed-input和unmappable-character错误的结果对象，isError方法返回true；对于描述下溢（underflow）或溢出（overflow）条件的结果对象，返回false。
+	
+	
+	
+	类定义	：public class CoderResult 
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	OVERFLOW : CoderResult
+		结果对象表示溢出，这意味着输出缓冲区中没有足够的空间。
+	UNDERFLOW : CoderResult
+		结果对象表示下溢，这意味着要么输入缓冲区已被完全消耗，要么如果输入缓冲区尚未为空，则需要额外的输入。
+		
+		
+Method Summary（方法概要）：
+	malformedForLength(int length):static CoderResult 
+		length - 给定长度。
+		静态工厂方法，它返回描述给定长度的malformed-input错误的唯一对象。
+		返回请求的编码器结果对象。
+	unmappableForLength(int length):static CoderResult 
+		length - 给定长度。
+		静态工厂方法，返回描述给定长度的不可映射字符（unmappable-character）错误的唯一结果对象。
+		返回请求的编码器结果对象。
+	isError():boolean 
+		指示此对象是否描述错误条件。
+		如果且仅当此对象表示格式错误的malformed-input或unmappable-character错误时返回true
+	isMalformed():boolean 
+		指示此对象是否描述malformed-input错误。
+		如果且仅当此对象表示malformed-input错误时返回true。
+	isOverflow():boolean 
+		指示此对象是否描述溢出条件。
+		如果且仅当此对象表示溢出（overflow）时返回true。
+	isUnderflow():boolean 
+		指示此对象是否描述下溢（underflow）条件。
+		如果且仅当此对象表示下溢（underflow）时返回true。
+	isUnmappable():boolean 
+		指示此对象是否描述unmappable-character错误。
+		如果且仅当此对象表示unmappable-character错误时返回true。
+	length():int 
+		返回此对象描述的错误输入的长度（可选操作），一个正整数。
+		【Throws】：
+			UnsupportedOperationException 如果此对象没有描述错误条件，也就是说，如果isError不返回true。
+	throwException():void 
+		抛出与此对象描述的结果相应的异常。
+		【Throws】：
+			BufferUnderflowException 如果此对象是 UNDERFLOW。
+			BufferOverflowException 如果此对象是OVERFLOW。
+			MalformedInputException 如果此对象表示malformed-input错误，则该异常的长度值将是该对象的长度值。
+			UnmappableCharacterException 如果此对象表示unmappable-character错误，则异常长度值将是此对象的长度值。
+			CharacterCodingException
+	toString():String 
+		△ 返回描述此编码器结果的字符串。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+
+
