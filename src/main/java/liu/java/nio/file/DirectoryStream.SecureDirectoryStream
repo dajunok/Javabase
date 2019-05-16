@@ -1,0 +1,94 @@
+-----------------------------------------SecureDirectoryStream<T>-----------------------------------------------------------------------------------------------------------------------------		
+SecureDirectoryStream<T>：安全目录流 【Since:1.7】
+	一种目录流（DirectoryStream ），用于定义相对于打开目录的文件的操作。SecureDirectoryStream用于需要遍历文件树或以无争用方式在目录上操作的复杂或安全敏感的应用程序。当一系列文件操作不能单独执行时，可能会出现争用条件。此接口定义的每个文件操作都指定一个相对路径。不管目录打开时是否被攻击者移动或替换，对文件的所有访问都是相对于打开的目录的。SecureDirectoryStream也可以用作虚拟工作目录。
+	SecureDirectoryStream需要底层操作系统的相应支持。如果某个实现支持此功能，则newDirectoryStream方法返回的DirectoryStream将是一个SecureDirectoryStream，并且必须强制转换为该类型才能调用此接口定义的方法。
+	如果是默认提供器，并且设置了安全管理器，则使用通过根据目录的原始路径解析给定的相对路径获得的路径执行权限检查（无论目录在打开后是否被移动）。
+	
+
+	接口定义	：public interface SecureDirectoryStream<T> extends DirectoryStream<T>
+	父接口	：AutoCloseable, Closeable, Iterable<T>, DirectoryStream<T>
+	嵌套接口	：DirectoryStream.Filter<T>
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	deleteDirectory(T path):void 
+		path - 要删除的目录的路径。
+		删除目录。
+		与delete()方法不同，此方法不会首先检查文件以确定文件是否为目录。此方法是否删除非目录取决于系统，因此未指定。如果参数是相对路径，则要删除的目录是相对于此打开的目录的。
+		【Throws】：
+			ClosedDirectoryStreamException 如果目录流已关闭。
+			NoSuchFileException 如果目录不存在（可选的特定异常）。
+			DirectoryNotEmptyException 如果目录不是空的，则无法删除（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则调用checkDelete方法检查对目录的删除访问权限。
+	deleteFile(T path):void 
+		path - 要删除的文件的路径。
+		删除文件。
+		与delet()方法不同，此方法不会首先检查文件以确定文件是否为目录。此方法是否删除目录取决于系统，因此未指定。如果文件是符号链接，则链接本身（而不是链接的最终目标）将被删除。如果参数是相对路径，则要删除的文件是相对于此打开的目录的。
+		【Throws】：
+			ClosedDirectoryStreamException 如果目录流已关闭。
+			NoSuchFileException 如果文件不存在（可选的特定异常）。
+			DirectoryNotEmptyException 如果目录不是空的，则无法删除（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则调用checkDelete方法检查对文件的删除访问权限。
+	getFileAttributeView(Class<V> type):<V extends FileAttributeView> V 
+		<V> - 文件属性视图（FileAttributeView）类型。
+		type - 与文件属性视图对应的Class对象 。
+		返回新的文件属性视图以访问此目录的文件属性。
+		生成的文件属性视图可用于读取或更新此（打开）目录的属性。type参数指定属性视图的类型，如果支持，该方法将返回该type的实例。调用此方法以获取BasicFileAttributeView始终返回绑定到此打开目录的该类的实例。
+		结果文件属性视图的状态与此目录流紧密相连。一旦目录流关闭，那么读取或更新属性的所有方法都将引发ClosedDirectoryStreamException异常。
+		返回绑定到此目录流的指定类型的新文件属性视图；如果属性视图类型不可用，则返回null。
+	getFileAttributeView(T path,Class<V> type,LinkOption... options):<V extends FileAttributeView> V 
+		<V> - 文件属性视图（FileAttributeView）类型。
+		path - 文件的路径。
+		type - 与文件属性视图对应的Class对象 。
+		options - 指示如何处理符号链接的选项。
+		返回新的文件属性视图以访问此目录中文件的文件属性。
+		生成的文件属性视图可用于读取或更新此目录中文件的属性。type参数指定属性视图的类型，如果支持，该方法将返回该类型的实例。调用此方法以获取BasicFileAttributeView始终返回绑定到目录中文件的该类的实例。
+		结果文件属性视图的状态与此目录流紧密相连。一旦目录流关闭，那么读取或更新属性的所有方法都将引发ClosedDirectoryStreamException异常。在创建文件属性视图时，不需要该文件存在，但当调用该文件时，读取或更新该文件属性的方法将失败，并且该文件不存在。
+		返回绑定到此目录流的指定类型的新文件属性视图；如果属性视图类型不可用，则返回null。
+	move(T srcpath, SecureDirectoryStream<T> targetdir, T targetpath):void 
+		srcpath - 要移动的文件的名称。
+		targetdir - 目标目录。
+		targetpath - 在目标目录中提供文件的名称。
+		将文件从此目录移动到其他目录。
+		此方法的工作方式与指定ATOMIC_MOVE选项时的移动方法类似。也就是说，此方法将文件作为原子文件系统操作进行移动。如果srcpath参数是绝对路径，那么它将定位源文件。如果参数是相对路径，则它位于相对于此打开目录的位置。如果targetpath参数是绝对的，那么它将定位目标文件（忽略targetdir参数）。如果参数是相对路径，则它相对于由targetdir参数标识的打开目录进行定位。在所有情况下，如果目标文件存在，那么如果它被替换或者这个方法失败，那么它是特定于实现的。
+		【Throws】：
+			ClosedDirectoryStreamException 如果目录流已关闭。
+			FileAlreadyExistsException 如果文件已存在于目标目录中且无法替换（可选的特定异常）
+			AtomicMoveNotSupportedException 如果文件不能作为原子文件系统操作移动。
+			IOException 如果发生I/O错误。
+			SecurityException 在安装了默认提供器和安全管理器的情况下，将调用checkWrite方法来检查对源文件和目标文件的写访问。
+	newByteChannel(T path,Set<? extends OpenOption> options,FileAttribute<?>... attrs):SeekableByteChannel 
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		attrs - 创建文件时要自动设置的属性的可选列表。
+		打开或创建此目录中的文件，返回可查找的字节通道以访问该文件。
+		对于路径参数是绝对路径的情况，此方法的工作方式与Files.newByteChannel方法指定的方式完全相同。当参数是相对路径时，则要打开或创建的文件相对于此打开的目录。除了由Files.newByteChannel方法定义的选项外，NOFOLLOW_LINKS选项还可用于确保如果文件是符号链接，则此方法将失败。
+		通道一旦创建，就不依赖于用于创建它的目录流。关闭此目录流对通道没有影响。
+		返回可查找的字节通道。
+		【Throws】：
+			ClosedDirectoryStreamException 如果目录流已关闭。
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不受支持的打开选项，或者数组包含在创建文件时不能自动设置的属性。
+			FileAlreadyExistsException 如果该名称的文件已经存在，并且指定了CREATE_NEW选项（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则会调用checkRead方法来检查打开文件进行读取时对路径的读取访问。如果打开文件进行写入，则调用checkWrite方法检查对路径的写入访问权。
+	newDirectoryStream(T path, LinkOption... options):SecureDirectoryStream<T> 
+		path - 要打开的目录的路径。
+		options - 指示如何处理符号链接的选项。
+		打开由给定路径标识的目录，返回SecureDirectoryStream以循环访问目录中的条目。
+		对于path参数是绝对路径的情况，此方法的工作方式与newDirectoryStream方法指定的方式完全相同。如果参数是相对路径，则要打开的目录是相对于此打开的目录的。如果文件是符号链接，可以使用NOFOLLOW_LINKS选项来确保此方法失败。
+		新目录流一旦创建，就不依赖于用于创建它的目录流。关闭此目录流对新创建的目录流没有影响。
+		返回一个新的和打开的SecureDirectoryStream对象。
+		【Throws】：
+			ClosedDirectoryStreamException 如果目录流已关闭。
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不受支持的打开选项，或者数组包含在创建文件时不能自动设置的属性。
+			FileAlreadyExistsException 如果该名称的文件已经存在，并且指定了CREATE_NEW选项（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，如果安装了安全管理器，则会调用checkRead方法来检查打开文件进行读取时对路径的读取访问。如果打开文件进行写入，则调用checkWrite方法检查对路径的写入访问权。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	

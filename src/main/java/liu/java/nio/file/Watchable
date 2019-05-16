@@ -1,0 +1,45 @@
+-----------------------------------------Watchable-----------------------------------------------------------------------------------------------------------------------------		
+Watchable：可观察的【Since:1.7】
+	可以在监视服务中注册以便监视更改和事件的对象。
+	这个接口定义了register方法，用一个WatchService来注册对象，并返回一个WatchKey来表示注册。对象可以注册到多个监视服务。通过调用键的cancel方法，可以取消对监视服务的注册。         
+	         	
+
+	接口定义	：public interface Watchable	
+	子接口	：Path
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	register(WatchService watcher, WatchEvent.Kind<?>... events):WatchKey 
+		watcher - 要向其注册此对象的监视服务。
+		events - 应为此对象注册的事件。
+		向监视服务注册对象。
+		此方法的调用与以下调用的行为完全相同：
+			watchable.register(watcher, events, new WatchEvent.Modifier[0]);
+		返回表示此对象在给定监视服务中的注册的键。
+		【Throws】：
+			UnsupportedOperationException 如果指定了不支持的事件。
+			IllegalArgumentException 如果指定的事件组合无效。
+			ClosedWatchServiceException 如果监视服务关闭。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝监视此对象所需的未指定权限。此接口的实现应指定权限检查。
+	register(WatchService watcher,WatchEvent.Kind<?>[] events,WatchEvent.Modifier... modifiers):WatchKey 
+		watcher - 要向其注册此对象的监视服务。
+		events - 应为此对象注册的事件。
+		modifiers - 修改对象注册方式的修饰符（如果有）。
+		向监视服务注册对象。
+		如果此对象标识的文件系统对象当前已向监视服务注册，则在将事件集或修饰符更改为由events和modifiers参数指定的事件集或修饰符后，将返回表示该注册的监视键。更改事件集不会导致对象的挂起事件被丢弃。对象将自动注册为OVERFLOW事件。此事件不需要出现在事件数组中。
+		否则，文件系统对象尚未在给定的监视服务中注册，因此它已注册并返回生成的新键。
+		此接口的实现应该指定它们支持的事件。
+		返回表示此对象在给定监视服务中的注册的键。
+		【Throws】：
+			UnsupportedOperationException 如果指定了不支持的事件或修饰符。
+			IllegalArgumentException 如果事件组合无效，则指定修饰符。
+			ClosedWatchServiceException 如果监视服务关闭。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝监视此对象所需的未指定权限。此接口的实现应指定权限检查。
+		
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+

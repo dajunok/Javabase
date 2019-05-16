@@ -1,0 +1,120 @@
+-----------------------------------------FileVisitor<T>-----------------------------------------------------------------------------------------------------------------------------		
+FileVisitor<T>：文件访问器 【Since:1.7】
+	文件访问器。此接口的实现提供给Files.walkFileTree方法，以访问文件树中的每个文件。
+	
+	用法案例：假设我们要删除一个文件树。在这种情况下，应在删除目录中的条目后删除每个目录。
+	     Path start = ...
+	     Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+	         @Override
+	         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+	             throws IOException
+	         {
+	             Files.delete(file);
+	             return FileVisitResult.CONTINUE;
+	         }
+	         @Override
+	         public FileVisitResult postVisitDirectory(Path dir, IOException e)
+	             throws IOException
+	         {
+	             if (e == null) {
+	                 Files.delete(dir);
+	                 return FileVisitResult.CONTINUE;
+	             } else {
+	                 // directory iteration failed
+	                 throw e;
+	             }
+	         }
+	     });	
+	此外，假设我们要将文件树复制到目标位置。在这种情况下，应该遵循符号链接，并在复制目录中的条目之前创建目标目录。
+	     final Path source = ...
+	     final Path target = ...	
+	     Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+	         new SimpleFileVisitor<Path>() {
+	             @Override
+	             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+	                 throws IOException
+	             {
+	                 Path targetdir = target.resolve(source.relativize(dir));
+	                 try {
+	                     Files.copy(dir, targetdir);
+	                 } catch (FileAlreadyExistsException e) {
+	                      if (!Files.isDirectory(targetdir))
+	                          throw e;
+	                 }
+	                 return CONTINUE;
+	             }
+	             @Override
+	             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+	                 throws IOException
+	             {
+	                 Files.copy(file, target.resolve(source.relativize(file)));
+	                 return CONTINUE;
+	             }
+	         });
+	         
+	         
+	         	
+
+	接口定义	：public interface FileVisitor<T>
+	实现类	：SimpleFileVisitor
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	postVisitDirectory(T dir, IOException exc):FileVisitResult 
+		dir - 对目录的引用。
+		exc - 如果目录的迭代在没有错误的情况下完成，则为null；否则，导致目录迭代过早完成的I/O异常。
+		在访问了目录中的条目及其所有子后代之后为目录调用。当目录的迭代过早完成时（通过返回SKIP_SIBLINGS的visitFile方法或在目录上迭代时的I/O错误），也会调用此方法。
+		返回访问结果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	preVisitDirectory(T dir, BasicFileAttributes attrs):FileVisitResult
+		dir - 对目录的引用。
+		attrs - 目录的基本属性。
+		在访问目录中的条目之前为目录调用。
+		如果此方法返回CONTINUE，则访问目录中的条目。如果此方法返回SKIP_SUBTREE或SKIP_SIBLINGS，则不会访问目录中的条目（以及任何子目录）。
+		返回访问结果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	visitFile(T file, BasicFileAttributes attrs):FileVisitResult 
+		file - 对文件的引用。
+		attrs - 文件的基本属性。
+		为目录中的文件调用。
+		返回访问结果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	visitFileFailed(T file, IOException exc):FileVisitResult 
+		file - 对文件的引用。
+		exc - 阻塞访问文件的I/O异常。
+		为无法访问的文件调用。如果无法读取文件的属性、文件是无法打开的目录以及其他原因，则调用此方法。
+		返回访问结果。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
