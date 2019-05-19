@@ -221,13 +221,95 @@ Method Summary（方法概要）：
 			SecurityException 如果安全管理器拒绝访问启动文件。对于默认提供程序，调用checkRead方法检查对目录的读取访问。
 			IOException 如果在访问启动文件时引发I/O错误。
 	getAttribute(Path path, String attribute,LinkOption... options):static Object 
+		path - 文件的路径。
+		attribute - 要读取的属性。
+		options - 指示如何处理符号链接的选项。
+		读取文件属性的值。
+		attribute参数标识要读取的属性并采用以下形式：
+			[view-name:]attribute-name
+		方括号[…]勾画出一个可选的成分，字符“：”代表着它自己。
+		view-name是用于标识一组文件属性的FileAttributeView的名称。如果未指定，则默认为“basic”，即文件属性视图的名称，用于标识许多文件系统通用的基本文件属性集。attribute-name是属性的名称。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		用法案例：假设在支持“unix”视图的系统上需要文件所有者的用户ID：
+		    Path path = ...
+    		int uid = (Integer)Files.getAttribute(path, "unix:uid");
+    	返回属性值。
+    	【Throws】：
+			UnsupportedOperationException 如果属性视图不可用。
+			IllegalArgumentException 如果未指定或无法识别属性名。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
 	getFileAttributeView(Path path,Class<V> type,LinkOption... options):static <V extends FileAttributeView> V 
+		<V> - FileAttributeView类型。
+		path - 文件的路径。
+		type - 与文件属性视图对应的类对象。
+		options - 指示如何处理符号链接的选项。
+		返回给定类型的文件属性视图。
+		文件属性视图提供一组文件属性的只读或可更新视图。此方法用于文件属性视图定义类型安全方法以读取或更新文件属性的位置。type参数是所需属性视图的类型，如果支持，该方法将返回该类型的实例。BasicFileAttributeView类型支持访问文件的基本属性。调用此方法以选择该类型的文件属性视图将始终返回该类的实例。
+		选项数组可用于指示当文件是符号链接时，结果文件属性视图如何处理符号链接。默认情况下，符号链接随后出现。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。不支持符号链接的实现将忽略此选项。
+		用法示例：假设我们希望读取或设置文件的ACL，如果支持：
+		     Path path = ...
+		     AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
+		     if (view != null) {
+		         List<AclEntry> acl = view.getAcl();
+		         :
+		     }	
+		返回指定类型的文件属性视图，如果属性视图类型不可用，则返回null。	
 	getFileStore(Path path):static FileStore 
+		path - 文件的路径。
+		返回表示文件所在的文件存储区的FileStore。
+		一旦获得了对FileStore的引用，如果对返回的FileStore或从中获得的FileStoreAttributeView对象的操作继续依赖于文件的存在，则该操作是特定于实现的。尤其是，对于文件被删除或移动到其他文件存储区的情况，没有定义该行为。
+		返回存储文件的文件存储区。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkRead方法来检查对文件的读取权限，此外还会检查RuntimePermission ("getFileStoreAttributes")。
 	getLastModifiedTime(Path path, LinkOption... options):static FileTime 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		返回文件的最近修改时间。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		返回表示文件最近修改时间的FileTime，或表示文件系统不支持最近修改时间的时间戳时的特定于实现的默认值。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
 	getOwner(Path path, LinkOption... options):static UserPrincipal 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		返回文件的所有者。
+		path参数与支持FileOwnerAttributeView的文件系统关联。此文件属性视图提供对文件所有者的文件属性的访问。
+		返回代表文件所有者的用户主体。
+		【Throws】：
+			UnsupportedOperationException 如果关联的文件系统不支持文件所有者属性视图。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则拒绝RuntimePermission("accessUserInformation")或其checkRead方法拒绝对文件的读取访问。
 	getPosixFilePermissions(Path path,LinkOption... options):static Set<PosixFilePermission> 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		返回文件的POSIX文件权限。
+		path参数与支持PosixFileAttributeView的FileSystem相关联。此属性视图提供对文件属性的访问，这些属性通常与实现可移植操作系统接口（POSIX）系列标准的操作系统使用的文件系统上的文件关联。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		返回文件权限。
+		【Throws】：
+			UnsupportedOperationException 如果关联的文件系统不支持PosixFileAttributeView
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserInformation")或其checkRead方法拒绝对文件的读取访问。
 	isDirectory(Path path, LinkOption... options):static boolean 
+		path -要测试的文件的路径。
+		options - 指示如何处理符号链接的选项。
+		测试文件是否为目录。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		如果需要将I/O异常与文件不是目录的情况区分开来，那么可以使用readAttributes方法读取文件属性，并使用BasicFileAttributes.isDirectory()方法测试文件类型。
+		如果文件是目录，则返回true；如果文件不存在，则返回false；如果文件不是目录，则无法确定文件是否为目录。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
 	isExecutable(Path path):static boolean 
+		path - 要检查的文件的路径。
+		测试文件是否可执行。此方法检查文件是否存在，并且该Java虚拟机具有适当的特权来执行文件。检查对目录的访问时，语义可能不同。例如，在UNIX系统上，检查执行访问是否检查Java虚拟机具有访问目录的权限，以便访问文件或子目录。
+		根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。因此，对于其他文件系统操作，此方法可能不是原子的。
+		请注意，此方法的结果即将淘汰，无法保证随后执行文件的尝试将成功（甚至无法保证它将访问同一文件）。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在且可执行则返回true，否则返回false；如果文件不存在，则执行访问将被拒绝，因为Java虚拟机没有足够的权限，或者无法确定访问权限。
+		【Throws】：
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkExec来检查对文件的执行访问权限。
 	isHidden(Path path):static boolean 
 	isReadable(Path path):static boolean 
 	isRegularFile(Path path, LinkOption... options):static boolean 
