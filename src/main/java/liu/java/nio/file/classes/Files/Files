@@ -311,15 +311,119 @@ Method Summary（方法概要）：
 		【Throws】：
 			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkExec来检查对文件的执行访问权限。
 	isHidden(Path path):static boolean 
+		path - 要测试的文件的路径。
+		指示是否将文件视为隐藏文件。隐藏的确切定义取决于平台或提供程序。例如，在UNIX上，如果文件名以句点字符（“.”）开头，则认为该文件是隐藏的。在Windows上，如果文件不是目录，并且设置了DOS隐藏属性，则认为该文件是隐藏的。
+		根据实现，该方法可能需要访问文件系统，以确定文件是否被认为是隐藏的。
+		如果文件被视为隐藏，则返回true。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
 	isReadable(Path path):static boolean 
+		path - 要检查的文件的路径。
+		测试文件是否可读。此方法检查文件是否存在，并且该Java虚拟机具有允许其打开文件进行读取的适当权限。根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。因此，对于其他文件系统操作，此方法可能不是原子的。
+		请注意，此方法的结果立即过时，无法保证随后打开文件进行读取的尝试将成功（甚至无法保证它将访问同一文件）。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在且是可读的，则返回true；如果文件不存在，则返回false，因为Java虚拟机权限不足，否则无法读取读取访问权限，或者无法确定访问权限。
+		【Throws】：
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkRead来检查对文件的读取访问。
 	isRegularFile(Path path, LinkOption... options):static boolean 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		测试文件是否为具有不透明内容的常规文件。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果存在选项NOFOLLOW_LINKS链接，则不遵循符号链接。
+		如果需要将I/O异常与文件不是常规文件的情况区分开来，则可以使用readAttributes方法读取文件属性，并使用BasicFileAttributes.isRegularFile()方法测试文件类型。
+		如果文件是常规文件，则返回true；如果文件不存在，如果文件不是常规文件，则无法确定该文件是否为常规文件，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
 	isSameFile(Path path, Path path2):static boolean 
+		path - 文件的一个路径.
+		path2 - 另外一个路径。
+		测试两条路径是否定位同一文件。
+		如果两个path对象都相等，则此方法返回true，而不检查文件是否存在。如果两个路径对象与不同的提供器相关联，则此方法返回false。否则，此方法检查两个路径对象是否都定位到同一个文件，根据实现的不同，可能需要打开或访问这两个文件。
+		如果文件系统和文件保持静态（static），则此方法实现非空（non-null）Path的等价关系。
+			● 它是反身的：对于路径f，isSameFile(f,f) 应该返回true。
+			● 它是对称的：对于两个路径f和g，isSameFile(f,g)将等于isSameFile(g,f)。
+			● 它是可传递的：对于三条路径f、g和h，如果isSameFile(f,g)返回true，而isSameFile(g,h)返回true，则isSameFile(f,h)将返回true。
+		如果且仅当两个路径定位同一文件时返回true。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对两个文件的读取访问。
 	isSymbolicLink(Path path):static boolean 
+		path - 文件的路径。
+		测试文件是否为符号链接。
+		如果需要将I/O异常与文件不是符号链接的情况区分开来，则可以使用readAttributes方法读取文件属性，并使用BasicFileAttributes.isSymbolicLink()方法测试文件类型。
+		如果文件是符号链接，则返回true；如果文件不存在；如果文件不是符号链接；或者无法确定文件是否为符号链接，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
 	isWritable(Path path):static boolean 
+		path - 要检查的文件的路径。
+		测试文件是否可写。此方法检查文件是否存在，并且该Java虚拟机具有允许其打开文件进行写入的适当权限。根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。因此，对于其他文件系统操作，此方法可能不是原子的。
+		请注意，此方法的结果立即过时，无法保证随后打开文件进行写入的尝试将成功（甚至无法保证它将访问同一文件）。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在且可写，则返回true；如果文件不存在，将拒绝写入访问，因为Java虚拟机没有足够的权限，或者无法确定访问权限，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则会调用checkWrite来检查对文件的写访问。
 	lines(Path path):static Stream<String> 
+		path - 文件的路径。
+		将文件中的所有行作为流读取。文件中的字节使用UTF-8字符集解码为字符。
+		此方法的工作方式就像调用以下等同于计算表达式：
+			Files.lines(path, StandardCharsets.UTF_8);
+		返回文件中作为流的行。
+		【Throws】：
+			IOException 如果打开文件时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
 	lines(Path path, Charset cs):static Stream<String> 
+		path - 文件的路径。
+		cs - 用于解码的字符集。
+		将文件中的所有行作为流读取。与readAllLines不同，此方法不将所有行读取到列表中，而是在使用流时惰性地填充。
+		使用指定的字符集将文件中的字节解码为字符，并支持readAllLines指定的相同行终止符。
+		此方法返回后，在从文件中读取或读取格式不正确或不可映射的字节序列时发生的任何后续I/O异常都将包装在一个UncheckedIOException中，该异常将从导致读取发生的流方法中引发。如果在关闭文件时引发IOException，它也将被包装为UncheckedIOException异常。
+		返回的流封装了一个读取器。如果需要及时处理文件系统资源，则应使用try-with-resources结构确保在流操作完成后调用流的close方法。
+		返回文件中作为流的行。
+		【Throws】：
+			IOException 如果打开文件时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
 	list(Path dir):static Stream<Path> 
+		dir - 目录的路径。
+		返回一个延迟填充的流，其中的元素是目录中的条目。列表不是递归的。
+		流的元素是路径对象，通过对dir解析目录条目的名称来获取。一些文件系统维护到目录本身和目录的父目录的特殊链接。不包括表示这些链接的条目。
+		流是弱一致性。它是线程安全的，但在迭代时不会冻结目录，因此它可能（或不可能）反映从该方法返回后发生的对目录的更新。
+		返回的流封装了DirectoryStream。如果需要及时处理文件系统资源，则应使用try-with-resources结构确保在流操作完成后调用流的close方法。
+		在已关闭的流上操作的行为就像已到达流的结尾一样。由于预读的原因，流关闭后可能返回一个或多个元素。
+		如果在返回此方法后访问目录时引发IOException异常，它将被包装在一个UncheckedIOException中，该异常将从导致访问发生的方法中引发。
+		返回描述目录内容的流
+		【Throws】：
+			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
+			IOException 如果在打开目录时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对目录的读取访问。
 	move(Path source, Path target, CopyOption... options):static Path 
+		source - 要移动的文件的路径。
+		target - 目标文件的路径（可能与源路径的其他提供程器关联）。
+		options - 指定移动方式的选项。
+		将文件移动或重命名为目标文件。
+		默认情况下，此方法尝试将文件移动到目标文件，如果目标文件存在，则失败，除非源文件和目标文件相同，在这种情况下，此方法不起作用。如果文件是符号链接，则符号链接本身（而不是链接的目标）将被移动。可以调用此方法来移动空目录。在某些实现中，目录包含在创建目录时创建的特殊文件或链接的条目。在这种实现中，当只有特殊条目存在时，目录被认为是空的。当调用move方法移动非空目录时，如果不需要移动目录中的条目，则会移动该目录。例如，重命名同一文件存储（FileStore）上的目录通常不需要移动目录中的条目。当移动目录要求移动其条目时，此方法将失败（通过引发IOException异常）。要移动文件树，可能需要复制而不是移动目录，这可以使用copy方法和Files.walkFileTree实用程序方法来完成。
+		选项参数可以包括以下任何一项：
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 Option													Description
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 REPLACE_EXISTING		如果目标文件存在，那么如果目标文件不是非空目录，则会替换它。如果目标文件存在并且是符号链接，那么符号链接本身（而不是链接的目标）将被替换。
+		 ATOMIC_MOVE			移动是作为原子文件系统操作执行的，所有其他选项都将被忽略。如果目标文件存在，那么如果替换现有文件或此方法通过引发IOException异常而失败，则该文件是特定于实现的。如果移动不能作为原子文件系统操作执行，则会引发AtomicMoveNotSupportedException异常。例如，当目标位置位于不同的文件存储（FileStore）中并且需要复制文件时，或者目标位置与此对象的其他提供器相关联时，就会出现这种情况。
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		此接口的实现可能支持其他特定于实现的选项。
+		如果源文件存储和目标文件存储都支持，移动文件将把上次修改的时间复制到目标文件。复制文件时间戳可能会导致精度损失。实现还可以尝试复制其他文件属性，但如果无法复制文件属性，则不需要失败。当移动作为非原子操作执行，并且引发IOException异常时，则不定义文件的状态。原始文件和目标文件可能都存在，目标文件可能不完整，或者其某些文件属性可能未从原始文件复制。
+		用法案例：假设我们要将文件重命名为“newname”，使文件保持在同一目录中：
+		     Path source = ...
+		     Files.move(source, source.resolveSibling("newname"));		
+		或者，假设我们希望将一个文件移动到新目录，保持相同的文件名，并替换目录中该名称的任何现有文件：
+		     Path source = ...
+		     Path newdir = ...
+		     Files.move(source, newdir.resolve(source.getFileName()), REPLACE_EXISTING);	
+		返回目标文件的路径。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含不受支持的复制选项。
+			FileAlreadyExistsException 如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
+			DirectoryNotEmptyException 指定了REPLACE_EXISTING选项，但无法替换该文件，因为它是一个非空目录（可选的特定异常）。
+			AtomicMoveNotSupportedException 如果选项数组包含ATOMIC_MOVE选项，但文件不能作为原子文件系统操作移动。
+			IOException 如果发生I/O错误。
+			SecurityException 在安装了默认提供器和安全管理器的情况下，将调用checkWrite方法来检查对源文件和目标文件的写访问。	
 	newBufferedReader(Path path):static BufferedReader 
 	newBufferedReader(Path path, Charset cs):static BufferedReader 
 	newBufferedWriter(Path path, Charset cs,OpenOption... options):static BufferedWriter 
