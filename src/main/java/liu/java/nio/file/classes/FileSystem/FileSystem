@@ -1,0 +1,136 @@
+----------------------------------------FileSystem--------------------------------------------------------------------------------------------------------------
+FileSystem：文件系统	【Since:1.7】
+	提供到文件系统的接口，是对象访问文件系统中的文件和其他对象的工厂。
+	通过调用FileSystems.getDefault方法获得的默认文件系统，提供对Java虚拟机可访问的文件系统的访问。FileSystems类定义了创建文件系统的方法，这些文件系统提供对其他类型（自定义）文件系统的访问。
+	文件系统是这几种对象的工厂：
+		● getPath方法转换与系统相关的路径字符串，返回可用于定位和访问文件的Path对象。
+		● getPathMatcher方法用于创建对路径执行匹配操作的PathMatcher对象。
+		● getFileStores方法返回底层文件存储的迭代器。
+		● getUserPrincipalLookupService方法返回UserPrincipalLookupService，以便按名称查找用户或组。
+		● newWatchService方法创建了一个WatchService，可用于监视对象的更改和事件。 
+	文件系统差异很大。在某些情况下，文件系统是具有一个顶级根目录的单个文件层次结构。在其他情况下，它可能有几个不同的文件层次结构，每个层次结构都有自己的顶级根目录。getRootDirectories方法可用于迭代文件系统中的根目录。文件系统通常由一个或多个为文件提供存储的底层文件存储组成。这些文件存储还可以在其支持的功能以及与文件关联的文件属性或元数据方面有所不同。
+	FileSystem在创建时打开，可以通过调用其close方法关闭。一旦关闭，任何进一步尝试访问文件系统中的对象都会导致引发ClosedFileSystemException异常。无法关闭由默认提供器创建的文件系统。
+	FileSystem可以提供对文件系统的只读或读写访问。文件系统是否提供只读访问是在创建文件系统时建立的，可以通过调用其isReadOnly方法来判断。试图通过与只读文件系统关联的对象写入文件存储区时引发ReadOnlyFileSystemException异常。
+	多个并发线程可以安全地使用文件系统。可以随时调用close方法关闭文件系统，但文件系统是否可以异步关闭是特定于提供器的，因此未指定。换句话说，如果一个线程正在访问文件系统中的一个对象，而另一个线程调用close方法，那么它可能需要阻塞，直到第一个操作完成。关闭文件系统将关闭所有打开的通道、监视服务和与文件系统关联的其他可关闭对象。
+		
+	
+	类定义	：public abstract class FileSystem implements Closeable
+	实现接口	：AutoCloseable,Closeable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected FileSystem()
+		初始化此类的新实例。
+
+Method Summary（方法概要）：
+	close():abstract void 
+		★ △ 关闭此文件系统。
+		关闭文件系统后，通过此类定义的方法或与此文件系统关联的对象对该文件系统的所有后续访问都将引发ClosedFileSystemException异常。如果文件系统已关闭，则调用此方法无效。
+		关闭文件系统将关闭所有打开的通道、目录流、监视服务以及与此文件系统关联的其他可关闭对象。无法关闭默认文件系统。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			UnsupportedOperationException 在默认文件系统的情况下引发。
+	getFileStores():abstract Iterable<FileStore> 
+		★ 返回要在底层文件存储区上迭代的对象。
+		返回的迭代器的元素是此文件系统的FileStore。元素的顺序不确定，文件存储可能在Java虚拟机的生命周期期间发生变化。当发生I/O错误时，可能是因为文件存储不可访问，那么迭代器不会返回该错误。
+		如果是默认的提供器，并且安装了安全管理器，则会调用安全管理器来检查RuntimePermission("getFileStoreAttributes")。如果拒绝，则迭代器不会返回任何文件存储。另外，调用安全管理器的SecurityManager.checkRead(String)方法来检查对文件存储最高目录的读取访问。如果拒绝，迭代器将不返回文件存储。如果在获取迭代器时或在迭代过程中完成了权限检查，那么这取决于系统。
+		使用案例：假设我们要打印所有文件存储的空间使用情况：
+		     for (FileStore store: FileSystems.getDefault().getFileStores()) {
+		         long total = store.getTotalSpace() / 1024;
+		         long used = (store.getTotalSpace() - store.getUnallocatedSpace()) / 1024;
+		         long avail = store.getUsableSpace() / 1024;
+		         System.out.format("%-20s %12d %12d %12d%n", store, total, used, avail);
+		     }	
+		 返回要迭代访问备份文件存储的对象。
+	getPath(String first, String... more):abstract Path 
+		first - 路径字符串或路径字符串的初始部分。
+		more - 要联接以形成路径字符串的其他字符串。
+		★ 将路径字符串或连接后形成路径字符串的字符串序列转换为路径。如果more未指定任何元素，则第一个参数的值是要转换的路径字符串。如果more指定了一个或多个元素，则每个非空字符串（包括第一个）都被视为name元素序列（请参见Path），并被联接以形成路径字符串。有关如何联接字符串的详细信息是特定于提供器的，但通常使用名称分隔符作为分隔符来联接字符串。例如，如果名称分隔符为“/”，并且调用了getPath（“/foo”、“bar”、“gus”），则路径字符串“/foo/bar/gus”将转换为路径。如果第一个是空字符串，而more不包含任何非空字符串，则返回表示空路径的Path。
+		解析和转换为路径对象本质上依赖于实现。在最简单的情况下，如果路径字符串包含无法转换为文件存储合法字符的字符，则会拒绝路径字符串，并引发InvalidPathException异常。例如，在UNIX系统上，不允许在路径中存在NUL（\u0000）字符。一个实现可以选择拒绝包含超过任何文件存储允许的名称的路径字符串，如果一个实现支持复杂的路径语法，它可以选择拒绝格式错误的路径字符串。
+		对于默认提供器，将根据平台或虚拟文件系统级别的路径定义来分析路径字符串。例如，操作系统可能不允许特定字符出现在文件名中，但特定的底层文件存储可能对一组合法字符施加不同或额外的限制。
+		当路径字符串无法转换为路径时，此方法将引发InvalidPathException异常。在可能的情况下，以及在适用的情况下，使用索引值创建异常，该索引值指示导致路径字符串被拒绝的路径参数中的第一个位置。
+		返回结果路径。
+		【Throws】：
+			InvalidPathException 如果无法转换路径字符串。
+	getPathMatcher(String syntaxAndPattern):abstract PathMatcher 
+		syntaxAndPattern - 语法和模式。
+		★ 返回通过解释给定模式对路径对象的字符串表示形式执行匹配操作的路径匹配器（PathMatcher）。syntax and pattern参数标识语法和模式并采用以下形式：
+			syntax:pattern
+		其中“：”代表自身。
+		FileSystem实现支持“glob”和“regex”语法，并可能支持其他语法。比较语法组件的值时不考虑大小写。
+		当语法为“glob”时，则使用类似于正则表达式但语法更简单的有限模式语言来匹配路径的字符串表示形式。例如：
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 *.java				匹配表示在.java中结束的文件名的路径。
+		 *.*				匹配包含点（.）的文件名
+		 *.{java,class}		匹配以.java或.class结尾的文件名。
+		 foo.?				匹配以foo开头的文件名。和单个字符扩展
+		 /home/*/*			在Unix平台上匹配/home/gus/data
+		 /home/**			在Unix平台上匹配/home/gus 和 /home/gus/data
+		 C:\\*				在Windows平台上匹配C:\foo和C:\bar（注意反斜杠是转义的）作为Java语言中的字符串文字，模式将是“C:\\\\*”。
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		以下规则用于解释全局模式（glob）：
+			● * 字符匹配名称组件的零个或多个字符，而不跨越目录边界。
+			● ** 字符与跨越目录边界的零个或多个字符匹配。
+			● ?	字符与名称组件的一个字符完全匹配。
+			● 反斜杠字符（\）用于转义否则将被解释为特殊字符的字符。例如，表达式\\匹配一个反斜杠，而“\{”匹配左大括号。
+			● []字符是一个括号表达式，它与一组字符中名称组件的单个字符匹配。例如，[a b c]匹配“a”、“b”或“c”。连字符（-）可用于指定一个范围，因此[a-z]指定一个从“a”到“z”（包含z）匹配的范围。这些形式可以混合，使[abce-g]与“a”、“b”、“c”、“e”、“f”或“g”匹配。如果后面的字符是一个！然后它被用于排除，所以[!a-c]匹配除“a”、“b”或“c”以外的任何字符。在括号表达式中，*，？和\字符匹配。如果是括号内的第一个字符，或是括号后的第一个字符，如果是（-）字符将自动匹配自身，如果是！字符则排除自身。
+			● {}字符是一组子模式，如果组中的任何子模式匹配，则该组匹配。","字符用于分隔子模式。不能嵌套组。
+			● 文件名中的前导句点（.）字符在匹配操作中被视为常规字符。例如，“*”全局模式与文件名“.login”匹配。可以使用Files.isHidden(java.nio.file.Path)方法来测试文件是否被隐藏。
+			● 所有其他字符都以依赖于实现的方式匹配自己。这包括表示任何名称分隔符的字符。
+			● root组件的匹配高度依赖于实现，未指定。
+		当语法为“regex”时，模式组件是由Pattern类定义的正则表达式。
+		对于glob和regex语法，匹配细节（例如匹配是否区分大小写）依赖于实现，因此未指定。
+		返回一种路径匹配器，可用于根据模式匹配路径。
+		【Throws】：
+			IllegalArgumentException 如果参数的格式不是：syntax:pattern。
+			PatternSyntaxException 如果模式无效。
+			UnsupportedOperationException 如果实现不知道模式语法。
+	getRootDirectories():abstract Iterable<Path> 
+		★ 返回要在根目录路径上迭代的对象。
+		文件系统提供对文件存储的访问，该文件存储可能由许多不同的文件层次结构组成，每个层次结构都有自己的顶级根目录。除非安全管理器拒绝，否则返回的迭代器中的每个元素都对应于不同文件层次结构的根目录。元素的顺序不确定。在Java虚拟机的生命周期中，文件层次结构可能会发生变化。例如，在某些实现中，插入可移动媒体可能会导致创建一个具有自己的顶级目录的新文件层次结构。
+		安装安全管理器后，将调用它来检查对每个根目录的访问。如果拒绝，则迭代器不会返回根目录。对于默认提供器，调用SecurityManager.checkRead(String)方法检查对每个根目录的读取访问。如果在获取迭代器时或在迭代过程中完成了权限检查，那么这取决于系统。
+		返回要在根目录上迭代的对象。
+	getSeparator():abstract String 
+		★ 返回以字符串表示的分隔符名称。
+		名称分隔符用于分隔路径字符串中的名称。一个实现可能支持多个名称分隔符，在这种情况下，此方法返回一个特定于实现的默认名称分隔符。此分隔符用于通过调用toString()方法创建路径字符串。
+		对于默认提供器，此方法返回与File.separator相同的分隔符。
+	getUserPrincipalLookupService():abstract UserPrincipalLookupService
+		★ 返回此文件系统的UserPrincipalLookupService（可选操作）。结果查找服务可用于查找用户名或组名。
+		用法示例：假设我们要使“joe”成为文件的所有者：
+		     UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
+		     Files.setOwner(path, lookupService.lookupPrincipalByName("joe"));	
+		返回此文件系统的UserPrincipalLookupService。	
+		【Throws】：
+			UnsupportedOperationException 如果此文件系统没有查找服务。	
+	isOpen():abstract boolean 
+		★ 指示此文件系统是否打开。
+		默认提供器创建的文件系统始终处于打开状态。
+		如果且仅当此文件系统打开时返回true。
+	isReadOnly():abstract boolean 
+		★ 指示此文件系统是否只允许对其文件存储进行只读访问。
+		如果且仅当此文件系统提供只读访问时返回true。
+	newWatchService():abstract WatchService 
+		★ 构造新的WatchService（可选操作）。
+		此方法构造一个新的监视服务，可用于监视已注册对象的更改和事件。
+		返回新的监视服务。
+		【Throws】：
+			UnsupportedOperationException 如果此文件系统不支持监视文件系统对象的更改和事件。默认提供器创建的文件系统不会引发此异常。
+			IOException 如果发生I/O错误。
+	provider():abstract FileSystemProvider 
+		★ 返回创建此文件系统的提供程序。
+	supportedFileAttributeViews():abstract Set<String> 
+		★ 返回此文件系统支持的文件属性视图的名称集合。
+		需要支持BasicFileAttributeView，因此该集至少包含一个元素“basic”。
+		可以使用supportsFileAttributeView(String)方法测试底层文件存储（FileStore）是否支持由文件属性视图标识的文件属性。
+		返回不可修改的受支持文件属性视图的名称集合。
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。

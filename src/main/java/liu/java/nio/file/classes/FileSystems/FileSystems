@@ -1,0 +1,93 @@
+----------------------------------------FileSystems--------------------------------------------------------------------------------------------------------------
+FileSystems：文件系统工厂	【Since:1.7】
+	文件系统的工厂方法。此类定义了获取默认文件系统的getDefault方法，以及构造其他类型文件系统的工厂方法。
+	第一次调用此类定义的任何方法都会导致加载默认提供器。由URI方案“file”标识的默认提供器创建了FileSystem，该文件系统提供对Java虚拟机可访问的文件系统的访问。如果加载或初始化默认提供器的过程失败，则会抛出未指定的错误（unspecified error）。
+	第一次调用installedProviders方法时，通过调用此类定义的任何newFileSystem方法，可以定位并加载所有已安装的文件系统提供器。使用由ServiceLoader类定义的服务提供器加载工具加载已安装的提供器。使用系统类加载器加载已安装的提供器。如果找不到系统类加载器，则使用扩展类加载器；如果没有扩展类加载器，则使用引导类加载器。提供器通常是通过将它们放置在应用程序类路径上的JAR文件中或扩展目录中来安装的，JAR文件在资源目录META-INF/services中包含名为java.nio.file.spi.FileSystemProvider的提供器配置文件，该文件列出了一个或多个具有零参数构造函数的FileSystemProvider具体子类的完全限定名。安装的提供器所在的顺序是特定于实现的。如果一个提供器被实例化，并且其getScheme返回先前实例化的提供器的同一个URI scheme，然后丢弃最近实例化的副本。比较URI方案（scheme）时不考虑大小写。在构建期间，提供器可以安全地访问与默认提供器关联的文件，但需要注意避免循环加载其他已安装的提供器。如果检测到已安装提供器的循环加载，则会引发未指定的错误。
+	此类还定义了工厂方法，允许在定位提供器时指定类加载器（ClassLoader）。与已安装的提供器一样，提供器类是通过将提供器配置文件放在资源目录META-INF/services中来标识的。
+	如果一个线程启动已安装的文件系统提供器的加载，而另一个线程调用一个同样尝试加载提供器的方法，那么该方法将阻塞，直到加载完成。
+	
+	
+	类定义：public final class FileSystems
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	getDefault():static FileSystem 
+		返回默认FileSystem。默认文件系统创建提供对Java虚拟机可访问的文件系统的访问的对象。文件系统的工作目录是当前用户目录，由系统属性user.dir命名。这允许与java.io.File类进行互操作。
+		第一次调用此类定义的任何方法都将定位默认的提供器对象。如果未定义系统属性java.nio.file.spi.DefaultFileSystemProvider，则默认提供器是一个系统默认提供器，它被调用以创建默认文件系统。
+		如果定义了系统属性java.nio.file.spi.DefaultFileSystemProvider，那么它将被视为由URI方案“file”标识的具体提供器类的一个或多个完全限定名的列表。如果属性是多个名称的列表，则名称由逗号分隔。使用系统类加载器加载每个类，并通过调用一个形参类型为FileSystemProvider的单参数构造函数进行实例化。按照属性中列出的顺序加载和实例化提供器。如果此过程失败或提供器的方案（scheme）不等于“file”，则会引发未指定的错误。通常不考虑大小写对URI方案（scheme）进行比较，但对于默认提供器，该方案（scheme）必须是“file”。第一个提供器类是通过引用系统默认提供器来调用它来实例化的。第二个提供器类是通过引用第一个提供器实例来调用它来实例化的。第三个提供器类是通过引用第二个实例来调用它来实例化的，依此类推。要实例化的最后一个提供器将成为默认提供器；它的getFileSystem方法将使用URI "file:///"调用，以获取对默认文件系统的引用。
+		此方法的后续调用将返回第一次调用返回的文件系统。
+		返回默认文件系统。
+	getFileSystem(URI uri):static FileSystem 
+		uri - 用于定位文件系统的URI。
+		返回对现有FileSystem的引用。
+		此方法迭代已安装的提供器，以查找由给定URI的URI方案（scheme）标识的提供器。比较URI方案时不考虑大小写。URI的确切形式高度依赖于提供器。如果找到，将调用提供器的getFileSystem方法以获取对FileSystem的引用。
+		关闭此提供器创建的文件系统后，如果此方法返回对已关闭文件系统的引用或抛出FileSystemNotFoundException异常，则它将依赖于提供器。如果提供器允许使用与先前创建的文件系统相同的URI创建新的文件系统，那么如果在关闭文件系统之后（以及在newFileSystem方法创建新实例之前）调用此方法，则会引发异常。
+		如果安装了安全管理器，则提供器实现可能需要在返回对现有文件系统的引用之前检查权限。对于默认文件系统，不需要进行权限检查。
+		返回对文件系统的引用。
+		【Throws】：
+			IllegalArgumentException 如果不满足uri参数的前提条件。
+			FileSystemNotFoundException 如果由URI标识的文件系统不存在。
+			ProviderNotFoundException 如果未安装支持URI方案（scheme）的提供器。
+			SecurityException 如果安装了安全管理器并且拒绝不确定的权限。
+	newFileSystem(URI uri, Map<String,?> env):static FileSystem 
+		uri - 标识文件系统的URI。
+		env - 用于配置文件系统的特定于提供器的属性的映射；可以为空。
+		构造由URI标识的新文件系统。
+		此方法迭代已安装的提供器，以查找由给定URI的URI方案（scheme）标识的提供器。比较URI方案时不考虑大小写。URI的确切形式高度依赖于提供程序。如果找到，将调用提供器的newFileSystem(URI,Map)方法来构造新的文件系统。
+		关闭文件系统后，如果提供器允许使用与以前创建的文件系统相同的URI创建新的文件系统，则它取决于提供器。
+		用法示例：假设有一个由安装的方案（scheme）“memory”标识的提供器：
+		   Map<String,String> env = new HashMap<>();
+		   env.put("capacity", "16G");
+		   env.put("blockSize", "4k");
+		   FileSystem fs = FileSystems.newFileSystem(URI.create("memory:///?name=logfs"), env);	
+		返回新的文件系统。	
+		【Throws】：
+			IllegalArgumentException 如果不满足uri参数的前提条件，或者env参数不包含提供器所需的属性，或者属性值无效。
+			FileSystemAlreadyExistsException 如果文件系统已经创建。
+			ProviderNotFoundException 如果未安装支持URI方案（scheme）的提供器。
+			IOException 如果创建文件系统时发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝文件系统提供器实现所需的未指定权限。
+	newFileSystem(URI uri, Map<String,?> env, ClassLoader loader):static FileSystem 
+		uri - 标识文件系统的URI。
+		env - 用于配置文件系统的特定于提供器的属性的映射；可以为空。
+		loader - 用于定位提供器的类加载器，或者为null，用于仅尝试定位已安装的提供器。
+		构造由URI标识的新文件系统。
+		此方法首先尝试以与newFileSystem(URI,Map)方法完全相同的方式定位已安装的提供程序。如果没有安装的提供器支持URI方案（scheme），则尝试使用给定的类加载器定位提供器。如果找到了支持URI方案的提供程序，那么将调用其newFileSystem(URI,Map)来构造新的文件系统。
+		返回新的文件系统。	
+		【Throws】：
+			IllegalArgumentException 如果不满足uri参数的前提条件，或者env参数不包含提供器所需的属性，或者属性值无效。
+			FileSystemAlreadyExistsException 如果URI方案（scheme）标识已安装的提供器，并且文件系统已创建。
+			ProviderNotFoundException 如果找不到支持URI方案（scheme）的提供器。
+			ServiceConfigurationError 当加载服务提供器时发生错误。
+			IOException 如果创建文件系统时发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝文件系统提供器实现所需的未指定权限。
+	newFileSystem(Path path,ClassLoader loader):static FileSystem 
+		path - 文件的路径。
+		loader - 用于定位提供器的类加载器，或者为null，用于仅尝试定位已安装的提供器。
+		构造一个新的文件系统，以作为文件系统访问文件的内容。
+		此方法利用专门的提供器创建伪文件系统，其中一个或多个文件的内容被视为文件系统。
+		此方法迭代已安装的提供器。它依次使用空映射调用每个提供器的newFileSystem(Path,Map)方法。如果提供器返回一个文件系统，那么迭代将终止，并返回文件系统。如果没有安装的提供器返回FileSystem，则尝试使用给定的类加载器定位提供器。如果提供器返回文件系统，则查找将终止，并返回文件系统。
+		返回新的文件系统。
+		【Throws】：
+			ProviderNotFoundException 如果找不到支持此文件类型的提供器。
+			ServiceConfigurationError 当加载服务提供程序时发生错误。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+		
+		
+		
+		
+		
+		
+		
+		
