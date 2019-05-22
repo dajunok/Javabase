@@ -1,0 +1,69 @@
+-----------------------------------------UserDefinedFileAttributeView-----------------------------------------------------------------------------------------------------------------------------		
+UserDefinedFileAttributeView：用户定义文件属性视图 【Since:1.7】
+	一种文件属性视图，提供用户定义文件属性的视图，有时也称为扩展属性。用户定义的文件属性用于使用对文件系统没有意义的文件存储元数据。它主要用于文件系统实现，这些实现直接支持这种功能，但可以进行仿真。这种仿真的细节是高度特定于实现的，因此没有指定。
+	此FileAttributeView以一组名称/值对的形式提供文件用户定义属性的视图，其中属性名由String表示。在访问属性时，实现可能需要从平台或文件系统表示形式进行编码和解码。该值具有不透明内容。这个属性视图定义了读写方法，以便将值读到ByteBuffer中或从ByteBuffer中写入。此FileAttributeView不适用于属性值的大小大于Integer.MAX_VALUE的情况。
+	在某些实现中，可以使用用户定义的属性来存储安全相关的属性，因此，至少在默认提供器的情况下，在安装安全管理器时，访问用户定义属性的所有方法都需要RuntimePermission("accessUserDefinedAttributes")权限。
+	supportsFileAttributeView方法可用于测试特定文件存储是否支持存储用户定义的属性。
+	如果需要动态访问文件属性，则可以使用getAttribute方法读取属性值。属性值作为字节数组（byte[]）返回。setAttribute方法可用于从缓冲区（如同通过调用write方法）或字节数组（byte[]）写入用户定义属性的值。
+	
+	
+	
+	接口定义	：public interface UserDefinedFileAttributeView  extends FileAttributeView
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	delete(String name):void 
+		name - 属性名称。
+		删除用户定义的属性。
+		【Throws】：
+			IOException 如果发生I/O错误或属性不存在。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserDefinedAttributes")或其checkWrite方法拒绝对文件的写访问。
+	list():List<String> 
+		返回包含用户定义属性的名称的列表（不可修改）。
+		【Throws】：
+			IOException 如果发生I/O错误或属性不存在。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserDefinedAttributes")或其checkRead方法拒绝对文件的读取访问。
+	name():String 
+		返回此属性视图的名称。此类型的属性视图的名称为“user”。
+	read(String name, ByteBuffer dst):int 
+		name - 属性名称。
+		dst - 目标缓冲区。
+		将用户定义属性的值读取到缓冲区中。
+		此方法以字节序列的形式将属性值读取到给定缓冲区中，如果缓冲区中剩余的字节数不足以读取完整的属性值，则会失败。传输到缓冲区的字节数是n，其中n是属性值的大小。序列中的第一个字节位于索引p，最后一个字节位于索引p+n-1，其中p是缓冲区的位置。返回时，缓冲区的位置将等于p+n；其限制（limit）将不会改变。
+		用法示例：假设我们要读取一个文件的MIME类型，该类型存储为一个名为“user.mimetype”的用户定义属性。
+		    UserDefinedFileAttributeView view =Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		    String name = "user.mimetype";
+		    ByteBuffer buf = ByteBuffer.allocate(view.size(name));
+		    view.read(name, buf);
+		    buf.flip();
+		    String value = Charset.defaultCharset().decode(buf).toString();	
+		返回读取的字节数，可能为零。
+		【Throws】：
+			IllegalArgumentException 如果目标缓冲区是只读的。
+			IOException 如果发生I/O错误或目标缓冲区中的属性值空间不足。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserDefinedAttributes")或其checkRead方法拒绝对文件的读取访问。
+	size(String name):int 
+		name -  属性名称。
+		返回用户定义属性值的大小（字节）。
+		【Throws】：
+			ArithmeticException 如果属性的大小大于Integer.MAX_VALUE。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserDefinedAttributes")或其checkRead方法拒绝对文件的读取访问。		
+	write(String name, ByteBuffer src):int 
+		name - 属性名称。
+		src - 包含属性值的缓冲区。
+		从缓冲区写入用户定义属性的值。
+		此方法将给定缓冲区中的属性值作为字节序列写入。要传输的值的大小是r，其中r是缓冲区中剩余的字节数，即src.remaining()。字节序列从索引p开始从缓冲区传输，其中p是缓冲区的位置。返回时，缓冲区的位置将等于p+n，其中n是传输的字节数；其限制（limit）不会改变。
+		如果给定名称的属性已经存在，则其值将被替换。如果该属性不存在，则创建该属性。如果它实现特定于检查属性是否存在和创建属性的测试对于其他文件系统活动是原子的。
+		如果没有足够的空间来存储属性，或者属性名称或值超过了实现特定的最大大小，则会引发IOException异常。
+		用法示例：假设我们要将文件的MIME类型作为用户定义的属性写入：
+		    UserDefinedFileAttributeView view =FIles.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		    view.write("user.mimetype", Charset.defaultCharset().encode("text/html"));	
+		返回写入的字节数，可能为零。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserDefinedAttributes")或其checkWrite方法拒绝对文件的写入访问。	
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	

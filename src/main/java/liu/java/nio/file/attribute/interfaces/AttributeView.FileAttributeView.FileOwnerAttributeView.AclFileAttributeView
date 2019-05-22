@@ -1,0 +1,71 @@
+-----------------------------------------AclFileAttributeView-----------------------------------------------------------------------------------------------------------------------------		
+AclFileAttributeView：ACL文件属性视图 【Since:1.7】
+	支持读取或更新文件的访问控制列表（ACL）或文件所有者属性的文件属性视图。
+	ACL用于指定对文件系统对象的访问权限。ACL是访问控制条目的有序列表，每个条目指定一个用户主体（UserPrincipal）和该用户主体的访问级别。此文件属性视图定义了基于RFC 3530: Network File System (NFS)版本4协议中指定的ACL模型读取和写入ACL的getAcl和setAcl方法。此文件属性视图用于支持NFSv4 ACL模型的文件系统实现，或者在NFSv4 ACL模型和文件系统使用的ACL模型之间具有定义良好的映射。这种映射的细节依赖于实现，因此未指明。
+	此类还扩展了FileOwnerAttributeView，以便定义获取和设置文件所有者的方法。
+	当文件系统提供对一组非同类文件系统的访问时，只有部分文件系统可能支持ACL。supportsFileAttributeView方法可用于判断文件系统是否支持ACL。
+	
+	Interoperability（互操作性）
+		RFC 3530允许在支持POSIX定义的访问权限的平台上使用特殊的用户标识。特殊的用户标识是“OWNER@”、“GROUP@”和“EVERYONE@”。当同时支持AclFileAttributeView和PosixFileAttributeView时，这些特殊的用户标识可能包含在读取或写入的ACL条目中。文件系统的UserPrincipalLookupService可用于通过调用lookupPrincipalByName方法获取用于表示这些特殊标识的UserPrincipal。
+	用法示例：假设我们希望向现有ACL添加一个条目以授予“joe”访问权：
+	     // lookup "joe"
+	     UserPrincipal joe = file.getFileSystem().getUserPrincipalLookupService()
+	         .lookupPrincipalByName("joe");
+	
+	     // get view
+	     AclFileAttributeView view = Files.getFileAttributeView(file, AclFileAttributeView.class);
+	
+	     // create ACE to give "joe" read access
+	     AclEntry entry = AclEntry.newBuilder()
+	         .setType(AclEntryType.ALLOW)
+	         .setPrincipal(joe)
+	         .setPermissions(AclEntryPermission.READ_DATA, AclEntryPermission.READ_ATTRIBUTES)
+	         .build();
+	
+	     // read ACL, insert ACE, re-write ACL
+	     List<AclEntry> acl = view.getAcl();
+	     acl.add(0, entry);   // insert before any DENY entries
+	     view.setAcl(acl);	
+	
+	Dynamic Access（动态访问）
+		如果需要动态访问文件属性，则此属性视图支持的属性如下：
+		————————————————————————————————————————
+		 Name				Type
+		————————————————————————————————————————
+		 "acl"			List<AclEntry>
+		 "owner"		UserPrincipal
+		————————————————————————————————————————
+		getAttribute方法可以像调用getAcl或getOwner方法一样用于读取ACL或owner属性。
+		setAttribute方法可用于更新ACL或owner属性，就像调用setAcl或setOwner方法一样。	
+	
+	创建文件时设置ACL
+		支持此属性视图的实现还可能支持在创建文件或目录时设置初始ACL。初始ACL可以作为名为“acl:acl”的FileAttribute和作为AclEntry对象列表的值提供给诸如createFile或createDirectory等方法。
+		如果一个实现支持与NFSv4定义的ACL模型不同的ACL模型，那么在创建文件时设置初始ACL必须将ACL转换为文件系统支持的模型。创建文件的方法应该拒绝（通过抛出IOException异常）创建因转换而不安全的文件的任何尝试。
+	
+	接口定义	：public interface AclFileAttributeView extends FileOwnerAttributeView
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	getAcl():List<AclEntry> 
+		读取访问控制列表。
+		当文件系统使用与NFSv4定义的ACL模型不同的ACL模型时，此方法将返回一个ACL，该ACL是ACL到NFSv4 ACL模型的转换。
+		返回的列表是可修改的，以便于更改现有的ACL。setAcl方法用于更新文件的ACL属性。
+		返回表示ACL的条目的有序列表。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserInformation")或其checkRead方法拒绝对文件的读取访问。
+	name():String 
+		△ 返回属性视图的名称。此类型的属性视图的名称为“acl”。
+	setAcl(List<AclEntry> acl):void 
+		acl - 新的访问控制列表。
+		更新（替换）访问控制列表。
+		如果文件系统支持访问控制列表，并且使用的ACL模型与NFSv4定义的ACL模型不同，则此方法必须将ACL转换为文件系统支持的模型。此方法应拒绝（通过引发IOException异常）任何试图写入ACL的尝试，这些尝试似乎会使文件比更新ACL时更安全。如果一个实现不支持AclEntryType.AUDIT或AclEntryType.ALARM条目的映射，那么在写入ACL时，此方法将忽略这些条目。
+		如果一个ACL条目包含一个用户主体，而该主体与此属性视图没有关联到同一个提供器，那么将引发ProviderMismatchException异常。附加验证（如果有）取决于实现。
+		如果文件系统支持其他与安全相关的文件属性（例如文件访问权限），则更新访问控制列表也可能导致更新这些与安全相关的属性。
+		【Throws】：
+			IOException 如果发生I/O错误或ACL无效。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserInformation")或其checkWrite方法拒绝对文件的写访问。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	

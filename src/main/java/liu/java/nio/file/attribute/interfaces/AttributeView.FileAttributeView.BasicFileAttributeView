@@ -1,0 +1,54 @@
+-----------------------------------------BasicFileAttributeView-----------------------------------------------------------------------------------------------------------------------------		
+BasicFileAttributeView：基础文件属性视图 【Since:1.7】
+	一种文件属性视图，提供许多文件系统通用的一组基本文件属性的视图。基本文件属性集由BasicFileAttributes接口定义的强制和可选文件属性组成。
+	通过调用readAttributes方法，可以作为批量操作从文件系统中检索文件属性。这个类还定义了setTimes方法来更新文件的时间属性。
+	如果需要动态访问文件属性，则此属性视图支持的属性具有以下名称和类型：
+	——————————————————————————————————————————
+	 Name						Type
+	——————————————————————————————————————————
+	 "lastModifiedTime"		FileTime
+	 "lastAccessTime"		FileTime
+	 "creationTime"			FileTime
+	 "size"					Long
+	 "isRegularFile"			Boolean
+	 "isDirectory"			Boolean
+	 "isSymbolicLink"		Boolean
+	 "isOther"				Boolean
+	 "fileKey"				Object
+	——————————————————————————————————————————	
+	getAttribute方法可以像调用readAttributes()方法一样用于读取这些属性中的任何一个。
+	setAttribute方法可用于更新文件的上次修改时间、上次访问时间或创建时间属性，就像调用setTimes方法一样。
+	
+
+	接口定义	：public interface BasicFileAttributeView extends FileAttributeView
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	name():String 
+		△ 返回属性视图的名称。此类型的属性视图的名称为“basic”。
+	readAttributes():BasicFileAttributes 
+		作为批量操作读取基本文件属性。
+		如果所有文件属性都作为与其他文件系统操作相关的原子操作读取，那么它是特定于实现的。
+		返回文件属性。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，调用其checkRead方法来检查对文件的读取访问权限。
+	setTimes(FileTime lastModifiedTime,FileTime lastAccessTime,FileTime createTime):void 
+		lastModifiedTime - 新的上次修改时间，或为null不更改值。
+		lastAccessTime - 上次访问时间，或为null不更改值。
+		createTime - 文件创建时间，或为null不更改值。
+		更新文件的任何或所有上次修改时间、上次访问时间和创建时间属性。
+		此方法更新文件的时间戳属性。这些值将转换为文件系统支持的epoch和精度。由细颗粒向粗颗粒转变会导致精度损失。未定义此方法在尝试设置不支持的时间戳或设置为底层文件存储支持的范围之外的值时的行为。通过抛出IOException异常，它可能会失败，也可能不会失败。
+		如果lastModifiedTime、lastAccessTime或createTime参数的值为null，则相应的时间戳不会更改。当只更新了一些时间戳属性（而不是全部）时，实现可能需要读取文件属性的现有值。因此，对于其他文件系统操作，此方法可能不是原子操作。读取和重新写入现有值也可能导致精度损失。如果lastModifiedTime、lastAccessTime和createTime的所有参数都为null，则此方法无效。
+		用法示例：假设我们想更改文件的最后访问时间。
+		    Path path = ...
+		    FileTime time = ...
+		    Files.getFileAttributeView(path, BasicFileAttributeView.class).setTimes(null, time, null);	
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装了安全管理器，调用其checkWrite方法来检查对文件的写访问权限。
+
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	

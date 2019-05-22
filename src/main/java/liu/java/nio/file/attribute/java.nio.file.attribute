@@ -1,0 +1,83 @@
+------------------------------------------Package java.nio.file.attribute--------------------------------------------------------------------------------------------------------------
+											【Since 1.7】
+Package Description（包描述说明）：
+	提供对文件和文件系统属性的访问的接口和类。
+	———————————————————————————————————————————————————————————————————————————
+	Attribute views								Description
+	———————————————————————————————————————————————————————————————————————————
+	AttributeView							可以读取或更新与文件系统中的对象关联的非不透明值
+	  FileAttributeView						可以读取或更新文件属性
+	    BasicFileAttributeView  			可以读取或更新一组基本的文件属性
+	      PosixFileAttributeView  			可以读取或更新POSIX定义的文件属性
+	      DosFileAttributeView  			可以读取或更新FAT文件属性
+	    FileOwnerAttributeView  			可以读取或更新文件的所有者
+	     AclFileAttributeView  				可以读取或更新访问控制列表
+	    UserDefinedFileAttributeView  		可以读取或更新用户定义的文件属性
+	  FileStoreAttributeView				可以读取或更新文件系统属性	
+	———————————————————————————————————————————————————————————————————————————
+	属性视图提供与文件系统中的对象相关联的非不透明值或元数据的只读或可更新视图。FileAttributeView接口由几个其他接口扩展，这些接口可以查看特定的文件属性集。通过使用类型标记调用Files.getFileAttributeView(java.nio.file.Path, java.lang.Class<V>, java.nio.file.LinkOption...)方法来选择FileAttributeView，以标识所需的视图。视图也可以按名称标识。FileStoreAttributeView接口提供对文件存储属性的访问。通过调用FileStore.getFileStoreAttributeView(java.lang.Class<V>)方法获得给定类型的FileStoreAttributeView。
+	BasicFileAttributeView类定义了读取和更新许多文件系统通用的基本文件属性集的方法。
+	PosixFileAttributeView接口通过定义访问文件系统和实现可移植操作系统接口（POSIX）系列标准的操作系统通常使用的文件属性的方法来扩展BasicFileAttributeView。
+	DosFileAttributeView类通过定义方法来扩展BasicFileAttributeView，以访问文件系统，如用户设备中常用的文件分配表（(FAT)）支持的传统“DOS”文件属性。
+	AclFileAttributeView类定义读取和写入访问控制列表（ACL）文件属性的方法。此文件属性视图使用的ACL模型基于由 RFC 3530: Network File System (NFS) version 4 Protocol定义的模型。
+	除了属性视图外，此包还定义访问属性时使用的类和接口：
+		● UserPrincipal和GroupPrincipal接口表示标识或组标识。
+		● UserPrincipalLookupService接口定义查找用户或组主体的方法。
+		● 对于在文件系统中创建对象时需要原子设置属性值的情况，FileAttribute接口表示属性值。 
+	除非另有说明，否则将null参数传递给此包中任何类或接口中的构造函数或方法将导致引发NullPointerException接口。
+	
+	
+Interface Summary（接口概要）
+	AclFileAttributeView
+	AttributeView
+	BasicFileAttributes
+	BasicFileAttributeView
+	DosFileAttributes
+	DosFileAttributeView
+	FileAttribute
+	FileAttributeView
+	FileOwnerAttributeView
+	FileStoreAttributeView
+	GroupPrincipal
+	PosixFileAttributes
+	PosixFileAttributeView
+	UserDefinedFileAttributeView
+	UserPrincipal		
+	
+	
+Class Summary(类概要)
+	AclEntry
+	AclEntry.Builder
+	FileTime
+	PosixFilePermissions
+	UserPrincipalLookupService	
+Enums Summary（枚举概要）
+	AclEntryFlag
+	AclEntryPermission
+	AclEntryType
+	PosixFilePermission	
+	
+Exceptions Summary（异常概要）
+	
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、I/O多路复用：阻塞式I/O和I/O复用，两个阶段都阻塞，那区别在哪里呢？就在于第三节讲述的Selector，虽然第一阶段都是阻塞，但是阻塞式I/O如果要接收更多的连接，就必须创建更多的线程。I/O复用模式下在第一个阶段大量的连接统统都可以过来直接注册到Selector复用器上面，同时只要单个或者少量的线程来循环处理这些连接事件就可以了，一旦达到“就绪”的条件，就可以立即执行真正的I/O操作。这就是I/O复用与传统的阻塞式I/O最大的不同。也正是I/O复用的精髓所在。
+	        当服务程序需要承载大量TCP链接的时候，比如我们的消息推送系统，IM通讯，web聊天等等，在我们已经理解Selector原理的情况下，知道使用I/O复用可以用少量的线程处理大量的链接。I/O多路复用技术以事件驱动编程为基础。它运行在单一进程上下文中，因此每个逻辑流都能访问该进程的全部地址空间，这样在流之间共享数据变得很容易。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

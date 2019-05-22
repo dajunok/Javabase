@@ -1,0 +1,62 @@
+-----------------------------------------PosixFileAttributeView-----------------------------------------------------------------------------------------------------------------------------		
+PosixFileAttributeView：POSIX文件属性视图 【Since:1.7】
+	一种文件属性视图，提供文件属性的视图，通常与实现可移植操作系统接口（POSIX）系列标准的操作系统所使用的文件系统上的文件关联。
+	实现POSIX系列标准的操作系统通常使用具有文件所有者、组所有者和相关访问权限的文件系统。此文件属性视图提供对这些属性的读写访问。
+	readAttributes方法用于读取文件的属性。文件所有者由用户主体(UserPrincipal)表示，用户主体是用于访问控制的文件所有者的标识。组所有者由GroupPrincipal表示，是组所有者的标识，其中组（group）是为管理目的而创建的标识，以确定组成员的访问权限。
+	权限属性是一组访问权限。此文件属性视图提供对由PosixFilePermission类定义的九个权限的访问。这九个权限位决定了文件所有者、组和其他人（其他人是指除组所有者和成员之外的标识）的读取、写入和执行访问权限。一些操作系统和文件系统可能提供额外的权限位，但是对这些其他位的访问并不是由这个版本中的类定义的。
+	使用示例：假设我们需要打印出文件的所有者和访问权限：
+	     Path file = ...
+	     PosixFileAttributes attrs = Files.getFileAttributeView(file, PosixFileAttributeView.class).readAttributes();
+	     System.out.format("%s %s%n",attrs.owner().getName(),PosixFilePermissions.toString(attrs.permissions()));	
+	
+	Dynamic Access（动态访问）
+		如果需要动态访问文件属性，则此属性视图支持的属性由BasicFileAttributeView和FileOwnerAttributeView定义，此外，还支持以下属性：
+		——————————————————————————————————————————————————
+		 Name					Type
+		——————————————————————————————————————————————————
+		 "permissions"		Set<PosixFilePermission>
+		 "group"			GroupPrincipal
+		——————————————————————————————————————————————————
+		getAttribute方法可以用于读取这些属性中的任何一个，或者通过调用readAttributes()方法读取BasicFileAttributeView定义的任何属性。
+		setAttribute方法可用于更新文件的上次修改时间、上次访问时间或创建由BasicFileAttributeView定义的时间属性。它还可以用于更新权限、所有者或组所有者，就像分别调用setPermissions、setOwner和setGroup方法一样。
+	
+	设置初始权限
+		支持此属性视图的实现还可能支持在创建文件或目录时设置初始权限。初始权限作为名为“posix:permissions”的文件属性和权限集的值提供给createFile或createDirectory方法。下面的例子使用asFileAttribute方法在创建文件时构造一个FileAttribute:
+		     Path path = ...
+		     Set<PosixFilePermission> perms =
+		         EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ);
+		     Files.createFile(path, PosixFilePermissions.asFileAttribute(perms));			
+		当在文件创建时设置访问权限时，权限的实际值可能与属性对象的值不同。其原因是特定于实现的。例如，在UNIX系统上，进程有一个umask，它影响新创建文件的权限位。在一个实现支持访问权限的设置,和底层文件系统支持访问权限，则需要实际访问权限的值等于或小于提供给createFile或createDirectory方法的属性的值。换句话说，文件可能比请求的更安全。
+		
+
+	接口定义	：public interface PosixFileAttributeView extends BasicFileAttributeView, FileOwnerAttributeView
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	name():String 
+		△ 返回属性视图的名称。此类型的属性视图的名称为“posix”。		
+	readAttributes():PosixFileAttributes 
+		△ 作为批量操作读取基本文件属性。
+		如果所有文件属性都作为与其他文件系统操作相关的原子操作读取，那么它是特定于实现的。
+		返回文件属性。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，调用其checkRead方法来检查对文件的读取访问权限。
+	setGroup(GroupPrincipal group):void 
+		group - 新文件组所有者。
+		更新文件组所有者。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，如果安装了安全管理器，则拒绝RuntimePermission("accessUserInformation")或其checkWrite方法拒绝对文件的写访问。
+	setPermissions(Set<PosixFilePermission> perms):void 
+		perms - 新的权限集合。
+		更新文件权限。
+		【Throws】：
+			ClassCastException 如果集合包含不属于PosixFilePermission类型的元素。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，如果安装了安全管理器，则拒绝RuntimePermission("accessUserInformation")或其checkWrite方法拒绝对文件的写访问。
+
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	
