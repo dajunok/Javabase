@@ -1,0 +1,45 @@
+----------------------------------------PosixFilePermissions--------------------------------------------------------------------------------------------------------------
+PosixFilePermissions：POSIX文件文件权限	【Since:1.7】
+	此类只包含对PosixFilePermission对象集进行操作的静态方法。
+	
+	
+	类定义	：public final class PosixFilePermissions
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	asFileAttribute(Set<PosixFilePermission> perms):static FileAttribute<Set<PosixFilePermission>>
+		perms - 权限集合。
+		创建一个FileAttribute，封装给定文件权限的副本，适用于传递到createFile或createDirectory方法。
+		返回用名称"posix:permissions"封装给定文件权限的属性。
+		【Throws】：
+			ClassCastException 如果集合包含不属于PosixFilePermission类型的元素。
+	fromString(String perms):static Set<PosixFilePermission> 
+		perms - 表示一组权限的字符串。
+		返回与给定字符串表示形式对应的权限集。
+		perms参数是表示权限的字符串。它有9个字符，解释为3个一组共3组。第一组是指所有者（owner）的权限；第二组是指组（group）权限，最后一组是指其他（other）权限。在每个集合中，第一个字符是“r”表示读取权限，第二个字符是“w”表示写入权限，第三个字符是“x”表示执行权限。如果未设置权限，则相应的字符将设置为“-”。
+		用法示例：假设我们需要一组权限，这些权限指示所有者（owner）具有读、写和执行权限，组（group）具有读和执行权限，其他（other）组没有任何权限。
+			Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-x---");
+		返回生成的权限集合。
+		【Throws】：
+			IllegalArgumentException 如果字符串无法转换为一组权限。
+	toString(Set<PosixFilePermission> perms):static String 
+		perms - 权限集合。
+		返回一组权限的字符串表示形式。可以保证返回的字符串可以由fromString(java.lang.String)方法解析。
+		如果集合包含空值或不属于PosixFilePermission类型的元素，则忽略这些元素。
+		返回权限集的字符串表示形式。
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+			
+	
+	
+	
+	
+	
+	
+	
+	
+	

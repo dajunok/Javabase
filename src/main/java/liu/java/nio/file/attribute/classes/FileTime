@@ -1,0 +1,71 @@
+----------------------------------------FileTime--------------------------------------------------------------------------------------------------------------
+FileTime：文件时间	【Since:1.7】
+	表示文件的时间戳属性的值。例如，它可能表示上次修改、访问或创建文件的时间。
+	此类的实例是不可变的。
+	
+	
+	类定义	：public final class FileTime  implements Comparable<FileTime>
+	实现接口	：Comparable<FileTime>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	from(Instant instant):static FileTime 
+		instant - 转换的瞬间。
+		返回一个FileTime，它表示时间线上与提供的即时对象相同的时间点值。
+	from(long value, TimeUnit unit):static FileTime 
+		value - 纪元以来的值（1970-01-01T00:00:00Z）；可以是负数。
+		unit - 解释value的粒度单位。
+		返回表示给定粒度单位的value的FileTime。
+		返回表示给定value的文件时间（FileTime）。
+	fromMillis(long value):static FileTime 
+		value - 从纪元（epoch）（1970-01-01T00:00:00Z）开始的值（毫秒）；可以是负数。
+		返回表示给定value（毫秒）的FileTime。
+	compareTo(FileTime other):int 
+		other - 要比较的其他FileTime。
+		△ 比较两个FileTime对象的顺序值。
+		如果此FileTime等于other，则返回0；如果此FileTime表示在other之前的时间，则返回小于0的值；如果此FileTime表示在other之后的时间，则返回大于0的值。
+	equals(Object obj):boolean 
+		obj - 要与之比较的对象。
+		△ 测试此FileTime是否与给定对象相等。
+		如果且仅当参数不为null并且是表示同一时间的FileTime，则结果为true。此方法满足Object.equals方法的一般约定。
+		如果且仅当给定对象是表示同一时间的FileTime时返回true。
+	hashCode():int 
+		△ 计算此文件时间的哈希代码。
+		哈希代码基于所表示的值，并满足Object.hashCode()方法的一般约定。
+	to(TimeUnit unit):long 
+		unit - 返回时间值的粒度单位。
+		返回给定粒度单位的时间值。
+		从较粗粒度的转换，如果为负，则数值溢出饱和为Long.MIN_VALUE，如果为正，则为Long.MAX_VALUE。
+		返回以给定粒度单位表示的时间值，自纪元以来的epoch (1970-01-01T00:00:00Z)；可以是负数。
+	toInstant():Instant 
+		将此FileTime对象转换为Instant（即时时间）。
+		转换将创建一个表示时间线上与此FileTime相同的点的Instant。
+		FileTime可以在时间线上存储点，将来和过去的时间比Instant时间更远。如果早于Instant.MIN，则从这些进一步的时间点转换为Instant.MIN；如果迟于Instant.MAX，则从Instant.MAX转换为Instant.MIN。
+		返回表示时间线上与此FileTime对象相同点的Instant（即时时间）。
+	toMillis():long 
+		返回以毫秒为单位的值。
+		从较粗粒度的转换，如果为负，则数值溢出饱和为Long.MIN_VALUE，如果为正，则为Long.MAX_VALUE。
+		返回从纪元epochepoch (1970-01-01T00:00:00Z)开始的以毫秒为单位的值。		
+	toString():String 
+		△ 返回此FileTime的字符串表示形式。字符串以ISO 8601格式返回：
+			YYYY-MM-DDThh:mm:ss[.s+]Z
+		其中"[.s+]"表示一个点，后跟一个以上的数字，表示一秒钟的小数。只有当一秒钟的小数不为零时，它才会出现。例如，FileTime.fromMillis(1234567890000L).toString()生成"2009-02-13T23:31:30Z"，FileTime.fromMillis(1234567890123L).toString()生成"2009-02-13T23:31:30.123Z"。
+		FileTime主要用于表示文件时间戳的值。当用于表示极值时，如果年份小于“0001”或大于“9999”，则该方法与ISO 8601的偏离方式与XML模式语言相同。也就是说，年份可以扩展到四位以上，可以是负号。如果超过四位数，则不存在前导零。“0001”之前的年份是“-0001”。
+		返回此FileTime的字符串表示形式。
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+			
+	
+	
+	
+	
+	
+	
+	
+	
+	
