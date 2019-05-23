@@ -1,0 +1,317 @@
+----------------------------------------FileSystemProvider--------------------------------------------------------------------------------------------------------------
+FileSystemProvider：文件系统提供器。【Since:1.7】
+	文件系统的服务提供器类。由Files类定义的方法通常会委托给此类的实例。
+	文件系统提供器是此类的具体实现，它实现了此类定义的抽象方法。提供器由URI方案（scheme）标识。默认提供器由URI方案“file”标识。它创建了FileSystem，该文件系统提供对Java虚拟机可访问的文件系统的访问。FileSystems类定义如何定位和加载文件系统提供器。默认提供器通常是系统默认提供器，但如果设置了系统属性java.nio.file.spi.DefaultFileSystemProvider，则可能会被覆盖。在这种情况下，提供器有一个单参数构造函数，其形式参数类型为FileSystemProvider。所有其他提供器都有一个零参数构造函数，用于初始化提供器。
+	提供器是一个或多个FileSystem实例的工厂。每个文件系统都由一个URI标识，其中该URI的方案（scheme）与提供器的方案（scheme）匹配。例如，默认文件系统由URI "file:///"标识。例如，基于内存的文件系统可以由一个URI标识，例如"memory:///?name=logfs"。newFileSystem方法可用于创建文件系统，getFileSystem方法可用于获取对提供器创建的现有文件系统的引用。如果提供器是单个文件系统的工厂，那么如果文件系统是在提供器初始化时创建的，或者稍后调用newFileSystem方法时创建的，那么它取决于提供器。对于默认提供器，FileSystem是在初始化提供器时创建的。
+	
+	此类中的所有方法对于多个并发线程都是安全的。
+	
+	
+	类定义	：public abstract class FileSystemProvider
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected FileSystemProvider()
+
+
+Method Summary（方法概要）：
+	installedProviders():static List<FileSystemProvider> 
+		返回已安装的文件系统提供器的列表。
+		此方法的第一次调用将导致初始化默认提供器（如果尚未初始化），并按照FileSystems类所述加载任何其他已安装的提供器。
+		返回安装的文件系统提供器的不可修改列表。列表至少包含一个元素，即默认的文件系统提供器。
+		【Throws】：
+			ServiceConfigurationError 当加载服务提供器时发生错误时。
+	checkAccess(Path path, AccessMode... modes):abstract void 
+		path - 要检查的文件的路径。
+		modes - 要检查的访问模式；可以是零元素。
+		检查文件的存在性，以及可选的可访问性。
+		此方法可由isReadable、isWritable和isExecutable方法用于检查文件的可访问性。
+		此方法检查文件的存在，并且该Java虚拟机具有适当的权限，允许它根据模式参数中指定的所有访问模式访问文件：
+		————————————————————————————————————————————————————————————————————————————
+		 Value					Description
+		————————————————————————————————————————————————————————————————————————————
+		 READ			检查文件是否存在，Java虚拟机具有读取文件的权限。
+		 WRITE			检查文件是否存在，Java虚拟机具有写入文件的权限，
+		 EXECUTE		检查文件是否存在，Java虚拟机是否有执行文件的权限。检查对目录的访问时，语义可能不同。例如，在UNIX系统上，检查执行访问是否检查Java虚拟机具有访问目录的权限，以便访问文件或子目录。		
+		————————————————————————————————————————————————————————————————————————————
+		如果modes参数的长度为零，则检查文件是否存在。
+		如果此对象引用的文件是符号链接，则此方法遵循符号链接。根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。为了确定对文件的有效访问，可能需要访问多个属性，因此在某些实现中，对于其他文件系统操作，此方法可能不是原子的。
+		【Throws】：
+			UnsupportedOperationException 需要一个实现来支持对读（READ）、写（WRITE）和执行（EXECUTE）访问的检查。此异常被指定为允许在将来的版本中扩展访问枚举。
+			NoSuchFileException  如果文件不存在（可选的特定异常）。
+			AccessDeniedException 由于Java虚拟机权限不足或其他原因，请求的访问将被拒绝或无法确定访问。（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则在检查文件的读取访问权限或仅检查文件的存在时调用checkRead，在检查文件的写入访问权限时调用checkWrite，在检查执行访问权限时调用checkExec。
+	copy(Path source, Path target, CopyOption... options):abstract void
+		source - 要复制的文件的路径。
+		target - 目标文件的路径。
+		options - 指定复制方式的选项。
+		将文件复制到目标文件。此方法完全按照Files.copy(Path,Path,CopyOption[])方法指定的方式工作，但源路径和目标路径都必须与此提供器关联。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含不受支持的复制选项。
+			FileAlreadyExistsException 如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
+			DirectoryNotEmptyException 指定了REPLACE_EXISTING选项，但无法替换该文件，因为它是一个非空目录（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则调用checkRead方法检查对源文件的读访问，调用checkWrite检查对目标文件的写访问。如果复制了符号链接，则调用安全管理器来检查LinkPermission("symbolic")。
+	createDirectory(Path dir, FileAttribute<?>... attrs):abstract void 
+		dir - 要创建的目录。
+		attrs - 创建目录时要自动设置的文件属性的可选列表。
+		创建新目录。该方法完全按照Files.createDirectory(java.nio.file.Path, java.nio.file.attribute.FileAttribute<?>...)方法规定的方式工作。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			FileAlreadyExistsException 如果由于同名文件已存在而无法创建目录（可选的特定异常）。
+			IOException 如果发生I/O错误或父目录不存在。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkWrite方法来检查对新目录的写访问。
+	createLink(Path link, Path existing):void 
+		link - 要创建的链接（目录条目）
+		existing - 现有文件的路径。
+		为现有文件创建新链接（硬链接）。此方法以Files.createLink(java.nio.file.Path, java.nio.file.Path)方法指定的方式工作。
+		此方法的默认实现引发UnsupportedOperationException异常。
+		【Throws】：
+			UnsupportedOperationException 如果实现不支持将现有文件添加到目录。
+			FileAlreadyExistsException 如果由于同名文件已存在而无法创建条目（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则拒绝LinkPermission("hard")或其checkWrite方法拒绝对链接或现有文件的写访问。
+	createSymbolicLink(Path link, Path target, FileAttribute<?>... attrs):void 
+		link - 要创建的符号链接的路径。
+		target - 符号链接的目标文件。
+		attrs - 创建符号链接时要自动设置的属性数组。
+		创建指向目标的符号链接。该方法完全按照Files.createSymbolicLink(java.nio.file.Path, java.nio.file.Path, java.nio.file.attribute.FileAttribute<?>...)方法规定的方式工作。
+		此方法的默认实现引发UnsupportedOperationException异常。
+		【Throws】：
+			UnsupportedOperationException 如果实现不支持符号链接，或者数组包含在创建符号链接时不能自动设置的属性。
+			FileAlreadyExistsException 如果已存在名为的文件（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则拒绝LinkPermission("symbolic")或其CheckWrite方法拒绝对符号链接路径的写访问。
+	delete(Path path):abstract void 
+		path - 要删除的文件的路径。
+		删除文件。该方法完全按照Files.delete(java.nio.file.Path)方法规定的方式工作。
+		【Throws】：
+			NoSuchFileException 如果文件不存在（可选的特定异常）。
+			DirectoryNotEmptyException 如果该文件是一个目录，并且由于该目录不为空而无法删除（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装安全管理器时，调用SecurityManager.checkDelete(String)方法来检查对文件的删除访问。
+	deleteIfExists(Path path):boolean 
+		path - 要删除的文件的路径。
+		删除文件（如果存在）。该方法完全按照Files.deleteIfExists(java.nio.file.Path)方法规定的方式工作。
+		当文件不存在时，该方法的默认实现简单地调用delete(java.nio.file.Path)，忽略NoSuchFileException异常。在适当的情况下，它可以被覆盖。
+		【Throws】：
+			DirectoryNotEmptyException 如果该文件是一个目录，并且由于该目录不为空而无法删除（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装安全管理器时，调用SecurityManager.checkDelete(String)方法来检查对文件的删除访问。
+	getFileAttributeView(Path path, Class<V> type, LinkOption... options):abstract <V extends FileAttributeView> V
+		<V> - FileAttributeView类型。
+		path - 文件的路径。
+		type - 与文件属性视图对应的类对象。
+		options - 指示如何处理符号链接的选项。
+		返回给定类型的文件属性视图。此方法完全按照Files.getFileAttributeView(java.nio.file.Path, java.lang.Class<V>, java.nio.file.LinkOption...)方法指定的方式工作。
+		返回指定类型的文件属性视图，如果属性视图类型不可用，则返回null。	
+	getFileStore(Path path):abstract FileStore 
+		path - 文件的路径。
+		返回表示文件所在的文件存储区的FileStore。此方法完全按照Files.getFileStore(java.nio.file.Path)方法指定的方式工作。
+		返回存储文件的文件存储区。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkRead方法来检查对文件的读取权限，此外还会检查RuntimePermission ("getFileStoreAttributes")。
+	getFileSystem(URI uri):abstract FileSystem 
+		uri - URI引用。
+		返回此提供器创建的现有FileSystem。
+		此方法返回对通过调用newFileSystem(URI,Map)方法创建的FileSystem的引用。此方法不返回创建了newFileSystem(Path,Map)方法的文件系统。文件系统由其URI标识。它的确切形式高度依赖于供应商。对于默认提供器，URI的路径组件为“/”，并且权限（authority）、查询（query）和片段（fragment）组件未定义（未定义的组件由null表示）。
+		关闭此提供器创建的文件系统后，如果此方法返回对已关闭文件系统的引用或引发FileSystemNotFoundException异常，则它将依赖于提供器。如果提供器允许使用与先前创建的文件系统相同的URI创建新的文件系统，那么如果在关闭文件系统之后（以及在newFileSystem方法创建新实例之前）调用此方法，则会引发异常。
+		如果安装了安全管理器，则提供器实现可能需要在返回对现有文件系统的引用之前检查权限。对于默认文件系统，不需要进行权限检查。
+		返回FileSystem。
+		【Throws】：
+			IllegalArgumentException 如果不满足URI参数的前提条件。
+			FileSystemNotFoundException 如果文件系统不存在。
+			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。
+	getPath(URI uri):abstract Path 
+		uri - 要转换的URI。
+		通过转换给定的URI返回Path对象。结果路径与已经存在或自动构造的FileSystem相关联。
+		URI的确切形式取决于文件系统提供器。在缺省提供器的情况下，URI方案是“file”，并且给定的URI有一个非空的路径组件、未定义的查询（query）和片段（fragment）组件。结果Path与默认FileSystem相关联。
+		如果安装了安全管理器，则提供器实现可能需要检查权限。对于默认文件系统，不需要进行权限检查。
+		返回结果Path。
+		【Throws】：
+			IllegalArgumentException 如果URI方案未标识此提供程序或URI参数上的其他前提条件不成立。
+			FileSystemNotFoundException 由URI标识的文件系统不存在，无法自动创建。
+			SecurityException 如果安装了安全管理器，但它拒绝了未指定的权限。
+	getScheme():abstract String 
+		返回标识此提供器的URI方案（scheme）。
+	isHidden(Path path):abstract boolean 
+		path - 要测试的文件的路径。
+		指示是否将文件视为隐藏文件。此方法完全按照Files.isHidden(java.nio.file.Path)方法指定的方式工作。
+		如果文件被视为隐藏，则返回true。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	isSameFile(Path path, Path path2):abstract boolean 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		测试文件是否为具有不透明内容的常规文件。此方法完全按照Files.isSameFile(java.nio.file.Path, java.nio.file.Path)方法指定的方式工作。
+		如果文件是常规文件，则返回true；如果文件不存在，如果文件不是常规文件，则无法确定该文件是否为常规文件，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
+	move(Path source, Path target, CopyOption... options):abstract void 
+		source - 要移动的文件的路径。
+		target - 目标文件的路径（可能与源路径的其他提供程器关联）。
+		options - 指定移动方式的选项。
+		将文件移动或重命名为目标文件。此方法完全按照Files.move(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...)方法指定的方式工作，除了源代码和目标路径都必须与该提供器关联。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含不受支持的复制选项。
+			FileAlreadyExistsException 如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
+			DirectoryNotEmptyException 指定了REPLACE_EXISTING选项，但无法替换该文件，因为它是一个非空目录（可选的特定异常）。
+			AtomicMoveNotSupportedException 如果选项数组包含ATOMIC_MOVE选项，但文件不能作为原子文件系统操作移动。
+			IOException 如果发生I/O错误。
+			SecurityException 在安装了默认提供器和安全管理器的情况下，将调用checkWrite方法来检查对源文件和目标文件的写访问。
+	newAsynchronousFileChannel(Path path,Set<? extends OpenOption> options,ExecutorService executor,FileAttribute<?>... attrs):AsynchronousFileChannel
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		executor - 线程池或null以将通道与默认线程池关联。
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		打开或创建用于读取和/或写入的文件，返回异步文件通道以访问该文件。此方法的工作方式与AsynchronousFileChannel.open方法指定的方式完全相同。不支持构造异步文件通道所需的所有功能的提供器引发UnsupportedOperationException异常。默认提供器是支持创建异步文件通道所必需的。如果不重写，此方法的默认实现将引发UnsupportedOperationException异常。
+		返回新的异步文件通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果此提供器不支持创建异步文件通道，或者指定了不受支持的打开选项或文件属性。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认文件系统的情况下，调用SecurityManager.checkRead(String)方法检查打开文件进行读取时的读取访问。调用SecurityManager.checkWrite(String)方法检查打开文件进行写入时的写入权限。
+	newByteChannel(Path path,Set<? extends OpenOption> options, FileAttribute<?>... attrs):abstract SeekableByteChannel
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		打开或创建文件，返回可查找的字节通道以访问该文件。此方法完全按照Files.newByteChannel(Path,Set,FileAttribute[])方法指定的方式工作。
+		返回一种新的可查找字节通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不受支持的打开选项。
+			FileAlreadyExistsException 如果该名称的文件已经存在，并且指定了CREATE_NEW选项（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则会调用checkRead方法来检查打开文件进行读取时对路径的读取访问。如果打开文件进行写入，则调用checkWrite方法检查对路径的写入访问权。如果文件是用DELETE_ON_CLOSE选项打开的，则调用checkDelete方法来检查删除权限。	
+	newDirectoryStream(Path dir,DirectoryStream.Filter<? super Path> filter):abstract DirectoryStream<Path>
+		dir - 目录的路径。
+		filter - 目录流过滤器。
+		打开一个目录，返回DirectoryStream以迭代目录中的条目。此方法完全按照Files.newDirectoryStream(java.nio.file.Path, java.nio.file.DirectoryStream.Filter)方法指定的方式工作。
+		返回新的并打开的DirectoryStream对象。
+		【Throws】：
+			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器（provider），并且安装了安全管理器，那么将调用checkRead方法来检查对目录的读取访问。
+	newFileChannel(Path path,Set<? extends OpenOption> options,FileAttribute<?>... attrs):FileChannel
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		打开或创建用于读取和/或写入的文件，返回文件通道以访问该文件。此方法完全按照FileChannel.open方法指定的方式工作。不支持构造文件通道所需的所有功能的提供器引发UnsupportedOperationException。需要默认提供器来支持文件通道的创建。如果不重写，则默认实现将引发UnsupportedOperationException异常。
+		返回新的文件通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果路径与不支持创建文件通道的提供程序关联，或者指定了不受支持的打开选项，或者数组包含创建文件时无法自动设置的属性。
+			IOException 如果发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝实现所需的未指定权限。在默认提供器的情况下，调用SecurityManager.checkRead(String)方法检查打开文件进行读取时的读取访问。调用SecurityManager.checkWrite(String)方法检查打开文件进行写入时的写入权限。
+	newFileSystem(URI uri, Map<String,?> env):abstract FileSystem 
+		uri - URI引用。
+		env - 用于配置文件系统的特定于提供器的属性的映射；可能为空。
+		构造由URI标识的新FileSystem对象。FileSystems.newFileSystem(URI,Map)方法调用此方法以打开由URI标识的新文件系统。
+		uri参数是一个绝对的、分层的URI，其方案（scheme）与此提供器支持的方案（scheme）相同（不考虑大小写）。URI的确切形式高度依赖于提供器。env参数是用于配置文件系统的特定于提供器的属性的映射。
+		如果文件系统已经存在，则此方法将引发FileSystemAlreadyExistsException异常，因为它以前是通过调用此方法创建的。关闭文件系统后，如果提供器允许使用与以前创建的文件系统相同的URI创建新的文件系统，则它取决于提供器。
+		返回新的文件系统。
+		【Throws】：
+			IllegalArgumentException 如果不满足URI参数的前提条件，或者env参数不包含提供器所需的属性，或者属性值无效。
+			IOException 创建文件系统时出现I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝文件系统提供程序实现所需的未指定权限。
+			FileSystemAlreadyExistsException 如果文件系统已经创建。
+	newFileSystem(Path path, Map<String,?> env):FileSystem 
+		path - 文件的路径。
+		env - 用于配置文件系统的特定于提供器的属性的映射；可能为空。
+		构造一个新的FileSystem，以作为文件系统访问文件的内容。
+		此方法适用于伪文件系统的专门提供者，其中一个或多个文件的内容被视为文件系统。env参数是用于配置文件系统的特定于提供器的属性的映射。
+		如果此提供器不支持创建此类文件系统，或者如果提供器不识别给定文件的文件类型，则会引发UnsupportedOperationException异常。此方法的默认实现引发UnsupportedOperationException异常。
+		返回新的文件系统。
+		【Throws】：
+			UnsupportedOperationException 如果此提供程序不支持作为文件系统访问内容，或者它不识别给定文件的文件类型。
+			IllegalArgumentException 如果env参数不包含提供程序所需的属性，或者属性值无效。
+			IOException 出现I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝文件系统提供程序实现所需的未指定权限。
+	newInputStream(Path path, OpenOption... options):InputStream 
+		path - 要打开的文件的路径。
+		options - 指定文件打开方式的选项。
+		打开文件，返回要从文件中读取的输入流。此方法完全按照Files.newInputStream(java.nio.file.Path, java.nio.file.OpenOption...)方法指定的方式工作。
+		此方法的默认实现打开文件的通道，就像调用newByteChannel(java.nio.file.Path, java.util.Set<? extends java.nio.file.OpenOption>, java.nio.file.attribute.FileAttribute<?>...)方法并构造一个从通道中读取字节的流。在适当的情况下，应重写此方法。
+		返回新的输入流。
+		【Throws】：
+			IllegalArgumentException 如果指定的选项组合无效。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	newOutputStream(Path path, OpenOption... options):OutputStream 
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		打开或创建一个文件，返回一个输出流，该输出流可用于向该文件写入字节。此方法完全按照Files.newOutputStream(java.nio.file.Path, java.nio.file.OpenOption...)方法指定的方式工作。
+		此方法的默认实现打开文件的通道，就像调用newByteChannel(java.nio.file.Path, java.util.Set<? extends java.nio.file.OpenOption>, java.nio.file.attribute.FileAttribute<?>...)方法并构造一个将字节写入通道的流。在适当的情况下，应重写此方法。
+		返回新的输出流。
+		【Throws】：
+			IllegalArgumentException 如果选项包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			IOException 如果发生I/O错误。
+			SecurityException  如果是默认的提供器，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。如果文件是用DELETE_ON_CLOSE选项打开的，则调用checkDelete方法来检查删除权限。
+	readAttributes(Path path, Class<A> type, LinkOption... options):abstract <A extends BasicFileAttributes> A
+		<A> - BasicFileAttributes类型。
+		path - 文件的路径。
+		type - 需要读取的文件属性的类。
+		options - 指示如何处理符号链接的选项。
+		作为批量操作读取文件的属性。此方法完全按照 Files.readAttributes(Path,Class,LinkOption[])方法指定的方式工作。
+		返回文件属性。
+    	【Throws】：
+			UnsupportedOperationException 如果不支持给定类型的属性。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，调用其checkRead方法检查对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
+    readAttributes(Path path, String attributes,LinkOption... options):abstract Map<String,Object>
+    	path - 文件的路径。
+		attributes - 要读取的属性。
+		options - 指示如何处理符号链接的选项。
+		作为批量操作读取一组文件属性。 此方法完全按照 Files.readAttributes(Path,String,LinkOption[])方法指定的方式工作。
+		返回的属性的映射；映射的键是属性名，其值是属性值。
+		【Throws】：
+			UnsupportedOperationException 如果属性视图不可用。
+			IllegalArgumentException 如果未指定属性或指定了无法识别的属性。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
+    readSymbolicLink(Path link):Path 
+    	link - 符号链接的路径。
+		读取符号链接的目标文件。此方法完全按照Files.readSymbolicLink(java.nio.file.Path)方法指定的方式工作。
+		读取此方法默认实现的属性引发UnsupportedOperationException异常。
+		返回表示链接目标的Path对象。
+		【Throws】：
+			UnsupportedOperationException 如果实现不支持符号链接。
+			NotLinkException 如果由于文件不是符号链接而无法读取目标（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，它将检查是否已通过“readlink”操作授予FilePermission以读取链接。
+    setAttribute(Path path, String attribute,Object value, LinkOption... options):abstract void 
+		path - 文件的路径。
+		attribute - 要设置的属性。
+		value - 属性值。
+		options - 指示如何处理符号链接的选项。
+		设置文件属性的值。此方法完全按照Files.setAttribute(java.nio.file.Path, java.lang.String, java.lang.Object, java.nio.file.LinkOption...)方法指定的方式工作。
+		【Throws】：
+			UnsupportedOperationException 如果属性视图不可用。
+			IllegalArgumentException 如果未指定属性名，或无法识别，或属性值的类型正确，但值不正确。
+			ClassCastException 如果属性值不是所需类型，或者是包含不属于所需类型的元素的集合。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供程序，并且安装了安全管理器，则其checkWrite方法会拒绝对文件的写访问。如果调用此方法来设置安全敏感属性，则可以调用安全管理器来检查附加权限。
+	
+	 
+	
+		
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+		
+		
+		
+		
+		
+		
+		
+		

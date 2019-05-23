@@ -670,7 +670,7 @@ Method Summary（方法概要）：
 			SecurityException 在默认提供器的情况下，安装了安全管理器，调用其checkRead方法检查对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
 	readAttributes(Path path, String attributes,LinkOption... options):static Map<String,Object> 
 		path - 文件的路径。
-		type - 需要读取的文件属性的类。
+		attributes - 要读取的属性。
 		options - 指示如何处理符号链接的选项。
 		作为批量操作读取一组文件属性。
 		attributes参数标识要读取的属性，并采用以下形式：
