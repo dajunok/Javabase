@@ -1,0 +1,448 @@
+---------------------------------------Calendar-----------------------------------------------------------------------------------------------------
+Calendar：日历类。【Since:JDK1.1】
+	日历类是一个抽象类，它提供在特定时间点和一组日历字段（如年、月、月、日、小时等）之间转换的方法，以及操作日历字段（如获取下周的日期）的方法。时间瞬间可以用毫秒值表示，毫秒值是与1970年1月1日00:00:00.000格林威治标准时间（公历）的偏移量。
+	与其他对区域设置敏感的类一样，Calendar提供了一个类方法getInstance，用于获取这种类型的一般有用的对象。Calendar的getInstance方法返回其日历字段已用当前日期和时间初始化的Calendar对象：
+		Calendar rightNow = Calendar.getInstance();
+	日历对象可以生成实现特定语言和日历样式（例如，Japanese-Gregorian（日文公历）、Japanese-Traditional（日文繁体））的日期时间格式所需的所有日历字段值。日历定义某些日历字段返回的值的范围及其含义。例如，对于所有日历，日历系统的第一个月的值MONTH == JANUARY。其他值由具体的子类定义，如ERA。有关详细信息，请参阅各个字段文档和子类文档。
+	获取和设置日历字段值：
+		可以通过调用set方法来设置日历字段值。日历中设置的任何字段值在需要计算其时间值（从纪元（Epoch)算起的毫秒数）或计算日历字段的值之前都不会被解释。调用get、getTimeInMillis、getTime、add和roll涉及到这样的计算。
+		1、Leniency字段
+			Calendar有两种解释日历字段的模式：宽松和非宽松模式。当日历处于宽松模式时，它接受的日历字段值范围比它生成的范围更广。当Calendar重新计算日历字段值通过get()返回时，所有日历字段都将正常化。例如，宽松的GregorianCalendar（公历日历）将MONTH == JANUARY, DAY_OF_MONTH == 32解释为2月1日。
+			当日历处于非宽松模式时，如果其日历字段中存在任何不一致，则会引发异常。例如，GregorianCalendar（公历日历）总是在DAY_OF_MONTH 和月份长度之间生成2个值。如果设置了任何超出范围的字段值，则非宽松模式的GregorianCalendar（公历日历）在计算其时间或日历字段值时引发异常。	
+		2、First Week
+			Calendar使用两个参数定义特定于locale（区域设置）的七天工作周：一周的第一天和第一周的最少天数（从1到7）。这些数字是在构建日历时从区域设置资源数据中获取的。它们也可以通过设置其值的方法显式指定
+			设置或获取WEEK_OF_MONTH或WEEK_OF_YEAR字段时，日历必须确定月份或年份的第一周作为参考点。一个月或一年的第一周被定义为最早的七天周期，从getFirstDayOfWeek()开始，至少包含该月或一年的getMinimalDaysInFirstWeek()天。周数……，-1，0先于第一周；周数2，3，…跟着它走。请注意，get()返回的规范化编号可能不同。例如，特定的日历子类可以将一年中第1周之前的一周指定为上一年的第n周。
+		3、日历字段分辨
+			从日历字段计算日期和时间时，可能没有足够的信息进行计算（例如只有年和月没有月的日期），或者可能有不一致的信息（例如1996年7月15日星期二（公历）--1996年7月15日实际上是星期一）。Calendar将解析日历字段值，以如下方式确定日期和时间。
+			如果日历字段值中存在任何冲突，则日历将优先考虑最近设置的日历字段。以下是日历字段的默认组合。将使用由最近设置的单个字段确定的最新组合。
+			对于日期字段：
+				 YEAR + MONTH + DAY_OF_MONTH
+				 YEAR + MONTH + WEEK_OF_MONTH + DAY_OF_WEEK
+				 YEAR + MONTH + DAY_OF_WEEK_IN_MONTH + DAY_OF_WEEK
+				 YEAR + DAY_OF_YEAR
+				 YEAR + DAY_OF_WEEK + WEEK_OF_YEAR
+			对于时间字段：
+				 HOUR_OF_DAY
+				 AM_PM + HOUR
+			如果有任何日历字段的值尚未在所选字段组合中设置，则日历将使用其默认值。每个字段的默认值可能因具体日历系统而异。例如，在公历日历中，字段的默认值与纪元开始时相同：即YEAR = 1970、MONTH = JANUARY、DAY_OF_MONTH = 1等。
+			注：某些单数时间的解释可能存在一定的歧义，其解决方法如下：	
+				<1>	23:59是一天的最后一分钟，00:00是第二天的第一分钟。因此，1999年12月31日23:59<2000年1月1日00:00<2000年1月1日00:01。
+				<2>	虽然历史上并不精确，但午夜也属于“am”，中午也属于“pm”，因此在同一天，中午12:00（午夜）<12:01 am，中午12:00（中午）<12:01 pm
+			日期或时间格式字符串不是日历定义的一部分，因为这些字符串在运行时必须可由用户修改或重写。使用DateFormat设置日期格式。
+		4、日历字段处理
+			日历字段可以使用三种方法进行更改：set()、add()和roll()。
+			
+			set(f，value)将日历字段f更改为value。此外，它还设置了一个内部成员变量，以指示日历字段f已更改。尽管日历字段f会立即更改，但在下次调用get()、getTime()、getTimeInMillis()、add()或roll()之前，不会重新计算日历的时间值（毫秒）。因此，多次调用set()不会触发多个不必要的计算。由于使用set()更改日历字段，其他日历字段也可能更改，具体取决于日历字段、日历字段值和日历系统。此外，在重新计算日历字段之后，get(f)不一定返回通过调用set方法设置的值。具体细节由具体的日历类决定。
+			例如：假设公历最初设置为1999年8月31日。调用set(Calendar.MONTH, Calendar.SEPTEMBER)将日期设置为1999年9月31日。这是一个临时的内部表示，如果随后调用getTime()，则解析为1999年10月1日。但是，在调用getTime()之前调用set(Calendar.DAY_OF_MONTH, 30)会将日期设置为1999年9月30日，因为set()本身之后不会重新计算。
+			
+			add(f, delta)将delta添加到字段f。这相当于调用set(f, get(f) + delta)，有两个调整：
+				add规则1。调用后字段f的值减去调用前字段f的值为delta，模除字段f中发生的任何溢出。当字段值超出其范围时会发生溢出，因此，下一个较大的字段将递增或递减，字段值将调整回其范围。
+				add规则2。如果一个较小的字段预期是不变的，但由于字段f更改后其最小值或最大值的变化或其他约束（如时区偏移量变化）而不可能等于其先前值，则将其值调整为尽可能接近其预期值。较小的字段表示较小的时间单位。HOUR字段小于DAY_OF_MONTH的段。不会对不希望保持不变的较小字段进行任何调整。日历系统确定哪些字段应该是不变的。
+			此外，与set()不同，add()强制立即重新计算日历的毫秒和所有字段。
+			例如：假设公历最初设置为1999年8月31日。调用add(Calendar.MONTH, 13)将日历设置为2000年9月30日。add规则1将“月份”字段设置为9月，因为添加13个月到8月将得到下一年的9月。由于在公历日历中，月份的“日”不能是9月31日，因此add规则2将“月”的“日”设置为30，这是最接近的可能值。虽然它是一个较小的字段，但“周”中的“日”不会根据规则2进行调整，因为当公历日历中的月份发生变化时，预计它会发生变化。
+			
+			roll(f, delta)将delta添加到字段f，而不更改较大的字段。这相当于通过以下调整调用add(f, delta)：
+			滚动规则。较大的字段在调用后不变。较大的字段表示较大的时间单位。DAY_OF_MONTH字段大于HOUR字段。
+		示例：请参见GregorianCalendar.roll(int, int)		
+		使用模型。要激活add()和roll()操作，请考虑一个用户界面组件，其中包含月份、日期和年份的递增和递减按钮，以及一个基础的公历日历。	如果界面显示1999年1月31日，用户按月份递增按钮，应该显示什么？如果底层实现使用set（），它可能会在1999年3月3日读取。一个更好的结果是1999年2月28日。此外，如果用户再次按下月份递增按钮，则应为1999年3月31日，而不是1999年3月28日。通过保存原始日期并使用add（）或roll（），根据是否应影响较大的字段，用户界面可以像大多数用户直观预期的那样工作。		
+			
+			
+	类定义	：public abstract class Calendar extends Object implements Serializable, Cloneable, Comparable<Calendar>
+	子类		：GregorianCalendar
+	内部类	：Builder
+--------------------------------------------------------------------------------------------------------------------------------------------
+日历属性字段（Field）：
+		ALL_FIELDS
+			表示所有字段的掩码值。
+		ALL_STYLES
+			getDisplayNames的样式说明符，指示所有样式中的名称，如“January”和“Jan”。			
+		==============================================================
+		AM_PM
+			get和set的字段编号，指示时间是在中午之前还是之后。
+		AM
+			AM_PM字段的值，指示一天中从午夜到中午之前的时段。
+		PM
+			AM_PM字段的值，指示一天中从中午到午夜之前的时段。
+		==============================================================
+		MONTH
+			get和set的字段号，指示月份。
+		JANUARY
+			MONTH字段的值，指示公历和儒略历中一年中的第一个月。
+		FEBRUARY
+			MONTH字段的值，指示公历和儒略历中一年中的第二个月。
+		MARCH
+			MONTH字段的值，指示公历和儒略历中一年中的第三个月。			
+		APRIL
+			MONTH字段的值，指示公历和儒略历中一年中的第四个月。
+		MAY
+			MONTH字段的值，指示公历和儒略历中一年中的第五个月。
+		JUNE
+			MONTH字段的值，指示公历和儒略历中一年中的第六个月。	
+		JULY
+			MONTH字段的值，指示公历和儒略历中一年中的第七个月。				
+		AUGUST
+			MONTH字段的值，指示公历和儒略历中一年中的第八个月。	
+		SEPTEMBER
+			MONTH字段的值，指示公历和儒略历中一年中的第九个月。			
+		OCTOBER
+			MONTH字段的值，指示公历和儒略历中一年中的第十个月。
+		NOVEMBER
+			MONTH字段的值，指示公历和儒略历中一年中的第十一个月。
+		DECEMBER
+			MONTH字段的值，指示公历和儒略历中一年中的第十二个月。
+		UNDECIMBER
+			MONTH字段的值，指示一年中的第十三个月。虽然公历日历不使用这个值，但月历使用这个值。
+		==============================================================
+		DAY_OF_WEEK
+			get和set的字段号，指示一周中的某一天。	
+		MONDAY
+			DAY_OF_WEEK字段的值，表示“星期一”
+		TUESDAY
+			DAY_OF_WEEK字段的值，表示“星期二”			
+		WEDNESDAY
+			DAY_OF_WEEK字段的值，表示“星期三”
+		THURSDAY
+			DAY_OF_WEEK字段的值，表示“星期四”
+		FRIDAY
+			DAY_OF_WEEK字段的值，表示“星期五”
+		SATURDAY
+			DAY_OF_WEEK字段的值，表示“星期六”
+		SUNDAY
+			DAY_OF_WEEK字段的值，表示“星期天”
+		==============================================================	
+		YEAR
+			用于表示年份的get和set的字段编号。
+		DATE
+			get和set的字段编号，指示月份的日期。
+		DAY_OF_MONTH
+			get和set的字段编号，指示月份的日期
+		DAY_OF_YEAR
+			get和set的字段编号，指示当前年份中的日期。	
+		HOUR
+			get和set的字段编号，指示上午或下午的时间（例如18，即下午6点）。			
+		HOUR_OF_DAY
+			get和set的字段编号，指示一天中的小时。			
+		MINUTE
+			get和set的字段号，指示小时内的分钟。			
+		SECOND
+			get和set的字段号，指示分钟内的秒数。
+		MILLISECOND
+			get和set的字段号，指示秒内的毫秒数。
+		WEEK_OF_MONTH
+			get和set的字段号，指示当前月份内的周数。
+		WEEK_OF_YEAR
+			get和set的字段号，指示当前年份中的周数。
+		DAY_OF_WEEK_IN_MONTH
+			get和set的字段号，指示当前月份中星期几的序号。
+		time
+			此日历当前设置的时间，以1970年1月1日之后0:00:00 GMT的毫秒为单位。
+		ZONE_OFFSET
+			get和set的字段号，指示与GMT的原始偏移量（毫秒）。
+		==============================================================						
+		areFieldsSet
+			如果fields[]与当前设置的时间同步，则为true。	
+		DST_OFFSET
+			get和set的字段号，指示夏令时偏移量（毫秒）。
+		ERA
+			用于GET和SET的字段编号，指示纪元，例如朱利安日历中的AD或BC。			
+		FIELD_COUNT
+			由get和set识别的不同字段数。
+		fields
+			当前为calenda设置的时间的日历字段值。			
+		
+		isSet
+			指示是否为calendar设置了指定日历字段的标志。
+		isTimeSet
+			如果时间值有效，则为true。			
+		LONG
+			getdisplayname和getdisplayname的样式(style)说明符，相当于LONG_FORMAT。
+		LONG_FORMAT
+			getdisplayname和getdisplayname的样式(style)说明符，指示用于格式的长名称。
+		LONG_STANDALONE
+			getdisplayname和getdisplayname的样式(style)说明符，指示独立使用的long名称，例如月份名称作为日历标题。				
+		NARROW_FORMAT
+			getdisplayname和getdisplayname的样式(style)说明符，指示用于格式的缩写名称。
+		NARROW_STANDALONE
+			getdisplayname和getdisplayname的样式(style)说明符，分别指示缩写名称。
+		SHORT
+			getdisplayname和getdisplayname的样式(style)说明符，相当于SHORT_FORMAT。
+		SHORT_FORMAT
+			getdisplayname和getdisplayname的样式(style)说明符，指示用于格式的短名称。
+		SHORT_STANDALONE
+			getdisplayname和getdisplayname的样式(style)说明符，指示独立使用的短名称，例如月份缩写作为日历标题。			
+--------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	protected Calendar()
+		构造具有默认时区和FORMAT（默认格式）区域设置的日历。
+	protected Calendar(TimeZone zone, Locale aLocale)
+		构造具有指定时区和区域设置的日历。
+--------------------------------------------------------------------------------------------------------------------------------------------
+方法：
+	add(int field, int amount):abstract void 
+		根据日历规则，向给定日历字段添加或减去指定的时间量。例如，要从日历的当前时间中减去5天，可以通过调用以下命令来实现：add(Calendar.DAY_OF_MONTH, -5)
+	after(Object when):boolean 
+		返回此日历是否表示指定Object表示的时间之后的时间。该方法相当于：
+			compareTo(when) > 0
+		如果且仅当是日历实例时。否则，该方法返回false。
+	before(Object when):boolean 
+		返回此日历是否表示指定Object所表示时间之前的时间。该方法相当于：
+			compareTo(when) < 0
+		如果且仅当是日历实例时。否则，该方法返回false。
+	clear():final void 
+		设置此日历的所有日历字段值和未定义的时间值（距纪元的毫秒偏移量）。这意味着isSet()将为所有日历字段返回false，并且日期和时间计算将把这些字段视为从未设置过的字段。日历实现类可以使用其特定的默认字段值进行日期/时间计算。例如，如果YEAR字段值不确定，则公历日历使用1970。
+	clear(int field):final void 
+		设置此日历的给定日历字段值和未定义的时间值（距纪元的毫秒偏移量）。这意味着isset（field）将返回false，日期和时间计算将把该字段视为从未设置过。
+		日历实现类可以使用字段的特定默认值进行日期和时间计算。HOUR_OF_DAY、HOUR和 AM_PM字段是单独处理的，并且应用了当天时间的解决规则。
+		清除其中一个字段不会重置此日历的小时值。使用set(Calendar.HOUR_OF_DAY, 0)重置小时值。
+	clone():Object 
+		△创建并返回此对象的副本。
+	compareTo(Calendar anotherCalendar):int 
+		比较由两个日历对象表示的时间值（与纪元的毫秒偏移量）。
+		【Throws】：
+			NullPointerException 如果指定的日历为null。
+			IllegalArgumentException 如果由于日历值无效而无法获取指定日历对象的时间值。
+	equals(Object obj):boolean 
+		△将此日历与指定的对象进行比较。只有当且仅当参数是同一日历系统的日历对象时，结果才为真，该日历对象在与此对象相同的日历参数下表示相同的时间值（与世纪epoch的毫秒偏移量）。
+		日历参数是由isLenient、getFirstDayOfWeek、getMinimaDaySinFirstWeek和getTimeZone方法表示的值。如果两个日历的这些参数有任何差异，则此方法返回false。
+		使用CompareTo方法仅比较时间值。
+	complete():void 
+		在日历字段中填写任何未设置的字段。首先，如果没有根据日历字段值计算时间值（与纪元（Epoch)的毫秒偏移量），则调用computeTime()方法。然后，调用computeFields()方法计算所有日历字段值。
+	computeFields():abstract void 
+		将当前毫秒时间值time转换为fields[]中的日历字段值。这允许您将日历字段值与为日历设置的新时间同步。不首先重新计算时间；若要重新计算时间，请调用complete()方法，然后设置字段。
+	computeTime():abstract void 
+		将fields[]中的当前日历字段值转换为毫秒时间值。
+	getFieldName(int field)：static String 
+		返回指定日历字段的名称。
+	getInstance():static Calendar 
+		获取使用默认时区(teme zone)和区域(Locale)设置的日历。
+	getInstance(Locale aLocale):static Calendar 
+		获取使用默认时区和指定区域(Locale)设置的日历。返回的日历基于具有给定区域(locale)设置的默认时区中的当前时间。
+	getInstance(TimeZone zone):static Calendar 
+		获取使用指定时区(TimeZone)和默认区域(locale)设置的日历。返回的日历基于给定时区中的当前时间，使用默认格式区域(locale)设置。
+	getInstance(TimeZone zone,Locale aLocale):static Calendar 
+		获取具有指定时区(TimeZone)和区域(locale)设置的日历。返回的日历基于给定时区(TimeZone)中具有给定区域(locale)设置的当前时间。
+	get(int field):int 
+		返回给定日历字段的值。在宽松模式下，所有日历字段都是规范化的。在非宽松模式下，所有日历字段都将被验证，如果任何日历字段的值超出范围，则此方法将引发异常。规范化和验证由complete()方法处理，该方法依赖于日历系统。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 	如果指定的字段超出范围(field < 0 || field >= FIELD_COUNT)
+	getActualMaximum(int field):int 
+		返回指定日历字段可能具有的最大值，给定此日历的时间值。例如，在某些年份中，MONTH字段的实际最大值为12，在希伯来语日历系统中，在其他年份为13。此方法的默认实现使用迭代算法来确定日历字段的实际最大值。如果可能的话，子类应该用更有效的实现来覆盖它
+		此方法的默认实现使用迭代算法来确定日历字段的实际最大值。如果可能的话，子类应该用更有效的实现来覆盖它。
+	getActualMinimum(int field):int 
+		返回指定日历字段可能具有的最小值，给定此日历的时间值。此方法的默认实现使用迭代算法来确定日历字段的实际最小值。如果可能的话，子类应该用一个更有效的实现来覆盖这一点——在许多情况下，它们可以简单地返回getMinimum（）。
+		此方法的默认实现使用迭代算法来确定日历字段的实际最小值。如果可能的话，子类应该用一个更有效的实现来覆盖这一点——在许多情况下，它们可以简单地返回getMinimum（）
+	getAvailableCalendarTypes():static Set<String> 
+		返回一个不可修改的集合，该集合包含运行时环境中日历支持的所有日历类型。可用的日历类型可用于Unicode区域设置扩展。返回的集合至少包含“gregory”。日历类型不包括别名，例如“gregorian”代表“gregory”。
+	getAvailableLocales():static synchronized Locale[] 
+		返回此类的getInstance方法可以返回本地化实例的所有区域设置的数组。返回的数组必须至少包含等于Locale.US的区域设置实例。
+	getCalendarType():String 
+		返回此日历的日历类型。日历类型由Unicode区域设置数据标记语言（LDML）规范定义。	
+		此方法的默认实现返回此日历实例的类名。实现LDML-defined定义的日历系统的任何子类都应重写此方法以返回适当的日历类型。	
+	getDisplayName(int field, int style, Locale locale):String 
+		返回给定样式(style)和区域(locale)设置中日历字段值的字符串表示形式。如果没有适用的字符串表示，则返回空值。如果字符串表示法适用于给定的日历字段，则此方法调用get（field）以获取日历字段值。
+		例如，如果该日历是公历日历，其日期为2005-01-01，则MONTH字段的字符串表示形式在英语语言环境中长格式为“January”，在短格式中为“Jan”。但是，DAY_OF_MONTH字段没有可用的字符串表示形式，并且此方法将返回空值。
+		默认实现支持日期格式符号在给定区域设置中具有名称的日历字段。
+		【Throws】：
+			IllegalArgumentException 如果字段或样式无效，或者此日历不是宽松模式，并且任何日历字段的值无效
+			NullPointerException 如果locale为null
+	getDisplayNames(int field, int style, Locale locale):Map<String, Integer> 
+		返回包含给定样式(style)和区域(locale)设置中日历字段的所有名称及其相应字段值的Map映射。例如，如果此日历是公历日历，
+		则返回的Map将包含“Jan”到JANUARY、“Feb”到FEBRUARY等，在英语区域中为短样式。由于使用单个字符，缩写名称可能不唯一，例如“s”表示星期日和星期六。在这种情况下，返回的map映射中不包含缩写名称。
+		可以考虑其他日历字段的值来确定一组显示名称。例如，如果此日历是月历系统，并且“YEAR”字段给出的年份值具有闰月，则此方法将返回包含闰月名称的月份名称，并且将月份名称映射到特定于年份的值。	
+		【Throws】：
+			IllegalArgumentException 如果字段或样式无效，或者此日历不是宽松模式，并且任何日历字段的值无效
+			NullPointerException 如果locale为null
+	getFirstDayOfWeek():int 
+		获取一周中的第一天。例如在美国是“SUNDAY”，在法国是“MONDAY”
+	getGreatestMinimum(int field):abstract int 
+		返回此日历实例的给定日历字段的最高最小值。最高最小值定义为GetActualMinimum（int）为任何可能的时间值返回的最大值。最高最小值取决于实例的日历系统特定参数。
+	getLeastMaximum(int field):abstract int 
+		返回此日历实例的给定日历字段的最小最大值。最小最大值定义为GetActualMaximum（int）为任何可能的时间值返回的最小值。最小最大值取决于实例的日历系统特定参数。
+		例如，公历系统的日历会在“DAY_OF_MONTH ”字段中返回28，因为“28”是该日历中最短月份的最后一天，即同一年中的2月。
+	getMaximum(int field):abstract int 
+		返回此日历实例的给定日历字段的最大值。最大值定义为get方法返回的任何可能时间值的最大值。最大值取决于日历系统的Instant（瞬间）特定参数。
+	getMinimalDaysInFirstWeek():int 
+		获取一年中第一周所需的最小天数；例如，如果第一周定义为包含一年中第一个月的第一天，则此方法返回1。如果所需的最少天数必须是一周，则此方法返回7。
+	getMinimum(int field):abstract int 
+		返回此日历实例的给定日历字段的最小值。最小值定义为get方法返回的任何可能时间值的最小值。最小值取决于日历系统的Instant（瞬间）特定参数。
+	getSetStateFields():final int 
+		返回一个字段掩码（位掩码），指示具有外部或内部设置状态的所有日历字段。
+	getTime():final Date 
+		返回表示此日历时间值的Date对象（与纪元epoch的毫秒偏移量）。
+	getTimeInMillis():long 
+		返回此日历的时间值（毫秒）。
+	getTimeZone():TimeZone 
+		获取时区。
+	getWeeksInWeekYear():int 
+		返回此日历表示的一周中的周数。此方法的默认实现引发UnsupportedOperation异常(即需要子类覆盖的方法)。
+	getWeekYear():int 
+		返回此日历表示的周-年。周年与周周期同步。第一周的第一天是一周的第一天。此方法的默认实现引发UnsupportedOperation异常(即需要子类覆盖的方法)。
+	getZone():TimeZone 
+		返回时区（不带克隆）。
+	hashCode():int 
+		△返回此日历的哈希代码。
+	internalGet(int field):final int 
+		返回给定日历字段的值。此方法不涉及字段值的规范化或验证。
+	internalSet(int field, int value):final void 
+		设置给定日历字段的值。此方法不影响此日历Instant（瞬间）的任何设置状态。
+	isLenient():boolean 
+		说明日期/时间解释是否宽泛。如果此日历的解释模式宽松，则为“true”；否则为“false”。
+	isSet(int field):final boolean 
+		确定给定日历字段是否有值集，包括由get方法调用触发的内部字段计算设置值的情况。
+	isWeekDateSupported():boolean 
+		回此日历是否支持星期日期。此方法的默认实现返回false。
+	roll(int field, boolean up):abstract public void 
+		在给定的时间字段上加上或减去（up/down）单个时间单位，而不更改较大的字段。向上-指示指定时间字段的值是向上滚动还是向下滚动。如果向上滚动，则使用“true”，否则使用“false”。
+		例如，要将当前日期滚动一天，您可以通过调用以下命令来实现：
+			roll(Calendar.DATE, true);
+		在“年”或“calendar.year”字段上滚动时，它将滚动范围在1和调用getmaximum（calendar.year）返回的值之间的年值。
+		在“Month”或“Calendar.Month”字段上滚动时，其他字段（如日期）可能会冲突，需要更改。例如，在1996年1月31日滚动月份将导致1996年2月29日。
+		当滚动“天中的小时”或“日历中的小时”字段时，它将滚动0到23之间的小时值，这是以零为基础的。
+	roll(int field, int amount):void 
+		将指定的（签名的）amount添加到指定的日历字段，而不更改较大的字段。负数表示向下滚动。
+		注意：日历上的这个默认实现只是重复调用roll（）的版本，该版本以一个单位滚动。这可能并不总是做正确的事情。例如，如果DAY_OF_MONTH字段为31，则滚动到2月将使其设置为28。这个函数的公历版本解决了这个问题。其他子类还应提供对此函数执行正确操作的重写。
+	set(int field, int value):void 
+		将给定日历字段设置为给定值。无论采用何种宽松模式，该方法都不会解释该值。
+		【Throws】：
+			ArrayIndexOutOfBoundsException 如果指定的字段超出范围(field < 0 || field >= FIELD_COUNT)。在非宽松模式下。
+	set(int year, int month, int date):final void 
+		设置日历字段YEAR, MONTH和DAY_OF_MONTH的值。其他日历字段的先前值将保留。如果不需要，请先调用clear（）。
+	set(int year, int month, int date, int hourOfDay, int minute):final void 
+		设置日历字段“年”、“月”、“月”、“日”、“小时”和“分钟”的值。保留其他字段的以前值。如果不需要，请先调用clear（）。
+	set(int year, int month, int date, int hourOfDay, int minute,int second):final void 
+		设置字段Year、Month、Day_of_Month、Hour_of_Day、Minute和Second的值。保留其他字段的以前值。如果不需要，请先调用clear（）。
+	setFirstDayOfWeek(int value):void 
+		设置一周的第一天，例如在美国是“SUNDAY”，在法国是“MONDAY”
+	setLenient(boolean lenient):void 
+		指定日期/时间解释是否宽松。在宽泛的解释下，如"February 942, 1996"将被视为等同于1996年2月1日之后的941天。
+		如果有严格的（non-lenient非宽松）解释，这些日期将导致抛出异常。默认是宽松lenient。
+	setMinimalDaysInFirstWeek(int value):void 
+		设置一年中第一周所需的最小天数；例如，如果第一周被定义为包含一年中第一个月的第一天，则使用值1调用此方法。如果必须是整周，请使用值7。
+	setTime(Date date):final void 
+		使用给定Date设置此日历的时间。注意：使用Date（Long.MAX_VALUE）或Date（Long.MIN_VALUE）调用setTime()可能会从get()生成不正确的字段值。
+	setTimeInMillis(long millis):void 
+		从给定的long值设置此日历的当前时间。
+	setTimeZone(TimeZone value):void 
+		用给定的时区值设置时区。
+	setWeekDate(int weekYear, int weekOfYear, int dayOfWeek):void 
+		使用给定的日期说明符weekYear,weekOfYear和dayOfWeek设置此日历的日期。与set方法不同，所有日历字段和时间值都是在返回时计算的。
+		如果WeekOfYear在WeekYear中超出了有效的一周范围，则在宽松模式下调整WeekYear和WeekOfYear值，或者在非宽松模式下引发IllegalArgumentException。
+		此方法的默认实现引发UnsupportedOperation异常(即需要子类覆盖的方法)。
+	toInstant():final Instant 
+		将此对象转换为一个实例。转换将创建一个表示时间线上与此日历相同点的实例。
+	toString():String 
+		△返回此日历的字符串表示形式。此方法仅用于调试目的，返回字符串的格式可能因实现而异。返回的字符串可以为""，但不能为null。
+	
+--------------------------------------------------------------------------------------------------------------------------------------------		
+1、Calendar$Builder：它是Calendar的一个内部类（Calendar实例工厂）。【Since:1.8】
+	Builder用于根据各种日期时间参数创建日历。有两种方法可以将日历设置为日期时间值。一种方法是将实例参数设置为距离纪元的毫秒偏移量。
+	另一种方法是将各个字段参数（如年份）设置为所需的值。这两种方法不能混用。尝试同时设置实例字段和单个字段将导致引发IllegalStateException。但是，允许它重写以前的实例参数或字段参数值。
+	如果没有为确定日期和/或时间提供足够的字段参数，则在构建日历时使用特定于日历的默认值。例如，如果没有为公历给定年份值，则将使用1970。如果字段参数之间存在冲突，则应用解决规则。
+	因此，现场设置的顺序很重要。除了日期时间参数外，还可以设置区域(locale)、时区、周定义和宽松模式参数。
+	
+	类定义：public static class Calendar.Builder extends Object
+--------------------------------------------------------------------------------------------------------------------------------------------
+构造器：
+	public Builder()
+		构造Calendar.Builder。
+
+方法：
+	build():Calendar 
+		返回由setter方法设置的参数生成的日历。由setCalendarType方法或区域设置(locale)指定的日历类型用于确定要创建的日历。如果没有指定明确的日历类型，则创建区域设置(locale)的默认日历。如果还没有明确给出这些参数，那么缺省值将用于区域设置(locale)和时区。
+	set(int field, int value):Builder 
+		将field（字段）参数设置为给定value（值）。field是calendar.fields的索引，如“DAY_OF_MONTH”字段。此方法不执行字段值验证。在构建日历时，任何超出范围的值要么在宽松模式下规范化，要么在非宽松模式下检测为无效值。
+		【Throws】：			
+			IllegalArgumentException 如果field无效
+			IllegalStateException 如果已设置即时值，或者字段设置的次数过多（大约为Integer.MAX_VALUE）。
+	setCalendarType(String type):Builder 
+		将日历类型参数设置为给定类型。此方法提供的日历类型优先于区域设置(locale)提供的任何显式或隐式日历类型。除了calendar.getAvailableCalendarTypes方法返回的可用日历类型之外，此方法还可以使用“gregorian”和“iso8601”作为“gregory”的别名。
+		【Throws】：
+			NullPointerException 如果type为null
+			IllegalArgumentException 如果类型未知
+			IllegalStateException 如果已设置其他日历类型
+	setDate(int year, int month, int dayOfMonth):Builder 
+		将日期字段参数设置为年、月和日的值。此方法等同于调用：
+			setFields(Calendar.YEAR, year,Calendar.MONTH, month,Calendar.DAY_OF_MONTH, dayOfMonth);
+	setFields(int... fieldValuePairs):Builder 
+		以【字段-值】成对的参数形式设置字段值。例如设置年、月、日字段：
+			setFeilds(	Calendar.YEAR, 2013,                --设置年
+						Calendar.MONTH, Calendar.DECEMBER,  --设置月
+						Calendar.DAY_OF_MONTH, 23           --设置日
+					);
+			它等同于
+			set(Calendar.YEAR, 2013).set(Calendar.MONTH, Calendar.DECEMBER).set(Calendar.DAY_OF_MONTH, 23);
+		【Throws】：
+			NullPointerException 如果fieldValuePairs为null
+			IllegalArgumentException 如果任何字段无效，或者fieldValuePairs.length是奇数。
+			IllegalStateException 如果已设置即时值，或者字段设置的次数过多（大约为Integer.MAX_VALUE）。
+	setInstant(Date instant):Builder 
+		将实例参数设置为给定的Date实例值。此方法等效于对 setInstant(instant.getTime())的调用。
+		【Throws】：
+			NullPointerException 如果instant为null
+			IllegalStateException 如果已经设置了任何字段参数
+	setInstant(long instant):Builder 
+		将即时参数设置为给定的实例值，该值是距纪元的毫秒偏移量。
+		【Throws】：
+			IllegalStateException 如果已经设置了任何字段参数
+	setLenient(boolean lenient):Builder 
+		将“宽松模式”参数设置为给定的lenient值。如果没有为此calendar.builder提供宽松模式参数，则在生成方法中将使用宽松模式。true为宽松模式，false为非宽松模式。
+	setLocale(Locale locale):Builder 
+		将区域设置参数设置为给定的locale。如果没有为此calendar.builder提供区域设置(locale)，则将使用Locale.Category.FORMAT的默认区域设置(locale)。
+		【Throws】：
+			NullPointerException 如果locale为null
+	setTimeOfDay(int hourOfDay, int minute, int second):Builder 
+		将时间字段参数设置为HourofDay、Minute和Second给定的值（时、分、秒）。此方法等同于调用：setTimeOfDay(hourOfDay, minute, second, 0);
+	setTimeOfDay(int hourOfDay, int minute, int second, int millis):Builder 
+		将时间字段参数设置为HourofDay、Minute、Second和Millis给定的值(时、分、秒、毫秒)。此方法等同于调用：
+			setFields(	Calendar.HOUR_OF_DAY, hourOfDay,
+						Calendar.MINUTE, minute,
+						Calendar.SECOND, second,
+						Calendar.MILLISECOND, millis);
+	setTimeZone(TimeZone zone):Builder 
+		将时区参数设置为给定的区域。如果没有为caledar.builder提供时区参数，则在生成方法中将使用默认时区。
+		【Throws】：
+			NullPointerException 如果zone为null
+	setWeekDate(int weekYear, int weekOfYear, int dayOfWeek):Builder 
+		将基于周的日期参数设置为具有给定日期说明符的值(weekYear、weekOfYear、dayOfWeek)。如果指定的日历不支持星期日期，则生成方法将引发IllegalArgumentException。
+	setWeekDefinition(int firstDayOfWeek, int minimalDaysInFirstWeek):Builder 
+		将周定义参数设置为FirstDayOfWeek和MinimumDaySinFirstWeek提供的值，这些值用于确定一年中的第一周。此方法提供的参数优先于区域设置(locale)提供的默认值。 		
+		【Throws】：
+			IllegalArgumentException 如果firstDayOfWeek或minimalDaysInFirstWeek无效
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+附录：
+	1、注：文档中的△符号表示覆盖重写方法。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

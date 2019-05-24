@@ -23,7 +23,7 @@ Method Summary（方法概要）：
 	checkAccess(Path path, AccessMode... modes):abstract void 
 		path - 要检查的文件的路径。
 		modes - 要检查的访问模式；可以是零元素。
-		检查文件的存在性，以及可选的可访问性。
+		★ 检查文件的存在性，以及可选的可访问性。
 		此方法可由isReadable、isWritable和isExecutable方法用于检查文件的可访问性。
 		此方法检查文件的存在，并且该Java虚拟机具有适当的权限，允许它根据模式参数中指定的所有访问模式访问文件：
 		————————————————————————————————————————————————————————————————————————————
@@ -84,7 +84,7 @@ Method Summary（方法概要）：
 			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则拒绝LinkPermission("symbolic")或其CheckWrite方法拒绝对符号链接路径的写访问。
 	delete(Path path):abstract void 
 		path - 要删除的文件的路径。
-		删除文件。该方法完全按照Files.delete(java.nio.file.Path)方法规定的方式工作。
+		★ 删除文件。该方法完全按照Files.delete(java.nio.file.Path)方法规定的方式工作。
 		【Throws】：
 			NoSuchFileException 如果文件不存在（可选的特定异常）。
 			DirectoryNotEmptyException 如果该文件是一个目录，并且由于该目录不为空而无法删除（可选的特定异常）。
@@ -103,18 +103,18 @@ Method Summary（方法概要）：
 		path - 文件的路径。
 		type - 与文件属性视图对应的类对象。
 		options - 指示如何处理符号链接的选项。
-		返回给定类型的文件属性视图。此方法完全按照Files.getFileAttributeView(java.nio.file.Path, java.lang.Class<V>, java.nio.file.LinkOption...)方法指定的方式工作。
+		★ 返回给定类型的文件属性视图。此方法完全按照Files.getFileAttributeView(java.nio.file.Path, java.lang.Class<V>, java.nio.file.LinkOption...)方法指定的方式工作。
 		返回指定类型的文件属性视图，如果属性视图类型不可用，则返回null。	
 	getFileStore(Path path):abstract FileStore 
 		path - 文件的路径。
-		返回表示文件所在的文件存储区的FileStore。此方法完全按照Files.getFileStore(java.nio.file.Path)方法指定的方式工作。
+		★ 返回表示文件所在的文件存储区的FileStore。此方法完全按照Files.getFileStore(java.nio.file.Path)方法指定的方式工作。
 		返回存储文件的文件存储区。
 		【Throws】：
 			IOException 如果发生I/O错误。
 			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkRead方法来检查对文件的读取权限，此外还会检查RuntimePermission ("getFileStoreAttributes")。
 	getFileSystem(URI uri):abstract FileSystem 
 		uri - URI引用。
-		返回此提供器创建的现有FileSystem。
+		★ 返回此提供器创建的现有FileSystem。
 		此方法返回对通过调用newFileSystem(URI,Map)方法创建的FileSystem的引用。此方法不返回创建了newFileSystem(Path,Map)方法的文件系统。文件系统由其URI标识。它的确切形式高度依赖于供应商。对于默认提供器，URI的路径组件为“/”，并且权限（authority）、查询（query）和片段（fragment）组件未定义（未定义的组件由null表示）。
 		关闭此提供器创建的文件系统后，如果此方法返回对已关闭文件系统的引用或引发FileSystemNotFoundException异常，则它将依赖于提供器。如果提供器允许使用与先前创建的文件系统相同的URI创建新的文件系统，那么如果在关闭文件系统之后（以及在newFileSystem方法创建新实例之前）调用此方法，则会引发异常。
 		如果安装了安全管理器，则提供器实现可能需要在返回对现有文件系统的引用之前检查权限。对于默认文件系统，不需要进行权限检查。
@@ -125,7 +125,7 @@ Method Summary（方法概要）：
 			SecurityException 如果安装了安全管理器并且拒绝未指定的权限。
 	getPath(URI uri):abstract Path 
 		uri - 要转换的URI。
-		通过转换给定的URI返回Path对象。结果路径与已经存在或自动构造的FileSystem相关联。
+		★ 通过转换给定的URI返回Path对象。结果路径与已经存在或自动构造的FileSystem相关联。
 		URI的确切形式取决于文件系统提供器。在缺省提供器的情况下，URI方案是“file”，并且给定的URI有一个非空的路径组件、未定义的查询（query）和片段（fragment）组件。结果Path与默认FileSystem相关联。
 		如果安装了安全管理器，则提供器实现可能需要检查权限。对于默认文件系统，不需要进行权限检查。
 		返回结果Path。
@@ -137,7 +137,7 @@ Method Summary（方法概要）：
 		返回标识此提供器的URI方案（scheme）。
 	isHidden(Path path):abstract boolean 
 		path - 要测试的文件的路径。
-		指示是否将文件视为隐藏文件。此方法完全按照Files.isHidden(java.nio.file.Path)方法指定的方式工作。
+		★ 指示是否将文件视为隐藏文件。此方法完全按照Files.isHidden(java.nio.file.Path)方法指定的方式工作。
 		如果文件被视为隐藏，则返回true。
 		【Throws】：
 			IOException 如果发生I/O错误。
@@ -145,7 +145,7 @@ Method Summary（方法概要）：
 	isSameFile(Path path, Path path2):abstract boolean 
 		path - 文件的路径。
 		options - 指示如何处理符号链接的选项。
-		测试文件是否为具有不透明内容的常规文件。此方法完全按照Files.isSameFile(java.nio.file.Path, java.nio.file.Path)方法指定的方式工作。
+		★ 测试文件是否为具有不透明内容的常规文件。此方法完全按照Files.isSameFile(java.nio.file.Path, java.nio.file.Path)方法指定的方式工作。
 		如果文件是常规文件，则返回true；如果文件不存在，如果文件不是常规文件，则无法确定该文件是否为常规文件，则返回false。
 		【Throws】：
 			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
@@ -153,7 +153,7 @@ Method Summary（方法概要）：
 		source - 要移动的文件的路径。
 		target - 目标文件的路径（可能与源路径的其他提供程器关联）。
 		options - 指定移动方式的选项。
-		将文件移动或重命名为目标文件。此方法完全按照Files.move(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...)方法指定的方式工作，除了源代码和目标路径都必须与该提供器关联。
+		★ 将文件移动或重命名为目标文件。此方法完全按照Files.move(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...)方法指定的方式工作，除了源代码和目标路径都必须与该提供器关联。
 		【Throws】：
 			UnsupportedOperationException 如果数组包含不受支持的复制选项。
 			FileAlreadyExistsException 如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
@@ -177,7 +177,7 @@ Method Summary（方法概要）：
 		path - 要打开或创建的文件的路径。
 		options - 指定文件打开方式的选项。
 		attrs - 创建文件时要自动设置的文件属性的可选列表。
-		打开或创建文件，返回可查找的字节通道以访问该文件。此方法完全按照Files.newByteChannel(Path,Set,FileAttribute[])方法指定的方式工作。
+		★ 打开或创建文件，返回可查找的字节通道以访问该文件。此方法完全按照Files.newByteChannel(Path,Set,FileAttribute[])方法指定的方式工作。
 		返回一种新的可查找字节通道。
 		【Throws】：
 			IllegalArgumentException 如果集合包含无效的选项组合。
@@ -188,7 +188,7 @@ Method Summary（方法概要）：
 	newDirectoryStream(Path dir,DirectoryStream.Filter<? super Path> filter):abstract DirectoryStream<Path>
 		dir - 目录的路径。
 		filter - 目录流过滤器。
-		打开一个目录，返回DirectoryStream以迭代目录中的条目。此方法完全按照Files.newDirectoryStream(java.nio.file.Path, java.nio.file.DirectoryStream.Filter)方法指定的方式工作。
+		★ 打开一个目录，返回DirectoryStream以迭代目录中的条目。此方法完全按照Files.newDirectoryStream(java.nio.file.Path, java.nio.file.DirectoryStream.Filter)方法指定的方式工作。
 		返回新的并打开的DirectoryStream对象。
 		【Throws】：
 			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
@@ -208,7 +208,7 @@ Method Summary（方法概要）：
 	newFileSystem(URI uri, Map<String,?> env):abstract FileSystem 
 		uri - URI引用。
 		env - 用于配置文件系统的特定于提供器的属性的映射；可能为空。
-		构造由URI标识的新FileSystem对象。FileSystems.newFileSystem(URI,Map)方法调用此方法以打开由URI标识的新文件系统。
+		★ 构造由URI标识的新FileSystem对象。FileSystems.newFileSystem(URI,Map)方法调用此方法以打开由URI标识的新文件系统。
 		uri参数是一个绝对的、分层的URI，其方案（scheme）与此提供器支持的方案（scheme）相同（不考虑大小写）。URI的确切形式高度依赖于提供器。env参数是用于配置文件系统的特定于提供器的属性的映射。
 		如果文件系统已经存在，则此方法将引发FileSystemAlreadyExistsException异常，因为它以前是通过调用此方法创建的。关闭文件系统后，如果提供器允许使用与以前创建的文件系统相同的URI创建新的文件系统，则它取决于提供器。
 		返回新的文件系统。
@@ -256,7 +256,7 @@ Method Summary（方法概要）：
 		path - 文件的路径。
 		type - 需要读取的文件属性的类。
 		options - 指示如何处理符号链接的选项。
-		作为批量操作读取文件的属性。此方法完全按照 Files.readAttributes(Path,Class,LinkOption[])方法指定的方式工作。
+		★ 作为批量操作读取文件的属性。此方法完全按照 Files.readAttributes(Path,Class,LinkOption[])方法指定的方式工作。
 		返回文件属性。
     	【Throws】：
 			UnsupportedOperationException 如果不支持给定类型的属性。
@@ -266,7 +266,7 @@ Method Summary（方法概要）：
     	path - 文件的路径。
 		attributes - 要读取的属性。
 		options - 指示如何处理符号链接的选项。
-		作为批量操作读取一组文件属性。 此方法完全按照 Files.readAttributes(Path,String,LinkOption[])方法指定的方式工作。
+		★ 作为批量操作读取一组文件属性。 此方法完全按照 Files.readAttributes(Path,String,LinkOption[])方法指定的方式工作。
 		返回的属性的映射；映射的键是属性名，其值是属性值。
 		【Throws】：
 			UnsupportedOperationException 如果属性视图不可用。
@@ -288,7 +288,7 @@ Method Summary（方法概要）：
 		attribute - 要设置的属性。
 		value - 属性值。
 		options - 指示如何处理符号链接的选项。
-		设置文件属性的值。此方法完全按照Files.setAttribute(java.nio.file.Path, java.lang.String, java.lang.Object, java.nio.file.LinkOption...)方法指定的方式工作。
+		★ 设置文件属性的值。此方法完全按照Files.setAttribute(java.nio.file.Path, java.lang.String, java.lang.Object, java.nio.file.LinkOption...)方法指定的方式工作。
 		【Throws】：
 			UnsupportedOperationException 如果属性视图不可用。
 			IllegalArgumentException 如果未指定属性名，或无法识别，或属性值的类型正确，但值不正确。
