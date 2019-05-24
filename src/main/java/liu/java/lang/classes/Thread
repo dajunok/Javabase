@@ -46,7 +46,7 @@ Thread：线程。【Since:JDK1.0】
 	类定义	：public class Thread implements Runnable
 	实现接口	：Runnable	
 	内部枚举类	：State
-	内部接口	：UncaughtExceptionHandler
+	嵌套接口	：UncaughtExceptionHandler
 	子类		：ForkJoinWorkerThread
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）：
@@ -355,3 +355,25 @@ Enum Constant Detail（枚举常量详情描述）：
 	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
 	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
 		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+		
+		
+		
+-----------------------------------------Thread$UncaughtExceptionHandler-----------------------------------------------------------------------------------------------------------------------------		
+2、UncaughtExceptionHandler：未捕获异常处理器 【Since:1.5】
+	当线程（Thread）因“未捕获异常”而突然终止时调用的处理程序接口。
+	当一个线程由于一个未被排除的异常即将终止时，Java虚拟机将使用Thread.getUncaughtExceptionHandler()查询线程的UncaughtExceptionHandler，并调用处理程序的uncaughtException方法，将线程和异常作为参数传递。如果线程没有显式设置其UncaughtExceptionHandler，则其ThreadGroup对象将充当其UncaughtExceptionHandler。如果ThreadGroup对象没有处理异常的特殊要求，它可以将调用转发到默认的未捕获异常处理器。
+
+
+	接口定义	：@FunctionalInterface public interface Thread.UncaughtExceptionHandler
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）
+	uncaughtException(Thread t, Throwable e):void 
+		当给定线程t因给定的“未捕获异常”e而终止时调用的方法。此方法所引发的任何异常都将被Java虚拟机忽略。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、函数接口UncaughtExceptionHandler是Thread类中的一个内部接口。	
+		
+		
+		
+		
