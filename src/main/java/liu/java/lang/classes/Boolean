@@ -1,0 +1,97 @@
+----------------------------------------Boolean>--------------------------------------------------------------------------------------------------------------
+Boolean：布尔类		【Since:JDK1.0】
+	Boolean类在对象中包装原始类型boolean的值。Boolean类型的对象包含一个类型为boolean的字段。
+	此外，这个类提供了许多方法来将布尔值转换为字符串，将字符串转换为布尔值，以及在处理布尔值时有用的其他常量和方法。
+	
+	
+	类定义	：public final class Boolean implements java.io.Serializable,Comparable<Boolean>
+	实现接口	：Serializable,Comparable<Boolean>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	FALSE : Boolean
+		与原始值false对应的Boolean对象。
+	TRUE : Boolean
+		与原始值true对应的Boolean对象。
+	TYPE : Class<Boolean>
+		表示原始类型布尔值的Class对象。
+
+Constructor Summary（构造器概要）：
+	public Boolean(String s)
+		s - 要转换为Boolean的字符串。
+		如果字符串参数不为null且等于“true”（忽略大小写），则分配值为true的布尔对象。否则，分配一个表示值false的Boolean对象。实例：
+		new Boolean("True");  #生成表示true的布尔对象。
+		new Boolean("yes");   #生成表示false的布尔对象。
+	public Boolean(boolean value)
+		value - Boolean值。
+		分配value参数表示的Boolean对象。
+		注意：很少适合使用这个构造函数。除非需要新实例，否则静态工厂valueOf(boolean)通常是更好的选择。它可能会产生明显更好的空间和时间性能。
+
+Method Summary（方法概要）：
+	compare(boolean x, boolean y):static int 
+		x - 要比较的第一个布尔值。
+		y - 要比较的第二个布尔值。
+		比较两个布尔值。返回的值与以下返回的值相同：
+			Boolean.valueOf(x).compareTo(Boolean.valueOf(y));
+		如果x==y，则返回0；如果 !x && y则返回值小于0；如果x && !y则返回值大于0。
+	getBoolean(String name):static boolean 
+		name - 系统属性名称。
+		仅当由参数命名的系统属性存在且等于字符串“true”时返回true。（从javaMT平台的1.0.2版开始，对该字符串的测试不区分大小写。）可以通过getProperty（由System类定义的方法）访问系统属性。
+		如果没有具有指定名称的属性，或者指定名称为空或null，则返回false。
+		返回系统属性的布尔值。
+		【Throws】：
+			SecurityException 原因与System.getProperty相同。
+	hashCode(boolean value):static int 
+		value - 要散列的值。
+		返回布尔值的哈希代码；与Boolean.hashCode()兼容。
+	logicalAnd(boolean a, boolean b):static boolean 
+		a - 第一个操作数。
+		b - 第二个操作数。
+		返回将逻辑与运算符（AND）应用于指定布尔操作数的结果。
+	logicalOr(boolean a, boolean b):static boolean 
+		a - 第一个操作数。
+		b - 第二个操作数。
+		返回将逻辑或运算符（OR）应用于指定布尔操作数的结果。
+	logicalXor(boolean a, boolean b):static boolean 
+		a - 第一个操作数。
+		b - 第二个操作数。
+		返回将逻辑异或运算符（XOR）应用于指定布尔操作数的结果。
+	parseBoolean(String s):static boolean 
+		s - 包含要解析的布尔表示形式的字符串。
+		将字符串参数解析为布尔值。如果字符串参数不为null且等于字符串“true”，则返回的布尔值表示值true，忽略大小写。
+		示例：Boolean.parseBoolean("True");返回true。
+		示例：Boolean.parseBoolean("yes");返回false。
+		返回字符串参数表示的布尔值。
+	toString(boolean b):static String 
+		b - 要转换的布尔值。
+		返回表示指定布尔值的字符串对象。如果指定的布尔值为true，则返回字符串“true”，否则返回字符串“false”。
+	valueOf(boolean b):static Boolean 
+		b - 布尔值。
+		返回表示指定布尔值的Boolean实例。如果指定的布尔值为true，则此方法返回Boolean.TRUE；如果为false，则此方法返回Boolean.FALSE。如果不需要新的布尔实例，则通常应优先使用此方法，而不是构造函数Boolean(boolean)，因为此方法可能会产生明显更好的空间和时间性能。
+	valueOf(String s): static Boolean 
+		s - 字符串。
+		返回一个布尔值，该值由指定的字符串表示。如果字符串参数不为null且等于字符串“true”，则返回的布尔值表示true，忽略大小写。
+	booleanValue():boolean 
+		将此Boolean对象的值作为原始boolean值返回。
+		返回此对象的原始布尔值。
+	compareTo(Boolean b):int 
+		b - 要比较的Boolean实例
+		△ 将此Boolean实例与另一个进行比较。
+		如果此对象表示与参数相同的boolean值，则返回0；如果此对象表示true且参数表示false，则返回正数值；如果此对象表示false且参数表示true，则返回负值。
+		【Throws】：
+			NullPointerException 如果参数为null。
+	equals(Object obj):boolean 
+		obj - 要与之比较的对象。
+		△ 如果且仅当参数不是null值并且是表示与此对象相同布尔值的Boolean对象时返回true。
+		如果Boolean对象表示相同的值，则返回true；否则返回false。
+	hashCode():int 
+		△ 返回此Boolean对象的哈希代码。
+		如果此对象表示true，则为整数1231；如果此对象表示false，则返回整数1237。
+	toString():String 
+		△ 返回表示此Boolean值的字符串对象。如果此对象表示值true，则返回等于“true”的字符串。否则，将返回一个等于“false”的字符串。
+		返回此对象的字符串表示形式。
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	

@@ -1,0 +1,41 @@
+-----------------------------------------Comparable<T>-----------------------------------------------------------------------------------------------------------------------------		
+Comparable<T>：可比较 【Since:1.2】
+	<T> - 此对象可与之比较的对象类型。
+	这个接口对实现它的每个类的对象施加了一个总的顺序。这种排序称为类的自然排序，类的compareTo方法称为类的自然比较方法。
+	实现此接口的对象列表（和数组）可以按Collections.sort（或Arrays.sort）自动排序。实现此接口的对象可以用作SortedMap中的键或SortedSet中的元素，而无需指定比较器。
+	仅当e1.compareTo(e2) == 0对于C类的每一个e1和e2具有与e1.equals(e2)相同的布尔（boolean）值时，说明C的自然顺序与equals一致。注意，null不是任何类的实例，e.compareTo(null)应该抛出NullPointerException，即使e.equals(null)返回false。
+	强烈建议（尽管不是必需的）自然顺序与等号一致。这是因为没有显式比较器的SortedSet（和SortedMap）在与自然顺序与等号不一致的元素（或键）一起使用时表现出“奇怪”的行为。特别是，这样的SortedSet（或SortedMap）违反了集合（或映射）的一般约定，集合（或映射）是根据equals方法定义的。
+	例如，如果一个向不使用显式比较器的SortedSet添加两个键a和b(!a.equals(b) && a.compareTo(b) == 0)，则第二个添加操作返回false（SortedSet的大小不会增加），因为从SortedSet的角度来看，a和b是等效的。
+	实际上，实现可比较的所有Java核心类都具有与等号一致的自然顺序。除了java.math.BigDecimal，它的自然排序将BigDecimal对象等同于具有相同值和不同精度的对象（如4.0和4.00）。
+	对于数学上倾向的，在给定的C类上定义自然顺序的关系是：
+		{(x, y) 使得 x.compareTo(y) <= 0}	
+		总排序的商
+		{(x, y) 使得 x.compareTo(y) == 0}.	
+	从比较规则可以看出，商是C上的等价关系，自然序是C上的总序，当我们说一个类的自然序与等号一致时，我们的意思是自然序的商是由类的等号（对象）定义的等价关系。方法：
+		{(x, y) 使得 x.equals(y)}.
+	此接口是Java集合框架的成员。
+	
+	
+	
+	       	
+
+	接口定义	：public interface Comparable<T>
+	实现类	：AbstractChronology, AbstractRegionPainter.PaintContext.CacheMode, AccessMode, AclEntryFlag, AclEntryPermission, AclEntryType, AddressingFeature.Responses, Authenticator.RequestorType, BigDecimal, BigInteger, Boolean, Byte, ByteBuffer, Calendar, CertPathValidatorException.BasicReason, Character, Character.UnicodeScript, CharBuffer, Charset, ChronoField, ChronoUnit, ClientInfoStatus, CollationKey, Collector.Characteristics, Component.BaselineResizeBehavior, CompositeName, CompoundName, CRLReason, CryptoPrimitive, Date, Date, DayOfWeek, Desktop.Action, Diagnostic.Kind, Dialog.ModalExclusionType, Dialog.ModalityType, DocumentationTool.Location, Double, DoubleBuffer, DropMode, Duration, ElementKind, ElementType, Enum, File, FileTime, FileVisitOption, FileVisitResult, Float, FloatBuffer, FormatStyle, Formatter.BigDecimalLayoutForm, FormSubmitEvent.MethodType, GraphicsDevice.WindowTranslucency, GregorianCalendar, GroupLayout.Alignment, HijrahChronology, HijrahDate, HijrahEra, Instant, IntBuffer, Integer, IsoChronology, IsoEra, JapaneseChronology, JapaneseDate, JavaFileObject.Kind, JDBCType, JTable.PrintMode, KeyRep.Type, LayoutStyle.ComponentPlacement, LdapName, LinkOption, LocalDate, LocalDateTime, Locale.Category, Locale.FilteringMode, LocalTime, Long, LongBuffer, MappedByteBuffer, MemoryType, MessageContext.Scope, MinguoChronology, MinguoDate, MinguoEra, Modifier, Month, MonthDay, MultipleGradientPaint.ColorSpaceType, MultipleGradientPaint.CycleMethod, NestingKind, Normalizer.Form, NumericShaper.Range, ObjectName, ObjectStreamField, OffsetDateTime, OffsetTime, PKIXReason, PKIXRevocationChecker.Option, PosixFilePermission, ProcessBuilder.Redirect.Type, Proxy.Type, PseudoColumnUsage, Rdn, ResolverStyle, Resource.AuthenticationType, RetentionPolicy, RoundingMode, RowFilter.ComparisonType, RowIdLifetime, RowSorterEvent.Type, Service.Mode, Short, ShortBuffer, SignStyle, SOAPBinding.ParameterStyle, SOAPBinding.Style, SOAPBinding.Use, SortOrder, SourceVersion, SSLEngineResult.HandshakeStatus, SSLEngineResult.Status, StandardCopyOption, StandardLocation, StandardOpenOption, StandardProtocolFamily, String, SwingWorker.StateValue, TextStyle, ThaiBuddhistChronology, ThaiBuddhistDate, ThaiBuddhistEra, Thread.State, Time, Timestamp, TimeUnit, TrayIcon.MessageType, TypeKind, URI, UUID, WebParam.Mode, Window.Type, XmlAccessOrder, XmlAccessType, XmlNsForm, Year, YearMonth, ZonedDateTime, ZoneOffset, ZoneOffsetTransition, ZoneOffsetTransitionRule.TimeDefinition
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	compareTo(T o):int 
+		将此对象与指定的有序对象进行比较。小于此对象返回负整数；等于此对象返回零；大于此对象返回正整数。
+		实现者必须为所有x和y确保sgn(x.compareTo(y)) == -sgn(y.compareTo(x))。（这意味着如果y.compareTo(x)引发异常，x.compareTo(y)必须引发异常。）
+		实现者还必须确保关系是可传递的：(x.compareTo(y)>0 && y.compareTo(z)>0) 表示 x.compareTo(z)>0
+		最后，实现者必须确保x.compareTo(y)==0意味着sgn(x.compareTo(z)) == sgn(y.compareTo(z))，代表所有z。
+		强烈建议，但不严格要求(x.compareTo(y)==0) == (x.equals(y))。一般来说，任何实现可比较接口并违反此条件的类都应该清楚地表明这一事实。建议使用的语言是“注意：此类具有与等号不一致的自然顺序。”
+		在前面的描述中，标记sgn(expression)指定数学符号函数，该函数定义为根据表达式的值是负、零还是正数，返回-1、0或1中的一个。
+		【Throws】：
+			● NullPointerException 如果指定的对象为nul
+			● ClassCastException 如果指定对象的类型阻止将其与此对象进行比较
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+

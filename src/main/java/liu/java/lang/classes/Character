@@ -1,0 +1,200 @@
+----------------------------------------Character--------------------------------------------------------------------------------------------------------------
+Character：字符类		【Since:JDK1.0】
+	Character类在对象中包装原始类型char的值。Character类的对象包含类型为char的单个字段。
+	此外，此类还提供了大量静态（static）方法，用于确定字符的类别（小写字母、数字等），以及将字符从大写转换为小写，反之亦然。
+	
+	Unicode一致性：
+		Character类的字段和方法是根据Unicode标准中的字符信息定义的，特别是作为Unicode字符数据库一部分的UnicodeData文件。此文件指定每个指定的Unicode码位或字符范围的属性，包括名称和类别。该文件可从Unicode联盟获得，网址为http://www.unicode.org。
+		JavaSE 8平台使用Unicode标准的版本6.2的字符信息，具有两个扩展。首先，JavaSE 8平台允许Character类的实现，使用6.2码后的Unicode标准的第一个版本的日文代码点Japanese Era code point, U+32FF。其次，为了识别到新货币频繁出现的事实，JavaSE 8平台允许Character类的实现使用Unicode标准的版本10的货币符号块。因此，在处理前面提到的代码点（除了版本6.2之外），Java字符集8的实现过程中的字段和方法的Character类的行为可能会有所不同，除了定义Java标识符的以下方法：isJavaIdentifierStart(int)、isJavaIdentifierStart(char)、isJavaIdentifierPart(int)、和isJavaIdentifierPart(char)。Java标识符中的代码点必须从Unicode标准的6.2版本中提取。
+	
+	Unicode字符表示
+		char数据类型（由此Character对象封装的值）基于原始的Unicode规范，该规范将字符定义为固定宽度的16位实体。Unicode标准已经更改为允许字符的表示需要16位以上。合法代码点的范围现在是U+0000到U+10FFFF，称为Unicode标量值。（参考Unicode标准中U+n符号的定义。）
+		从U+0000到U+FFFF的字符集有时被称为基本多语言平面（BMP）。代码点大于U+FFFF的字符称为补充字符。Java平台在char数组、String、和StringBuffer类中使用UTF-16表示。在此表示中，补充字符表示为一对字符值，第一个字符来自高代理范围 (\uD800-\uDBFF)，第二个字符来自低代理范围(\uDC00-\uDFFF)。
+		因此，char值表示基本的多语言平面（BMP）代码点，包括代理代码点或UTF-16编码的代码单位。int值表示所有Unicode代码点，包括补充代码点。int的低位（最低有效）21位用于表示Unicode码位，高位（最高有效）11位必须为零。除非另有规定，有关补充字符和代理项字符值的行为如下：
+			● 只接受char值的方法不支持补充字符。它们将代理范围中的字符值视为未定义的字符。例如，Character.isLetter('\uD840')返回false，即使该特定值（如果后跟字符串中的任何低代理值）将表示一个字母。
+			● 接受int值的方法支持所有Unicode字符，包括补充字符。例如，Character.isLetter(0x2F81A)返回true，因为代码点值表示字母（CJK象形文字）。
+		在Java SE API文档中，Unicode代码点用于U+0000和U+U+10FFFF之间的字符值，Unicode代码单元用于16位字符值，这些值是UTF-16编码的代码单元。有关Unicode术语的更多信息，请参阅Unicode术语表。	
+		
+	
+	类定义	：public final class Character implements java.io.Serializable, Comparable<Character>
+	实现接口	：Serializable,Comparable<Boolean>
+	嵌套类	：Subset,UnicodeBlock
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	BYTES : int
+	COMBINING_SPACING_MARK : byte
+	CONNECTOR_PUNCTUATION : byte
+	CONTROL : byte
+	CURRENCY_SYMBOL : byte
+	DASH_PUNCTUATION : byte
+	DECIMAL_DIGIT_NUMBER : byte
+	DIRECTIONALITY_ARABIC_NUMBER : byte
+	DIRECTIONALITY_BOUNDARY_NEUTRAL : byte
+	DIRECTIONALITY_COMMON_NUMBER_SEPARATOR : byte
+	DIRECTIONALITY_EUROPEAN_NUMBER : byte
+	DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR : byte
+	DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR : byte
+	DIRECTIONALITY_LEFT_TO_RIGHT : byte
+	DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING : byte
+	DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE : byte
+	DIRECTIONALITY_NONSPACING_MARK : byte
+	DIRECTIONALITY_OTHER_NEUTRALS : byte
+	DIRECTIONALITY_PARAGRAPH_SEPARATOR : byte
+	DIRECTIONALITY_POP_DIRECTIONAL_FORMAT : byte
+	DIRECTIONALITY_RIGHT_TO_LEFT : byte
+	DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC : byte
+	DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING : byte
+	DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE : byte
+	DIRECTIONALITY_SEGMENT_SEPARATOR : byte
+	DIRECTIONALITY_UNDEFINED : byte
+	DIRECTIONALITY_WHITESPACE : byte
+	ENCLOSING_MARK : byte
+	END_PUNCTUATION : byte
+	FINAL_QUOTE_PUNCTUATION : byte
+	FORMAT : byte
+	INITIAL_QUOTE_PUNCTUATION : byte
+	LETTER_NUMBER : byte
+	LINE_SEPARATOR : byte
+	LOWERCASE_LETTER : byte
+	MATH_SYMBOL : byte
+	MAX_CODE_POINT : int
+	MAX_HIGH_SURROGATE : char
+	MAX_LOW_SURROGATE : char
+	MAX_RADIX : int
+	MAX_SURROGATE : char
+	MAX_VALUE : char
+	MIN_CODE_POINT : int
+	MIN_HIGH_SURROGATE : char
+	MIN_LOW_SURROGATE : char
+	MIN_RADIX : int
+	MIN_SUPPLEMENTARY_CODE_POINT : int
+	MIN_SURROGATE : char
+	MIN_VALUE : char
+	MODIFIER_LETTER : byte
+	MODIFIER_SYMBOL : byte
+	NON_SPACING_MARK : byte
+	OTHER_LETTER : byte
+	OTHER_NUMBER : byte
+	OTHER_PUNCTUATION : byte
+	OTHER_SYMBOL : byte
+	PARAGRAPH_SEPARATOR : byte
+	PRIVATE_USE : byte
+	SIZE : int
+	SPACE_SEPARATOR : byte
+	START_PUNCTUATION : byte
+	SURROGATE : byte
+	TITLECASE_LETTER : byte
+	TYPE : Class<Character>
+	UNASSIGNED : byte
+	UPPERCASE_LETTER : byte	
+
+Constructor Summary（构造器概要）：
+	public Character(char value)
+
+Method Summary（方法概要）：
+	charCount(int codePoint):static int 
+	codePointAt(char[] a, int index):static int 
+	codePointAt(char[] a, int index, int limit):static int 
+	codePointAt(CharSequence seq, int index):static int 
+	codePointBefore(char[] a, int index):static int 
+	codePointBefore(char[] a, int index, int start):static int 
+	codePointBefore(CharSequence seq, int index):static int 
+	codePointCount(char[] a, int offset, int count):static int 
+	codePointCount(CharSequence seq, int beginIndex, int endIndex):static int 
+	compare(char x, char y):static int 
+	digit(char ch, int radix):static int 
+	digit(int codePoint, int radix):static int 
+	forDigit(int digit, int radix):static char 
+	getDirectionality(char ch):static byte 
+	getDirectionality(int codePoint):static byte 
+	getName(int codePoint):static String s
+	getNumericValue(char ch):static int 
+	getNumericValue(int codePoint):static int 
+	getType(char ch):static int 
+	getType(int codePoint):static int 
+	hashCode(char value):static int 
+	highSurrogate(int codePoint):static char 
+	isAlphabetic(int codePoint):static boolean 
+	isBmpCodePoint(int codePoint):static boolean 
+	isDefined(char ch):static boolean 
+	isDefined(int codePoint):static boolean 
+	isDigit(char ch):static boolean 
+	isDigit(int codePoint):static boolean 
+	isHighSurrogate(char ch):static boolean 
+	isIdentifierIgnorable(char ch):static boolean 
+	isIdentifierIgnorable(int codePoint):static boolean 
+	isIdeographic(int codePoint):static boolean 
+	isISOControl(char ch):static boolean 
+	isISOControl(int codePoint):static boolean 
+	isJavaIdentifierPart(char ch):static boolean 
+	isJavaIdentifierPart(int codePoint):static boolean 
+	isJavaIdentifierStart(char ch):static boolean 
+	isJavaIdentifierStart(int codePoint):static boolean 
+	isJavaLetter(char ch):static boolean 
+	isJavaLetterOrDigit(char ch):static boolean 
+	isLetter(char ch):static boolean 
+	isLetter(int codePoint):static boolean 
+	isLetterOrDigit(char ch):static boolean 
+	isLetterOrDigit(int codePoint):static boolean 
+	isLowerCase(char ch):static boolean 
+	isLowerCase(int codePoint): static boolean 
+	isLowSurrogate(char ch):static boolean 
+	isMirrored(char ch):static boolean 
+	isMirrored(int codePoint):static boolean 
+	isSpace(char ch):static boolean 
+	isSpaceChar(char ch):static boolean 
+	isSpaceChar(int codePoint):static boolean 
+	isSupplementaryCodePoint(int codePoint):static boolean 
+	isSurrogate(char ch):static boolean 
+	isSurrogatePair(char high, char low):static boolean 
+	isTitleCase(char ch):static boolean 
+	isTitleCase(int codePoint):static boolean 
+	isUnicodeIdentifierPart(char ch):static boolean 
+	isUnicodeIdentifierPart(int codePoint):static boolean 
+	isUnicodeIdentifierStart(char ch):static boolean 
+	isUnicodeIdentifierStart(int codePoint):tatic boolean 
+	isUpperCase(char ch):static boolean 
+	isUpperCase(int codePoint):static boolean 
+	isValidCodePoint(int codePoint):static boolean 
+	isWhitespace(char ch):static boolean 
+	isWhitespace(int codePoint):static boolean 
+	lowSurrogate(int codePoint):static char 
+	offsetByCodePoints(char[] a, int start, int count,int index, int codePointOffset):static int 
+	offsetByCodePoints(CharSequence seq, int index,int codePointOffset):static int 
+	reverseBytes(char ch):static char 
+	toChars(int codePoint):static char[] 
+	
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
