@@ -22,74 +22,144 @@ Character：字符类		【Since:JDK1.0】
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 Field Summary（字段概要）
 	BYTES : int
+		用于以无符号二进制形式表示char值的字节数。
 	COMBINING_SPACING_MARK : byte
+		Unicode规范中的通用类别“Mc”（组合用分隔符）。
 	CONNECTOR_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pc”（连接符标点符号）。
 	CONTROL : byte
+		Unicode规范中的通用类别“Cc”（控制符）。
 	CURRENCY_SYMBOL : byte
+		Unicode规范中的通用类别“Sc”（当前符号）。
 	DASH_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pd”（破折号）。
 	DECIMAL_DIGIT_NUMBER : byte
+		Unicode规范中的通用类别“Nd”（十进制数字）。
 	DIRECTIONALITY_ARABIC_NUMBER : byte
+		Unicode规范中的弱双向字符类型“AN”。
 	DIRECTIONALITY_BOUNDARY_NEUTRAL : byte
+		Unicode规范中的弱双向字符类型“BN”。
 	DIRECTIONALITY_COMMON_NUMBER_SEPARATOR : byte
+		Unicode规范中的弱双向字符类型“CS”。
 	DIRECTIONALITY_EUROPEAN_NUMBER : byte
+		Unicode规范中的弱双向字符类型“EN”。
 	DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR : byte
+		Unicode规范中的弱双向字符类型“ES”。
 	DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR : byte
+		Unicode规范中的弱双向字符类型“ET”。
 	DIRECTIONALITY_LEFT_TO_RIGHT : byte
+		Unicode规范中的强双向字符类型“L”。
 	DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING : byte
+		Unicode规范中的强双向字符类型“LRE”。
 	DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE : byte
+		Unicode规范中的强双向字符类型“LRO”。
 	DIRECTIONALITY_NONSPACING_MARK : byte
+		Unicode规范中的弱双向字符类型“NSM”。
 	DIRECTIONALITY_OTHER_NEUTRALS : byte
+		Unicode规范中的中性双向字符类型“ON”。
 	DIRECTIONALITY_PARAGRAPH_SEPARATOR : byte
+		Unicode规范中的中性双向字符类型“B”。
 	DIRECTIONALITY_POP_DIRECTIONAL_FORMAT : byte
+		Unicode规范中的弱双向字符类型“PDF”。
 	DIRECTIONALITY_RIGHT_TO_LEFT : byte
+		Unicode规范中的强双向字符类型“R”。
 	DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC : byte
+		Unicode规范中的强双向字符类型“AL”。
 	DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING : byte
+		Unicode规范中的强双向字符类型“RLE”。
 	DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE : byte
+		Unicode规范中的强双向字符类型“RLO”。
 	DIRECTIONALITY_SEGMENT_SEPARATOR : byte
+		Unicode规范中的中性双向字符类型“S”。
 	DIRECTIONALITY_UNDEFINED : byte
+		未定义的双向字符类型。未定义的字符值在Unicode规范中具有未定义的方向性。
 	DIRECTIONALITY_WHITESPACE : byte
+		Unicode规范中的中性双向字符类型“WS”。
 	ENCLOSING_MARK : byte
+		Unicode规范中的常规类别“Me”。
 	END_PUNCTUATION : byte
+		Unicode规范中的一般类别“Pe”（结束标点符号）。
 	FINAL_QUOTE_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pf”（最后的标点符号）。
 	FORMAT : byte
+		Unicode规范中的通用类别“Cf”（格式化）。
 	INITIAL_QUOTE_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pi”（首引号）。
 	LETTER_NUMBER : byte
+		Unicode规范中的通用类别“Nl”。
 	LINE_SEPARATOR : byte
+		Unicode规范中的通用类别“Zl”（线性分离器）。
 	LOWERCASE_LETTER : byte
+		Unicode规范中的通用类别“Ll”（小写字母）。
 	MATH_SYMBOL : byte
+		Unicode规范中的通用类别“Sm”（数学符号）。
 	MAX_CODE_POINT : int
+		Unicode码位的最大值，常数U+10FFFF。
 	MAX_HIGH_SURROGATE : char
+		以UTF-16编码表示的Unicode高代理代码单元的最大值，常量'\uDBFF'。高代理也称为领先代理。
 	MAX_LOW_SURROGATE : char
+		以utf-16编码表示的Unicode低代理代码单元的最大值，常量'\uDFFF'。低代理也称为尾随代理。
 	MAX_RADIX : int
+		可转换为字符串或从字符串转换为字符串的最大基数。此字段的常量值是基数转换方法（如digit方法、ForDigit方法和类整数的toString方法）中基数参数允许的最大值。
 	MAX_SURROGATE : char
+		以UTF-16编码表示的Unicode代理代码单元的最大值，常量'\uDFFF'。
 	MAX_VALUE : char
+		此字段的常量值是char、'\uFFFF'类型的最大值。
 	MIN_CODE_POINT : int
+		Unicode码位的最小值，常量U+0000。
 	MIN_HIGH_SURROGATE : char
+		以UTF-16编码表示的Unicode高代理代码单元的最小值，常量 '\uD800'。高代理也称为领先代理。
 	MIN_LOW_SURROGATE : char
+		以UTF-16编码表示的Unicode低代理代码单元的最小值，常量'\uDC00'。低代理也称为尾随代理。
 	MIN_RADIX : int
+		用于与字符串之间转换的最小基数。此字段的常量值是基数转换方法（如digit方法、forDigit方法和类整数的toString方法）中基数参数允许的最小值。
 	MIN_SUPPLEMENTARY_CODE_POINT : int
+		Unicode补充码位的最小值，常数U+10000。
 	MIN_SURROGATE : char
+		以UTF-16编码表示的Unicode代理代码单元的最小值，常量'\uD800'。
 	MIN_VALUE : char
+		此字段的常量值是char类型的最小值，即'\u0000'。
 	MODIFIER_LETTER : byte
+		Unicode规范中的通用类别“Lm”（修饰字母）。
 	MODIFIER_SYMBOL : byte
+		Unicode规范中的通用类别“Sk”（修正符号）。
 	NON_SPACING_MARK : byte
+		Unicode规范中的通用类别“Mn”（非间距标记）。
 	OTHER_LETTER : byte
+		Unicode规范中的通用类别“Lo”（其他字母）。
 	OTHER_NUMBER : byte
+		Unicode规范中的通用类别“No”（其他数字）。
 	OTHER_PUNCTUATION : byte
+		Unicode规范中的通用类别“Po”（其他标点符号）。
 	OTHER_SYMBOL : byte
+		Unicode规范中的通用类别“So”（其他符号）。
 	PARAGRAPH_SEPARATOR : byte
+		Unicode规范中的通用类别“Zp”（段落分隔符）。
 	PRIVATE_USE : byte
+		Unicode规范中的通用类别“Co”（私用）。
 	SIZE : int
+		以无符号二进制形式表示char值的位数，常量16。
 	SPACE_SEPARATOR : byte
+		Unicode规范中的通用类别“Zs”（空白分离器）。
 	START_PUNCTUATION : byte
+		Unicode规范中的一般类别“Ps”（开始标点符号）。
 	SURROGATE : byte
+		Unicode规范中的通用类别“Cs”（代理）。
 	TITLECASE_LETTER : byte
+		Unicode规范中的通用类别“Lt”（标题大写字母）。
 	TYPE : Class<Character>
+		表示原始类型char的类实例。
 	UNASSIGNED : byte
+		Unicode规范中的通用类别“Cn”（未指派的）。
 	UPPERCASE_LETTER : byte	
-
+		Unicode规范中的通用类别“Lu”（大写字母）。
+		
+		
+		
 Constructor Summary（构造器概要）：
 	public Character(char value)
+		value - 要由字符对象表示的值。
+		构造表示指定char值的新分配的Character对象。
 
 Method Summary（方法概要）：
 	charCount(int codePoint):static int 
@@ -163,7 +233,21 @@ Method Summary（方法概要）：
 	offsetByCodePoints(CharSequence seq, int index,int codePointOffset):static int 
 	reverseBytes(char ch):static char 
 	toChars(int codePoint):static char[] 
-	
+	toChars(int codePoint, char[] dst, int dstIndex):static int 
+	toCodePoint(char high, char low):static int 
+	toLowerCase(char ch):static char 
+	toLowerCase(int codePoint):static int 
+	toString(char c):static String 
+	toTitleCase(char ch):static char 
+	toTitleCase(int codePoint):static int 
+	toUpperCase(char ch):static char 
+	toUpperCase(int codePoint):static int 
+	valueOf(char c):static Character 
+	charValue():char 
+	compareTo(Character anotherCharacter):int 
+	equals(Object obj):boolean 
+	hashCode():int 
+	toString():String 
 	
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
