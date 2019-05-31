@@ -163,38 +163,240 @@ Constructor Summary（构造器概要）：
 
 Method Summary（方法概要）：
 	charCount(int codePoint):static int 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定表示指定字符（Unicode码位）所需的字符值数目。如果指定的字符等于或大于0x1000，则该方法返回2。否则，该方法返回1。
+		此方法不验证指定字符是否为有效的Unicode码位。必要时，调用方必须使用isValidCodePoint验证字符值。
+		如果字符是有效的补充字符，则返回2；否则返回1。
 	codePointAt(char[] a, int index):static int 
+		a - 字符数组。
+		index - 要转换的char数组中char值（Unicode代码单位）的索引。
+		返回char数组的给定索引处的代码点。如果char数组中给定索引处的char值在高代理范围内，则以下索引小于char数组的长度，并且以下索引处的char值在低代理范围内，则返回与此代理对对应的补充代码点。否则，返回给定索引处的char值。
+		返回给定索引处的Unicode代码点。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果值索引为负或不小于char数组的长度。
 	codePointAt(char[] a, int index, int limit):static int 
+		a - 字符数组。
+		index - 要转换的char数组中char值（Unicode代码单位）的索引。
+		limit - 可以在char数组中使用的最后一个数组元素之后的索引。
+		返回char数组的给定索引处的代码点，其中只能使用索引小于限制的数组元素。如果char数组中给定索引处的char值在高代理范围内，则以下索引小于限制，并且以下索引处的char值在低代理范围内，则返回与此代理对对应的补充代码点。否则，返回给定索引处的char值。
+		返回给定索引处的Unicode代码点。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果index参数为负或不小于limit参数，或者limit参数为负或大于char数组的长度。
 	codePointAt(CharSequence seq, int index):static int 
+		seq - 字符值序列（Unicode代码单位）。
+		index - 要转换的char数组中char值（Unicode代码单位）的索引。
+		返回字符序列的给定索引处的代码点。如果CharSequence中给定索引处的char值在高代理范围内，则下面的索引小于CharSequence的长度，并且下面索引处的char值在低代理范围内，则返回与该代理项对对应的补充代码点。否则，返回给定索引处的char值。
+		返回给定索引处的Unicode代码点。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果值索引为负或不小于seq.length()。
 	codePointBefore(char[] a, int index):static int 
+		a - 字符数组。
+		index - 应返回的代码点后面的索引。	
+		返回char数组的给定索引前面的代码点。如果char数组中（index-1）处的char值在低代理范围内，（index-2）不为负，而char数组中（index-2）处的char值在高代理范围内，则返回与此代理对对应的补充码位。否则，返回（索引-1）处的char值。
+		返回给定索引之前的Unicode码位值。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果index参数小于1或大于char数组的长度。
 	codePointBefore(char[] a, int index, int start):static int 
+		a - 字符数组。
+		index - 应返回的代码点后面的索引。
+		start - char数组中第一个数组元素的索引。
+		返回char数组的给定索引前面的代码点，其中只能使用索引大于或等于start的数组元素。如果char数组中（index-1）处的char值在低代理范围内，（index-2）不小于start，而char数组中（index-2）处的char值在高代理范围内，则返回与此代理对对应的补充码位。否则，返回（索引-1）处的char值。
+		返回给定索引之前的Unicode码位值。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果index参数不大于start参数或大于char数组的长度，或者start参数为负数或不小于char数组的长度。
 	codePointBefore(CharSequence seq, int index):static int 
-	codePointCount(char[] a, int offset, int count):static int 
+		seq - CharSequence（字符序列）实例。
+		index - 应返回的代码点后面的索引。
+		返回字符序列的给定索引之前的代码点。如果CharSequence中（index-1）处的char值在低代理范围内，（index-2）不为负，而CharSequence中（index-2）处的char值在高代理范围内，则返回与此代理对对应的补充码位。否则，返回（index-1）处的char值。
+		返回给定索引之前的Unicode码位值。
+		【Throws】：
+			NullPointerException 如果seq为null。
+			IndexOutOfBoundsException 如果index参数小于1或者大于seq.length()。
+	codePointCount(char[] a, int offset, int count):static int
+		a - 字符数组。
+		offset - 给定char数组中第一个char的索引。
+		count - 子数组的长度（以字符为单位）。
+		返回char数组参数的子数组中的Unicode代码点数。offset参数是子数组第一个字符的索引，count参数以字符为单位指定子数组的长度。子数组中未配对的代理项将作为每个代码点计数。
+		返回指定子数组中的Unicode代码点数量。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果偏移量（offset）或计数（count）为负，或者offset+count大于给定数组的长度。
 	codePointCount(CharSequence seq, int beginIndex, int endIndex):static int 
+		seq - 字符序列。
+		beginIndex - 文本范围第一个字符的索引。
+		endIndex - 文本范围最后一个字符后的索引。
+		返回指定字符序列的文本范围内的Unicode代码点数。文本范围从指定的beginIndex开始，扩展到索引 endIndex-1处的字符。因此，文本范围的长度（以字符为单位）是endIndex-beginIndex。文本范围内未配对的代理项将作为每个代码点计数。
+		【Throws】：
+			NullPointerException 如果seq为null。
+			IndexOutOfBoundsException 如果beginIndex为负，或者endIndex大于给定序列的长度，或者beginIndex大于endIndex。
 	compare(char x, char y):static int 
+		x - 要比较的第一个字符。
+		y - 要比较的第二个字符。
+		用数字比较两个字符值。返回的值与返回的值相同：
+			Character.valueOf(x).compareTo(Character.valueOf(y));
+		如果x==y，返回值为0；如果x<y，返回值小于0；如果x>y，返回值大于0。		
 	digit(char ch, int radix):static int 
+		ch - 要转换的字符。
+		radix - 基数。
+		返回字符ch在指定基数中的数值。
+		如果基数不在MIN_RADIX≤radix≤MAX_RADIX的范围内，或者如果ch的值不是指定基数中的有效数字，则返回-1。如果以下至少一个为true，则字符是有效数字：
+			● 方法isDigit返回true的字符，字符的Unicode十进制数字值（或其单字符分解）小于指定的基数。在这种情况下，返回十进制数字值。
+			● 字符是大写拉丁字母“A”到“Z”之一，其代码小于radix + 'A' - 10。在这种情况下，返回ch - 'a' + 10。
+			● 字符是小写拉丁字母“a”到“z”之一，其代码小于radix + 'a' - 10。在这种情况下，返回ch-‘a’+10。 
+			● 字符是全角大写拉丁文字母A('\uFF21')到Z ('\uFF3A') 之一，其代码小于radix + '\uFF21' - 10。在这种情况下，返回ch - '\uFF21' + 10。
+			● 字符是一个全角小写拉丁字母a('\uFF41')到z ('\uFF5A')，其代码小于radix + '\uFF41' - 10。在这种情况下，返回ch - '\uFF41' + 10。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用digit(int, int)方法。
+		返回由指定基数中的字符表示的数值。
 	digit(int codePoint, int radix):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		radix - 基数。
+		返回指定基数中指定字符（Unicode码位）的数值。
+		如果基数不在MIN_RADIX≤radix≤MAX_RADIX的范围内，或者如果字符不是指定基数中的有效数字，则返回-1。如果以下至少一个为true，则字符是有效数字：
+			● 方法isDigit(codePoint)返回true的字符，字符的Unicode十进制数字值（或其单字符分解）小于指定的基数。在这种情况下，返回十进制数字值。
+			● 字符是大写拉丁字母“A”到“Z”之一，其代码小于radix + 'A' - 10。在这种情况下，返回ch - 'a' + 10。
+			● 字符是小写拉丁字母“a”到“z”之一，其代码小于radix + 'a' - 10。在这种情况下，返回ch-‘a’+10。 
+			● 字符是全角大写拉丁文字母A('\uFF21')到Z ('\uFF3A') 之一，其代码小于radix + '\uFF21' - 10。在这种情况下，返回ch - '\uFF21' + 10。
+			● 字符是一个全角小写拉丁字母a('\uFF41')到z ('\uFF5A')，其代码小于radix + '\uFF41' - 10。在这种情况下，返回ch - '\uFF41' + 10。
+		返回由指定基数中的字符表示的数值。
 	forDigit(int digit, int radix):static char 
+		digit - 要转换为字符的数字。
+		radix - 基数。
+		确定指定基数（radix）中特定数字的字符表示形式。如果radix的值不是有效的基数，或者数字的值不是指定基数中的有效数字，则返回null字符('\u0000')。
+		如果radix参数大于或等于最小基数且小于或等于最大基数，则radix参数有效。如果0<=digit<radix，则digit参数有效。
+		如果digit小于10，则返回'0'+digit。否则，返回值'a' + digit - 10。
+		返回指定基数中指定数字表示的字符。
 	getDirectionality(char ch):static byte 
+		ch - 请求定向属性的字符。
+		返回给定字符的Unicode方向性属性。字符方向性用于计算文本的视觉顺序。未定义char值的方向性值是DIRECTIONALITY_UNDEFINED。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用getDirectionality(int)方法。
+		返回char值的方向性属性。		
 	getDirectionality(int codePoint):static byte 
+		codePoint - 请求定向属性的字符（Unicode代码点）。
+		返回给定字符（Unicode码位）的Unicode方向性属性。字符方向性用于计算文本的视觉顺序。未定义字符的方向性值为DIRECTIONALITY_UNDEFINED。
+		返回字符的方向性属性。
 	getName(int codePoint):static String s
+		ch - 要颠倒字节顺序的字符。
+		返回通过颠倒指定char值中字节的顺序获得的值。		
 	getNumericValue(char ch):static int 
+		ch - 要转换的字符。
+		返回指定的Unicode字符表示的int值。例如，字符'\u216C' （罗马数字50）将返回一个值为50的int。
+		字母A-Z的大写形式('\u0041' 到 '\u005A')、小写形式('\u0061' 到 '\u007A')和全角变体 ('\uFF21' 到 '\uFF3A' and '\uFF41' 到 '\uFF5A')具有10到35之间的数值。这与Unicode规范无关，后者不向这些char值分配数值。
+		如果字符没有数值，则返回-1。如果字符的数值不能表示为非负整数（例如，小数），则返回-2。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用getNumericValue(int)方法。
 	getNumericValue(int codePoint):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		返回指定字符（Unicode代码点）表示的int值。例如，字符'\u216C'（罗马数字50）将返回一个50的int值。
+		字母A-Z的大写形式('\u0041' 到 '\u005A')、小写形式('\u0061' 到 '\u007A')和全角变体 ('\uFF21' 到 '\uFF3A' and '\uFF41' 到 '\uFF5A')具有10到35之间的数值。这与Unicode规范无关，后者不向这些char值分配数值。
+		如果字符没有数值，则返回-1。如果字符的数值不能表示为非负整数（例如，小数），则返回-2。
+		返回字符的数值，作为非负int值；如果字符的数值不是非负整数返回-2；如果字符没有数值，返回-1。
 	getType(char ch):static int 
+		ch - 要测试的字符。
+		返回一个值，该值指示字符的常规类别。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用getType(int)方法。
 	getType(int codePoint):static int 
+		codePoint - 要测试的字符（Unicode码位）。
+		返回一个值，该值指示字符的常规类别。
 	hashCode(char value):static int 
+		value - 返回哈希代码的字符。
+		返回char值的哈希代码；与Character.hashCode()兼容。
 	highSurrogate(int codePoint):static char 
+		codePoint - 补充字符（Unicode码位）。
+		返回代理对的前导代理项（高代理项代码单元），表示UTF-16编码中指定的补充字符（Unicode代码点）。如果指定的字符不是补充字符，则返回未指定的字符。
+		如果isSupplementaryCodePoint(x)为true，则isHighSurrogate(highSurrogate(x))和toCodePoint(highSurrogate(x)，lowSurrogate(x)) == x也始终为true。
+		返回在UTF-16编码中用于表示字符的主要代理代码单元。
 	isAlphabetic(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否为字母表。
+		如果getType(codePoint)提供的常规类别类型是以下任何一种类型，则认为字符是字母：
+			● UPPERCASE_LETTER
+			● LOWERCASE_LETTER
+			● TITLECASE_LETTER
+			● MODIFIER_LETTER
+			● OTHER_LETTER
+			● LETTER_NUMBER
+		或者，它具有Unicode标准定义的Other_Alphabetic的贡献属性。
+		如果字符是Unicode字母字符，则返回true，否则返回false。
 	isBmpCodePoint(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）
+		确定指定字符（Unicode代码点）是否在基本多语言平面（BMP）中。这样的代码点可以用单个字符表示。
+		如果指定的代码点介于MIN_VALUE和MAX_VALUE之间，则返回true；否则返回false。
 	isDefined(char ch):static boolean 
+		ch - 要测试的字符。
+		确定字符是否为Unicode定义。
+		如果以下至少一个为true，则定义字符：
+			● 它在UnicodeData文件中有一个条目。
+			● 它的值位于由UnicodeData文件定义的范围内。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isDefined(int)方法。
+		如果字符在Unicode中有定义，则返回true；否则返回false。
 	isDefined(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定是否为Unicode定义字符（Unicode码位）。
+		如果以下至少一个为true，则定义字符：
+			● 它在UnicodeData文件中有一个条目。
+			● 它的值位于由UnicodeData文件定义的范围内。
+		如果字符在Unicode中有定义，则返回true；否则返回false。
 	isDigit(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为数字。
+		如果Character.getType(ch)提供的常规类别类型为DECIMAL_DIGIT_NUMBER，则字符是数字。
+		某些包含数字的Unicode字符范围：
+			● '\u0030' through '\u0039', ISO-LATIN-1 数字（0到9）。
+			● '\u0660' through '\u0669',阿拉伯-印度数字。
+			● '\u06F0' through '\u06F9',扩展阿拉伯-印度数字。
+			● '\u0966' through '\u096F', 天成文书（梵文）数字。
+			● '\uFF10' through '\uFF19', 全角数字。
+		许多其他字符范围也包含数字。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isDigit(int)方法。
+		如果字符是数字，则返回true；否则返回false。
 	isDigit(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否为数字。
+		如果Character.getType(ch)提供的常规类别类型为DECIMAL_DIGIT_NUMBER，则字符是数字。
+		某些包含数字的Unicode字符范围：
+			● '\u0030' through '\u0039', ISO-LATIN-1 数字（0到9）。
+			● '\u0660' through '\u0669',阿拉伯-印度数字。
+			● '\u06F0' through '\u06F9',扩展阿拉伯-印度数字。
+			● '\u0966' through '\u096F', 天成文书（梵文）数字。
+			● '\uFF10' through '\uFF19', 全角数字。
+		许多其他字符范围也包含数字。
+		如果字符是数字，则返回true；否则返回false。
 	isHighSurrogate(char ch):static boolean 
+		ch - 要测试的char值。
+		确定给定的char值是否为Unicode高代理代码单元（也称为前导代理代码单元）。
+		这些值本身并不表示字符，但在UTF-16编码中用于表示补充字符。
+		如果char值介于MIN_HIGH_SURROGATE和MAX_HIGH_SURROGATE之间，则返回true；否则返回false。
 	isIdentifierIgnorable(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否应被看作Java标识符或Unicode标识符中的可忽略字符。
+		下面的Unicode字符在Java标识符或Unicode标识符中是可忽略的：
+			1、非空白的ISO控制字符：
+				● '\u0000' 到 '\u0008'
+				● '\u000E' 到 '\u001B'
+				● '\u007F' 到 '\u009F'
+			2、具有FORMAT常规类别值的所有字符。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isIdentifierIgnorable(int)方法。
+		如果字符是可忽略的控制字符，那可能是Java或Unicode标识符的一部分，则返回true；否则返回false。
 	isIdentifierIgnorable(int codePoint):static boolean 
+		ch - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否应被看作Java标识符或Unicode标识符中的可忽略字符。
+		下面的Unicode字符在Java标识符或Unicode标识符中是可忽略的：
+			1、非空白的ISO控制字符：
+				● '\u0000' 到 '\u0008'
+				● '\u000E' 到 '\u001B'
+				● '\u007F' 到 '\u009F'
+			2、具有FORMAT常规类别值的所有字符。
+		如果字符是可忽略的控制字符，那可能是Java或Unicode标识符的一部分，则返回true；否则返回false。
 	isIdeographic(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否是由Unicode标准定义的CJKV（中文、日语、朝鲜语和越南语）象形文字。
+		如果字符是Unicode表意字符，则返回true，否则返回false。
 	isISOControl(char ch):static boolean 
+		
 	isISOControl(int codePoint):static boolean 
 	isJavaIdentifierPart(char ch):static boolean 
 	isJavaIdentifierPart(int codePoint):static boolean 
