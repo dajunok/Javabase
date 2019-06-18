@@ -396,61 +396,424 @@ Method Summary（方法概要）：
 		确定指定的字符（Unicode码位）是否是由Unicode标准定义的CJKV（中文、日语、朝鲜语和越南语）象形文字。
 		如果字符是Unicode表意字符，则返回true，否则返回false。
 	isISOControl(char ch):static boolean 
-		
+		ch - 要测试的字符。
+		确定指定字符是否为ISO控制字符。如果字符的代码在“\u0000”到“\u001F”或“\u007F”到“\u009F”范围内，则该字符被视为ISO控制字符。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isisoControl（int）方法。
+		如果字符是ISO控制字符，则返回true；否则返回false。
 	isISOControl(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定引用的字符（Unicode码位）是否为ISO控制字符。如果字符的代码在“\u0000”到“\u001F”或“\u007F”到“\u009F”范围内，则该字符被视为ISO控制字符。
 	isJavaIdentifierPart(char ch):static boolean 
+		ch -  要测试的字符。
+		确定指定字符是否是Java标识符的一部分，而不是首字符。
+		如果下列条件之一为true，则字符可以是Java标识符的一部分：
+			● 是一个字母。
+			● 是货币符号（如“$”）。
+			● 是一个连接标点符号（如“_”）。
+			● 是一个数字。
+			● 是一个数字字母（例如罗马数字字符）。
+			● 是个组合符号。
+			● 是一个非间隔标记。
+			● isIdentifierIgnorable返回true。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isJavaIdentifierPart(int)方法。
+		如果字符可以是Java标识符的一部分，则返回true；否则返回false。
 	isJavaIdentifierPart(int codePoint):static boolean 
-	isJavaIdentifierStart(char ch):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定字符（Unicode代码点）是否是Java标识符的一部分，而不是首字符。
+		如果下列条件之一为true，则字符可以是Java标识符的一部分：
+			● 是一个字母。
+			● 是货币符号（如“$”）。
+			● 是一个连接标点符号（如“_”）。
+			● 是一个数字。
+			● 是一个数字字母（例如罗马数字字符）。
+			● 是个组合符号。
+			● 是一个非间隔标记。
+			● isIdentifierIgnorable返回true。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		如果字符可以是Java标识符的一部分，则返回true；否则返回false。
+	isJavaIdentifierStart(char ch):static boolean
+		ch -  要测试的字符。
+		确定指定字符是否可以作为Java标识符中的第一个字符。
+		当且仅当下列条件之一为真时，字符才可启动Java标识符：
+			● isLetter(ch)返回true。
+			● getType(ch)返回LETTER_NUMBER。
+			● ch是货币符号（例如“$”）
+			● ch是一个连接标点符号（如“_”）。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isJavaIdentifierStart(int)方法。
+		如果字符可以启动Java标识符，则返回true；否则返回false。
 	isJavaIdentifierStart(int codePoint):static boolean 
+		ch -  要测试的字符。
+		确定指定字符（Unicode代码点）是否可以作为Java标识符中的第一个字符。
+		当且仅当下列条件之一为true时，字符才可启动Java标识符：
+			● isLetter(ch)返回true。
+			● getType(ch)返回LETTER_NUMBER。
+			● ch是货币符号（例如“$”）
+			● ch是一个连接标点符号（如“_”）。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		如果字符可以启动Java标识符，则返回true；否则返回false。
 	isJavaLetter(char ch):static boolean 
+		ch - 要测试的字符。
+		✘ 已淘汰。替换为isJavaIdentifierStart(char)。
+		确定指定字符是否可以作为Java标识符中的第一个字符。
+		当且仅当下列条件之一为真时，字符才可启动Java标识符：
+			● isLetter(ch)返回true。
+			● getType(ch)返回LETTER_NUMBER。
+			● ch是货币符号（例如“$”）
+			● ch是一个连接标点符号（如“_”）。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
 	isJavaLetterOrDigit(char ch):static boolean 
+		ch - 要测试的字符。
+		✘ 已淘汰。替换为isJavaIdentifierPart(char)。
+		确定指定字符是否是Java标识符的一部分，而不是第一个字符。
+		一个字符可以是Java标识符的一部分，当且仅当下列条件之一为true时：
+			● 是一个字母。
+			● 是货币符号（如“$”）。
+			● 是一个连接标点符号（如“_”）。
+			● 是一个数字。
+			● 是一个数字字母（例如罗马数字字符）。
+			● 是个组合符号。
+			● 是一个非间隔标记。
+			● isIdentifierIgnorable返回true。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		如果字符可以是Java标识符的一部分，则返回true；否则返回false。
 	isLetter(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为字母。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是以下任何一种类型，则该字符被视为字母：
+			● UPPERCASE_LETTER
+			● LOWERCASE_LETTER
+			● TITLECASE_LETTER
+			● MODIFIER_LETTER
+			● OTHER_LETTER
+		并非所有的字母都有大小写。许多字符是字母，但既不是大写，也不是小写，也不是标题大小写。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isLetter(int)方法。
+		如果字符是字母，则返回true；否则返回false。
 	isLetter(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否为字母。
+		如果getType(codePoint)提供的一般类别类型为以下任何一种，则认为字符是字母：
+			● UPPERCASE_LETTER
+			● LOWERCASE_LETTER
+			● TITLECASE_LETTER
+			● MODIFIER_LETTER
+			● OTHER_LETTER
+		并非所有的字母都有大小写。许多字符是字母，但既不是大写，也不是小写，也不是标题大小写。
+		如果字符是字母，则返回true；否则返回false。
 	isLetterOrDigit(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是字母还是数字。
+		如果Character.isLetter(char ch)或Character.isDigit(char ch)为字符返回true，则认为字符是字母或数字。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isLetterOrDigit(int)方法。
 	isLetterOrDigit(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是字母还是数字。
+		如果isLetter(codePoint)或isDigit(codePoint)为字符返回true，则认为字符是字母或数字。
 	isLowerCase(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否为小写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是小写字母，则该字符为小写字母，或者它具有Unicode标准定义的Other_Lowercase的作用属性。
+		以下是小写字符的示例：
+			 a b c d e f g h i j k l m n o p q r s t u v w x y z
+			 '\u00DF' '\u00E0' '\u00E1' '\u00E2' '\u00E3' '\u00E4' '\u00E5' '\u00E6'
+			 '\u00E7' '\u00E8' '\u00E9' '\u00EA' '\u00EB' '\u00EC' '\u00ED' '\u00EE'
+			 '\u00EF' '\u00F0' '\u00F1' '\u00F2' '\u00F3' '\u00F4' '\u00F5' '\u00F6'
+			 '\u00F8' '\u00F9' '\u00FA' '\u00FB' '\u00FC' '\u00FD' '\u00FE' '\u00FF'
+		许多其他Unicode字符也是小写的。	
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isLowerCase(int)方法。	
 	isLowerCase(int codePoint): static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符是否为小写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是小写字母，则该字符为小写字母，或者它具有Unicode标准定义的Other_Lowercase的作用属性。
+		以下是小写字符的示例：
+			 a b c d e f g h i j k l m n o p q r s t u v w x y z
+			 '\u00DF' '\u00E0' '\u00E1' '\u00E2' '\u00E3' '\u00E4' '\u00E5' '\u00E6'
+			 '\u00E7' '\u00E8' '\u00E9' '\u00EA' '\u00EB' '\u00EC' '\u00ED' '\u00EE'
+			 '\u00EF' '\u00F0' '\u00F1' '\u00F2' '\u00F3' '\u00F4' '\u00F5' '\u00F6'
+			 '\u00F8' '\u00F9' '\u00FA' '\u00FB' '\u00FC' '\u00FD' '\u00FE' '\u00FF'
+		许多其他Unicode字符也是小写的。	
 	isLowSurrogate(char ch):static boolean 
+		ch - 要测试的char值。
+		确定给定的char值是否为Unicode低代理代码单元（也称为尾随代理代码单元）。
+		这些值本身并不表示字符，但在UTF-16编码中用于表示补充字符。
 	isMirrored(char ch):static boolean 
+		ch - 请求镜像属性的字符。
+		确定字符是否根据Unicode规范进行镜像。当以从右向左的文本显示时，镜像字符的字形应水平镜像。例如，“\u0028”左括号（LEFT PARENTHESIS）在语义上定义为左括号。这将在从右到左的文本中显示为“（从左到右）”。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isMirrored(int)方法。
+		如果镜像了该字符，则返回true；如果未镜像或未定义该字符，则返回false。
 	isMirrored(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定字符是否根据Unicode规范进行镜像。当以从右向左的文本显示时，镜像字符的字形应水平镜像。例如，“\u0028”左括号（LEFT PARENTHESIS）在语义上定义为左括号。这将在从右到左的文本中显示为“（从左到右）”。
+		如果镜像了该字符，则返回true；如果未镜像或未定义该字符，则返回false。
 	isSpace(char ch):static boolean 
+		ch - 要测试的字符。
+		✘ 已淘汰。替换为isWhitespace(char)。
+		确定指定字符是否为ISO-LATIN-1空白。此方法仅对以下五个字符返回true：
+		'\t'	U+0009	水平表格
+		'\n'	U+000A	新的行
+		'\f'	U+000C	表单元
+		'\r'	U+000D	回车
+		' '		U+0020	空格
+		如果字符是ISO-LATIN-1空白，则返回true；否则返回false。
 	isSpaceChar(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否为Unicode空格字符。如果并且仅当Unicode标准将字符指定为空格字符时，字符才被视为空格字符。如果字符的常规类别类型为以下任一类型，则此方法返回true：
+			● SPACE_SEPARATOR（空格分隔符）
+			● LINE_SEPARATOR（行分隔符）
+			● PARAGRAPH_SEPARATOR（段落分隔符）
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isSpaceChar(int)方法。
+		如果字符是空格字符，则返回true；否则返回false。
 	isSpaceChar(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符是否为Unicode空格字符。如果并且仅当Unicode标准将字符指定为空格字符时，字符才被视为空格字符。如果字符的常规类别类型为以下任一类型，则此方法返回true：
+			● SPACE_SEPARATOR（空格分隔符）
+			● LINE_SEPARATOR（行分隔符）
+			● PARAGRAPH_SEPARATOR（段落分隔符）
+		如果字符是空格字符，则返回true；否则返回false。
 	isSupplementaryCodePoint(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定字符（Unicode码位）是否在辅助字符范围内。
+		如果指定的代码点介于MIN_SUPPLEMENTARY_CODE_POINT和MAX_CODE_POINT之间，则返回true；否则返回false
 	isSurrogate(char ch):static boolean 
+		ch - 要测试的char值。
+		确定给定的char值是否为Unicode代理项代码单元。
+		这些值本身并不表示字符，但在UTF-16编码中用于表示补充字符。
+		如果且仅当char值是低代理代码单元或高代理代码单元时，char值才是代理代码单元。
+		如果char值介于MIN_SURROGATE和MAX_SURROGATE之间，则返回true；否则返回false。
 	isSurrogatePair(char high, char low):static boolean 
+		high - 要测试的高代理代码值。
+		low - 要测试的低代理代码值。
+		确定指定的字符值对是否为有效的Unicode代理项对。
+		此方法等价于表达式：
+			isHighSurrogate(high) && isLowSurrogate(low)			
 	isTitleCase(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否为标题基字符。
+		如果Character.getType(ch)提供的一般类别类型是TITLECASE_LETTER，则字符是标题基字符。
+		有些字符看起来像成对的拉丁字母。例如，有一个大写字母看起来像“LJ”，并且有一个对应的小写字母看起来像“lj”。第三种形式，看起来像“Lj”，是在呈现一个单词的小写字母和首字母大写字母时使用的适当形式，例如一本书的标题。
+		这些是此方法返回true的一些Unicode字符：
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON
+			● LATIN CAPITAL LETTER L WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER N WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z
+		许多其他Unicode字符也是标题库。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isTitleCase(int)方法。
+		如果字符是标题，则返回true；否则返回false。
 	isTitleCase(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符是否为标题基字符。
+		如果Character.getType(ch)提供的一般类别类型是TITLECASE_LETTER，则字符是标题基字符。
+		有些字符看起来像成对的拉丁字母。例如，有一个大写字母看起来像“LJ”，并且有一个对应的小写字母看起来像“lj”。第三种形式，看起来像“Lj”，是在呈现一个单词的小写字母和首字母大写字母时使用的适当形式，例如一本书的标题。
+		这些是此方法返回true的一些Unicode字符：
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON
+			● LATIN CAPITAL LETTER L WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER N WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z
+		许多其他Unicode字符也是标题库。
+		如果字符是标题，则返回true；否则返回false。
 	isUnicodeIdentifierPart(char ch):static boolean 
-	isUnicodeIdentifierPart(int codePoint):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否可以作为第一个字符以外的Unicode标识符的一部分。
+		如果且仅当下列语句之一为真，则字符可以是Unicode标识符的一部分：
+			● 是字母
+			● 是一个连接标点符号（如“_”）。
+			● 是个数字
+			● 它是一个数字字母（例如罗马数字字符）
+			● 是个组合符号
+			● 它是一个非间隔标记
+			● isIdentifierIgnorable为此字符返回true。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isUnicodeIdentifierPart(int)方法。
+		如果字符可能是Unicode标识符的一部分，则返回true；否则返回false。
+	isUnicodeIdentifierPart(int codePoint):static boolean
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定字符是否可以作为第一个字符以外的Unicode标识符的一部分。
+		如果且仅当下列语句之一为真，则字符可以是Unicode标识符的一部分：
+			● 是字母
+			● 是一个连接标点符号（如“_”）。
+			● 是个数字
+			● 它是一个数字字母（例如罗马数字字符）
+			● 是个组合符号
+			● 它是一个非间隔标记
+			● isIdentifierIgnorable为此字符返回true。
+		如果字符可能是Unicode标识符的一部分，则返回true；否则返回false。
 	isUnicodeIdentifierStart(char ch):static boolean 
+		ch - 要测试的字符。
+		确定是否允许指定字符作为Unicode标识符中的第一个字符。
+		如果且仅当以下条件之一为true时，字符才可以启动Unicode标识符：
+			● isLetter(ch)方法返回true。
+			● getType(ch)方法返回LETTER_NUMBER
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isUnicodeIdentifierStart(int)方法。
+		如果字符可以启动Unicode标识符，则返回true；否则返回false。
 	isUnicodeIdentifierStart(int codePoint):tatic boolean 
+		codePoint - 要测试的字符（Unicode码位）。 
+		确定是否允许指定字符作为Unicode标识符中的第一个字符。
+		如果且仅当以下条件之一为true时，字符才可以启动Unicode标识符：
+			● isLetter(ch)方法返回true。
+			● getType(ch)方法返回LETTER_NUMBER
+		如果字符可以启动Unicode标识符，则返回true；否则返回false。
 	isUpperCase(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为大写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是大写字母（UPPERCASE_LETTER），则字符为大写。或者，它具有Unicode标准定义的其他大写的贡献属性。
+		以下是大写字符的示例：
+			A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+			 '\u00C0' '\u00C1' '\u00C2' '\u00C3' '\u00C4' '\u00C5' '\u00C6' '\u00C7'
+			 '\u00C8' '\u00C9' '\u00CA' '\u00CB' '\u00CC' '\u00CD' '\u00CE' '\u00CF'
+			 '\u00D0' '\u00D1' '\u00D2' '\u00D3' '\u00D4' '\u00D5' '\u00D6' '\u00D8'
+			 '\u00D9' '\u00DA' '\u00DB' '\u00DC' '\u00DD' '\u00DE'
+		许多其他Unicode字符也是大写的。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isUpperCase(int)方法。
+		如果字符为大写，则返回true；否则返回false。
 	isUpperCase(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。 
+		确定指定字符是否为大写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是大写字母（UPPERCASE_LETTER），则字符为大写。或者，它具有Unicode标准定义的其他大写的贡献属性。
+		以下是大写字符的示例：
+			A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+			 '\u00C0' '\u00C1' '\u00C2' '\u00C3' '\u00C4' '\u00C5' '\u00C6' '\u00C7'
+			 '\u00C8' '\u00C9' '\u00CA' '\u00CB' '\u00CC' '\u00CD' '\u00CE' '\u00CF'
+			 '\u00D0' '\u00D1' '\u00D2' '\u00D3' '\u00D4' '\u00D5' '\u00D6' '\u00D8'
+			 '\u00D9' '\u00DA' '\u00DB' '\u00DC' '\u00DD' '\u00DE'
+		许多其他Unicode字符也是大写的。
+		如果字符为大写，则返回true；否则返回false。
 	isValidCodePoint(int codePoint):static boolean 
+		codePoint - 要测试的Unicode代码点。
+		确定指定的代码点是否为有效的Unicode代码点值。
+		如果指定的代码点值介于最小代码点（MIN_CODE_POINT）和最大代码点（MAX_CODE_POINT）之间，则返回true；否则返回false。
 	isWhitespace(char ch):static boolean 
+		ch - 要测试的字符。
+		根据Java来确定指定的字符是否为空白。一个字符是Java空白字符，当且仅当它满足下列准则之一时：
+			● 它是一个Unicode空格字符（空格分隔符（SPACE_SEPARATOR）、行分隔符（LINE_SEPARATOR）或段落分隔符（PARAGRAPH_SEPARATOR）），但也不是非分隔空格('\u00A0', '\u2007', '\u202F'）。
+			● 它是“\t”，U+0009水平表格。
+			● 它是‘\n’，U+000A换行。
+			● 它是‘\u000B’，u+000B垂直表格。
+			● 它是“\f”，U+000C形式的反馈。
+			● 它是 '\r', U+000D 回车
+			● 它是 '\u001C', U+001C文件分隔符。
+			● 它是 '\u001D', U+001D 组分隔符。
+			● 它是 '\u001E', U+001E 记录分隔符。
+			● 它是 '\u001F', U+001F 单元分隔符。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isWhitespace(int)方法。
+		如果字符是Java空白字符，则返回true；否则返回false。
 	isWhitespace(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。 
+		根据Java来确定指定的字符是否为空白。一个字符是Java空白字符，当且仅当它满足下列准则之一时：
+			● 它是一个Unicode空格字符（空格分隔符（SPACE_SEPARATOR）、行分隔符（LINE_SEPARATOR）或段落分隔符（PARAGRAPH_SEPARATOR）），但也不是非分隔空格('\u00A0', '\u2007', '\u202F'）。
+			● 它是“\t”，U+0009水平表格。
+			● 它是‘\n’，U+000A换行。
+			● 它是‘\u000B’，u+000B垂直表格。
+			● 它是“\f”，U+000C形式的反馈。
+			● 它是 '\r', U+000D 回车
+			● 它是 '\u001C', U+001C文件分隔符。
+			● 它是 '\u001D', U+001D 组分隔符。
+			● 它是 '\u001E', U+001E 记录分隔符。
+			● 它是 '\u001F', U+001F 单元分隔符。
+		如果字符是Java空白字符，则返回true；否则返回false。
 	lowSurrogate(int codePoint):static char 
+		codePoint - 补充字符（Unicode码位）。
+		返回用UTF-16编码表示指定补充字符（Unicode码位）的代理对的尾随代理项（低代理项代码单元）。如果指定的字符不是补充字符，则返回未指定的字符。
+		如果isSupplementaryCodePoint(x)为true，则isLowSurrogate(lowSurrogate(x)) 和toCodePoint(highSurrogate(x)，lowSurrogate(x)) == x也始终返回true。
+		返回在UTF-16编码中用于表示字符的尾随代理代码单元。
 	offsetByCodePoints(char[] a, int start, int count,int index, int codePointOffset):static int 
-	offsetByCodePoints(CharSequence seq, int index,int codePointOffset):static int 
+		a - char数组。
+		start - 子数组第一个字符的索引。
+		count - 子数组的长度（以字符为单位）。
+		index - 要偏移的索引。
+		codePointOffset - 代码点偏移量。
+		返回给定char子数组中由codePointOffset代码点从给定索引偏移的索引。start和count参数指定char数组的子数组。在索引和代码点偏移量计数给出的文本范围内，未成对的代理项各作为一个代码点。
+		返回子数组中的索引。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果start或count为负数，或者如果start+count大于给定数组的长度，或者如果index小于start或大于start+count，或者如果codePointOffset为正数，并且以index开始并以start+count结束的文本范围-1具有的codePointOffset代码点少于codePointOffset代码点，或者codePointOffset为负数且从开始到索引-1结束的文本范围小于代码点偏移量代码点的绝对值。
+	offsetByCodePoints(CharSequence seq, int index,int codePointOffset):static int
+		seq - 字符序列。
+		index - 要偏移的索引。
+		codePointOffset - 代码点偏移量。
+		返回给定字符序列中的索引，该索引与给定索引之间的偏移量由codePointOffset代码点组成。在索引和代码点偏移量计数给出的文本范围内，未成对的代理项各作为一个代码点。
+		【Throws】：
+			NullPointerException 如果seq为null。
+			IndexOutOfBoundsException 如果index为负或大于char序列的长度，或者如果codePointOffset为正，并且以index开头的子序列具有小于codePointOffset代码点的代码点，或者如果codePointOffset为负，并且index之前的子序列具有小于codePointOffset代码点的绝对值的代码点。
 	reverseBytes(char ch):static char 
+		ch - 要颠倒字节顺序的字符。
+		返回通过颠倒指定char值中字节的顺序获得的值。
 	toChars(int codePoint):static char[] 
+		codePoint - Unicode码位。
+		将指定的字符（Unicode代码点）转换为存储在char数组中的UTF-16表示形式。如果指定的代码点是BMP（基本多语言平面或平面0）值，则生成的char数组与代码点具有相同的值。如果指定的代码点是补充代码点，则生成的char数组具有相应的代理项对。
+		返回一种字符数组，具有码点的UTF-16表示。
+		【Throws】：
+			IllegalArgumentException 如果指定的代码点不是有效的Unicode代码点。
 	toChars(int codePoint, char[] dst, int dstIndex):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		dst - 存储代码点的UTF-16值的char数组。
+		dstIndex - DST数组中存储转换值的起始索引。
+		将指定的字符（Unicode码位）转换为其UTF-16表示形式。如果指定的代码点是BMP（基本多语言平面或平面0）值，则相同的值存储在dst[dstIndex]中，并返回1。如果指定的代码点是一个补充字符，则其代理项值存储在dst[dstIndex]（高代理项）和dst[dstIndex+1]（低代理项）中，并返回2。
+		如果代码点是BMP代码点返回1，如果代码点是补充代码点返回2。
+		【Throws】：
+			IllegalArgumentException 如果指定的代码点不是有效的Unicode代码点。
+			NullPointerException 如果指定的dst为null。
+			IndexOutOfBoundsException 如果dstIndex为负数或不小于dst.length，或者dstIndex处的dst没有足够的数组元素来存储生成的char值。（如果dstIndex等于dst.length-1，并且指定的代码点是一个补充字符，则高代理值不会存储在dst[dstIndex]中。）
 	toCodePoint(char high, char low):static int 
-	toLowerCase(char ch):static char 
+		high - 高代理代码单元。
+		low - 低代理代码单元。
+		将指定的代理项对转换为其补充代码点值。此方法不验证指定的代理项对。如有必要，调用方必须使用isSurrogatePair对其进行验证。
+		返回由指定的代理项对组成的补充代码点。
+	toLowerCase(char ch):static char
+		ch - 要转换的字符。
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为小写。
+		请注意，Character.isLowerCase(Character.toLowerCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toLowerCase()将字符映射为小写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:m字符映射，而字符大小写映射方法则不能。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用toLowerCase(int)方法。
+		返回字符的小写等价物，如果有的话；否则，返回字符本身。
 	toLowerCase(int codePoint):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为小写。
+		请注意，Character.isLowerCase(Character.toLowerCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toLowerCase()将字符映射为小写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:m字符映射，而字符大小写映射方法则不能。
+		返回字符的小写等价物，如果有的话；否则，返回字符本身。
 	toString(char c):static String 
+		c - 要转换的字符。
+		返回表示指定字符的字符串对象。结果是一个长度为1的字符串，仅由指定的字符组成。
 	toTitleCase(char ch):static char 
-	toTitleCase(int codePoint):static int 
+		ch - 要转换的字符。
+		使用来自UnicodeData文件的大小写映射信息，将字符参数转换为标题库。如果字符没有显式的标题库映射，并且根据UnicodeData本身不是标题库字符，则返回大写映射作为等效的标题库映射。如果char参数已经是titlecase char，则返回相同的char值。
+		注意，对于某些字符范围，Character.isTitleCase(Character.toTitleCase(ch))并不总是返回true。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用toTitleCase(int)方法。
+	toTitleCase(int codePoint):static int
+		codePoint - 要转换的字符（Unicode码位）。 
+		使用来自UnicodeData文件的大小写映射信息，将字符参数转换为标题库。如果字符没有显式的标题库映射，并且根据UnicodeData本身不是标题库字符，则返回大写映射作为等效的标题库映射。如果char参数已经是titlecase char，则返回相同的char值。
+		注意，对于某些字符范围，Character.isTitleCase(Character.toTitleCase(ch))并不总是返回true。
+		返回与字符（如果有的话）相对应的标题；否则，返回字符本身。
 	toUpperCase(char ch):static char 
+		ch - 要转换的字符。
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为大写。
+		注意Character.isUpperCase(Character.toUpperCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toUpperCase()将字符映射到大写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:M字符映射，而字符大小写映射方法则不能。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用toUpperCase(int)方法。
+		返回字符的大写等价物（如果有的话）；否则，返回字符本身。
 	toUpperCase(int codePoint):static int 
+		codePoint - 要转换的字符（Unicode码位）。 
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为大写。
+		注意Character.isUpperCase(Character.toUpperCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toUpperCase()将字符映射到大写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:M字符映射，而字符大小写映射方法则不能。
+		返回字符的大写等价物（如果有的话）；否则，返回字符本身。
 	valueOf(char c):static Character 
+		c - char值。
+		返回表示指定字符值的Character实例。如果不需要新的字符实例，则通常应优先使用此方法，而不是构造函数字符（char），因为通过缓存频繁请求的值，此方法可能会显著提高空间和时间性能。此方法将始终缓存范围从\u0000'到\u007f'的值（包括这两个值），并且可能缓存此范围之外的其他值。
+		表示c的Character实例。
 	charValue():char 
+		返回此字符对象的值。
 	compareTo(Character anotherCharacter):int 
+		anotherCharacter - 要比较的字符。
+		△ 对两个字符对象进行数值比较。
 	equals(Object obj):boolean 
+		obj - 要与之比较的对象。
+		△ 将此对象与指定的对象进行比较。如果且仅当参数不为空并且是表示与此对象相同char值的Character对象，则结果为true。
+		如果对象相同，则返回true；否则返回false。
 	hashCode():int 
+		△ 返回此字符的哈希代码；等于调用charValue()的结果。
 	toString():String 
-	
+		△ 返回表示此字符值的字符串对象。结果是一个长度为1的字符串，其唯一组成部分是由该字符对象表示的原始char值。
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 附录：
