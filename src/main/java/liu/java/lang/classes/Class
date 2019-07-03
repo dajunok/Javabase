@@ -1,0 +1,18 @@
+----------------------------------------Class<T>--------------------------------------------------------------------------------------------------------------
+Class<T>：类		【Since:JDK1.0】
+	类Class的实例表示运行的Java应用程序中的类和接口。枚举是一种类，注释是一种接口。每个数组还属于一个类，该类作为Class对象引用，由具有相同元素类型和维度数的所有数组共享。原始Java类型（boolean, byte, char, short, int, long, float和double）以及关键字空格也被表示为Class对象。
+	Class没有公共构造函数。相反，Class对象由Java虚拟机自动构造，因为类被加载，并通过类装载器中的defineClass方法调用。
+	以下示例使用Class对象打印对象的类名：
+	     void printClassName(Object obj) {
+	         System.out.println("The class of " + obj +
+	                            " is " + obj.getClass().getName());
+	     }	
+	也可以使用类文本为命名类型（或void）获取Class对象。参见JavaSUM语言规范的第15.2节。例如：
+		System.out.println("The name of class Foo is: "+Foo.class.getName());
+		
+		
+	
+	类定义	：public final class Class<T> implements java.io.Serializable,GenericDeclaration,Type,AnnotatedElement
+	实现接口	：Serializable,AnnotatedElement, GenericDeclaration, Type
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
