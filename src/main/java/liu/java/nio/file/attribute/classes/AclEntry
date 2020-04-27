@@ -1,0 +1,123 @@
+----------------------------------------AclEntry--------------------------------------------------------------------------------------------------------------
+AclEntry：ACL条目	【Since:1.7】
+	访问控制列表（ACL）中的条目。
+	此类表示的ACL条目基于RFC 3530: Network File System (NFS)版本4协议中指定的ACL模型。每个条目有四个组件，如下所示：
+		1、类型（type）组件确定条目是否授予或拒绝访问权。
+		2、主体（principal）组件，有时称为“who”组件，是一个用户主体，对应于条目授予或拒绝访问的标识。
+		3、权限（permissions）组件是一组权限。
+		4、flags组件是一组标志，用于指示如何继承和传播条目。
+	ACL项是通过调用其生成方法使用关联的aclEntry.Builder对象创建的。
+	ACL条目是不可变的，可供多个并发线程安全使用。
+	
+	
+	类定义	：public final class AclEntry
+	嵌套类	：Builder
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	newBuilder():static Builder 
+		创建新的构建器。类型和who组件的初始值为null。权限和标志组件的初始值是空集。
+		返回新的构建器（Builder）。
+	newBuilder(AclEntry entry):static Builder 
+		entry - ACL条目
+		使用现有ACL条目的组件创建新的构建器。
+		返回新的构建器（Builder）。
+	equals(Object ob):boolean 
+		ob - 要与此对象进行比较的对象。
+		△ 将指定的对象与此ACL条目进行比较以确保相等。
+		如果给定的对象不是AclEntry，则此方法立即返回false。
+		对于两个要视为相等的ACL条目，需要它们都是相同的type、它们的who组件是相等的、它们的权限（permissions）组件是相等的、它们的标志（flags）组件是相等的。
+		此方法满足Object.equals方法的一般约定。
+		如果且仅当给定对象是与此AclEntry相同的AclEntry时返回true。
+	flags():Set<AclEntryFlag> 
+		返回flags组件的副本。
+		返回的集合是flags的可修改副本。
+	hashCode():int 
+		△ 返回此ACL条目的哈希代码值。
+		此方法满足Object.hashCode()方法的一般约定。
+	permissions():Set<AclEntryPermission> 
+		返回权限组件的副本。
+		返回的集合是权限的可修改副本。
+	principal():UserPrincipal 
+		返回主体（principal）组件。
+	toString():String 
+		△ 返回此ACL条目的字符串表示形式。
+	type():AclEntryType 
+		返回ACL条目类型。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+			
+	
+	
+	
+----------------------------------------AclEntry$Builder--------------------------------------------------------------------------------------------------------------
+1、Builder：构建器	【Since:1.7】
+	AclEntry对象的构建器。
+	Builder对象是通过调用由AclEntry类定义的newBuilder方法获得的。
+	Builder对象是可变的，如果不进行适当的同步，多个并发线程将无法安全使用。	
+	
+	
+	类定义	：public static final class Builder
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：	
+	build():AclEntry 
+		从该构建器的组件构造一个AclEntry。需要设置type和who组件才能构造AclEntry。
+		返回新的AclEntry。
+		【Throws】：
+			IllegalStateException 如果尚未设置type或who组件。
+	setFlags(AclEntryFlag... flags):Builder 
+		flags - flags组件。
+		设置此构建器的标志组件。返回时，此构建器的标志（flags）组件是给定数组中标志的副本。
+		返回构建器（Builder）。
+	setFlags(Set<AclEntryFlag> flags):Builder 
+		flags - flags组件。
+		设置此构建器的标志（flags）组件。返回时，此构建器的flags组件是给定集合的副本。
+		返回构建器（Builder）。
+		【Throws】：
+			ClassCastException 如果集合包含不属于AclEntryFlag类型的元素。
+	setPermissions(AclEntryPermission... perms):Builder 
+		perms-权限组件。
+		设置此构建器的权限组件。返回时，此构建器的权限组件是给定数组中权限的副本。
+		返回构建器（Builder）。
+	setPermissions(Set<AclEntryPermission> perms):Builder 
+		perms-权限组件。
+		设置此构建器的权限组件。返回时，此构建器的permissions组件是给定集合的副本。
+		返回构建器（Builder）。
+		【Throws】：
+			ClassCastException 如果集合包含不属于AclEntryPermission类型的元素。
+	setPrincipal(UserPrincipal who):Builder 
+		who - principal组件。
+		设置此构建器的主体（principal）组件。
+		返回构建器（Builder）。
+	setType(AclEntryType type):Builder 
+		type - type组件。
+		设置此构建器的类型（type）组件。
+		返回构建器（Builder）。
+
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+		
+
+
+
+
+
+
+
+
+
+
+
+
+		

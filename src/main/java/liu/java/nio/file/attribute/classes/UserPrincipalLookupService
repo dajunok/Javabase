@@ -1,0 +1,47 @@
+----------------------------------------UserPrincipalLookupService--------------------------------------------------------------------------------------------------------------
+UserPrincipalLookupService：用户主体查找服务	【Since:1.7】
+	按名称查找用户和组主体的对象。UserPrincipal表示一个标识，该标识可用于确定对文件系统中对象的访问权限。GroupPrincipal表示组标识。UserPrincipalLookupService定义了按名称或组名（通常是用户名或帐户名）查找标识的方法。名称和组名是否区分大小写取决于实现。组的确切定义是特定于实现的，但通常组表示为管理目的创建的标识，以便确定组成员的访问权限。尤其是，如果名称和组的名称空间相同或不同，那么它是特定于实现的。为了确保跨平台的一致和正确行为，建议将此API用作不同的命名空间。换句话说，lookupPrincipalByName应用于查找用户，lookupPrincipalByGroupName应用于查找组。
+	
+	
+	类定义	：public abstract class UserPrincipalLookupService
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected UserPrincipalLookupService()
+		初始化此类的新实例。
+
+Method Summary（方法概要）：
+	lookupPrincipalByGroupName(String group):abstract GroupPrincipal 
+		group - 要查找的组的字符串表示形式。
+		按组名查找组主体。
+		如果一个实现不支持任何组的概念，那么这个方法总是抛出UserPrincipalNotFoundException异常。如果用户帐户和组的命名空间相同，则此方法与调用lookupPrincipalByName相同。
+		返回组主体。
+		【Throws】：
+			UserPrincipalNotFoundException 主体不存在或不是组。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，它将检查RuntimePermission("lookupUserInformation")。
+	lookupPrincipalByName(String name):abstract UserPrincipal 
+		name - 要查找的用户主体的字符串表示形式。
+		按名称查找用户主体。
+		返回用户主体。
+		【Throws】：
+			UserPrincipalNotFoundException 主体不存在。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，它将检查RuntimePermission("lookupUserInformation")。
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。
+			
+	
+	
+	
+	
+	
+	
+	
+	
+	

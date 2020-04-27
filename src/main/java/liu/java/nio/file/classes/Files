@@ -1,0 +1,885 @@
+----------------------------------------Files--------------------------------------------------------------------------------------------------------------
+Files：文件夹	【Since:1.7】
+	此类只包含对文件、目录或其他类型的文件进行操作的静态方法。
+	在大多数情况下，此处定义的方法将委托给关联的文件系统提供程序来执行文件操作。
+	
+	
+	类定义	：public final class Files
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）：
+	copy(InputStream in, Path target, CopyOption... options):static long 
+		in - 要读取的输入流。
+		target - 文件的路径。
+		options - 指定复制方式的选项。
+		将输入流中的所有字节复制到文件。返回时，输入流将位于流的末尾。
+		默认情况下，如果目标文件已存在或是符号链接，则复制失败。如果指定了REPLACE_EXISTING选项，并且目标文件已经存在，那么如果目标文件不是非空目录，则会将其替换。如果目标文件存在并且是符号链接，则替换符号链接。在此版本中，REPLACE_EXISTING选项是此方法所需支持的唯一选项。在将来的版本中可能支持其他选项。
+		如果从输入流读取或写入文件时发生I/O错误，则在创建目标文件之后，以及在读取或写入某些字节之后，可以执行此操作。因此，输入流可能不在流的末尾，并且可能处于不一致的状态。强烈建议在发生I/O错误时立即关闭输入流。
+		此方法可能会无限期地阻塞从输入流读取（或写入文件）。输入流异步关闭或复制过程中线程中断的情况下的行为是输入流和文件系统提供器高度特定的，因此未指定。
+		用法示例：假设我们想要捕获一个网页并将其保存到一个文件中：
+		     Path path = ...
+		     URI u = URI.create("http://java.sun.com/");
+		     try (InputStream in = u.toURL().openStream()) {
+		         Files.copy(in, path);
+		     }		
+		返回读取或写入的字节数。
+		【Throws】：
+			IOException 如果在读取或写入时发生I/O错误。
+			FileAlreadyExistsException  如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
+			DirectoryNotEmptyException  指定了REPLACE_EXISTING选项，但无法替换该文件，因为它是一个非空目录（可选的特定异常）*
+			UnsupportedOperationException 如果选项包含不受支持的复制选项。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。如果指定了REPLACE_EXISTING选项，将调用安全管理器的checkDelete方法来检查是否可以删除现有文件。
+	copy(Path source, OutputStream out):static long 
+		source - 文件的路径。
+		out - 要写入的输出流。
+		将文件中的所有字节复制到输出流。
+		如果从文件中读取或写入输出流时发生I/O错误，则在读取或写入某些字节后可能会发生此错误。因此，输出流可能处于不一致的状态。强烈建议在发生I/O错误时立即关闭输出流。
+		此方法可能会无限期地阻塞写入输出流（或从文件中读取）。输出流异步关闭或复制过程中线程中断的情况下的行为是输出流和文件系统提供器高度特定的，因此未指定。
+		注意，如果给定的输出流是可刷新的，那么可能需要在该方法完成后调用它的flush方法，以便刷新任何缓冲的输出。
+		返回读取或写入的字节数。
+		【Throws】：
+			IOException 如果在读取或写入时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	copy(Path source, Path target, CopyOption... options):static Path 
+		source - 要复制的文件的路径。
+		target - 目标文件的路径（可能与源路径的其他提供器关联）。
+		options - 指定复制方式的选项。
+		将文件复制到目标文件。
+		此方法将文件复制到目标文件，并使用options参数指定如何执行复制。默认情况下，如果目标文件已存在或是符号链接，则复制失败，除非源文件和目标文件相同，在这种情况下，方法在不复制文件的情况下完成。不需要将文件属性复制到目标文件。如果支持符号链接，并且文件是符号链接，则复制链接的最终目标。如果文件是一个目录，那么它会在目标位置创建一个空目录（目录中的条目不会被复制）。此方法可与walkFileTree方法一起用于复制目录和目录中的所有条目，或者在需要时复制整个文件树。
+		options参数可以包括以下任何一项：
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 Option													Description
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 REPLACE_EXISTING		如果目标文件存在，那么如果目标文件不是非空目录，则会替换它。如果目标文件存在并且是符号链接，那么符号链接本身（而不是链接的目标）将被替换。
+		 COPY_ATTRIBUTES		尝试将与此文件关联的文件属性复制到目标文件。复制的确切文件属性取决于平台和文件系统，因此未指定。如果源文件存储区和目标文件存储区都支持，则至少将上次修改的时间复制到目标文件。复制文件时间戳可能会导致精度损失。
+		 NOFOLLOW_LINKS			不遵循符号链接。如果文件是符号链接，则复制符号链接本身，而不是链接的目标。如果可以将文件属性复制到新链接，则是特定于实现的。换句话说，复制符号链接时，可以忽略COPY_ATTRIBUTES选项。
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		此接口的实现可能支持其他特定于实现的选项。
+		复制文件不是原子操作。如果引发IOException异常，则可能是目标文件不完整，或者其某些文件属性尚未从源文件复制。如果指定了REPLACE_EXISTING选项并且目标文件存在，则将替换目标文件。对于其他文件系统活动，检查文件是否存在以及创建新文件可能不是原子的。
+		用法示例：假设我们想将一个文件复制到一个目录中，并赋予它与源文件相同的文件名：
+		     Path source = ...
+		     Path newdir = ...
+		     Files.copy(source, newdir.resolve(source.getFileName());	
+		返回目标文件的路径。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含不受支持的复制选项。
+			FileAlreadyExistsException 如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
+			DirectoryNotEmptyException 指定了REPLACE_EXISTING选项，但无法替换该文件，因为它是一个非空目录（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，则调用checkRead方法检查对源文件的读访问，调用checkWrite检查对目标文件的写访问。如果复制了符号链接，则调用安全管理器来检查LinkPermission("symbolic")。
+	createDirectories(Path dir, FileAttribute<?>... attrs):static Path 
+		dir - 要创建的目录。
+		attrs - 创建目录时要自动设置的文件属性的可选列表。
+		首先通过创建所有不存在的父目录来创建目录。与CreateDirectory方法不同，如果由于目录已经存在而无法创建该目录，则不会引发异常。
+		attrs参数是可选的文件属性，可以在创建不存在的目录时自动设置。每个文件属性由其名称标识。如果数组中包含多个相同名称的属性，则忽略除最后一次出现的属性以外的所有属性。
+		如果这个方法失败了，那么它可以在创建一些（而不是全部）父目录之后这样做。
+		返回目录。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			FileAlreadyExistsException 如果存在dir但不是目录（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器和安全管理器安装的情况下，在尝试创建目录之前调用checkWrite方法，并为选中的每个父目录调用checkRead。如果dir不是绝对路径，则可能需要调用它的toAbsolutePath来获取其绝对路径。这可能调用安全管理器的checkPropertyAccess方法来检查对系统属性user.dir的访问。
+	createDirectory(Path dir, FileAttribute<?>... attrs):static Path 
+		dir - 要创建的目录。
+		attrs - 创建目录时要自动设置的文件属性的可选列表。
+		创建新目录。检查文件是否存在以及是否创建目录（如果不存在）是对可能影响目录的所有其他文件系统活动的原子操作。如果需要先创建所有不存在的父目录，则应使用createDirectories方法。
+		attrs参数是可选的文件属性，可以在创建目录时自动设置。每个属性都由其名称标识。如果数组中包含多个相同名称的属性，则忽略除最后一次出现的属性以外的所有属性。
+		返回目录。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			FileAlreadyExistsException 如果由于同名文件已存在而无法创建目录（可选的特定异常）。
+			IOException 如果发生I/O错误或父目录不存在。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对新目录的写访问。
+	createFile(Path path, FileAttribute<?>... attrs):static Path 
+		path - 要创建的文件的路径。
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		创建一个新的空文件，如果该文件已存在则失败。检查文件是否存在，如果新文件不存在，则创建新文件是对可能影响目录的所有其他文件系统活动的原子操作。
+		attrs参数是可选的文件属性，可以在创建文件时自动设置。每个属性都由其名称标识。如果数组中包含多个相同名称的属性，则忽略除最后一次出现的属性以外的所有属性。
+		返回创建的文件。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含一个不能在创建文件时原子性设置的属性。
+			FileAlreadyExistsException 如果该名称的文件已经存在（可选的特定异常）。
+			IOException 如果发生I/O错误或父目录不存在。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对新文件的写访问。
+	createLink(Path link, Path existing):static Path 
+		link - 要创建的链接（目录条目）。
+		existing - 已存在文件的路径。
+		为现有文件创建新链接（目录项）（可选操作）。
+		link参数定位要创建的目录条目。existing参数是已存在文件的路径。此方法为文件创建一个新的目录条目，以便可以使用链接作为路径访问该文件。在一些文件系统中，这被称为创建一个“硬链接”。文件属性是为文件还是为每个目录条目维护的，都是文件系统特定的，因此没有指定。通常，文件系统要求文件的所有链接（目录条目）都在同一文件系统上。此外，在一些平台上，Java虚拟机可能需要从实现特定的特权开始创建硬链接或创建指向目录的链接。
+		返回链接的路径（目录条目）。
+		【Throws】：
+			UnsupportedOperationException 如果实现不支持将已存在文件添加到目录。
+			FileAlreadyExistsException 如果由于同名文件已存在而无法创建条目（可选的特定异常）.
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则拒绝LinkPermission("hard")或其checkWrite方法拒绝对链接或现有文件的写访问。
+	createSymbolicLink(Path link, Path target,FileAttribute<?>... attrs):static Path 
+		link - 要创建的符号链接的路径。
+		target - 符号链接的目标。
+		attrs - 创建符号链接时要自动设置的属性数组。
+		创建指向目标的符号链接（可选操作）。
+		target参数是链接的目标。它可能是绝对路径或相对路径，也可能不存在。当目标是相对路径时，结果链接上的文件系统操作相对于链接的路径。
+		attrs参数是在创建链接时原子设置的可选属性。每个属性都由其名称标识。如果数组中包含多个相同名称的属性，则忽略除最后一次出现的属性以外的所有属性。
+		如果支持符号链接，但底层文件存储不支持符号链接，则这可能会失败，并出现IOException异常。此外，一些操作系统可能要求Java虚拟机以实现特定的特权开始创建符号链接，在这种情况下，该方法可以是抛出IOException异常。
+		返回符号链接的路径。
+		【Throws】：
+			UnsupportedOperationException 如果实现不支持符号链接，或者数组包含在创建符号链接时不能自动设置的属性。
+			FileAlreadyExistsException 如果文件的名称已存在（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装了安全管理器，它拒绝LinkPermission("symbolic")或其checkWrite方法拒绝对符号链接路径的写入访问。
+	createTempDirectory(String prefix,FileAttribute<?>... attrs):static Path 
+		prefix - 用于生成目录名称的前缀字符串；可以为null。
+		attrs - 创建目录时要自动设置的文件属性的可选列表。
+		在默认临时文件目录中创建一个新目录，使用给定的前缀生成其名称。结果路径与默认文件系统相关联。
+		对于dir参数为临时文件目录的情况，此方法的工作方式与createTempDirectory(Path,String,FileAttribute[])方法指定的方式完全相同。
+		返回调用此方法之前不存在的新创建目录的路径。
+		【Throws】：
+			IllegalArgumentException 如果前缀不能用于生成候选目录名。
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			IOException 如果发生I/O错误或临时文件目录不存在。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么在创建目录时会调用checkWrite方法来检查写访问权限。
+	createTempDirectory(Path dir,String prefix,FileAttribute<?>... attrs):static Path 
+		dir - 创建目录的目录路径。
+		prefix - 用于生成目录名称的前缀字符串；可以为null。
+		attrs - 创建目录时要自动设置的文件属性的可选列表。
+		在指定目录中创建一个新目录，使用给定的前缀生成其名称。结果路径与给定目录的文件系统相关联。
+		有关如何构造目录名的详细信息取决于实现，因此未指定。在可能的情况下，前缀用于构造候选名称。
+		与createTempFile方法一样，此方法只是临时文件工具的一部分。可以使用停机钩子或File.deleteOnExit()机制自动删除目录。
+		attrs参数是可选的文件属性，可以在创建目录时自动设置。每个属性都由其名称标识。如果数组中包含多个相同名称的属性，则忽略除最后一次出现的属性以外的所有属性。
+		返回调用此方法之前不存在的新创建目录的路径。
+		【Throws】：
+			IllegalArgumentException 如果前缀不能用于生成候选目录名。
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			IOException 如果发生I/O错误或临时文件目录不存在。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么在创建目录时会调用checkWrite方法来检查写访问权限。
+	createTempFile(String prefix,String suffix,FileAttribute<?>... attrs):static Path 
+		prefix - 用于生成文件名的前缀字符串；可以为null。
+		suffix - 生成文件名时使用的后缀字符串；可以为null，在这种情况下使用“.tmp”
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		在默认临时文件目录中创建一个空文件，使用给定的前缀和后缀生成其名称。生成的路径与默认文件系统关联。
+		对于dir参数是临时文件目录的情况，此方法的工作方式与createTempFile(Path,String,String,FileAttribute[])方法指定的方式完全相同。
+		返回调用此方法之前不存在的新创建文件的路径。
+		【Throws】：
+			IllegalArgumentException 如果前缀或后缀参数不能用于生成候选文件名。
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			IOException 如果发生I/O错误或临时文件目录不存在。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。
+	createTempFile(Path dir,String prefix,String suffix,FileAttribute<?>... attrs):static Path 
+		dir - 创建文件的目录路径。
+		prefix - 用于生成文件名的前缀字符串；可以为null。
+		suffix - 生成文件名时使用的后缀字符串；可以为null，在这种情况下使用“.tmp”
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		在指定目录中创建新的空文件，使用给定的前缀和后缀字符串生成其名称。结果路径与给定目录的文件系统相关联。
+		有关如何构造文件名的详细信息取决于实现，因此未指定。在可能的情况下，前缀和后缀用于以与File.createTempFile(String,String,File)方法相同的方式构造候选名称。
+		与File.createTempFile方法一样，此方法只是临时文件设施的一部分。如果用作工作文件，则可以使用DELETE_ON_CLOSE选项打开生成的文件，以便在调用适当的close方法时删除文件。或者，可以使用停机钩子或File.deleteOnExit()机制自动删除文件。
+		attrs参数是可选的文件属性，可以在创建文件时自动设置。每个属性都由其名称标识。如果数组中包含多个相同名称的属性，则忽略除最后一次出现的属性以外的所有属性。如果未指定文件属性，则生成的文件可能对由File.createTempFile(String,String,File)方法创建的文件具有更严格的访问权限。
+		返回调用此方法之前不存在的新创建文件的路径。
+		【Throws】：
+			IllegalArgumentException 如果前缀或后缀参数不能用于生成候选文件名。
+			UnsupportedOperationException 如果数组包含在创建目录时不能自动设置的属性。
+			IOException 如果发生I/O错误或dir不存在。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。
+	delete(Path path):static void 
+		path - 要删除的文件的路径。
+		删除文件。
+		实现可能需要检查文件以确定文件是否是目录。因此，对于其他文件系统操作，此方法可能不是原子的。如果文件是符号链接，则符号链接本身（而不是链接的最终目标）将被删除。
+		如果文件是目录，则目录必须为空。在某些实现中，目录包含在创建目录时创建的特殊文件或链接的条目。在这种实现中，当只有特殊条目存在时，目录被认为是空的。此方法可与walkFileTree方法一起使用，以删除目录和目录中的所有条目，或者在需要时删除整个文件树。
+		在某些操作系统中，当该Java虚拟机或其他程序打开和使用时，不可能删除文件。
+		【Throws】：
+			NoSuchFileException 如果文件不存在（可选的特定异常）。
+			DirectoryNotEmptyException 如果该文件是一个目录，并且由于该目录不为空而无法删除（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装安全管理器时，调用SecurityManager.checkDelete(String)方法来检查对文件的删除访问。
+	deleteIfExists(Path path):static boolean 
+		path - 要删除的文件的路径。
+		删除文件（如果存在）。
+		与delete(Path)方法一样，实现可能需要检查文件以确定文件是否是目录。因此，对于其他文件系统操作，此方法可能不是原子的。如果文件是符号链接，那么符号链接本身（而不是链接的最终目标）将被删除。
+		如果文件是目录，则目录必须为空。在某些实现中，目录包含在创建目录时创建的特殊文件或链接的条目。在这种实现中，当只有特殊条目存在时，目录被认为是空的。
+		在某些操作系统中，当该Java虚拟机或其他程序打开和使用时，不可能删除文件。
+		【Throws】：
+			DirectoryNotEmptyException 如果该文件是一个目录，并且由于该目录不为空而无法删除（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装安全管理器时，调用SecurityManager.checkDelete(String)方法来检查对文件的删除访问。
+	exists(Path path, LinkOption... options):static boolean 
+		path - 要测试的文件的路径.
+		options - 指示如何处理符号链接的选项。
+		测试文件是否存在。
+		options参数可以用来指示对于文件是符号链接的情况下如何处理符号链接。默认情况下，符号链接随后出现。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		请注意，此方法的结果即将过时而被淘汰。如果此方法指示文件存在，则无法保证子序列访问将成功。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在，则返回true；如果文件不存在或无法确定其存在，则返回false。
+		【Throws】：
+			SecurityException 对于默认提供程序，调用SecurityManager.checkRead(String)检查对文件的读取访问。
+	find(Path start,int maxDepth,BiPredicate<Path, BasicFileAttributes> matcher,FileVisitOption... options):static Stream<Path> 
+		start - 起始文件。
+		maxDepth - 要搜索的目录级别的最大数目。
+		matcher - 用于确定文件是否应包含在返回的流中的函数。
+		options - 配置遍历的选项。
+		通过在文件树中搜索根位于给定起始文件的文件，返回一个用路径惰性填充的流。
+		此方法以walk方法指定的方式精确地遍历文件树。对于遇到的每个文件，给定的BiPredicate用它的Path和BasicFileAttributes调用。Path对象是通过对start解析相对路径获得的，并且仅当BiPredicate返回true时才包含在返回的流中。与对walk方法返回的流调用filter相比，通过避免对BasicFileAttributes的冗余检索，该方法可能更有效。
+		返回的流封装了一个或多个DirectoryStream。如果需要及时处理文件系统资源，则应使用try-with-resources结构确保在流操作完成后调用流的close方法。在封闭流上操作将导致UncheckedIOException异常。
+		返回路径流。
+		【Throws】：
+			IllegalArgumentException 如果maxDepth参数为负。
+			SecurityException 如果安全管理器拒绝访问启动文件。对于默认提供程序，调用checkRead方法检查对目录的读取访问。
+			IOException 如果在访问启动文件时引发I/O错误。
+	getAttribute(Path path, String attribute,LinkOption... options):static Object 
+		path - 文件的路径。
+		attribute - 要读取的属性。
+		options - 指示如何处理符号链接的选项。
+		读取文件属性的值。
+		attribute参数标识要读取的属性并采用以下形式：
+			[view-name:]attribute-name
+		方括号[…]勾画出一个可选的成分，字符“：”代表着它自己。
+		view-name是用于标识一组文件属性的FileAttributeView的名称。如果未指定，则默认为“basic”，即文件属性视图的名称，用于标识许多文件系统通用的基本文件属性集。attribute-name是属性的名称。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		用法案例：假设在支持“unix”视图的系统上需要文件所有者的用户ID：
+		    Path path = ...
+    		int uid = (Integer)Files.getAttribute(path, "unix:uid");
+    	返回属性值。
+    	【Throws】：
+			UnsupportedOperationException 如果属性视图不可用。
+			IllegalArgumentException 如果未指定或无法识别属性名。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
+	getFileAttributeView(Path path,Class<V> type,LinkOption... options):static <V extends FileAttributeView> V 
+		<V> - FileAttributeView类型。
+		path - 文件的路径。
+		type - 与文件属性视图对应的类对象。
+		options - 指示如何处理符号链接的选项。
+		返回给定类型的文件属性视图。
+		文件属性视图提供一组文件属性的只读或可更新视图。此方法用于文件属性视图定义类型安全方法以读取或更新文件属性的位置。type参数是所需属性视图的类型，如果支持，该方法将返回该类型的实例。BasicFileAttributeView类型支持访问文件的基本属性。调用此方法以选择该类型的文件属性视图将始终返回该类的实例。
+		选项数组可用于指示当文件是符号链接时，结果文件属性视图如何处理符号链接。默认情况下，符号链接随后出现。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。不支持符号链接的实现将忽略此选项。
+		用法示例：假设我们希望读取或设置文件的ACL，如果支持：
+		     Path path = ...
+		     AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
+		     if (view != null) {
+		         List<AclEntry> acl = view.getAcl();
+		         :
+		     }	
+		返回指定类型的文件属性视图，如果属性视图类型不可用，则返回null。	
+	getFileStore(Path path):static FileStore 
+		path - 文件的路径。
+		返回表示文件所在的文件存储区的FileStore。
+		一旦获得了对FileStore的引用，如果对返回的FileStore或从中获得的FileStoreAttributeView对象的操作继续依赖于文件的存在，则该操作是特定于实现的。尤其是，对于文件被删除或移动到其他文件存储区的情况，没有定义该行为。
+		返回存储文件的文件存储区。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkRead方法来检查对文件的读取权限，此外还会检查RuntimePermission ("getFileStoreAttributes")。
+	getLastModifiedTime(Path path, LinkOption... options):static FileTime 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		返回文件的最近修改时间。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		返回表示文件最近修改时间的FileTime，或表示文件系统不支持最近修改时间的时间戳时的特定于实现的默认值。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
+	getOwner(Path path, LinkOption... options):static UserPrincipal 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		返回文件的所有者。
+		path参数与支持FileOwnerAttributeView的文件系统关联。此文件属性视图提供对文件所有者的文件属性的访问。
+		返回代表文件所有者的用户主体。
+		【Throws】：
+			UnsupportedOperationException 如果关联的文件系统不支持文件所有者属性视图。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则拒绝RuntimePermission("accessUserInformation")或其checkRead方法拒绝对文件的读取访问。
+	getPosixFilePermissions(Path path,LinkOption... options):static Set<PosixFilePermission> 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		返回文件的POSIX文件权限。
+		path参数与支持PosixFileAttributeView的FileSystem相关联。此属性视图提供对文件属性的访问，这些属性通常与实现可移植操作系统接口（POSIX）系列标准的操作系统使用的文件系统上的文件关联。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		返回文件权限。
+		【Throws】：
+			UnsupportedOperationException 如果关联的文件系统不支持PosixFileAttributeView
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserInformation")或其checkRead方法拒绝对文件的读取访问。
+	isDirectory(Path path, LinkOption... options):static boolean 
+		path -要测试的文件的路径。
+		options - 指示如何处理符号链接的选项。
+		测试文件是否为目录。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		如果需要将I/O异常与文件不是目录的情况区分开来，那么可以使用readAttributes方法读取文件属性，并使用BasicFileAttributes.isDirectory()方法测试文件类型。
+		如果文件是目录，则返回true；如果文件不存在，则返回false；如果文件不是目录，则无法确定文件是否为目录。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
+	isExecutable(Path path):static boolean 
+		path - 要检查的文件的路径。
+		测试文件是否可执行。此方法检查文件是否存在，并且该Java虚拟机具有适当的特权来执行文件。检查对目录的访问时，语义可能不同。例如，在UNIX系统上，检查执行访问是否检查Java虚拟机具有访问目录的权限，以便访问文件或子目录。
+		根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。因此，对于其他文件系统操作，此方法可能不是原子的。
+		请注意，此方法的结果即将淘汰，无法保证随后执行文件的尝试将成功（甚至无法保证它将访问同一文件）。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在且可执行则返回true，否则返回false；如果文件不存在，则执行访问将被拒绝，因为Java虚拟机没有足够的权限，或者无法确定访问权限。
+		【Throws】：
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkExec来检查对文件的执行访问权限。
+	isHidden(Path path):static boolean 
+		path - 要测试的文件的路径。
+		指示是否将文件视为隐藏文件。隐藏的确切定义取决于平台或提供程序。例如，在UNIX上，如果文件名以句点字符（“.”）开头，则认为该文件是隐藏的。在Windows上，如果文件不是目录，并且设置了DOS隐藏属性，则认为该文件是隐藏的。
+		根据实现，该方法可能需要访问文件系统，以确定文件是否被认为是隐藏的。
+		如果文件被视为隐藏，则返回true。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	isReadable(Path path):static boolean 
+		path - 要检查的文件的路径。
+		测试文件是否可读。此方法检查文件是否存在，并且该Java虚拟机具有允许其打开文件进行读取的适当权限。根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。因此，对于其他文件系统操作，此方法可能不是原子的。
+		请注意，此方法的结果立即过时，无法保证随后打开文件进行读取的尝试将成功（甚至无法保证它将访问同一文件）。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在且是可读的，则返回true；如果文件不存在，则返回false，因为Java虚拟机权限不足，否则无法读取读取访问权限，或者无法确定访问权限。
+		【Throws】：
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，则会调用checkRead来检查对文件的读取访问。
+	isRegularFile(Path path, LinkOption... options):static boolean 
+		path - 文件的路径。
+		options - 指示如何处理符号链接的选项。
+		测试文件是否为具有不透明内容的常规文件。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果存在选项NOFOLLOW_LINKS链接，则不遵循符号链接。
+		如果需要将I/O异常与文件不是常规文件的情况区分开来，则可以使用readAttributes方法读取文件属性，并使用BasicFileAttributes.isRegularFile()方法测试文件类型。
+		如果文件是常规文件，则返回true；如果文件不存在，如果文件不是常规文件，则无法确定该文件是否为常规文件，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
+	isSameFile(Path path, Path path2):static boolean 
+		path - 文件的一个路径.
+		path2 - 另外一个路径。
+		测试两条路径是否定位同一文件。
+		如果两个path对象都相等，则此方法返回true，而不检查文件是否存在。如果两个路径对象与不同的提供器相关联，则此方法返回false。否则，此方法检查两个路径对象是否都定位到同一个文件，根据实现的不同，可能需要打开或访问这两个文件。
+		如果文件系统和文件保持静态（static），则此方法实现非空（non-null）Path的等价关系。
+			● 它是反身的：对于路径f，isSameFile(f,f) 应该返回true。
+			● 它是对称的：对于两个路径f和g，isSameFile(f,g)将等于isSameFile(g,f)。
+			● 它是可传递的：对于三条路径f、g和h，如果isSameFile(f,g)返回true，而isSameFile(g,h)返回true，则isSameFile(f,h)将返回true。
+		如果且仅当两个路径定位同一文件时返回true。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对两个文件的读取访问。
+	isSymbolicLink(Path path):static boolean 
+		path - 文件的路径。
+		测试文件是否为符号链接。
+		如果需要将I/O异常与文件不是符号链接的情况区分开来，则可以使用readAttributes方法读取文件属性，并使用BasicFileAttributes.isSymbolicLink()方法测试文件类型。
+		如果文件是符号链接，则返回true；如果文件不存在；如果文件不是符号链接；或者无法确定文件是否为符号链接，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
+	isWritable(Path path):static boolean 
+		path - 要检查的文件的路径。
+		测试文件是否可写。此方法检查文件是否存在，并且该Java虚拟机具有允许其打开文件进行写入的适当权限。根据实现的不同，此方法可能需要读取文件权限、访问控制列表或其他文件属性，以检查对文件的有效访问。因此，对于其他文件系统操作，此方法可能不是原子的。
+		请注意，此方法的结果立即过时，无法保证随后打开文件进行写入的尝试将成功（甚至无法保证它将访问同一文件）。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件存在且可写，则返回true；如果文件不存在，将拒绝写入访问，因为Java虚拟机没有足够的权限，或者无法确定访问权限，则返回false。
+		【Throws】：
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则会调用checkWrite来检查对文件的写访问。
+	lines(Path path):static Stream<String> 
+		path - 文件的路径。
+		将文件中的所有行作为流读取。文件中的字节使用UTF-8字符集解码为字符。
+		此方法的工作方式就像调用以下等同于计算表达式：
+			Files.lines(path, StandardCharsets.UTF_8);
+		返回文件中作为流的行。
+		【Throws】：
+			IOException 如果打开文件时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	lines(Path path, Charset cs):static Stream<String> 
+		path - 文件的路径。
+		cs - 用于解码的字符集。
+		将文件中的所有行作为流读取。与readAllLines不同，此方法不将所有行读取到列表中，而是在使用流时惰性地填充。
+		使用指定的字符集将文件中的字节解码为字符，并支持readAllLines指定的相同行终止符。
+		此方法返回后，在从文件中读取或读取格式不正确或不可映射的字节序列时发生的任何后续I/O异常都将包装在一个UncheckedIOException中，该异常将从导致读取发生的流方法中引发。如果在关闭文件时引发IOException，它也将被包装为UncheckedIOException异常。
+		返回的流封装了一个读取器。如果需要及时处理文件系统资源，则应使用try-with-resources结构确保在流操作完成后调用流的close方法。
+		返回文件中作为流的行。
+		【Throws】：
+			IOException 如果打开文件时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	list(Path dir):static Stream<Path> 
+		dir - 目录的路径。
+		返回一个延迟填充的流，其中的元素是目录中的条目。列表不是递归的。
+		流的元素是路径对象，通过对dir解析目录条目的名称来获取。一些文件系统维护到目录本身和目录的父目录的特殊链接。不包括表示这些链接的条目。
+		流是弱一致性。它是线程安全的，但在迭代时不会冻结目录，因此它可能（或不可能）反映从该方法返回后发生的对目录的更新。
+		返回的流封装了DirectoryStream。如果需要及时处理文件系统资源，则应使用try-with-resources结构确保在流操作完成后调用流的close方法。
+		在已关闭的流上操作的行为就像已到达流的结尾一样。由于预读的原因，流关闭后可能返回一个或多个元素。
+		如果在返回此方法后访问目录时引发IOException异常，它将被包装在一个UncheckedIOException中，该异常将从导致访问发生的方法中引发。
+		返回描述目录内容的流
+		【Throws】：
+			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
+			IOException 如果在打开目录时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对目录的读取访问。
+	move(Path source, Path target, CopyOption... options):static Path 
+		source - 要移动的文件的路径。
+		target - 目标文件的路径（可能与源路径的其他提供程器关联）。
+		options - 指定移动方式的选项。
+		将文件移动或重命名为目标文件。
+		默认情况下，此方法尝试将文件移动到目标文件，如果目标文件存在，则失败，除非源文件和目标文件相同，在这种情况下，此方法不起作用。如果文件是符号链接，则符号链接本身（而不是链接的目标）将被移动。可以调用此方法来移动空目录。在某些实现中，目录包含在创建目录时创建的特殊文件或链接的条目。在这种实现中，当只有特殊条目存在时，目录被认为是空的。当调用move方法移动非空目录时，如果不需要移动目录中的条目，则会移动该目录。例如，重命名同一文件存储（FileStore）上的目录通常不需要移动目录中的条目。当移动目录要求移动其条目时，此方法将失败（通过引发IOException异常）。要移动文件树，可能需要复制而不是移动目录，这可以使用copy方法和Files.walkFileTree实用程序方法来完成。
+		选项参数可以包括以下任何一项：
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 Option													Description
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 REPLACE_EXISTING		如果目标文件存在，那么如果目标文件不是非空目录，则会替换它。如果目标文件存在并且是符号链接，那么符号链接本身（而不是链接的目标）将被替换。
+		 ATOMIC_MOVE			移动是作为原子文件系统操作执行的，所有其他选项都将被忽略。如果目标文件存在，那么如果替换现有文件或此方法通过引发IOException异常而失败，则该文件是特定于实现的。如果移动不能作为原子文件系统操作执行，则会引发AtomicMoveNotSupportedException异常。例如，当目标位置位于不同的文件存储（FileStore）中并且需要复制文件时，或者目标位置与此对象的其他提供器相关联时，就会出现这种情况。
+		————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		此接口的实现可能支持其他特定于实现的选项。
+		如果源文件存储和目标文件存储都支持，移动文件将把上次修改的时间复制到目标文件。复制文件时间戳可能会导致精度损失。实现还可以尝试复制其他文件属性，但如果无法复制文件属性，则不需要失败。当移动作为非原子操作执行，并且引发IOException异常时，则不定义文件的状态。原始文件和目标文件可能都存在，目标文件可能不完整，或者其某些文件属性可能未从原始文件复制。
+		用法案例：假设我们要将文件重命名为“newname”，使文件保持在同一目录中：
+		     Path source = ...
+		     Files.move(source, source.resolveSibling("newname"));		
+		或者，假设我们希望将一个文件移动到新目录，保持相同的文件名，并替换目录中该名称的任何现有文件：
+		     Path source = ...
+		     Path newdir = ...
+		     Files.move(source, newdir.resolve(source.getFileName()), REPLACE_EXISTING);	
+		返回目标文件的路径。
+		【Throws】：
+			UnsupportedOperationException 如果数组包含不受支持的复制选项。
+			FileAlreadyExistsException 如果目标文件存在但由于未指定REPLACE_EXISTING选项而无法替换（可选的特定异常）。
+			DirectoryNotEmptyException 指定了REPLACE_EXISTING选项，但无法替换该文件，因为它是一个非空目录（可选的特定异常）。
+			AtomicMoveNotSupportedException 如果选项数组包含ATOMIC_MOVE选项，但文件不能作为原子文件系统操作移动。
+			IOException 如果发生I/O错误。
+			SecurityException 在安装了默认提供器和安全管理器的情况下，将调用checkWrite方法来检查对源文件和目标文件的写访问。	
+	newBufferedReader(Path path):static BufferedReader
+		path - 文件的路径。
+		打开要读取的文件，返回BufferedReader以高效的方式读取文件中的文本。文件中的字节使用UTF-8字符集解码为字符。
+		此方法的工作方式等同于以下计算表达式：
+			Files.newBufferedReader(path, StandardCharsets.UTF_8);
+		返回新的缓冲读取器，使用默认缓冲区大小从文件中读取文本。
+		【Throws】：
+			IOException 如果打开文件时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	newBufferedReader(Path path, Charset cs):static BufferedReader 
+		path - 文件的路径。
+		cs - 用于解码的字符集。
+		打开一个文件进行读取，返回一个缓冲读取器，该读取器可用于高效地从文件中读取文本。文件中的字节将使用指定的字符集解码为字符。读取从文件开头开始。
+		如果读取的字节序列格式不正确或不可映射，则从文件中读取的Reader方法将引发IOException异常。
+		返回新的缓冲读取器，使用默认缓冲区大小从文件中读取文本。
+		【Throws】：
+			IOException 如果打开文件时发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	newBufferedWriter(Path path, Charset cs,OpenOption... options):static BufferedWriter 
+		path - 文件的路径。
+		cs - 用于编码的字符集。
+		options - 指定文件打开方式的选项。
+		打开或创建要写入的文件，返回可用于以有效方式将文本写入文件的BufferedWriter。options参数指定如何创建或打开文件。如果不存在任何选项，则此方法的工作方式与CREATE、TRUNCATE_EXISTING和WRITE选项的工作方式相同。换句话说，它打开文件进行写入，如果不存在则创建该文件，如果存在则最初将现有常规文件截断为0大小。
+		如果无法使用指定的字符集对文本进行编码，则写入文本的Writer方法将引发IOException异常。
+		返回新的缓冲写入器，使用默认缓冲区大小将文本写入文件。
+		【Throws】：
+			IOException 如果打开或创建文件时发生I/O错误。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。
+	newBufferedWriter(Path path, OpenOption... options):static BufferedWriter
+		path - 文件的路径。
+		options - 指定文件打开方式的选项。
+		打开或创建要写入的文件，返回BufferedWriter以高效的方式将文本写入文件。文本被编码成字节，以便使用UTF-8字符集进行写入。
+		此方法的工作方式就像调用等同于计算表达式：
+			Files.newBufferedWriter(path, StandardCharsets.UTF_8, options);
+		返回新的缓冲写入器，使用默认缓冲区大小将文本写入文件。
+		【Throws】：
+			IOException 如果打开或创建文件时发生I/O错误。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。
+	newByteChannel(Path path, OpenOption... options):static SeekableByteChannel 
+		path - 文件的路径。
+		options - 指定文件打开方式的选项。
+		打开或创建文件，返回可查找的字节通道以访问该文件。
+		此方法以newByteChannel方法指定的方式打开或创建文件。
+		返回一种新的可查找字节通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不受支持的打开选项。
+			FileAlreadyExistsException 如果该名称的文件已经存在，并且指定了CREATE_NEW选项（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则会调用checkRead方法来检查打开文件进行读取时对路径的读取访问。如果打开文件进行写入，则调用checkWrite方法检查对路径的写入访问权。如果文件是用DELETE_ON_CLOSE选项打开的，则调用checkDelete方法来检查删除权限。
+	newByteChannel(Path path,Set<? extends OpenOption> options,FileAttribute<?>... attrs):static SeekableByteChannel
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		attrs - 创建文件时要自动设置的文件属性的可选列表。
+		打开或创建文件，返回可查找的字节通道以访问该文件。
+		options参数决定如何打开文件。READ和WRITE选项决定是否打开文件进行读和/或写。如果两个选项（或APPEND选项）都不存在，则打开文件进行读取。默认情况下，读取或写入从文件开头开始。
+		除了READ和WRITE选项之外，还可能存在以下选项：
+		———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 Option															Description
+		———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		 APPEND							如果存在此选项，则打开文件进行写入，每次调用通道的写入方法时，首先将位置前进到文件的末尾，然后写入请求的数据。位置的提升和数据的写入是在单个原子操作中完成的，这取决于系统，因此不明确。此选项不能与READ或TRUNCATE_EXISTING选项一起使用。
+		 TRUNCATE_EXISTING				如果存在此选项，则现有文件将被截断为0字节的大小。当只打开文件进行读取时，忽略此选项。
+		 CREATE_NEW						如果存在此选项，则会创建一个新文件，如果该文件已存在或是符号链接，则会失败。在创建文件时，对于其他文件系统操作，检查文件是否存在以及是否创建了不存在的文件是原子的。当只打开文件进行读取时，忽略此选项。
+		 CREATE							如果存在此选项，则打开已存在的文件（如果存在），否则将创建新文件。如果还存在CREATE_NEW选项或只打开文件进行读取，则忽略此选项。
+		 DELETE_ON_CLOSE				当存在此选项时，实现将尽最大努力在使用close方法关闭时删除文件。如果没有调用close方法，那么当Java虚拟机终止时，尽力做出删除文件的尝试。
+		 SPARSE							创建新文件时，此选项提示新文件将是稀疏文件。不创建新文件时忽略此选项。
+		 SYNC							要求对文件内容或元数据的每次更新都同步写入底层存储设备。（请参见同步I/O文件完整性）。
+		 DSYNC							要求对文件内容的每个更新都同步写入底层存储设备。（请参见同步I/O文件完整性）。
+		———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+		实现还可以支持其他特定于实现的选项。
+		attrs参数是可选的文件属性，可以在创建新文件时自动设置。
+		对于默认提供器，返回的可查找字节通道是FileChannel。
+		使用实例：
+		     Path path = ...		
+		     // open file for reading
+		     ReadableByteChannel rbc = Files.newByteChannel(path, EnumSet.of(READ)));		
+		     // open file for writing to the end of an existing file, creating
+		     // the file if it doesn't already exist
+		     WritableByteChannel wbc = Files.newByteChannel(path, EnumSet.of(CREATE,APPEND));		
+		     // create file with initial permissions, opening it for both reading and writing
+		      FileAttribute<Set<PosixFilePermission>> perms = ...
+		     SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(CREATE_NEW,READ,WRITE), perms);
+		返回一种新的可查找字节通道。
+		【Throws】：
+			IllegalArgumentException 如果集合包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不受支持的打开选项。
+			FileAlreadyExistsException 如果该名称的文件已经存在，并且指定了CREATE_NEW选项（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，则会调用checkRead方法来检查打开文件进行读取时对路径的读取访问。如果打开文件进行写入，则调用checkWrite方法检查对路径的写入访问权。如果文件是用DELETE_ON_CLOSE选项打开的，则调用checkDelete方法来检查删除权限。	
+	newDirectoryStream(Path dir):static DirectoryStream<Path> 
+		dir - 目录的路径。
+		打开一个目录，返回一个DirectoryStream来迭代目录中的所有条目。目录流迭代器返回的元素属于Path类型，每个元素表示目录中的一个条目。路径对象是通过对dir解析目录条目的名称来获取的。
+		如果不使用try-with-resources结构，则应在迭代完成后调用目录流的close方法，以释放为打开目录保留的任何资源。
+		当一个实现支持对目录中以无争用方式执行的条目执行操作时，返回的目录流是一个SecureDirectoryStream。
+		返回新的并打开的DirectoryStream对象。
+		【Throws】：
+			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对目录的读取访问。
+	newDirectoryStream(Path dir, String glob):static DirectoryStream<Path> 
+		dir - 目录的路径。
+		glob - 全局模式。
+		打开一个目录，返回DirectoryStream以迭代目录中的条目。目录流迭代器返回的元素属于Path类型，每个元素表示目录中的一个条目。路径对象是通过对dir解析目录条目的名称来获取的。迭代器返回的条目通过将其文件名的字符串表示形式与给定的全局模式匹配来进行筛选。
+		例如，假设我们想对目录中的“.java”结尾的文件进行迭代：
+		     Path dir = ...
+		     try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.java")) {
+		         :
+		     }		
+		全局模式由getPathMatcher方法指定。
+		如果不使用try-with-resources结构，则应在迭代完成后调用目录流的close方法，以释放为打开目录保留的任何资源。
+		当一个实现支持对目录中以无争用方式执行的条目执行操作时，返回的目录流是一个SecureDirectoryStream。
+		返回新的并打开的DirectoryStream对象。
+		【Throws】：
+			PatternSyntaxException 如果模式无效。
+			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器（provider），并且安装了安全管理器，那么将调用checkRead方法来检查对目录的读取访问。
+	newDirectoryStream(Path dir,DirectoryStream.Filter<? super Path> filter):static DirectoryStream<Path> 
+		dir - 目录的路径。
+		filter - 目录流过滤器。
+		打开一个目录，返回DirectoryStream以迭代目录中的条目。目录流迭代器返回的元素属于Path类型，每个元素表示目录中的一个条目。路径对象是通过对dir解析目录条目的名称来获取的。迭代器返回的条目由给定的过滤器过滤。
+		如果不使用try-with-resources结构，则应在迭代完成后调用目录流的close方法，以释放为打开目录保留的任何资源。
+		如果过滤器由于未捕获的错误或运行时异常而终止，那么它将传播到hasNext或next方法。如果引发IOException，则会导致hasNext或next方法引发以IOException为原因的DirectoryIteratorException异常。
+		当一个实现支持对目录中以无争用方式执行的条目执行操作时，返回的目录流是一个SecureDirectoryStream。
+		用法案例：假设我们想迭代一个大于8K的目录中的文件。
+		     DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+		         public boolean accept(Path file) throws IOException {
+		             return (Files.size(file) > 8192L);
+		         }
+		     };
+		     Path dir = ...
+		     try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, filter)) {
+		         :
+		     }	
+		返回新的并打开的DirectoryStream对象。
+		【Throws】：
+			NotDirectoryException 如果由于文件不是目录而无法打开（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器（provider），并且安装了安全管理器，那么将调用checkRead方法来检查对目录的读取访问。		
+	newInputStream(Path path, OpenOption... options):static InputStream 
+		path - 要打开的文件的路径。
+		options - 指定文件打开方式的选项。
+		打开文件，返回要从文件中读取的输入流。流不会被缓冲，也不需要支持mark或reset方法。流对于多个并发线程的访问是安全的。读取从文件开头开始。返回的流是否可以异步关闭和/或中断是高度特定于文件系统提供器的，因此没有指定。
+		options参数决定如何打开文件。如果没有选项，则相当于使用READ选项打开文件。除了READ选项外，实现还可以支持其他特定于实现的选项。
+		返回新的输入流。
+		【Throws】：
+			IllegalArgumentException 如果指定的选项组合无效。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	newOutputStream(Path path, OpenOption... options):static OutputStream 
+		path - 要打开或创建的文件的路径。
+		options - 指定文件打开方式的选项。
+		打开或创建一个文件，返回一个输出流，该输出流可用于向该文件写入字节。结果流将不被缓冲。流对于多个并发线程的访问是安全的。返回的流是否可以异步关闭和/或中断是高度特定于文件系统提供器的，因此没有指定。
+		此方法以newByteChannel方法指定的方式打开或创建文件，但options数组中可能不存在READ选项。如果不存在任何选项，则此方法的工作方式与CREATE、TRUNCATE_EXISTING和WRITE选项的工作方式相同。换句话说，它打开文件进行写入，如果不存在则创建该文件，如果存在则最初将现有常规文件截断为0大小。
+		使用实例：
+		     Path path = ...		
+		     // truncate and overwrite an existing file, or create the file if
+		     // it doesn't initially exist
+		     OutputStream out = Files.newOutputStream(path);		
+		     // append to an existing file, fail if the file does not exist
+		     out = Files.newOutputStream(path, APPEND);		
+		     // append to an existing file, create file if it doesn't initially exist
+		     out = Files.newOutputStream(path, CREATE, APPEND);		
+		     // always create new file, failing if it already exists
+		     out = Files.newOutputStream(path, CREATE_NEW);
+		返回新的输出流。
+		【Throws】：
+			IllegalArgumentException 如果选项包含无效的选项组合。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			IOException 如果发生I/O错误。
+			SecurityException  如果是默认的提供器，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。如果文件是用DELETE_ON_CLOSE选项打开的，则调用checkDelete方法来检查删除权限。
+	notExists(Path path, LinkOption... options):static boolean 
+		path - 要测试的文件的路径。
+		options - 指示如何处理符号链接的选项。
+		测试此路径下的文件是否不存在。此方法适用于需要在确认文件不存在时采取行动的情况。
+		options参数可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，符号链接随后出现。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		请注意，此方法不是exists方法的补充。如果无法确定文件是否存在，则两个方法都返回false。与exists方法一样，此方法的结果立即过时。如果此方法指示文件确实存在，则无法保证创建文件的子序列尝试将成功。在安全敏感的应用程序中使用此方法时应小心。
+		如果文件不存在，则返回true；如果文件存在或无法确定其存在，则返回false。
+		【Throws】：
+			SecurityException  对于默认提供器，调用SecurityManager.checkRead(String)检查对文件的读取访问。
+	probeContentType(Path path):static String 
+		path - 要探测的文件的路径。
+		检测文件的内容类型。
+		此方法使用已安装的FileTypeDetector实现探测给定文件以确定其内容类型。依次调用每个文件类型检测器的probeContentType来探测文件类型。如果识别该文件，则返回内容类型。如果任何已安装的文件类型检测器都无法识别该文件，那么将调用系统默认文件类型检测器来猜测内容类型。
+		Java虚拟机的给定调用维护一个系统范围的文件类型检测器。安装的文件类型检测器是使用ServiceLoader类定义的服务提供器加载工具加载的。安装的文件类型检测器使用系统类加载器加载。如果找不到系统类加载器，则使用扩展类加载器；如果找不到扩展类加载器，则使用引导类加载器。文件类型检测器通常通过将其放置在应用程序类路径上的JAR文件中或扩展目录中来安装，JAR文件在资源目录META-INF/services中包含名为java.nio.file.spi.FileTypeDetector的提供器配置文件，该文件列出了具有零参数构造函数的FileTypeDetector。如果定位或实例化已安装的文件类型检测器的过程失败，则会引发未指定的错误。安装的提供器所在的顺序是特定于实现的。
+		此方法的返回值是由RFC2045:多用途Internet邮件扩展（MIME）第1部分：Internet邮件正文格式定义的多用途Internet邮件扩展（MIME）内容类型值的字符串形式。根据RFC中的语法，保证字符串是可解析的。
+		返回文件的内容类型，如果无法确定内容类型，则返回null。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果安装了安全管理器，并且拒绝文件类型检测器实现所需的未指定权限。
+	readAllBytes(Path path):static byte[] 
+		path - 文件的路径。
+		从文件中读取所有字节。该方法确保在读取所有字节或引发I/O错误或其他运行时异常时关闭文件。
+		请注意，此方法适用于方便将所有字节读取到字节数组中的简单情况。它不用于读取大文件。
+		返回包含从文件中读取的字节的字节数组。
+		【Throws】：
+			IOException 如果从流中读取时发生I/O错误。
+			OutOfMemoryError 如果无法分配所需大小的数组，例如该文件大于2GB。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	readAllLines(Path path):static List<String> 
+		path - 文件的路径。
+		从文件中读取所有行。文件中的字节使用UTF-8字符集解码为字符。
+		此方法的工作方式等同于计算表达式：
+			Files.readAllLines(path, StandardCharsets.UTF_8);
+		返回文件中作为列表的行；列表是否可修改取决于实现，因此未指定。
+		【Throws】：
+			IOException 如果从文件中读取时发生I/O错误，或者读取了格式错误或不可映射的字节序列。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	readAllLines(Path path, Charset cs):static List<String> 
+		path - 文件的路径。
+		cs - 用于解码的字符集。
+		从文件中读取所有行。此方法确保在读取所有字节或引发I/O错误或其他运行时异常时关闭文件。文件中的字节将使用指定的字符集解码为字符。
+		此方法将以下内容识别为行终止符：
+			● \u000D后接\u000A，回车（CARRIAGE RETURN）后接换行（LINE FEED）。
+			● \u000A, 换行（LINE FEED）。
+			● \u000D,回车（CARRIAGE RETURN）。
+		在将来的版本中，可能会识别其他的Unicode行终止符。
+		请注意，此方法适用于简单情况，在这种情况下，只需一次操作就可以方便地读取所有行。它不用于读取大文件。
+		返回文件中作为List的行；List是否可修改取决于实现，因此未指定。
+		【Throws】：
+			IOException 如果从文件中读取时发生I/O错误，或者读取了格式错误或不可映射的字节序列。
+			SecurityException 如果是默认的提供器，并且安装了安全管理器，那么将调用checkRead方法来检查对文件的读取访问。
+	readAttributes(Path path,Class<A> type,LinkOption... options):static <A extends BasicFileAttributes> A 
+		<A> - BasicFileAttributes类型。
+		path - 文件的路径。
+		type - 需要读取的文件属性的类。
+		options - 指示如何处理符号链接的选项。
+		作为批量操作读取文件的属性。
+		type参数是所需属性的类型，如果支持，此方法将返回该类型的实例。所有实现都支持一组基本的文件属性，因此使用BasicFileAttributes.class的type参数调用此方法不会引发UnsupportedOperationException异常。
+		options数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		如果所有文件属性都作为与其他文件系统操作相关的原子操作读取，那么它是特定于实现的。
+		用法案例：假设我们要批量读取文件的属性：
+			Path path = ...
+    		BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+    	或者，假设我们希望读取文件的posix属性，而不需要以下符号链接：
+    		PosixFileAttributes attrs = Files.readAttributes(path, PosixFileAttributes.class, NOFOLLOW_LINKS);
+    	返回文件属性。
+    	【Throws】：
+			UnsupportedOperationException 如果不支持给定类型的属性。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，调用其checkRead方法检查对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
+	readAttributes(Path path, String attributes,LinkOption... options):static Map<String,Object> 
+		path - 文件的路径。
+		attributes - 要读取的属性。
+		options - 指示如何处理符号链接的选项。
+		作为批量操作读取一组文件属性。
+		attributes参数标识要读取的属性，并采用以下形式：
+			[view-name:]attribute-list
+		其中方括号[…]表示可选组件，字符“：”表示其自身。
+		view-name是用于标识一组文件属性的FileAttributeView的名称。如果未指定，则默认为“basic”，即文件属性视图的名称，用于标识许多文件系统通用的基本文件属性集。
+		属性列表组件是由零个或多个要读取的属性名称组成的逗号分隔列表。如果列表包含值“*”，则读取所有属性。不支持的属性将被忽略，并且不会出现在返回的映射中。如果所有属性都作为与其他文件系统操作相关的原子操作读取，那么它是特定于实现的。
+		以下示例演示了attributes参数的可能值：
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————
+			"*"												读取所有基本文件属性。
+			"size,lastModifiedTime,lastAccessTime"			读取文件大小、上次修改时间和上次访问时间属性。
+			"posix:*"										读取所有POSIX-file-attributes。
+			"posix:permissions,owner,size"					读取POSIX文件权限、所有者和文件大小。
+		——————————————————————————————————————————————————————————————————————————————————————————————————————————	
+		options数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，后面跟着符号链接，并读取链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		返回的属性的映射；映射的键是属性名，其值是属性值。
+		【Throws】：
+			UnsupportedOperationException 如果属性视图不可用。
+			IllegalArgumentException 如果未指定属性或指定了无法识别的属性。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。如果调用此方法来读取安全敏感属性，则可以调用安全管理器来检查附加权限。
+	readSymbolicLink(Path link):static Path 
+		link - 符号链接的路径。
+		读取符号链接的目标（可选操作）。
+		如果文件系统支持符号链接，则使用此方法读取链接的目标，如果文件不是符号链接，则失败。链接的目标不需要存在。返回的路径对象将与链接的文件系统相关联。
+		返回表示链接目标的Path对象。
+		【Throws】：
+			UnsupportedOperationException 如果实现不支持符号链接。
+			NotLinkException 如果由于文件不是符号链接而无法读取目标（可选的特定异常）。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，如果安装了安全管理器，它将检查是否已通过“readlink”操作授予FilePermission以读取链接。
+	setAttribute(Path path, String attribute, Object value,LinkOption... options):static Path 
+		path - 文件的路径。
+		attribute - 要设置的属性。
+		value - 属性值。
+		options - 指示如何处理符号链接的选项。
+		设置文件属性的值。
+		属性参数标识要设置的属性并采用以下形式：
+			[view-name:]attribute-name
+		其中方括号[…]表示可选组件，字符“：”表示其自身。
+		view-name是用于标识一组文件属性的FileAttributeView的名称。如果未指定，则默认为“basic”，即文件属性视图的名称，用于标识许多文件系统通用的基本文件属性集。属性名是集合中属性的名称。
+		选项数组可用于指示在文件是符号链接的情况下如何处理符号链接。默认情况下，符号链接后接，并设置链接的最终目标的文件属性。如果选项NOFOLLOW_LINKS存在，则不遵循符号链接。
+		用法案例：假设我们要设置DOS“hidden”属性：
+		    Path path = ...
+		    Files.setAttribute(path, "dos:hidden", true);		
+		返回路径参数。
+		【Throws】：
+			UnsupportedOperationException 如果属性视图不可用。
+			IllegalArgumentException 如果未指定属性名，或无法识别，或属性值的类型正确，但值不正确。
+			ClassCastException 如果属性值不是所需类型，或者是包含不属于所需类型的元素的集合。
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供程序，并且安装了安全管理器，则其checkWrite方法会拒绝对文件的写访问。如果调用此方法来设置安全敏感属性，则可以调用安全管理器来检查附加权限。
+	setLastModifiedTime(Path path, FileTime time):static Path 
+		path - 文件的路径。
+		time - 上次修改的新时间。
+		更新文件的上次修改时间属性。文件时间转换为文件系统支持的时间和精度。由细颗粒向粗颗粒转变会导致精度损失。不确定此方法在文件系统不支持或超出底层文件存储支持的范围时尝试设置上次修改时间时的行为。通过抛出IOException异常，它可能会失败，也可能不会失败。
+		用法案例：假设我们要将上次修改的时间设置为当前时间：
+		    Path path = ...
+		    FileTime now = FileTime.fromMillis(System.currentTimeMillis());
+		    Files.setLastModifiedTime(path, now);		
+		返回Path。
+		【Throws】：
+			IOException  如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，调用安全管理器的checkWrite方法来检查对文件的写访问权限。
+	setOwner(Path path, UserPrincipal owner):static Path 
+		path - 文件的路径。
+		owner - 新文件所有者。
+		更新文件所有者。
+		path参数与支持FileOwnerAttributeView的文件系统关联。此文件属性视图提供对文件所有者的文件属性的访问。
+		用法案例：假设我们要使“joe”成为文件的所有者：
+		     Path path = ...
+		     UserPrincipalLookupService lookupService =
+		         provider(path).getUserPrincipalLookupService();
+		     UserPrincipal joe = lookupService.lookupPrincipalByName("joe");
+		     Files.setOwner(path, joe);	
+		返回Path。
+		【Throws】：
+			UnsupportedOperationException 如果关联的文件系统不支持文件所有者属性视图。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供器的情况下，安装了安全管理器，它拒绝RuntimePermission("accessUserInformation")，或者它的checkWrite方法拒绝对文件的写入访问。		
+	setPosixFilePermissions(Path path,Set<PosixFilePermission> perms):static Path 
+		path - 文件的路径。
+		perms - 新的权限集。
+		设置文件的POSIX权限。
+		path参数与支持PosixFileAttributeView的FileSystem相关联。此属性视图提供对文件属性的访问，这些属性通常与实现可移植操作系统接口（POSIX）系列标准的操作系统使用的文件系统上的文件关联。
+		返回Path。
+		【Throws】
+			UnsupportedOperationException 如果关联的文件系统不支持PosixFileAttributeView。
+			ClassCastException 如果集合包含不属于PosixFilePermission类型的元素。
+			IOException 如果发生I/O错误。
+			SecurityException 在默认提供程序的情况下，如果安装了安全管理器，则拒绝RuntimePermission("accessUserInformation")或其checkWrite方法拒绝对文件的写访问。		
+	size(Path path):static long 
+		path - 文件的路径。
+		返回文件大小（字节）。由于压缩、支持稀疏文件或其他原因，大小可能与文件系统上的实际大小不同。非常规文件的文件大小是特定于实现的，因此未指定。
+		【Throws】：
+			IOException 如果发生I/O错误。
+			SecurityException 如果是默认提供器，并且安装了安全管理器，则其checkRead方法会拒绝对文件的读取访问。
+	walk(Path start,int maxDepth,FileVisitOption... options):static Stream<Path> 
+		start - 起始文件。
+		maxDepth - 要访问的最大目录级别数。
+		options - 配置遍历的选项。	
+		返回一个Stream，该流通过在给定的起始文件处根目录下遍历文件树惰性填充的Path。首先遍历文件树的深度，流中的元素是Path对象，通过对start解析相对路径获得。
+		当元素被消耗时，流将遍历文件树。返回的流保证至少有一个元素，即起始文件本身。对于访问的每个文件，流尝试读取其BasicFileAttributes。如果该文件是一个目录，并且可以成功打开，则目录中的条目及其后代将在遇到时跟随流中的目录。访问完所有条目后，目录将关闭。然后在目录的下一个同级继续文件树遍历。
+		流是弱一致性。它不会在迭代时冻结文件树，因此它可能（或可能不）反映从该方法返回后对文件树的更新。
+		默认情况下，符号链接不会自动遵循此方法。如果options参数包含FOLLOW_LINKS选项，那么将遵循符号链接。当跟踪链接，并且无法读取目标的属性时，此方法将尝试获取链接的BasicFileAttributes。
+		如果options参数包含FOLLOW_LINKS选项，那么流将跟踪访问的目录，以便检测周期。当目录中有一个条目是目录的祖先时，就会出现一个循环。循环检测通过记录目录的文件键来完成，或者如果文件键不可用，则通过调用isSameFile方法来测试目录是否与祖先文件相同。当检测到一个循环时，它将被视为一个I/O错误，并带有一个FileSystemLoopException实例。
+		maxdepth参数是要访问的目录的最大级别数。值为0表示只有开始文件被访问，除非被安全管理器拒绝。MAX_VALUE可用于指示应访问所有级别。
+		当安装了安全管理器并且拒绝访问文件（或目录）时，它将被忽略，并且不包含在流中。
+		返回的流封装了一个或多个目录流（DirectoryStream）。如果需要及时处理文件系统资源，则应使用try-with-resources结构来确保在完成流操作之后调用流的close方法。在封闭流上操作将导致IllegalStateException异常。
+		如果在返回此方法后访问目录时引发IOException，它将被包装在一个UncheckedIOException中，该异常将从导致访问发生的方法中引发。
+		返回路径流。
+		【Throws】：
+			IllegalArgumentException -如果maxDepth参数为负数。
+			SecurityException 如果安全管理器拒绝访问启动文件。对于默认提供器，调用checkRead方法检查对目录的读取访问。
+			IOException 如果在访问启动文件时引发I/O错误。
+	walk(Path start, FileVisitOption... options):static Stream<Path> 
+		start - 起始文件。
+		options - 配置遍历的选项.
+		返回一个Stream，该流通过在给定的起始文件处根目录下遍历文件树惰性填充的路径。首先遍历文件树的深度，流中的元素是Path对象，通过对start解析相对路径获得。
+		此方法的工作方式就像调用它等同于计算表达式：
+			walk(start, Integer.MAX_VALUE, options);
+		换句话说，它访问文件树的所有级别。
+		返回的流封装了一个或多个目录流（DirectoryStream）。如果需要及时处理文件系统资源，则应使用try-with-resources结构确保在流操作完成后调用流的close方法。在封闭流上操作将导致IllegalstateException异常。
+		返回路径流。
+		【Throws】：
+			SecurityException 如果安全管理器拒绝访问起始文件。对于默认提供器，调用checkRead方法检查对目录的读取访问。
+			IOException 如果在访问启动文件时引发I/O错误。
+	walkFileTree(Path start, FileVisitor<? super Path> visitor):static Path 
+		start - 起始文件。
+		visitor - 为每个文件调用的文件访问者。
+		遍历文件树。
+		此方法的工作方式就像调用它等同于计算表达式：
+			 walkFileTree(start, EnumSet.noneOf(FileVisitOption.class), Integer.MAX_VALUE, visitor)
+		换句话说，它不遵循符号链接，并访问文件树的所有级别。
+		返回起始文件。
+		【Throws】：
+			SecurityException 如果安全管理器拒绝访问起始文件。对于默认提供器，调用checkRead方法检查对目录的读取访问。
+			IOException 如果在访问启动文件时引发I/O错误。
+	walkFileTree(Path start,Set<FileVisitOption> options,int maxDepth,FileVisitor<? super Path> visitor):static Path 
+		start - 起始文件。
+		options - 配置遍历的选项。
+		maxDepth - 要访问的最大目录级别数。
+		visitor - 为每个文件调用的文件访问者。
+		遍历文件树。
+		此方法在给定的起始文件上遍历根文件树。文件树遍历是深度优先的，对遇到的每个文件调用给定的文件访问者。当树中的所有可访问文件都已被访问，或者访问方法返回终止结果时，文件树遍历完成。如果由于IOException、未捕获错误或运行时异常而终止visit方法，则将终止遍历，并将错误或异常传播到此方法的调用方。
+		对于遇到的每个文件，此方法尝试读取其BasicFileAttributes。如果文件不是目录，则使用文件属性调用visitFile方法。如果由于I/O异常而无法读取文件属性，则使用I/O异常调用visitFileFailed方法。
+		如果文件是目录，并且目录无法打开，则使用I/O异常调用visitFileFailed方法，之后，默认情况下，文件树继续在目录的下一个兄弟姐妹继续。
+		在成功打开目录的地方，将访问目录中的条目及其后代。当访问了所有条目，或者在目录迭代过程中发生I/O错误时，目录将关闭，并调用访问者的postVisitDirectory方法。然后，默认情况下，文件树遍历将在目录的下一个同级继续。
+		默认情况下，符号链接不会自动遵循此方法。如果options参数包含FOLLOW_LINKS选项，则遵循符号链接。当遵循链接，并且无法读取目标的属性时，此方法将尝试获取链接的BasicFileAttributes。如果可以读取，则使用链接的属性调用visitFile方法（否则按照上面的指定调用visitFileFailed方法）。
+		如果options参数包含FOLLOW_LINKS选项，则此方法会跟踪访问的目录，以便检测周期。当目录中有一个条目是目录的祖先时，就会出现一个循环。循环检测通过记录目录的文件键来完成，或者如果文件键不可用，则通过调用isSameFile方法来测试目录是否与祖先文件相同。当检测到循环时，它将被视为I/O错误，并使用FileSystemLoopException实例调用visitFileFailed方法。
+		maxdepth参数是要访问的目录的最大级别数。值为0表示只有开始文件被访问，除非被安全管理器拒绝。MAX_VALUE可用于指示应访问所有级别。除非无法读取基本文件属性，否则将为在maxDepth遇到的所有文件（包括目录）调用visitFile方法，在这种情况下，将调用visitFileFailed方法。
+		如果visitor返回的结果为空，则引发NullPointerException异常。
+		当安装了安全管理器并且拒绝访问某个文件（或目录）时，它将被忽略，并且不会为该文件（或目录）调用访问者（visitor）。
+		返回起始文件。
+		【Throws】：
+			IllegalArgumentException -如果maxDepth参数为负数。
+			SecurityException 如果安全管理器拒绝访问启动文件。对于默认提供器，调用checkRead方法检查对目录的读取访问。
+			IOException 如果在访问启动文件时引发I/O错误。
+	write(Path path, byte[] bytes, OpenOption... options):static Path 
+		path - 文件的路径。
+		bytes - 具有要写入的字节的字节数组。
+		options - 指定文件打开方式的选项。
+		将字节写入文件。options参数指定如何创建或打开文件。如果不存在任何选项，则此方法的工作方式与CREATE、TRUNCATE_EXISTING和WRITE选项的工作方式相同。换句话说，它打开文件进行写入，如果不存在则创建文件，或者最初将现有常规文件截断为0大小。字节数组中的所有字节都写入文件。该方法确保在写入所有字节（或引发I/O错误或其他运行时异常）时关闭文件。如果发生I/O错误，则可能在文件创建或截断后，或在某些字节写入文件后发生。
+		用法案例：默认情况下，该方法创建新文件或覆盖现有文件。假设您希望将字节追加到现有文件中：
+		     Path path = ...
+		     byte[] bytes = ...
+		     Files.write(path, bytes, StandardOpenOption.APPEND);
+		返回path。
+		【Throws】：
+			IOException 如果写入或创建文件时发生I/O错误。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。		
+	write(Path path, Iterable<? extends CharSequence> lines,Charset cs, OpenOption... options):static Path 
+		path - 文件的路径。
+		lines - 要在字符序列上迭代的对象。
+		cs - 用于编码的字符集。
+		options - 指定文件打开方式的选项。
+		将文本行写入文件。每一行是一个字符序列，并按顺序写入文件，每一行由平台的行分隔符终止，如系统属性line.separator所定义。使用指定的字符集将字符编码为字节。
+		options参数指定如何创建或打开文件。如果不存在任何选项，则此方法的工作方式与CREATE、TRUNCATE_EXISTING和WRITE选项的工作方式相同。换句话说，它打开文件进行写入，如果不存在则创建文件，或者最初将现有常规文件截断为0大小。该方法确保在写入所有行（或引发I/O错误或其他运行时异常）时关闭文件。如果发生I/O错误，则可能在文件创建或截断后，或在某些字节写入文件后发生。
+		返回path。
+		【Throws】：
+			IOException 如果写入或创建文件时发生I/O错误。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。
+	write(Path path,Iterable<? extends CharSequence> lines,OpenOption... options):static Path 
+		path - 文件的路径。
+		lines - 要在字符序列上迭代的对象（行）。
+		options - 指定文件打开方式的选项。
+		将文本行写入文件。使用UTF-8字符集将字符编码为字节。
+		此方法的工作方式就像调用它等同于计算表达式：
+			Files.write(path, lines, StandardCharsets.UTF_8, options);
+		返回path。
+		【Throws】：
+			IOException 如果写入或创建文件时发生I/O错误。
+			UnsupportedOperationException 如果指定了不支持的选项。
+			SecurityException 如果是默认的提供程序，并且安装了安全管理器，那么将调用checkWrite方法来检查对文件的写访问。
+	
+	
+	
+	
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。

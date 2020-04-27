@@ -1,0 +1,1348 @@
+----------------------------------------Character--------------------------------------------------------------------------------------------------------------
+Character：字符类		【Since:JDK1.0】
+	Character类在对象中包装原始类型char的值。Character类的对象包含类型为char的单个字段。
+	此外，此类还提供了大量静态（static）方法，用于确定字符的类别（小写字母、数字等），以及将字符从大写转换为小写，反之亦然。
+	
+	Unicode一致性：
+		Character类的字段和方法是根据Unicode标准中的字符信息定义的，特别是作为Unicode字符数据库一部分的UnicodeData文件。此文件指定每个指定的Unicode码位或字符范围的属性，包括名称和类别。该文件可从Unicode联盟获得，网址为http://www.unicode.org。
+		JavaSE 8平台使用Unicode标准的版本6.2的字符信息，具有两个扩展。首先，JavaSE 8平台允许Character类的实现，使用6.2码后的Unicode标准的第一个版本的日文代码点Japanese Era code point, U+32FF。其次，为了识别到新货币频繁出现的事实，JavaSE 8平台允许Character类的实现使用Unicode标准的版本10的货币符号块。因此，在处理前面提到的代码点（除了版本6.2之外），Java字符集8的实现过程中的字段和方法的Character类的行为可能会有所不同，除了定义Java标识符的以下方法：isJavaIdentifierStart(int)、isJavaIdentifierStart(char)、isJavaIdentifierPart(int)、和isJavaIdentifierPart(char)。Java标识符中的代码点必须从Unicode标准的6.2版本中提取。
+	
+	Unicode字符表示
+		char数据类型（由此Character对象封装的值）基于原始的Unicode规范，该规范将字符定义为固定宽度的16位实体。Unicode标准已经更改为允许字符的表示需要16位以上。合法代码点的范围现在是U+0000到U+10FFFF，称为Unicode标量值。（参考Unicode标准中U+n符号的定义。）
+		从U+0000到U+FFFF的字符集有时被称为基本多语言平面（BMP）。代码点大于U+FFFF的字符称为补充字符。Java平台在char数组、String、和StringBuffer类中使用UTF-16表示。在此表示中，补充字符表示为一对字符值，第一个字符来自高代理范围 (\uD800-\uDBFF)，第二个字符来自低代理范围(\uDC00-\uDFFF)。
+		因此，char值表示基本的多语言平面（BMP）代码点，包括代理代码点或UTF-16编码的代码单位。int值表示所有Unicode代码点，包括补充代码点。int的低位（最低有效）21位用于表示Unicode码位，高位（最高有效）11位必须为零。除非另有规定，有关补充字符和代理项字符值的行为如下：
+			● 只接受char值的方法不支持补充字符。它们将代理范围中的字符值视为未定义的字符。例如，Character.isLetter('\uD840')返回false，即使该特定值（如果后跟字符串中的任何低代理值）将表示一个字母。
+			● 接受int值的方法支持所有Unicode字符，包括补充字符。例如，Character.isLetter(0x2F81A)返回true，因为代码点值表示字母（CJK象形文字）。
+		在Java SE API文档中，Unicode代码点用于U+0000和U+U+10FFFF之间的字符值，Unicode代码单元用于16位字符值，这些值是UTF-16编码的代码单元。有关Unicode术语的更多信息，请参阅Unicode术语表。	
+		
+	
+	类定义	：public final class Character implements java.io.Serializable, Comparable<Character>
+	实现接口	：Serializable,Comparable<Boolean>
+	嵌套类	：Subset,UnicodeBlock
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）
+	BYTES : int
+		用于以无符号二进制形式表示char值的字节数。
+	COMBINING_SPACING_MARK : byte
+		Unicode规范中的通用类别“Mc”（组合用分隔符）。
+	CONNECTOR_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pc”（连接符标点符号）。
+	CONTROL : byte
+		Unicode规范中的通用类别“Cc”（控制符）。
+	CURRENCY_SYMBOL : byte
+		Unicode规范中的通用类别“Sc”（当前符号）。
+	DASH_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pd”（破折号）。
+	DECIMAL_DIGIT_NUMBER : byte
+		Unicode规范中的通用类别“Nd”（十进制数字）。
+	DIRECTIONALITY_ARABIC_NUMBER : byte
+		Unicode规范中的弱双向字符类型“AN”。
+	DIRECTIONALITY_BOUNDARY_NEUTRAL : byte
+		Unicode规范中的弱双向字符类型“BN”。
+	DIRECTIONALITY_COMMON_NUMBER_SEPARATOR : byte
+		Unicode规范中的弱双向字符类型“CS”。
+	DIRECTIONALITY_EUROPEAN_NUMBER : byte
+		Unicode规范中的弱双向字符类型“EN”。
+	DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR : byte
+		Unicode规范中的弱双向字符类型“ES”。
+	DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR : byte
+		Unicode规范中的弱双向字符类型“ET”。
+	DIRECTIONALITY_LEFT_TO_RIGHT : byte
+		Unicode规范中的强双向字符类型“L”。
+	DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING : byte
+		Unicode规范中的强双向字符类型“LRE”。
+	DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE : byte
+		Unicode规范中的强双向字符类型“LRO”。
+	DIRECTIONALITY_NONSPACING_MARK : byte
+		Unicode规范中的弱双向字符类型“NSM”。
+	DIRECTIONALITY_OTHER_NEUTRALS : byte
+		Unicode规范中的中性双向字符类型“ON”。
+	DIRECTIONALITY_PARAGRAPH_SEPARATOR : byte
+		Unicode规范中的中性双向字符类型“B”。
+	DIRECTIONALITY_POP_DIRECTIONAL_FORMAT : byte
+		Unicode规范中的弱双向字符类型“PDF”。
+	DIRECTIONALITY_RIGHT_TO_LEFT : byte
+		Unicode规范中的强双向字符类型“R”。
+	DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC : byte
+		Unicode规范中的强双向字符类型“AL”。
+	DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING : byte
+		Unicode规范中的强双向字符类型“RLE”。
+	DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE : byte
+		Unicode规范中的强双向字符类型“RLO”。
+	DIRECTIONALITY_SEGMENT_SEPARATOR : byte
+		Unicode规范中的中性双向字符类型“S”。
+	DIRECTIONALITY_UNDEFINED : byte
+		未定义的双向字符类型。未定义的字符值在Unicode规范中具有未定义的方向性。
+	DIRECTIONALITY_WHITESPACE : byte
+		Unicode规范中的中性双向字符类型“WS”。
+	ENCLOSING_MARK : byte
+		Unicode规范中的常规类别“Me”。
+	END_PUNCTUATION : byte
+		Unicode规范中的一般类别“Pe”（结束标点符号）。
+	FINAL_QUOTE_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pf”（最后的标点符号）。
+	FORMAT : byte
+		Unicode规范中的通用类别“Cf”（格式化）。
+	INITIAL_QUOTE_PUNCTUATION : byte
+		Unicode规范中的通用类别“Pi”（首引号）。
+	LETTER_NUMBER : byte
+		Unicode规范中的通用类别“Nl”。
+	LINE_SEPARATOR : byte
+		Unicode规范中的通用类别“Zl”（线性分离器）。
+	LOWERCASE_LETTER : byte
+		Unicode规范中的通用类别“Ll”（小写字母）。
+	MATH_SYMBOL : byte
+		Unicode规范中的通用类别“Sm”（数学符号）。
+	MAX_CODE_POINT : int
+		Unicode码位的最大值，常数U+10FFFF。
+	MAX_HIGH_SURROGATE : char
+		以UTF-16编码表示的Unicode高代理代码单元的最大值，常量'\uDBFF'。高代理也称为领先代理。
+	MAX_LOW_SURROGATE : char
+		以utf-16编码表示的Unicode低代理代码单元的最大值，常量'\uDFFF'。低代理也称为尾随代理。
+	MAX_RADIX : int
+		可转换为字符串或从字符串转换为字符串的最大基数。此字段的常量值是基数转换方法（如digit方法、ForDigit方法和类整数的toString方法）中基数参数允许的最大值。
+	MAX_SURROGATE : char
+		以UTF-16编码表示的Unicode代理代码单元的最大值，常量'\uDFFF'。
+	MAX_VALUE : char
+		此字段的常量值是char、'\uFFFF'类型的最大值。
+	MIN_CODE_POINT : int
+		Unicode码位的最小值，常量U+0000。
+	MIN_HIGH_SURROGATE : char
+		以UTF-16编码表示的Unicode高代理代码单元的最小值，常量 '\uD800'。高代理也称为领先代理。
+	MIN_LOW_SURROGATE : char
+		以UTF-16编码表示的Unicode低代理代码单元的最小值，常量'\uDC00'。低代理也称为尾随代理。
+	MIN_RADIX : int
+		用于与字符串之间转换的最小基数。此字段的常量值是基数转换方法（如digit方法、forDigit方法和类整数的toString方法）中基数参数允许的最小值。
+	MIN_SUPPLEMENTARY_CODE_POINT : int
+		Unicode补充码位的最小值，常数U+10000。
+	MIN_SURROGATE : char
+		以UTF-16编码表示的Unicode代理代码单元的最小值，常量'\uD800'。
+	MIN_VALUE : char
+		此字段的常量值是char类型的最小值，即'\u0000'。
+	MODIFIER_LETTER : byte
+		Unicode规范中的通用类别“Lm”（修饰字母）。
+	MODIFIER_SYMBOL : byte
+		Unicode规范中的通用类别“Sk”（修正符号）。
+	NON_SPACING_MARK : byte
+		Unicode规范中的通用类别“Mn”（非间距标记）。
+	OTHER_LETTER : byte
+		Unicode规范中的通用类别“Lo”（其他字母）。
+	OTHER_NUMBER : byte
+		Unicode规范中的通用类别“No”（其他数字）。
+	OTHER_PUNCTUATION : byte
+		Unicode规范中的通用类别“Po”（其他标点符号）。
+	OTHER_SYMBOL : byte
+		Unicode规范中的通用类别“So”（其他符号）。
+	PARAGRAPH_SEPARATOR : byte
+		Unicode规范中的通用类别“Zp”（段落分隔符）。
+	PRIVATE_USE : byte
+		Unicode规范中的通用类别“Co”（私用）。
+	SIZE : int
+		以无符号二进制形式表示char值的位数，常量16。
+	SPACE_SEPARATOR : byte
+		Unicode规范中的通用类别“Zs”（空白分离器）。
+	START_PUNCTUATION : byte
+		Unicode规范中的一般类别“Ps”（开始标点符号）。
+	SURROGATE : byte
+		Unicode规范中的通用类别“Cs”（代理）。
+	TITLECASE_LETTER : byte
+		Unicode规范中的通用类别“Lt”（标题大写字母）。
+	TYPE : Class<Character>
+		表示原始类型char的类实例。
+	UNASSIGNED : byte
+		Unicode规范中的通用类别“Cn”（未指派的）。
+	UPPERCASE_LETTER : byte	
+		Unicode规范中的通用类别“Lu”（大写字母）。
+		
+		
+		
+Constructor Summary（构造器概要）：
+	public Character(char value)
+		value - 要由字符对象表示的值。
+		构造表示指定char值的新分配的Character对象。
+
+Method Summary（方法概要）：
+	charCount(int codePoint):static int 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定表示指定字符（Unicode码位）所需的字符值数目。如果指定的字符等于或大于0x1000，则该方法返回2。否则，该方法返回1。
+		此方法不验证指定字符是否为有效的Unicode码位。必要时，调用方必须使用isValidCodePoint验证字符值。
+		如果字符是有效的补充字符，则返回2；否则返回1。
+	codePointAt(char[] a, int index):static int 
+		a - 字符数组。
+		index - 要转换的char数组中char值（Unicode代码单位）的索引。
+		返回char数组的给定索引处的代码点。如果char数组中给定索引处的char值在高代理范围内，则以下索引小于char数组的长度，并且以下索引处的char值在低代理范围内，则返回与此代理对对应的补充代码点。否则，返回给定索引处的char值。
+		返回给定索引处的Unicode代码点。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果值索引为负或不小于char数组的长度。
+	codePointAt(char[] a, int index, int limit):static int 
+		a - 字符数组。
+		index - 要转换的char数组中char值（Unicode代码单位）的索引。
+		limit - 可以在char数组中使用的最后一个数组元素之后的索引。
+		返回char数组的给定索引处的代码点，其中只能使用索引小于限制的数组元素。如果char数组中给定索引处的char值在高代理范围内，则以下索引小于限制，并且以下索引处的char值在低代理范围内，则返回与此代理对对应的补充代码点。否则，返回给定索引处的char值。
+		返回给定索引处的Unicode代码点。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果index参数为负或不小于limit参数，或者limit参数为负或大于char数组的长度。
+	codePointAt(CharSequence seq, int index):static int 
+		seq - 字符值序列（Unicode代码单位）。
+		index - 要转换的char数组中char值（Unicode代码单位）的索引。
+		返回字符序列的给定索引处的代码点。如果CharSequence中给定索引处的char值在高代理范围内，则下面的索引小于CharSequence的长度，并且下面索引处的char值在低代理范围内，则返回与该代理项对对应的补充代码点。否则，返回给定索引处的char值。
+		返回给定索引处的Unicode代码点。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果值索引为负或不小于seq.length()。
+	codePointBefore(char[] a, int index):static int 
+		a - 字符数组。
+		index - 应返回的代码点后面的索引。	
+		返回char数组的给定索引前面的代码点。如果char数组中（index-1）处的char值在低代理范围内，（index-2）不为负，而char数组中（index-2）处的char值在高代理范围内，则返回与此代理对对应的补充码位。否则，返回（索引-1）处的char值。
+		返回给定索引之前的Unicode码位值。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果index参数小于1或大于char数组的长度。
+	codePointBefore(char[] a, int index, int start):static int 
+		a - 字符数组。
+		index - 应返回的代码点后面的索引。
+		start - char数组中第一个数组元素的索引。
+		返回char数组的给定索引前面的代码点，其中只能使用索引大于或等于start的数组元素。如果char数组中（index-1）处的char值在低代理范围内，（index-2）不小于start，而char数组中（index-2）处的char值在高代理范围内，则返回与此代理对对应的补充码位。否则，返回（索引-1）处的char值。
+		返回给定索引之前的Unicode码位值。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果index参数不大于start参数或大于char数组的长度，或者start参数为负数或不小于char数组的长度。
+	codePointBefore(CharSequence seq, int index):static int 
+		seq - CharSequence（字符序列）实例。
+		index - 应返回的代码点后面的索引。
+		返回字符序列的给定索引之前的代码点。如果CharSequence中（index-1）处的char值在低代理范围内，（index-2）不为负，而CharSequence中（index-2）处的char值在高代理范围内，则返回与此代理对对应的补充码位。否则，返回（index-1）处的char值。
+		返回给定索引之前的Unicode码位值。
+		【Throws】：
+			NullPointerException 如果seq为null。
+			IndexOutOfBoundsException 如果index参数小于1或者大于seq.length()。
+	codePointCount(char[] a, int offset, int count):static int
+		a - 字符数组。
+		offset - 给定char数组中第一个char的索引。
+		count - 子数组的长度（以字符为单位）。
+		返回char数组参数的子数组中的Unicode代码点数。offset参数是子数组第一个字符的索引，count参数以字符为单位指定子数组的长度。子数组中未配对的代理项将作为每个代码点计数。
+		返回指定子数组中的Unicode代码点数量。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果偏移量（offset）或计数（count）为负，或者offset+count大于给定数组的长度。
+	codePointCount(CharSequence seq, int beginIndex, int endIndex):static int 
+		seq - 字符序列。
+		beginIndex - 文本范围第一个字符的索引。
+		endIndex - 文本范围最后一个字符后的索引。
+		返回指定字符序列的文本范围内的Unicode代码点数。文本范围从指定的beginIndex开始，扩展到索引 endIndex-1处的字符。因此，文本范围的长度（以字符为单位）是endIndex-beginIndex。文本范围内未配对的代理项将作为每个代码点计数。
+		【Throws】：
+			NullPointerException 如果seq为null。
+			IndexOutOfBoundsException 如果beginIndex为负，或者endIndex大于给定序列的长度，或者beginIndex大于endIndex。
+	compare(char x, char y):static int 
+		x - 要比较的第一个字符。
+		y - 要比较的第二个字符。
+		用数字比较两个字符值。返回的值与返回的值相同：
+			Character.valueOf(x).compareTo(Character.valueOf(y));
+		如果x==y，返回值为0；如果x<y，返回值小于0；如果x>y，返回值大于0。		
+	digit(char ch, int radix):static int 
+		ch - 要转换的字符。
+		radix - 基数。
+		返回字符ch在指定基数中的数值。
+		如果基数不在MIN_RADIX≤radix≤MAX_RADIX的范围内，或者如果ch的值不是指定基数中的有效数字，则返回-1。如果以下至少一个为true，则字符是有效数字：
+			● 方法isDigit返回true的字符，字符的Unicode十进制数字值（或其单字符分解）小于指定的基数。在这种情况下，返回十进制数字值。
+			● 字符是大写拉丁字母“A”到“Z”之一，其代码小于radix + 'A' - 10。在这种情况下，返回ch - 'a' + 10。
+			● 字符是小写拉丁字母“a”到“z”之一，其代码小于radix + 'a' - 10。在这种情况下，返回ch-‘a’+10。 
+			● 字符是全角大写拉丁文字母A('\uFF21')到Z ('\uFF3A') 之一，其代码小于radix + '\uFF21' - 10。在这种情况下，返回ch - '\uFF21' + 10。
+			● 字符是一个全角小写拉丁字母a('\uFF41')到z ('\uFF5A')，其代码小于radix + '\uFF41' - 10。在这种情况下，返回ch - '\uFF41' + 10。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用digit(int, int)方法。
+		返回由指定基数中的字符表示的数值。
+	digit(int codePoint, int radix):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		radix - 基数。
+		返回指定基数中指定字符（Unicode码位）的数值。
+		如果基数不在MIN_RADIX≤radix≤MAX_RADIX的范围内，或者如果字符不是指定基数中的有效数字，则返回-1。如果以下至少一个为true，则字符是有效数字：
+			● 方法isDigit(codePoint)返回true的字符，字符的Unicode十进制数字值（或其单字符分解）小于指定的基数。在这种情况下，返回十进制数字值。
+			● 字符是大写拉丁字母“A”到“Z”之一，其代码小于radix + 'A' - 10。在这种情况下，返回ch - 'a' + 10。
+			● 字符是小写拉丁字母“a”到“z”之一，其代码小于radix + 'a' - 10。在这种情况下，返回ch-‘a’+10。 
+			● 字符是全角大写拉丁文字母A('\uFF21')到Z ('\uFF3A') 之一，其代码小于radix + '\uFF21' - 10。在这种情况下，返回ch - '\uFF21' + 10。
+			● 字符是一个全角小写拉丁字母a('\uFF41')到z ('\uFF5A')，其代码小于radix + '\uFF41' - 10。在这种情况下，返回ch - '\uFF41' + 10。
+		返回由指定基数中的字符表示的数值。
+	forDigit(int digit, int radix):static char 
+		digit - 要转换为字符的数字。
+		radix - 基数。
+		确定指定基数（radix）中特定数字的字符表示形式。如果radix的值不是有效的基数，或者数字的值不是指定基数中的有效数字，则返回null字符('\u0000')。
+		如果radix参数大于或等于最小基数且小于或等于最大基数，则radix参数有效。如果0<=digit<radix，则digit参数有效。
+		如果digit小于10，则返回'0'+digit。否则，返回值'a' + digit - 10。
+		返回指定基数中指定数字表示的字符。
+	getDirectionality(char ch):static byte 
+		ch - 请求定向属性的字符。
+		返回给定字符的Unicode方向性属性。字符方向性用于计算文本的视觉顺序。未定义char值的方向性值是DIRECTIONALITY_UNDEFINED。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用getDirectionality(int)方法。
+		返回char值的方向性属性。		
+	getDirectionality(int codePoint):static byte 
+		codePoint - 请求定向属性的字符（Unicode代码点）。
+		返回给定字符（Unicode码位）的Unicode方向性属性。字符方向性用于计算文本的视觉顺序。未定义字符的方向性值为DIRECTIONALITY_UNDEFINED。
+		返回字符的方向性属性。
+	getName(int codePoint):static String s
+		ch - 要颠倒字节顺序的字符。
+		返回通过颠倒指定char值中字节的顺序获得的值。		
+	getNumericValue(char ch):static int 
+		ch - 要转换的字符。
+		返回指定的Unicode字符表示的int值。例如，字符'\u216C' （罗马数字50）将返回一个值为50的int。
+		字母A-Z的大写形式('\u0041' 到 '\u005A')、小写形式('\u0061' 到 '\u007A')和全角变体 ('\uFF21' 到 '\uFF3A' and '\uFF41' 到 '\uFF5A')具有10到35之间的数值。这与Unicode规范无关，后者不向这些char值分配数值。
+		如果字符没有数值，则返回-1。如果字符的数值不能表示为非负整数（例如，小数），则返回-2。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用getNumericValue(int)方法。
+	getNumericValue(int codePoint):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		返回指定字符（Unicode代码点）表示的int值。例如，字符'\u216C'（罗马数字50）将返回一个50的int值。
+		字母A-Z的大写形式('\u0041' 到 '\u005A')、小写形式('\u0061' 到 '\u007A')和全角变体 ('\uFF21' 到 '\uFF3A' and '\uFF41' 到 '\uFF5A')具有10到35之间的数值。这与Unicode规范无关，后者不向这些char值分配数值。
+		如果字符没有数值，则返回-1。如果字符的数值不能表示为非负整数（例如，小数），则返回-2。
+		返回字符的数值，作为非负int值；如果字符的数值不是非负整数返回-2；如果字符没有数值，返回-1。
+	getType(char ch):static int 
+		ch - 要测试的字符。
+		返回一个值，该值指示字符的常规类别。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用getType(int)方法。
+	getType(int codePoint):static int 
+		codePoint - 要测试的字符（Unicode码位）。
+		返回一个值，该值指示字符的常规类别。
+	hashCode(char value):static int 
+		value - 返回哈希代码的字符。
+		返回char值的哈希代码；与Character.hashCode()兼容。
+	highSurrogate(int codePoint):static char 
+		codePoint - 补充字符（Unicode码位）。
+		返回代理对的前导代理项（高代理项代码单元），表示UTF-16编码中指定的补充字符（Unicode代码点）。如果指定的字符不是补充字符，则返回未指定的字符。
+		如果isSupplementaryCodePoint(x)为true，则isHighSurrogate(highSurrogate(x))和toCodePoint(highSurrogate(x)，lowSurrogate(x)) == x也始终为true。
+		返回在UTF-16编码中用于表示字符的主要代理代码单元。
+	isAlphabetic(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否为字母表。
+		如果getType(codePoint)提供的常规类别类型是以下任何一种类型，则认为字符是字母：
+			● UPPERCASE_LETTER
+			● LOWERCASE_LETTER
+			● TITLECASE_LETTER
+			● MODIFIER_LETTER
+			● OTHER_LETTER
+			● LETTER_NUMBER
+		或者，它具有Unicode标准定义的Other_Alphabetic的贡献属性。
+		如果字符是Unicode字母字符，则返回true，否则返回false。
+	isBmpCodePoint(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）
+		确定指定字符（Unicode代码点）是否在基本多语言平面（BMP）中。这样的代码点可以用单个字符表示。
+		如果指定的代码点介于MIN_VALUE和MAX_VALUE之间，则返回true；否则返回false。
+	isDefined(char ch):static boolean 
+		ch - 要测试的字符。
+		确定字符是否为Unicode定义。
+		如果以下至少一个为true，则定义字符：
+			● 它在UnicodeData文件中有一个条目。
+			● 它的值位于由UnicodeData文件定义的范围内。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isDefined(int)方法。
+		如果字符在Unicode中有定义，则返回true；否则返回false。
+	isDefined(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定是否为Unicode定义字符（Unicode码位）。
+		如果以下至少一个为true，则定义字符：
+			● 它在UnicodeData文件中有一个条目。
+			● 它的值位于由UnicodeData文件定义的范围内。
+		如果字符在Unicode中有定义，则返回true；否则返回false。
+	isDigit(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为数字。
+		如果Character.getType(ch)提供的常规类别类型为DECIMAL_DIGIT_NUMBER，则字符是数字。
+		某些包含数字的Unicode字符范围：
+			● '\u0030' through '\u0039', ISO-LATIN-1 数字（0到9）。
+			● '\u0660' through '\u0669',阿拉伯-印度数字。
+			● '\u06F0' through '\u06F9',扩展阿拉伯-印度数字。
+			● '\u0966' through '\u096F', 天成文书（梵文）数字。
+			● '\uFF10' through '\uFF19', 全角数字。
+		许多其他字符范围也包含数字。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isDigit(int)方法。
+		如果字符是数字，则返回true；否则返回false。
+	isDigit(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否为数字。
+		如果Character.getType(ch)提供的常规类别类型为DECIMAL_DIGIT_NUMBER，则字符是数字。
+		某些包含数字的Unicode字符范围：
+			● '\u0030' through '\u0039', ISO-LATIN-1 数字（0到9）。
+			● '\u0660' through '\u0669',阿拉伯-印度数字。
+			● '\u06F0' through '\u06F9',扩展阿拉伯-印度数字。
+			● '\u0966' through '\u096F', 天成文书（梵文）数字。
+			● '\uFF10' through '\uFF19', 全角数字。
+		许多其他字符范围也包含数字。
+		如果字符是数字，则返回true；否则返回false。
+	isHighSurrogate(char ch):static boolean 
+		ch - 要测试的char值。
+		确定给定的char值是否为Unicode高代理代码单元（也称为前导代理代码单元）。
+		这些值本身并不表示字符，但在UTF-16编码中用于表示补充字符。
+		如果char值介于MIN_HIGH_SURROGATE和MAX_HIGH_SURROGATE之间，则返回true；否则返回false。
+	isIdentifierIgnorable(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否应被看作Java标识符或Unicode标识符中的可忽略字符。
+		下面的Unicode字符在Java标识符或Unicode标识符中是可忽略的：
+			1、非空白的ISO控制字符：
+				● '\u0000' 到 '\u0008'
+				● '\u000E' 到 '\u001B'
+				● '\u007F' 到 '\u009F'
+			2、具有FORMAT常规类别值的所有字符。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isIdentifierIgnorable(int)方法。
+		如果字符是可忽略的控制字符，那可能是Java或Unicode标识符的一部分，则返回true；否则返回false。
+	isIdentifierIgnorable(int codePoint):static boolean 
+		ch - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否应被看作Java标识符或Unicode标识符中的可忽略字符。
+		下面的Unicode字符在Java标识符或Unicode标识符中是可忽略的：
+			1、非空白的ISO控制字符：
+				● '\u0000' 到 '\u0008'
+				● '\u000E' 到 '\u001B'
+				● '\u007F' 到 '\u009F'
+			2、具有FORMAT常规类别值的所有字符。
+		如果字符是可忽略的控制字符，那可能是Java或Unicode标识符的一部分，则返回true；否则返回false。
+	isIdeographic(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否是由Unicode标准定义的CJKV（中文、日语、朝鲜语和越南语）象形文字。
+		如果字符是Unicode表意字符，则返回true，否则返回false。
+	isISOControl(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为ISO控制字符。如果字符的代码在“\u0000”到“\u001F”或“\u007F”到“\u009F”范围内，则该字符被视为ISO控制字符。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isisoControl（int）方法。
+		如果字符是ISO控制字符，则返回true；否则返回false。
+	isISOControl(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定引用的字符（Unicode码位）是否为ISO控制字符。如果字符的代码在“\u0000”到“\u001F”或“\u007F”到“\u009F”范围内，则该字符被视为ISO控制字符。
+	isJavaIdentifierPart(char ch):static boolean 
+		ch -  要测试的字符。
+		确定指定字符是否是Java标识符的一部分，而不是首字符。
+		如果下列条件之一为true，则字符可以是Java标识符的一部分：
+			● 是一个字母。
+			● 是货币符号（如“$”）。
+			● 是一个连接标点符号（如“_”）。
+			● 是一个数字。
+			● 是一个数字字母（例如罗马数字字符）。
+			● 是个组合符号。
+			● 是一个非间隔标记。
+			● isIdentifierIgnorable返回true。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isJavaIdentifierPart(int)方法。
+		如果字符可以是Java标识符的一部分，则返回true；否则返回false。
+	isJavaIdentifierPart(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定字符（Unicode代码点）是否是Java标识符的一部分，而不是首字符。
+		如果下列条件之一为true，则字符可以是Java标识符的一部分：
+			● 是一个字母。
+			● 是货币符号（如“$”）。
+			● 是一个连接标点符号（如“_”）。
+			● 是一个数字。
+			● 是一个数字字母（例如罗马数字字符）。
+			● 是个组合符号。
+			● 是一个非间隔标记。
+			● isIdentifierIgnorable返回true。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		如果字符可以是Java标识符的一部分，则返回true；否则返回false。
+	isJavaIdentifierStart(char ch):static boolean
+		ch -  要测试的字符。
+		确定指定字符是否可以作为Java标识符中的第一个字符。
+		当且仅当下列条件之一为真时，字符才可启动Java标识符：
+			● isLetter(ch)返回true。
+			● getType(ch)返回LETTER_NUMBER。
+			● ch是货币符号（例如“$”）
+			● ch是一个连接标点符号（如“_”）。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isJavaIdentifierStart(int)方法。
+		如果字符可以启动Java标识符，则返回true；否则返回false。
+	isJavaIdentifierStart(int codePoint):static boolean 
+		ch -  要测试的字符。
+		确定指定字符（Unicode代码点）是否可以作为Java标识符中的第一个字符。
+		当且仅当下列条件之一为true时，字符才可启动Java标识符：
+			● isLetter(ch)返回true。
+			● getType(ch)返回LETTER_NUMBER。
+			● ch是货币符号（例如“$”）
+			● ch是一个连接标点符号（如“_”）。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		如果字符可以启动Java标识符，则返回true；否则返回false。
+	isJavaLetter(char ch):static boolean 
+		ch - 要测试的字符。
+		✘ 已淘汰。替换为isJavaIdentifierStart(char)。
+		确定指定字符是否可以作为Java标识符中的第一个字符。
+		当且仅当下列条件之一为真时，字符才可启动Java标识符：
+			● isLetter(ch)返回true。
+			● getType(ch)返回LETTER_NUMBER。
+			● ch是货币符号（例如“$”）
+			● ch是一个连接标点符号（如“_”）。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+	isJavaLetterOrDigit(char ch):static boolean 
+		ch - 要测试的字符。
+		✘ 已淘汰。替换为isJavaIdentifierPart(char)。
+		确定指定字符是否是Java标识符的一部分，而不是第一个字符。
+		一个字符可以是Java标识符的一部分，当且仅当下列条件之一为true时：
+			● 是一个字母。
+			● 是货币符号（如“$”）。
+			● 是一个连接标点符号（如“_”）。
+			● 是一个数字。
+			● 是一个数字字母（例如罗马数字字符）。
+			● 是个组合符号。
+			● 是一个非间隔标记。
+			● isIdentifierIgnorable返回true。
+		这些条件根据Unicode标准6.2版中的字符信息进行测试。
+		如果字符可以是Java标识符的一部分，则返回true；否则返回false。
+	isLetter(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为字母。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是以下任何一种类型，则该字符被视为字母：
+			● UPPERCASE_LETTER
+			● LOWERCASE_LETTER
+			● TITLECASE_LETTER
+			● MODIFIER_LETTER
+			● OTHER_LETTER
+		并非所有的字母都有大小写。许多字符是字母，但既不是大写，也不是小写，也不是标题大小写。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isLetter(int)方法。
+		如果字符是字母，则返回true；否则返回false。
+	isLetter(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是否为字母。
+		如果getType(codePoint)提供的一般类别类型为以下任何一种，则认为字符是字母：
+			● UPPERCASE_LETTER
+			● LOWERCASE_LETTER
+			● TITLECASE_LETTER
+			● MODIFIER_LETTER
+			● OTHER_LETTER
+		并非所有的字母都有大小写。许多字符是字母，但既不是大写，也不是小写，也不是标题大小写。
+		如果字符是字母，则返回true；否则返回false。
+	isLetterOrDigit(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是字母还是数字。
+		如果Character.isLetter(char ch)或Character.isDigit(char ch)为字符返回true，则认为字符是字母或数字。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isLetterOrDigit(int)方法。
+	isLetterOrDigit(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符（Unicode码位）是字母还是数字。
+		如果isLetter(codePoint)或isDigit(codePoint)为字符返回true，则认为字符是字母或数字。
+	isLowerCase(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否为小写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是小写字母，则该字符为小写字母，或者它具有Unicode标准定义的Other_Lowercase的作用属性。
+		以下是小写字符的示例：
+			 a b c d e f g h i j k l m n o p q r s t u v w x y z
+			 '\u00DF' '\u00E0' '\u00E1' '\u00E2' '\u00E3' '\u00E4' '\u00E5' '\u00E6'
+			 '\u00E7' '\u00E8' '\u00E9' '\u00EA' '\u00EB' '\u00EC' '\u00ED' '\u00EE'
+			 '\u00EF' '\u00F0' '\u00F1' '\u00F2' '\u00F3' '\u00F4' '\u00F5' '\u00F6'
+			 '\u00F8' '\u00F9' '\u00FA' '\u00FB' '\u00FC' '\u00FD' '\u00FE' '\u00FF'
+		许多其他Unicode字符也是小写的。	
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isLowerCase(int)方法。	
+	isLowerCase(int codePoint): static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符是否为小写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是小写字母，则该字符为小写字母，或者它具有Unicode标准定义的Other_Lowercase的作用属性。
+		以下是小写字符的示例：
+			 a b c d e f g h i j k l m n o p q r s t u v w x y z
+			 '\u00DF' '\u00E0' '\u00E1' '\u00E2' '\u00E3' '\u00E4' '\u00E5' '\u00E6'
+			 '\u00E7' '\u00E8' '\u00E9' '\u00EA' '\u00EB' '\u00EC' '\u00ED' '\u00EE'
+			 '\u00EF' '\u00F0' '\u00F1' '\u00F2' '\u00F3' '\u00F4' '\u00F5' '\u00F6'
+			 '\u00F8' '\u00F9' '\u00FA' '\u00FB' '\u00FC' '\u00FD' '\u00FE' '\u00FF'
+		许多其他Unicode字符也是小写的。	
+	isLowSurrogate(char ch):static boolean 
+		ch - 要测试的char值。
+		确定给定的char值是否为Unicode低代理代码单元（也称为尾随代理代码单元）。
+		这些值本身并不表示字符，但在UTF-16编码中用于表示补充字符。
+	isMirrored(char ch):static boolean 
+		ch - 请求镜像属性的字符。
+		确定字符是否根据Unicode规范进行镜像。当以从右向左的文本显示时，镜像字符的字形应水平镜像。例如，“\u0028”左括号（LEFT PARENTHESIS）在语义上定义为左括号。这将在从右到左的文本中显示为“（从左到右）”。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isMirrored(int)方法。
+		如果镜像了该字符，则返回true；如果未镜像或未定义该字符，则返回false。
+	isMirrored(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定字符是否根据Unicode规范进行镜像。当以从右向左的文本显示时，镜像字符的字形应水平镜像。例如，“\u0028”左括号（LEFT PARENTHESIS）在语义上定义为左括号。这将在从右到左的文本中显示为“（从左到右）”。
+		如果镜像了该字符，则返回true；如果未镜像或未定义该字符，则返回false。
+	isSpace(char ch):static boolean 
+		ch - 要测试的字符。
+		✘ 已淘汰。替换为isWhitespace(char)。
+		确定指定字符是否为ISO-LATIN-1空白。此方法仅对以下五个字符返回true：
+		'\t'	U+0009	水平表格
+		'\n'	U+000A	新的行
+		'\f'	U+000C	表单元
+		'\r'	U+000D	回车
+		' '		U+0020	空格
+		如果字符是ISO-LATIN-1空白，则返回true；否则返回false。
+	isSpaceChar(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否为Unicode空格字符。如果并且仅当Unicode标准将字符指定为空格字符时，字符才被视为空格字符。如果字符的常规类别类型为以下任一类型，则此方法返回true：
+			● SPACE_SEPARATOR（空格分隔符）
+			● LINE_SEPARATOR（行分隔符）
+			● PARAGRAPH_SEPARATOR（段落分隔符）
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isSpaceChar(int)方法。
+		如果字符是空格字符，则返回true；否则返回false。
+	isSpaceChar(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符是否为Unicode空格字符。如果并且仅当Unicode标准将字符指定为空格字符时，字符才被视为空格字符。如果字符的常规类别类型为以下任一类型，则此方法返回true：
+			● SPACE_SEPARATOR（空格分隔符）
+			● LINE_SEPARATOR（行分隔符）
+			● PARAGRAPH_SEPARATOR（段落分隔符）
+		如果字符是空格字符，则返回true；否则返回false。
+	isSupplementaryCodePoint(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定字符（Unicode码位）是否在辅助字符范围内。
+		如果指定的代码点介于MIN_SUPPLEMENTARY_CODE_POINT和MAX_CODE_POINT之间，则返回true；否则返回false
+	isSurrogate(char ch):static boolean 
+		ch - 要测试的char值。
+		确定给定的char值是否为Unicode代理项代码单元。
+		这些值本身并不表示字符，但在UTF-16编码中用于表示补充字符。
+		如果且仅当char值是低代理代码单元或高代理代码单元时，char值才是代理代码单元。
+		如果char值介于MIN_SURROGATE和MAX_SURROGATE之间，则返回true；否则返回false。
+	isSurrogatePair(char high, char low):static boolean 
+		high - 要测试的高代理代码值。
+		low - 要测试的低代理代码值。
+		确定指定的字符值对是否为有效的Unicode代理项对。
+		此方法等价于表达式：
+			isHighSurrogate(high) && isLowSurrogate(low)			
+	isTitleCase(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定的字符是否为标题基字符。
+		如果Character.getType(ch)提供的一般类别类型是TITLECASE_LETTER，则字符是标题基字符。
+		有些字符看起来像成对的拉丁字母。例如，有一个大写字母看起来像“LJ”，并且有一个对应的小写字母看起来像“lj”。第三种形式，看起来像“Lj”，是在呈现一个单词的小写字母和首字母大写字母时使用的适当形式，例如一本书的标题。
+		这些是此方法返回true的一些Unicode字符：
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON
+			● LATIN CAPITAL LETTER L WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER N WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z
+		许多其他Unicode字符也是标题库。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isTitleCase(int)方法。
+		如果字符是标题，则返回true；否则返回false。
+	isTitleCase(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定的字符是否为标题基字符。
+		如果Character.getType(ch)提供的一般类别类型是TITLECASE_LETTER，则字符是标题基字符。
+		有些字符看起来像成对的拉丁字母。例如，有一个大写字母看起来像“LJ”，并且有一个对应的小写字母看起来像“lj”。第三种形式，看起来像“Lj”，是在呈现一个单词的小写字母和首字母大写字母时使用的适当形式，例如一本书的标题。
+		这些是此方法返回true的一些Unicode字符：
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON
+			● LATIN CAPITAL LETTER L WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER N WITH SMALL LETTER J
+			● LATIN CAPITAL LETTER D WITH SMALL LETTER Z
+		许多其他Unicode字符也是标题库。
+		如果字符是标题，则返回true；否则返回false。
+	isUnicodeIdentifierPart(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否可以作为第一个字符以外的Unicode标识符的一部分。
+		如果且仅当下列语句之一为真，则字符可以是Unicode标识符的一部分：
+			● 是字母
+			● 是一个连接标点符号（如“_”）。
+			● 是个数字
+			● 它是一个数字字母（例如罗马数字字符）
+			● 是个组合符号
+			● 它是一个非间隔标记
+			● isIdentifierIgnorable为此字符返回true。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isUnicodeIdentifierPart(int)方法。
+		如果字符可能是Unicode标识符的一部分，则返回true；否则返回false。
+	isUnicodeIdentifierPart(int codePoint):static boolean
+		codePoint - 要测试的字符（Unicode码位）。
+		确定指定字符是否可以作为第一个字符以外的Unicode标识符的一部分。
+		如果且仅当下列语句之一为真，则字符可以是Unicode标识符的一部分：
+			● 是字母
+			● 是一个连接标点符号（如“_”）。
+			● 是个数字
+			● 它是一个数字字母（例如罗马数字字符）
+			● 是个组合符号
+			● 它是一个非间隔标记
+			● isIdentifierIgnorable为此字符返回true。
+		如果字符可能是Unicode标识符的一部分，则返回true；否则返回false。
+	isUnicodeIdentifierStart(char ch):static boolean 
+		ch - 要测试的字符。
+		确定是否允许指定字符作为Unicode标识符中的第一个字符。
+		如果且仅当以下条件之一为true时，字符才可以启动Unicode标识符：
+			● isLetter(ch)方法返回true。
+			● getType(ch)方法返回LETTER_NUMBER
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用isUnicodeIdentifierStart(int)方法。
+		如果字符可以启动Unicode标识符，则返回true；否则返回false。
+	isUnicodeIdentifierStart(int codePoint):tatic boolean 
+		codePoint - 要测试的字符（Unicode码位）。 
+		确定是否允许指定字符作为Unicode标识符中的第一个字符。
+		如果且仅当以下条件之一为true时，字符才可以启动Unicode标识符：
+			● isLetter(ch)方法返回true。
+			● getType(ch)方法返回LETTER_NUMBER
+		如果字符可以启动Unicode标识符，则返回true；否则返回false。
+	isUpperCase(char ch):static boolean 
+		ch - 要测试的字符。
+		确定指定字符是否为大写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是大写字母（UPPERCASE_LETTER），则字符为大写。或者，它具有Unicode标准定义的其他大写的贡献属性。
+		以下是大写字符的示例：
+			A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+			 '\u00C0' '\u00C1' '\u00C2' '\u00C3' '\u00C4' '\u00C5' '\u00C6' '\u00C7'
+			 '\u00C8' '\u00C9' '\u00CA' '\u00CB' '\u00CC' '\u00CD' '\u00CE' '\u00CF'
+			 '\u00D0' '\u00D1' '\u00D2' '\u00D3' '\u00D4' '\u00D5' '\u00D6' '\u00D8'
+			 '\u00D9' '\u00DA' '\u00DB' '\u00DC' '\u00DD' '\u00DE'
+		许多其他Unicode字符也是大写的。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isUpperCase(int)方法。
+		如果字符为大写，则返回true；否则返回false。
+	isUpperCase(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。 
+		确定指定字符是否为大写字符。
+		如果字符的常规类别类型（由Character.getType(ch)提供）是大写字母（UPPERCASE_LETTER），则字符为大写。或者，它具有Unicode标准定义的其他大写的贡献属性。
+		以下是大写字符的示例：
+			A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+			 '\u00C0' '\u00C1' '\u00C2' '\u00C3' '\u00C4' '\u00C5' '\u00C6' '\u00C7'
+			 '\u00C8' '\u00C9' '\u00CA' '\u00CB' '\u00CC' '\u00CD' '\u00CE' '\u00CF'
+			 '\u00D0' '\u00D1' '\u00D2' '\u00D3' '\u00D4' '\u00D5' '\u00D6' '\u00D8'
+			 '\u00D9' '\u00DA' '\u00DB' '\u00DC' '\u00DD' '\u00DE'
+		许多其他Unicode字符也是大写的。
+		如果字符为大写，则返回true；否则返回false。
+	isValidCodePoint(int codePoint):static boolean 
+		codePoint - 要测试的Unicode代码点。
+		确定指定的代码点是否为有效的Unicode代码点值。
+		如果指定的代码点值介于最小代码点（MIN_CODE_POINT）和最大代码点（MAX_CODE_POINT）之间，则返回true；否则返回false。
+	isWhitespace(char ch):static boolean 
+		ch - 要测试的字符。
+		根据Java来确定指定的字符是否为空白。一个字符是Java空白字符，当且仅当它满足下列准则之一时：
+			● 它是一个Unicode空格字符（空格分隔符（SPACE_SEPARATOR）、行分隔符（LINE_SEPARATOR）或段落分隔符（PARAGRAPH_SEPARATOR）），但也不是非分隔空格('\u00A0', '\u2007', '\u202F'）。
+			● 它是“\t”，U+0009水平表格。
+			● 它是‘\n’，U+000A换行。
+			● 它是‘\u000B’，u+000B垂直表格。
+			● 它是“\f”，U+000C形式的反馈。
+			● 它是 '\r', U+000D 回车
+			● 它是 '\u001C', U+001C文件分隔符。
+			● 它是 '\u001D', U+001D 组分隔符。
+			● 它是 '\u001E', U+001E 记录分隔符。
+			● 它是 '\u001F', U+001F 单元分隔符。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用isWhitespace(int)方法。
+		如果字符是Java空白字符，则返回true；否则返回false。
+	isWhitespace(int codePoint):static boolean 
+		codePoint - 要测试的字符（Unicode码位）。 
+		根据Java来确定指定的字符是否为空白。一个字符是Java空白字符，当且仅当它满足下列准则之一时：
+			● 它是一个Unicode空格字符（空格分隔符（SPACE_SEPARATOR）、行分隔符（LINE_SEPARATOR）或段落分隔符（PARAGRAPH_SEPARATOR）），但也不是非分隔空格('\u00A0', '\u2007', '\u202F'）。
+			● 它是“\t”，U+0009水平表格。
+			● 它是‘\n’，U+000A换行。
+			● 它是‘\u000B’，u+000B垂直表格。
+			● 它是“\f”，U+000C形式的反馈。
+			● 它是 '\r', U+000D 回车
+			● 它是 '\u001C', U+001C文件分隔符。
+			● 它是 '\u001D', U+001D 组分隔符。
+			● 它是 '\u001E', U+001E 记录分隔符。
+			● 它是 '\u001F', U+001F 单元分隔符。
+		如果字符是Java空白字符，则返回true；否则返回false。
+	lowSurrogate(int codePoint):static char 
+		codePoint - 补充字符（Unicode码位）。
+		返回用UTF-16编码表示指定补充字符（Unicode码位）的代理对的尾随代理项（低代理项代码单元）。如果指定的字符不是补充字符，则返回未指定的字符。
+		如果isSupplementaryCodePoint(x)为true，则isLowSurrogate(lowSurrogate(x)) 和toCodePoint(highSurrogate(x)，lowSurrogate(x)) == x也始终返回true。
+		返回在UTF-16编码中用于表示字符的尾随代理代码单元。
+	offsetByCodePoints(char[] a, int start, int count,int index, int codePointOffset):static int 
+		a - char数组。
+		start - 子数组第一个字符的索引。
+		count - 子数组的长度（以字符为单位）。
+		index - 要偏移的索引。
+		codePointOffset - 代码点偏移量。
+		返回给定char子数组中由codePointOffset代码点从给定索引偏移的索引。start和count参数指定char数组的子数组。在索引和代码点偏移量计数给出的文本范围内，未成对的代理项各作为一个代码点。
+		返回子数组中的索引。
+		【Throws】：
+			NullPointerException 如果a为null。
+			IndexOutOfBoundsException 如果start或count为负数，或者如果start+count大于给定数组的长度，或者如果index小于start或大于start+count，或者如果codePointOffset为正数，并且以index开始并以start+count结束的文本范围-1具有的codePointOffset代码点少于codePointOffset代码点，或者codePointOffset为负数且从开始到索引-1结束的文本范围小于代码点偏移量代码点的绝对值。
+	offsetByCodePoints(CharSequence seq, int index,int codePointOffset):static int
+		seq - 字符序列。
+		index - 要偏移的索引。
+		codePointOffset - 代码点偏移量。
+		返回给定字符序列中的索引，该索引与给定索引之间的偏移量由codePointOffset代码点组成。在索引和代码点偏移量计数给出的文本范围内，未成对的代理项各作为一个代码点。
+		【Throws】：
+			NullPointerException 如果seq为null。
+			IndexOutOfBoundsException 如果index为负或大于char序列的长度，或者如果codePointOffset为正，并且以index开头的子序列具有小于codePointOffset代码点的代码点，或者如果codePointOffset为负，并且index之前的子序列具有小于codePointOffset代码点的绝对值的代码点。
+	reverseBytes(char ch):static char 
+		ch - 要颠倒字节顺序的字符。
+		返回通过颠倒指定char值中字节的顺序获得的值。
+	toChars(int codePoint):static char[] 
+		codePoint - Unicode码位。
+		将指定的字符（Unicode代码点）转换为存储在char数组中的UTF-16表示形式。如果指定的代码点是BMP（基本多语言平面或平面0）值，则生成的char数组与代码点具有相同的值。如果指定的代码点是补充代码点，则生成的char数组具有相应的代理项对。
+		返回一种字符数组，具有码点的UTF-16表示。
+		【Throws】：
+			IllegalArgumentException 如果指定的代码点不是有效的Unicode代码点。
+	toChars(int codePoint, char[] dst, int dstIndex):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		dst - 存储代码点的UTF-16值的char数组。
+		dstIndex - DST数组中存储转换值的起始索引。
+		将指定的字符（Unicode码位）转换为其UTF-16表示形式。如果指定的代码点是BMP（基本多语言平面或平面0）值，则相同的值存储在dst[dstIndex]中，并返回1。如果指定的代码点是一个补充字符，则其代理项值存储在dst[dstIndex]（高代理项）和dst[dstIndex+1]（低代理项）中，并返回2。
+		如果代码点是BMP代码点返回1，如果代码点是补充代码点返回2。
+		【Throws】：
+			IllegalArgumentException 如果指定的代码点不是有效的Unicode代码点。
+			NullPointerException 如果指定的dst为null。
+			IndexOutOfBoundsException 如果dstIndex为负数或不小于dst.length，或者dstIndex处的dst没有足够的数组元素来存储生成的char值。（如果dstIndex等于dst.length-1，并且指定的代码点是一个补充字符，则高代理值不会存储在dst[dstIndex]中。）
+	toCodePoint(char high, char low):static int 
+		high - 高代理代码单元。
+		low - 低代理代码单元。
+		将指定的代理项对转换为其补充代码点值。此方法不验证指定的代理项对。如有必要，调用方必须使用isSurrogatePair对其进行验证。
+		返回由指定的代理项对组成的补充代码点。
+	toLowerCase(char ch):static char
+		ch - 要转换的字符。
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为小写。
+		请注意，Character.isLowerCase(Character.toLowerCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toLowerCase()将字符映射为小写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:m字符映射，而字符大小写映射方法则不能。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符（包括补充字符），请使用toLowerCase(int)方法。
+		返回字符的小写等价物，如果有的话；否则，返回字符本身。
+	toLowerCase(int codePoint):static int 
+		codePoint - 要转换的字符（Unicode码位）。
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为小写。
+		请注意，Character.isLowerCase(Character.toLowerCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toLowerCase()将字符映射为小写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:m字符映射，而字符大小写映射方法则不能。
+		返回字符的小写等价物，如果有的话；否则，返回字符本身。
+	toString(char c):static String 
+		c - 要转换的字符。
+		返回表示指定字符的字符串对象。结果是一个长度为1的字符串，仅由指定的字符组成。
+	toTitleCase(char ch):static char 
+		ch - 要转换的字符。
+		使用来自UnicodeData文件的大小写映射信息，将字符参数转换为标题库。如果字符没有显式的标题库映射，并且根据UnicodeData本身不是标题库字符，则返回大写映射作为等效的标题库映射。如果char参数已经是titlecase char，则返回相同的char值。
+		注意，对于某些字符范围，Character.isTitleCase(Character.toTitleCase(ch))并不总是返回true。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用toTitleCase(int)方法。
+	toTitleCase(int codePoint):static int
+		codePoint - 要转换的字符（Unicode码位）。 
+		使用来自UnicodeData文件的大小写映射信息，将字符参数转换为标题库。如果字符没有显式的标题库映射，并且根据UnicodeData本身不是标题库字符，则返回大写映射作为等效的标题库映射。如果char参数已经是titlecase char，则返回相同的char值。
+		注意，对于某些字符范围，Character.isTitleCase(Character.toTitleCase(ch))并不总是返回true。
+		返回与字符（如果有的话）相对应的标题；否则，返回字符本身。
+	toUpperCase(char ch):static char 
+		ch - 要转换的字符。
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为大写。
+		注意Character.isUpperCase(Character.toUpperCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toUpperCase()将字符映射到大写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:M字符映射，而字符大小写映射方法则不能。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用toUpperCase(int)方法。
+		返回字符的大写等价物（如果有的话）；否则，返回字符本身。
+	toUpperCase(int codePoint):static int 
+		codePoint - 要转换的字符（Unicode码位）。 
+		使用来自UnicodeData文件的大小写映射信息将字符参数转换为大写。
+		注意Character.isUpperCase(Character.toUpperCase(ch))对于某些范围的字符（尤其是符号或象形文字）并不总是返回true。
+		通常，应该使用String.toUpperCase()将字符映射到大写。字符串大小写映射方法比字符大小写映射方法有几个好处。字符串大小写映射方法可以执行区域设置敏感映射、上下文敏感映射和1:M字符映射，而字符大小写映射方法则不能。
+		返回字符的大写等价物（如果有的话）；否则，返回字符本身。
+	valueOf(char c):static Character 
+		c - char值。
+		返回表示指定字符值的Character实例。如果不需要新的字符实例，则通常应优先使用此方法，而不是构造函数字符（char），因为通过缓存频繁请求的值，此方法可能会显著提高空间和时间性能。此方法将始终缓存范围从\u0000'到\u007f'的值（包括这两个值），并且可能缓存此范围之外的其他值。
+		表示c的Character实例。
+	charValue():char 
+		返回此字符对象的值。
+	compareTo(Character anotherCharacter):int 
+		anotherCharacter - 要比较的字符。
+		△ 对两个字符对象进行数值比较。
+	equals(Object obj):boolean 
+		obj - 要与之比较的对象。
+		△ 将此对象与指定的对象进行比较。如果且仅当参数不为空并且是表示与此对象相同char值的Character对象，则结果为true。
+		如果对象相同，则返回true；否则返回false。
+	hashCode():int 
+		△ 返回此字符的哈希代码；等于调用charValue()的结果。
+	toString():String 
+		△ 返回表示此字符值的字符串对象。结果是一个长度为1的字符串，其唯一组成部分是由该字符对象表示的原始char值。
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	
+
+
+
+----------------------------------------Character$Subset--------------------------------------------------------------------------------------------------------------
+1、Character.Subset：字符类子集		【Since:JDK1.0】
+	此类的实例表示Unicode字符集的特定子集。在Character类中定义的唯一子集族是Character.UnicodeBlock。Java API的其他部分可以为它们自己的目的定义其他子集。
+	
+	
+	类定义	：public static class Character.Subset
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected Subset(String name)
+		name - 此子集的名称。
+		构造新的子集实例。
+		
+
+Method Summary（方法概要）：
+	equals(Object obj):final boolean 
+		obj - 要与之比较的引用对象。
+		比较两个子集对象是否相等。如果且仅当此方法和参数引用同一对象时，此方法返回true；由于此方法是final方法，因此此保证适用于所有子类。
+		如果此对象与obj参数相同，则返回true；否则返回false。
+	hashCode():final int 
+		返回由Object.hashCode()方法定义的标准哈希代码。此方法是final方法，以确保equals和hashCode方法在所有子类中都是一致的。
+	toString():final String 
+		返回此子集的名称。
+----------------------------------------Character$UnicodeBlock--------------------------------------------------------------------------------------------------------------
+2、Character.UnicodeBlock：Unicode块		【Since:JDK1.0】
+	表示Unicode规范中字符块的字符子集族。字符块通常定义用于特定脚本或目的的字符。一个字符最多由一个Unicode块包含。
+	
+	
+	类定义	：public static final class UnicodeBlock extends Subset
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	AEGEAN_NUMBERS : UnicodeBlock
+		“爱琴海数字”Unicode字符块的常量。
+	ALCHEMICAL_SYMBOLS : UnicodeBlock
+		“炼金术符号”Unicode字符块的常量。
+	ALPHABETIC_PRESENTATION_FORMS : UnicodeBlock
+		“字母表示形式”Unicode字符块的常量。
+	ANCIENT_GREEK_MUSICAL_NOTATION : UnicodeBlock
+		“古希腊音乐符号”Unicode字符块的常量。
+	ANCIENT_GREEK_NUMBERS : UnicodeBlock
+		“古希腊数字”Unicode字符块的常量。
+	ANCIENT_SYMBOLS : UnicodeBlock
+		“古符号”Unicode字符块的常量。
+	ARABIC : UnicodeBlock
+		“阿拉伯语”Unicode字符块的常量。
+	ARABIC_EXTENDED_A : UnicodeBlock
+		“阿拉伯语扩展-A”Unicode字符块的常量。
+	ARABIC_MATHEMATICAL_ALPHABETIC_SYMBOLS : UnicodeBlock
+		“阿拉伯数学字母符号”Unicode字符块的常量。
+	ARABIC_PRESENTATION_FORMS_A : UnicodeBlock
+		“阿拉伯语表示形式-A”Unicode字符块的常量。
+	ARABIC_PRESENTATION_FORMS_B : UnicodeBlock
+		“阿拉伯语表示形式-B”Unicode字符块的常量。
+	ARABIC_SUPPLEMENT : UnicodeBlock
+		“阿拉伯语补充”Unicode字符块的常量。
+	ARMENIAN : UnicodeBlock
+		Unicode字符块常量：“亚美尼亚”。
+	ARROWS : UnicodeBlock
+		Unicode字符块常量：“箭头”。
+	AVESTAN : UnicodeBlock
+		“阿维斯陀语”Unicode字符块的常量。
+	BALINESE : UnicodeBlock
+		“巴厘文”Unicode字符块的常量。
+	BAMUM : UnicodeBlock
+		“Bamum”unicode字符块的常量。
+	BAMUM_SUPPLEMENT : UnicodeBlock
+		“Bamum补充”unicode字符块的常量。
+	BASIC_LATIN : UnicodeBlock
+		“基础拉丁”Unicode字符块的常量。
+	BATAK : UnicodeBlock
+		“Batak”unicode字符块的常量。
+	BENGALI : UnicodeBlock
+		“孟加拉语”Unicode字符块的常量。
+	BLOCK_ELEMENTS : UnicodeBlock
+		“块元素”Unicode字符块的常量。
+	BOPOMOFO : UnicodeBlock
+		“注音字母”unicode字符块的常量。
+	BOPOMOFO_EXTENDED : UnicodeBlock
+		“注音字母扩展”unicode字符块的常量。
+	BOX_DRAWING : UnicodeBlock
+		“制表”Unicode字符块的常量。
+	BRAHMI : UnicodeBlock
+		“布拉耶盲文”unicode字符块的常量。
+	BRAILLE_PATTERNS : UnicodeBlock
+		“布拉耶盲文模式”unicode字符块的常量。
+	BUGINESE : UnicodeBlock
+		“布吉文”unicode字符块的常量。
+	BUHID : UnicodeBlock
+		“布希德文”unicode字符块的常量。
+	BYZANTINE_MUSICAL_SYMBOLS : UnicodeBlock
+		“东正教音乐符号”unicode字符块的常量。
+	CARIAN : UnicodeBlock
+		“卡里安”unicode字符块的常量。
+	CHAKMA : UnicodeBlock
+		“Chakma”unicode字符块的常量。
+	CHAM : UnicodeBlock
+		“Cham”unicode字符块的常量。
+	CHEROKEE : UnicodeBlock
+		“切诺基”unicode字符块的常量。
+	CJK_COMPATIBILITY : UnicodeBlock
+		“中日韩兼容”unicode字符块的常量。
+	CJK_COMPATIBILITY_FORMS : UnicodeBlock
+		“中日韩兼容形式”unicode字符块的常量。
+	CJK_COMPATIBILITY_IDEOGRAPHS : UnicodeBlock
+		“中日韩兼容象形文字”unicode字符块的常量。
+	CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT : UnicodeBlock
+		“中日韩兼容象形文字补充”unicode字符块的常量。
+	CJK_RADICALS_SUPPLEMENT : UnicodeBlock
+		“中日韩部首补充”unicode字符块的常量。
+	CJK_STROKES : UnicodeBlock
+		“中日韩笔画”unicode字符块的常量。
+	CJK_SYMBOLS_AND_PUNCTUATION : UnicodeBlock
+		“中日韩符号和标点”unicode字符块的常量。
+	CJK_UNIFIED_IDEOGRAPHS : UnicodeBlock
+		“中日韩统一表意文字”unicode字符块的常量。
+	CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A : UnicodeBlock
+		“中日韩统一表意文字扩展-A”unicode字符块的常量。
+	CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B : UnicodeBlock
+		“中日韩统一表意文字扩展-B”unicode字符块的常量。
+	CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C : UnicodeBlock
+		“中日韩统一表意文字扩展-C”unicode字符块的常量。
+	CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D : UnicodeBlock
+		“中日韩统一表意文字扩展-D”unicode字符块的常量。
+	COMBINING_DIACRITICAL_MARKS : UnicodeBlock
+		“组合用附加符号”unicode字符块的常量。
+	COMBINING_DIACRITICAL_MARKS_SUPPLEMENT : UnicodeBlock
+		“组合用附加符号补充”unicode字符块的常量。
+	COMBINING_HALF_MARKS : UnicodeBlock
+		“组合用半角标记”unicode字符块的常量。
+	COMBINING_MARKS_FOR_SYMBOLS : UnicodeBlock
+		“组合符号的音调符号”unicode字符块的常量。
+		这个块以前被称为“符号组合标记”。
+	COMMON_INDIC_NUMBER_FORMS : UnicodeBlock
+		“常用的指数形式”unicode字符块的常量。
+	CONTROL_PICTURES : UnicodeBlock
+		“控制图片”unicode字符块的常量。
+	COPTIC : UnicodeBlock
+		“科普特语”unicode字符块的常量。
+	COUNTING_ROD_NUMERALS : UnicodeBlock
+		“算筹记数式”unicode字符块的常量。
+	CUNEIFORM : UnicodeBlock
+		“楔形文字”unicode字符块的常量。
+	CUNEIFORM_NUMBERS_AND_PUNCTUATION : UnicodeBlock
+		“楔形文字数字和标点符号”unicode字符块的常量。
+	CURRENCY_SYMBOLS : UnicodeBlock
+		“货币符号”unicode字符块的常量。
+	CYPRIOT_SYLLABARY : UnicodeBlock
+		“塞浦路斯音节文字”unicode字符块的常量。
+	CYRILLIC : UnicodeBlock
+		“西里尔文”unicode字符块的常量。
+	CYRILLIC_EXTENDED_A : UnicodeBlock
+		“西里尔文扩展-A”unicode字符块的常量。
+	CYRILLIC_EXTENDED_B : UnicodeBlock
+		“西里尔文扩展-B”unicode字符块的常量。
+	CYRILLIC_SUPPLEMENTARY : UnicodeBlock
+		“西里尔文扩展补充”unicode字符块的常量。
+	DESERET : UnicodeBlock
+		“德塞莱特”unicode字符块的常量。
+	DEVANAGARI : UnicodeBlock
+		“天成文书（梵文）”unicode字符块的常量。
+	DEVANAGARI_EXTENDED : UnicodeBlock
+		“天成文书（梵文）扩展”unicode字符块的常量。
+	DINGBATS : UnicodeBlock
+		“丁巴特”unicode字符块的常量。
+	DOMINO_TILES : UnicodeBlock
+		“多米诺牌”unicode字符块的常量。
+	EGYPTIAN_HIEROGLYPHS : UnicodeBlock
+		“埃及象形文字”unicode字符块的常量。
+	EMOTICONS : UnicodeBlock
+		“表情符号”unicode字符块的常量。
+	ENCLOSED_ALPHANUMERIC_SUPPLEMENT : UnicodeBlock
+		“带圈字母数字补充”unicode字符块的常量。
+	ENCLOSED_ALPHANUMERICS : UnicodeBlock
+		““带圈字母数字”unicode字符块的常量。
+	ENCLOSED_CJK_LETTERS_AND_MONTHS : UnicodeBlock
+		“带括号的CJK字母和月份”unicode字符块的常量。
+	ENCLOSED_IDEOGRAPHIC_SUPPLEMENT : UnicodeBlock
+		“带圈象形文字补充”unicode字符块的常量。
+	ETHIOPIC : UnicodeBlock
+		“埃塞俄比亚语”unicode字符块的常量。
+	ETHIOPIC_EXTENDED : UnicodeBlock
+		“埃塞俄比亚语扩展”unicode字符块的常量。
+	ETHIOPIC_EXTENDED_A : UnicodeBlock
+		“埃塞俄比亚语扩展-A”unicode字符块的常量。
+	ETHIOPIC_SUPPLEMENT : UnicodeBlock
+		“埃塞俄比亚语补充”unicode字符块的常量。
+	GENERAL_PUNCTUATION : UnicodeBlock
+		“常用标点”unicode字符块的常量。
+	GEOMETRIC_SHAPES : UnicodeBlock
+		“几何图形”unicode字符块的常量。
+	GEORGIAN : UnicodeBlock
+		“格鲁吉亚语”unicode字符块的常量。
+	GEORGIAN_SUPPLEMENT : UnicodeBlock
+		“格鲁吉亚语补充”unicode字符块的常量。
+	GLAGOLITIC : UnicodeBlock
+		“格拉哥里文”unicode字符块的常量。
+	GOTHIC : UnicodeBlock
+		“哥特语”unicode字符块的常量。
+	GREEK : UnicodeBlock
+		“希腊语和科普特语”unicode字符块的常量。
+		此块以前被称为“希腊”块。
+	GREEK_EXTENDED : UnicodeBlock
+		“希腊语扩展”unicode字符块的常量。
+	GUJARATI : UnicodeBlock
+		“古吉拉特语”unicode字符块的常量。
+	GURMUKHI : UnicodeBlock
+		“锡克教文”unicode字符块的常量。
+	HALFWIDTH_AND_FULLWIDTH_FORMS : UnicodeBlock
+		“半角及全角字符”unicode字符块的常量。
+	HANGUL_COMPATIBILITY_JAMO : UnicodeBlock
+		“朝鲜文兼容字母”unicode字符块的常量。
+	HANGUL_JAMO : UnicodeBlock
+		“朝鲜文”unicode字符块的常量。
+	HANGUL_JAMO_EXTENDED_A : UnicodeBlock
+		“朝鲜文扩展-A”unicode字符块的常量。
+	HANGUL_JAMO_EXTENDED_B : UnicodeBlock
+		“朝鲜文扩展-B”unicode字符块的常量。
+	HANGUL_SYLLABLES : UnicodeBlock
+		“朝鲜文音节”unicode字符块的常量。
+	HANUNOO : UnicodeBlock
+		“哈努诺文”unicode字符块的常量。
+	HEBREW : UnicodeBlock
+		“希伯来语”unicode字符块的常量。
+	HIGH_PRIVATE_USE_SURROGATES : UnicodeBlock
+		“”unicode字符块的常量。
+	HIGH_SURROGATES : UnicodeBlock
+		“高专用代理”unicode字符块的常量。此块表示专用高代理范围内的代码点值：U+DB80 到 U+DBFF
+	HIRAGANA : UnicodeBlock
+		“日文平假名”unicode字符块的常量。
+	IDEOGRAPHIC_DESCRIPTION_CHARACTERS : UnicodeBlock
+		“象形文字描述符”unicode字符块的常量。
+	IMPERIAL_ARAMAIC : UnicodeBlock
+		“皇家亚拉姆语”unicode字符块的常量。
+	INSCRIPTIONAL_PAHLAVI : UnicodeBlock
+		“巴拉维铭文”unicode字符块的常量。
+	INSCRIPTIONAL_PARTHIAN : UnicodeBlock
+		“帕提亚铭文”unicode字符块的常量。
+	IPA_EXTENSIONS : UnicodeBlock
+		“国际音标扩展”unicode字符块的常量。
+	JAVANESE : UnicodeBlock
+		“爪哇语”unicode字符块的常量。
+	KAITHI : UnicodeBlock
+		“日语假名语”unicode字符块的常量。
+	KANA_SUPPLEMENT : UnicodeBlock
+		“日语假名语补充”unicode字符块的常量。
+	KANBUN : UnicodeBlock
+		“汉文标注号”unicode字符块的常量。
+	KANGXI_RADICALS : UnicodeBlock
+		“康熙部首”unicode字符块的常量。
+	KANNADA : UnicodeBlock
+		“卡纳达语”unicode字符块的常量。
+	KATAKANA : UnicodeBlock
+		“日语片假名”unicode字符块的常量。
+	KATAKANA_PHONETIC_EXTENSIONS : UnicodeBlock
+		“日文片假名语音扩展”unicode字符块的常量。
+	KAYAH_LI : UnicodeBlock
+		“克耶字母”unicode字符块的常量。
+	KHAROSHTHI : UnicodeBlock
+		“卡罗什提语”unicode字符块的常量。
+	KHMER : UnicodeBlock
+		“高棉语”unicode字符块的常量。
+	KHMER_SYMBOLS : UnicodeBlock
+		“高棉语符号”unicode字符块的常量。
+	LAO : UnicodeBlock
+		“Lao”unicode字符块的常量。
+	LATIN_1_SUPPLEMENT : UnicodeBlock
+		“拉丁语-1补充”unicode字符块的常量。
+	LATIN_EXTENDED_A : UnicodeBlock
+		“拉丁语扩展-A”unicode字符块的常量。
+	LATIN_EXTENDED_ADDITIONAL : UnicodeBlock
+		“拉丁语扩展附加词”unicode字符块的常量。
+	LATIN_EXTENDED_B : UnicodeBlock
+		“拉丁语扩展-B”unicode字符块的常量。
+	LATIN_EXTENDED_C : UnicodeBlock
+		“拉丁语扩展-C”unicode字符块的常量。
+	LATIN_EXTENDED_D : UnicodeBlock
+		“拉丁语扩展-D”unicode字符块的常量。
+	LEPCHA : UnicodeBlock
+		“莱布查语”unicode字符块的常量。
+	LETTERLIKE_SYMBOLS : UnicodeBlock
+		“字母式符号”unicode字符块的常量。
+	LIMBU : UnicodeBlock
+		“林布语”unicode字符块的常量。
+	LINEAR_B_IDEOGRAMS : UnicodeBlock
+		“”unicode字符块的常量。
+	LINEAR_B_SYLLABARY : UnicodeBlock
+		“线形文字-B表意文字”unicode字符块的常量。
+	LISU : UnicodeBlock
+		“隶书”unicode字符块的常量。
+	LOW_SURROGATES : UnicodeBlock
+		“低代理”unicode字符块的常量。此块表示低代理范围内的码位值：U+DC00 到 U+DFFF
+	LYCIAN : UnicodeBlock
+		“利西亚语”unicode字符块的常量。
+	LYDIAN : UnicodeBlock
+		“利底亚文”unicode字符块的常量。
+	MAHJONG_TILES : UnicodeBlock
+		“麻将牌”unicode字符块的常量。
+	MALAYALAM : UnicodeBlock
+		“马拉雅拉姆语”unicode字符块的常量。
+	MANDAIC : UnicodeBlock	
+		“曼达克语”unicode字符块的常量。
+	MATHEMATICAL_ALPHANUMERIC_SYMBOLS : UnicodeBlock
+		“数学字母数字符号”unicode字符块的常量。
+	MATHEMATICAL_OPERATORS : UnicodeBlock
+		“数学运算符”unicode字符块的常量。
+	MEETEI_MAYEK : UnicodeBlock
+		“Meetei Mayek”unicode字符块的常量。
+	MEETEI_MAYEK_EXTENSIONS : UnicodeBlock
+		“Meetei Mayek扩展”unicode字符块的常量。
+	MEROITIC_CURSIVE : UnicodeBlock
+		“狂草书”unicode字符块的常量。
+	MEROITIC_HIEROGLYPHS : UnicodeBlock
+		“艺术象形文字”unicode字符块的常量。
+	MIAO : UnicodeBlock
+		“苗族语”unicode字符块的常量。
+	MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A : UnicodeBlock
+		“其他数学符号-A”unicode字符块的常量。
+	MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B : UnicodeBlock
+		“其他数学符号-B”unicode字符块的常量。
+	MISCELLANEOUS_SYMBOLS : UnicodeBlock
+		“杂项符号”unicode字符块的常量。
+	MISCELLANEOUS_SYMBOLS_AND_ARROWS : UnicodeBlock
+		“杂项符号和箭头”unicode字符块的常量。
+	MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS : UnicodeBlock
+		“其他符号和象形文字”unicode字符块的常量。
+	MISCELLANEOUS_TECHNICAL : UnicodeBlock
+		“杂项工业符号”unicode字符块的常量。
+	MODIFIER_TONE_LETTERS : UnicodeBlock
+		“声调修饰字母”unicode字符块的常量。
+	MONGOLIAN : UnicodeBlock
+		“蒙古语”unicode字符块的常量。
+	MUSICAL_SYMBOLS : UnicodeBlock
+		“音乐符号”unicode字符块的常量。
+	MYANMAR : UnicodeBlock
+		“缅甸语”unicode字符块的常量。
+	MYANMAR_EXTENDED_A : UnicodeBlock
+		“缅甸语扩展-A”unicode字符块的常量。
+	NEW_TAI_LUE : UnicodeBlock
+		“新傣仂文”unicode字符块的常量。
+	NKO : UnicodeBlock
+		“NKo”unicode字符块的常量。
+	NUMBER_FORMS : UnicodeBlock
+		“数字形式”unicode字符块的常量。
+	OGHAM : UnicodeBlock
+		“欧甘文”unicode字符块的常量。
+	OL_CHIKI : UnicodeBlock
+		“欧基文”unicode字符块的常量。
+	OLD_ITALIC : UnicodeBlock
+		“古意大利文”unicode字符块的常量。
+	OLD_PERSIAN : UnicodeBlock
+		“古波斯文”unicode字符块的常量。
+	OLD_SOUTH_ARABIAN : UnicodeBlock
+		“南阿拉伯古语”unicode字符块的常量。
+	OLD_TURKIC : UnicodeBlock
+		“古突厥语”unicode字符块的常量。
+	OPTICAL_CHARACTER_RECOGNITION : UnicodeBlock
+		“光学字符识别”unicode字符块的常量。
+	ORIYA : UnicodeBlock
+		“奥里雅语(印度东部奥里萨邦的语言)”unicode字符块的常量。
+	OSMANYA : UnicodeBlock
+		“奥斯曼尼亚语”unicode字符块的常量。
+	PHAGS_PA : UnicodeBlock
+		“八思巴字母”unicode字符块的常量。
+	PHAISTOS_DISC : UnicodeBlock
+		“费斯托斯圆盘”unicode字符块的常量。
+	PHOENICIAN : UnicodeBlock
+		“腓尼基文”unicode字符块的常量。
+	PHONETIC_EXTENSIONS : UnicodeBlock
+		“语音学扩展”unicode字符块的常量。
+	PHONETIC_EXTENSIONS_SUPPLEMENT : UnicodeBlock
+		“语音学扩展补充”unicode字符块的常量。
+	PLAYING_CARDS : UnicodeBlock
+		“扑克牌”unicode字符块的常量。
+	PRIVATE_USE_AREA : UnicodeBlock
+		“私有使用区”unicode字符块的常量。
+	REJANG : UnicodeBlock
+		“Rejang”unicode字符块的常量。
+	RUMI_NUMERAL_SYMBOLS : UnicodeBlock
+		“鲁米数字符号”unicode字符块的常量。
+	RUNIC : UnicodeBlock
+		“尼文”unicode字符块的常量。
+	SAMARITAN : UnicodeBlock
+		“撒玛利亚语”unicode字符块的常量。
+	SAURASHTRA : UnicodeBlock
+		“索拉什特拉”unicode字符块的常量。
+	SHARADA : UnicodeBlock
+		“莎拉达”unicode字符块的常量。
+	SHAVIAN : UnicodeBlock
+		“沙威语”unicode字符块的常量。
+	SINHALA : UnicodeBlock
+		“僧伽罗文”unicode字符块的常量。
+	SMALL_FORM_VARIANTS : UnicodeBlock
+		“小写变体”unicode字符块的常量。
+	SORA_SOMPENG : UnicodeBlock
+		“索拉·索姆彭”unicode字符块的常量。
+	SPACING_MODIFIER_LETTERS : UnicodeBlock
+		“修饰字母”unicode字符块的常量。
+	SPECIALS : UnicodeBlock
+		“”unicode字符块的常量。
+	SUNDANESE : UnicodeBlock
+		“”unicode字符块的常量。
+	SUNDANESE_SUPPLEMENT : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPERSCRIPTS_AND_SUBSCRIPTS : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPPLEMENTAL_ARROWS_A : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPPLEMENTAL_ARROWS_B : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPPLEMENTAL_MATHEMATICAL_OPERATORS : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPPLEMENTAL_PUNCTUATION : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPPLEMENTARY_PRIVATE_USE_AREA_A : UnicodeBlock
+		“”unicode字符块的常量。
+	SUPPLEMENTARY_PRIVATE_USE_AREA_B : UnicodeBlock
+		“”unicode字符块的常量。
+	SURROGATES_AREA : UnicodeBlock
+		“”unicode字符块的常量。
+	SYLOTI_NAGRI : UnicodeBlock
+		“”unicode字符块的常量。
+	SYRIAC : UnicodeBlock
+		“”unicode字符块的常量。
+	TAGALOG : UnicodeBlock
+		“”unicode字符块的常量。
+	TAGBANWA : UnicodeBlock
+		“”unicode字符块的常量。
+	TAGS : UnicodeBlock
+		“”unicode字符块的常量。
+	TAI_LE : UnicodeBlock
+		“”unicode字符块的常量。
+	TAI_THAM : UnicodeBlock
+		“”unicode字符块的常量。
+	TAI_VIET : UnicodeBlock
+		“”unicode字符块的常量。
+	TAI_XUAN_JING_SYMBOLS : UnicodeBlock
+		“”unicode字符块的常量。
+	TAKRI : UnicodeBlock
+		“”unicode字符块的常量。
+	TAMIL : UnicodeBlock
+		“”unicode字符块的常量。
+	TELUGU : UnicodeBlock
+		“”unicode字符块的常量。
+	THAANA : UnicodeBlock
+		“”unicode字符块的常量。
+	THAI : UnicodeBlock
+		“”unicode字符块的常量。
+	TIBETAN : UnicodeBlock
+		“”unicode字符块的常量。
+	TIFINAGH : UnicodeBlock
+		“”unicode字符块的常量。
+	TRANSPORT_AND_MAP_SYMBOLS : UnicodeBlock
+		“”unicode字符块的常量。
+	UGARITIC : UnicodeBlock
+		“”unicode字符块的常量。
+	UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS : UnicodeBlock
+		“”unicode字符块的常量。
+	UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS_EXTENDED : UnicodeBlock
+		“”unicode字符块的常量。
+	VAI : UnicodeBlock
+		“”unicode字符块的常量。
+	VARIATION_SELECTORS : UnicodeBlock
+		“”unicode字符块的常量。
+	VARIATION_SELECTORS_SUPPLEMENT : UnicodeBlock
+		“”unicode字符块的常量。
+	VEDIC_EXTENSIONS : UnicodeBlock
+		“”unicode字符块的常量。
+	VERTICAL_FORMS : UnicodeBlock
+		“”unicode字符块的常量。
+	YI_RADICALS : UnicodeBlock
+		“”unicode字符块的常量。
+	YI_SYLLABLES : UnicodeBlock
+		“”unicode字符块的常量。
+	YIJING_HEXAGRAM_SYMBOLS : UnicodeBlock	
+		“”unicode字符块的常量。	
+
+Method Summary（方法概要）：
+	forName(String blockName):static final UnicodeBlock 
+		blockName - A UnicodeBlock name.
+		返回具有给定名称的UnicodeBlock。块名由Unicode标准确定。文件Blocks-<version>.txt为标准的特定版本定义块。字符类指定它支持的标准的版本。
+		此方法接受以下形式的块名称：
+			1、由Unicode标准定义的规范块名。例如，该标准定义为“基本拉丁语”块。因此，此方法接受“基本拉丁语”作为有效的块名。每个UnicodeBlock的文档提供规范名称。
+			2、已删除所有空格的规范块名称。例如，“基本拉丁语”是“basic拉丁文”块的有效块名。
+			3、每个常量UnicodeBlock标识符的文本表示。例如，如果提供了“basic-u拉丁语”名称，则此方法将返回BASIC_LATIN块。此表单用下划线替换规范名称中的所有空格和连字符。
+		最后，对于所有有效的块名称形式，将忽略字符大小写。例如，“BASIC_LATIN”和“basic_latin”都是有效的块名。en_US区域设置的大小写映射规则用于为块名验证提供不区分大小写的字符串比较。
+		如果Unicode标准更改块名称，则将接受以前的和当前的名称。
+		【Throws】：
+			IllegalArgumentException 如果blockname是无效名称。
+			NullPointerException 如果blockName为null。
+	of(char c):static UnicodeBlock 
+		c - 有疑问的字符。
+		返回表示包含给定字符的Unicode块的对象，如果该字符不是已定义块的成员，则返回null。
+		注意：此方法不能处理补充字符。要支持所有Unicode字符，包括补充字符，请使用of(int)方法。
+		返回表示此字符所属的Unicode块的UnicodeBlock实例；如果字符不是任何Unicode块的成员，则返回null。
+	of(int codePoint):static UnicodeBlock 
+		codePoint - 有问题的字符（Unicode码位）。
+		返回表示包含给定字符的Unicode块的对象，如果该字符不是已定义块的成员，则返回null。
+		返回表示此字符所属的Unicode块的UnicodeBlock实例；如果字符不是任何Unicode块的成员，则返回null。
+	
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

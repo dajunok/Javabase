@@ -1,0 +1,78 @@
+----------------------------------------FileStore--------------------------------------------------------------------------------------------------------------
+FileStore：文件存储器	【Since:1.7】
+	文件存储器。FileStore表示存储池、设备、分区、卷、具体的文件系统或其他特定于实现的文件存储方法。通过调用getFileStore方法获得文件存储的FileStore，或者通过调用getFileStores方法枚举所有文件存储区。
+	除了此类定义的方法之外，文件存储还可以支持一个或多个FileStoreAttributeView类，这些类提供一组文件存储属性的只读或可更新视图。
+	
+	
+	类定义	：public abstract class FileStore
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor Summary（构造器概要）：
+	protected FileStore() 
+		初始化该类的新实例。
+
+
+Method Summary（方法概要）：
+	getAttribute(String attribute):abstract Object 
+		attribute -要读取的属性。
+		★ 读取文件存储属性的值。
+		attribute参数标识要读取的属性并采用以下形式：
+			view-name:attribute-name
+		其中字符“：”代表自身。
+		view-name是标识一组文件属性的attributeView的名称。属性名称是属性的名称。
+		用法示例：假设我们想知道是否启用了ZFS压缩（假设支持“zfs”视图）：
+			boolean compression = (Boolean)fs.getAttribute("zfs:compression");
+		返回属性值；对于某些属性，null可能是有效的。
+		【Throws】：
+			UnsupportedOperationException 如果属性视图不可用或不支持读取属性。
+			IOException 如果发生I/O错误。
+	getFileStoreAttributeView(Class<V> type):abstract <V extends FileStoreAttributeView> V
+		<V> - 文件存储属性视图类型。
+		type - 与属性视图对应的Class对象。
+		★ 返回给定类型的FileStoreAttributeView。
+		此方法用于文件存储属性视图定义类型安全方法以读取或更新文件存储属性。type参数是所需属性视图的类型，如果支持，该方法将返回该类型的实例。
+		返回指定类型的文件存储属性视图；如果属性视图不可用，则返回null。
+	getTotalSpace():abstract long 
+		★ 返回文件存储区的大小（以字节为单位）。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	getUnallocatedSpace():abstract long 
+		★ 返回文件存储区中未分配的字节数。
+		返回的未分配字节数是一个提示，但不能保证可以使用这些字节中的大部分或任何一个。在获得空间属性之后，未分配字节的数目最有可能是准确的。任何外部I/O操作（包括在此虚拟机外部的系统上进行的操作）都可能使其不准确。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	getUsableSpace():abstract long 
+		★ 返回此文件存储中Java虚拟机可用的字节数。
+		返回的可用字节数是一个提示，但不能保证可以使用这些字节中的大部分或任何一个。在获得空间属性后，可用字节数很可能立即准确。任何外部I/O操作都可能不准确，包括在Java虚拟机外部的系统上进行的操作。
+		【Throws】：
+			IOException 如果发生I/O错误。
+	aisReadOnly():bstract boolean 
+		★ 指示此文件存储区是否为只读。如果文件存储不支持对文件的写操作或其他更改，则它是只读的。任何试图创建文件、打开现有文件进行写入等操作都会导致引发IOException异常。
+		如果且仅当此文件存储为只读时返回true。		
+	name():abstract String 
+		★ 返回此文件存储区的名称。名称的格式是高度特定于实现的。它通常是存储池或卷的名称。
+		此方法返回的字符串可能与toString方法返回的字符串不同。		
+	supportsFileAttributeView(Class<? extends FileAttributeView> type):abstract boolean 
+		type - 文件属性视图类型。
+		★ 指示此文件存储区是否支持由给定的文件属性视图标识的文件属性。
+		调用此方法以测试文件存储是否支持BasicFileAttributeView将始终返回true。对于默认提供器，当文件存储不是本地存储设备时，此方法不能保证给出正确的结果。原因是具体的实现，因此不确定。
+		如果且仅当支持文件属性视图时返回true。
+	supportsFileAttributeView(String name):abstract boolean 
+		name - -文件属性视图的名称。
+		★ 指示此文件存储区是否支持由给定的文件属性视图标识的文件属性。
+		调用此方法来测试文件存储是否支持BasicFileAttributeView，由“basic”标识的将始终返回true。对于默认提供器，当文件存储不是本地存储设备时，此方法不能保证给出正确的结果。原因是具体的实现，因此不确定。
+		如果且仅当支持文件属性视图时返回true。
+	type():abstract String 
+		★ 返回此文件存储的类型。此方法返回的字符串的格式是高度特定于实现的。例如，它可以指示使用的格式，或者文件存储是本地的还是远程的。
+		返回表示此文件存储类型的字符串。
+	
+	
+	
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已淘汰的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。	
+	3、java8中nio直接缓冲区与非直接缓冲区的区别：
+		非直接缓冲区：通过allocate方法分配缓冲区，将缓冲区建立在JVM的内存中。
+		直接缓冲区：通过allocateDirect方法分配直接缓冲区，将缓冲区建立在物理内存中，可以提供更高效率。

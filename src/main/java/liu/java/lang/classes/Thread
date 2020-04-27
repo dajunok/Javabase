@@ -1,0 +1,379 @@
+----------------------------------------Thread--------------------------------------------------------------------------------------------------------------
+Thread：线程。【Since:JDK1.0】
+	线程是程序中执行的线程。Java虚拟机允许应用程序同时执行多个执行线程。
+	每个线程都有优先权。优先级较高的线程优先于优先级较低的线程执行。每个线程也可以标记为守护进程（daemon），也可以不标记为守护进程（daemon）。当在某个线程中运行的代码创建新的线程对象时，新线程的优先级最初设置为等于创建线程的优先级，并且仅当创建线程是守护进程时才是守护进程线程。
+	当Java虚拟机启动时，通常会有一个非守护进程（non-daemon）线程（通常调用名为某个指定类的main方法）。Java虚拟机继续执行线程，直到以下任一个发生：
+		● 已调用类运行时的exit方法，并且安全管理器已允许执行exit动作。
+		● 所有不是守护进程线程的线程都已死亡，要么从对run方法的调用返回，要么抛出一个在run方法之外传播的异常。
+	有两种方法可以创建新的执行线程。一种是将类声明为Thread的子类。这个子类应该重写类Thread的run方法。然后可以分配和启动子类的实例。例如，计算大于指定值的素数的线程可以编写如下：	
+	————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	     class PrimeThread extends Thread {
+	         long minPrime;
+	         PrimeThread(long minPrime) {
+	             this.minPrime = minPrime;
+	         }
+	
+	         public void run() {
+	             // compute primes larger than minPrime
+	              . . .
+	         }
+	     }		
+	————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	然后，以下代码将创建一个线程并启动它运行：
+		PrimeThread p = new PrimeThread(143);
+     	p.start();
+	创建线程的另一种方法是声明实现Runnable接口的类。然后，该类实现了run方法。然后可以分配类的实例，在创建线程时作为参数传递，然后启动。其他样式中的相同示例如下所示：	
+	————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	     class PrimeRun implements Runnable {
+	         long minPrime;
+	         PrimeRun(long minPrime) {
+	             this.minPrime = minPrime;
+	         }
+	
+	         public void run() {
+	             // compute primes larger than minPrime
+	              . . .
+	         }
+	     }	
+	————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	然后，以下代码将创建一个线程并启动它运行：
+	     PrimeRun p = new PrimeRun(143);
+	     new Thread(p).start();	
+	每个线程都有一个用于标识的名称。多个线程可以具有相同的名称。如果在创建线程时未指定名称，则会为其生成新名称。
+	除非另有说明，否则将null参数传递给此类中的构造函数或方法将导致引发NullPointerException异常。
+	
+
+	类定义	：public class Thread implements Runnable
+	实现接口	：Runnable	
+	内部枚举类	：State
+	嵌套接口	：UncaughtExceptionHandler
+	子类		：ForkJoinWorkerThread
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Summary（字段概要）：
+	MAX_PRIORITY：static final int 
+		线程可以拥有的最大优先级。
+	MIN_PRIORITY:static final int 
+		线程可以拥有的最小优先级。
+	NORM_PRIORITY:static final int 
+		分配给线程的默认优先级。	
+
+
+Constructor Summary（构造器概要）：	
+	public Thread()
+		分配新的线程对象。此构造函数与Thread (null, null, gname)具有相同的效果，其中gname是新生成的名称。自动生成的名称的格式为“thread-”+n，其中n是整数。
+	public Thread(Runnable target)
+		target - 此线程启动时调用其run方法的对象(即线程启动时会调用target.run()方法)。如果为null，则此类运行方法不执行任何操作。
+		分配新的线程对象。此构造函数与Thread (null, target, gname)具有相同的效果，其中gname是新生成的名称。自动生成的名称的格式为“thread-”+n，其中n是整数。
+	public Thread(Runnable target, String name)
+		target - 此线程启动时调用其run方法的对象(即线程启动时会调用target.run()方法)。如果为null，则此类运行方法不执行任何操作。
+		name - 新线程的名称
+		分配新的线程对象。此构造函数与Thread (null, target, name)具有相同的效果。
+	public Thread(String name)
+		name - 新线程的名称
+		分配新的线程对象。此构造函数与Thread (null, null, name)具有相同的效果。
+	public Thread(ThreadGroup group, Runnable target)
+		group - 线程组。如果为null且有安全管理器，则该组由SecurityManager.getThreadGroup()决定。如果没有安全管理器或SecurityManager.getThreadGroup()返回null，则将该组设置为当前线程的线程组。
+		target - 此线程启动时调用其run方法的对象(即线程启动时会调用target.run()方法)。如果为null，则此类运行方法不执行任何操作。	
+		分配新的线程对象。此构造函数与 Thread(group, target, gname)具有相同的效果，其中gname是新生成的名称。自动生成的名称的格式为“thread-”+n，其中n是整数。
+		【Throws】：
+			SecurityException - 如果当前线程无法在指定的线程组中创建线程
+	public Thread(ThreadGroup group, Runnable target, String name)
+		group - 线程组。如果为null且有安全管理器，则该组由SecurityManager.getThreadGroup()决定。如果没有安全管理器或SecurityManager.getThreadGroup()返回null，则将该组设置为当前线程的线程组。
+		target - 此线程启动时调用其run方法的对象(即线程启动时会调用target.run()方法)。如果为null，则此类运行方法不执行任何操作。	
+		name - 新线程的名称
+		分配一个新的线程对象，使其以target作为其运行对象，以指定的名称name作为其名称，并且属于group引用的线程组。
+		如果存在安全管理器，则调用其checkAccess方法，并将ThreadGroup为其参数。
+		此外，当子类的构造函数直接或间接调用它的checkPermission方法时，使用RuntimePermission("enableContextClassLoaderOverride")权限调用它，该子类重写getContextClassLoader或setContextClassLoader方法。
+		新创建的线程的优先级设置为等于创建线程的线程的优先级，即当前正在运行的线程。方法setPriority可用于将优先级更改为新值。
+		如果创建新线程的线程当前标记为守护进程线程，则新创建的线程最初标记为守护进程线程。方法setDaemon可用于更改线程是否为守护进程。
+	public Thread(ThreadGroup group, Runnable target, String name,long stackSize)
+		group - 线程组。如果为null且有安全管理器，则该组由SecurityManager.getThreadGroup()决定。如果没有安全管理器或SecurityManager.getThreadGroup()返回null，则将该组设置为当前线程的线程组。
+		target - 此线程启动时调用其run方法的对象(即线程启动时会调用target.run()方法)。如果为null，则此类运行方法不执行任何操作。	
+		name - 新线程的名称
+		stackSize - 新线程所需的栈大小，或者为零，表示该参数将被忽略。
+		分配一个新的线程对象，使其以目标target作为运行对象，以指定的名称name作为名称，并且属于group引用的线程组，并且具有指定的栈大小stackSize。
+		此构造函数与Thread(ThreadGroup,Runnable,String)相同，但它允许指定线程栈大小。栈大小是虚拟机要为此线程栈分配的地址空间的近似字节数。stackSize参数的效果（如果有）高度依赖于平台。
+		在某些平台上，为stackSize参数指定更高的值可能会允许线程在引发StackOverflowError错误之前获得更大的递归深度。同样，指定一个较低的值可能会允许更多的线程并发存在，而不会引发OutOfMemoryError（或其他内部错误）。stackSize参数值与最大递归深度和并发级别之间关系的详细信息取决于平台。在某些平台上，stackSize参数的值可能没有任何影响。
+		虚拟机可以自由地将stackSize参数视为建议。如果平台的指定值不合理地低，则虚拟机可以使用特定于平台的最小值；如果指定值不合理地高，则虚拟机可以使用特定于平台的最大值。同样，虚拟机可以根据自己的需要自由地向上或向下舍入指定的值（或者完全忽略它）。
+		为stackSize参数指定值为零将导致此构造函数的行为与Thread(ThreadGroup, Runnable, String)构造函数的行为完全相同。
+		由于此构造函数行为的平台依赖性，因此在使用它时应格外小心。执行给定计算所需的stackSize线程可能因JRE实现的不同而有所不同。鉴于这种变化，可能需要对stackSize参数进行仔细的调整，并且可能需要对运行应用程序的每个JRE实现重复调整。
+		实现注意：鼓励Java平台实现者对stackSize参数记录其实现的行为。
+		【Throws】：
+			SecurityException - 如果当前线程无法在指定的线程组中创建线程
+	public Thread(ThreadGroup group, String name)
+		group - 线程组。如果为null且有安全管理器，则该组由SecurityManager.getThreadGroup()决定。如果没有安全管理器或SecurityManager.getThreadGroup()返回null，则将该组设置为当前线程的线程组。
+		name - 新线程的名称
+		分配新的线程对象。此构造函数与Thread (group, null, name)具有相同的效果。
+		【Throws】：
+			SecurityException - 如果当前线程无法在指定的线程组中创建线程
+				
+Method Summary（方法概要）：
+	activeCount():static int 
+		返回当前线程的线程组及其子组中活动线程数量的估计值。递归迭代当前线程线程组中的所有子组。
+		返回的值只是一个估计值，因为当此方法遍历内部数据结构时，线程数可能会动态更改，并且可能受某些系统线程的存在影响。此方法主要用于调试和监视目的。
+	currentThread():static native Thread 
+		返回对当前正在执行的线程对象的引用（即返回当前线程）。
+	dumpStack():static void 
+		将当前线程的栈跟踪打印到标准错误流。此方法仅用于调试。
+	enumerate(Thread tarray[]):static int 
+		将当前线程的线程组及其子组中的每个活动线程复制到指定的数组中。此方法简单调用当前线程的线程组的ThreadGroup.enumerate(Thread[])方法。
+		应用程序可能会使用activeCount方法来估计数组的大小，但是如果数组太短，无法容纳所有线程，则会自动忽略多余的线程。如果获取当前线程的线程组及其子组中的每个活动线程至关重要，则调用程序应验证返回的int值是否严格小于数组的长度。
+		由于该方法固有的速度条件，建议该方法仅用于调试和监视目的。
+	getAllStackTraces():static Map<Thread, StackTraceElement[]> 
+		返回所有活动线程的栈跟踪映射。映射键是线程，每个映射值是一个StackTraceElement数组，表示对应线程的栈转储（dump）。返回的栈跟踪采用为getStackTrace方法指定的格式。
+		调用此方法时，线程可能正在执行。每个线程的栈跟踪只代表一个快照，并且可以在不同的时间获取每个栈跟踪。如果虚拟机没有线程的栈跟踪信息，则在映射值中返回零长度数组。
+		如果存在安全管理器，则使用RuntimePermission("getStackTrace")权限和RuntimePermission("modifyThreadGroup")权限调用安全管理器的checkPermission方法，以查看是否可以获取所有线程的栈跟踪。
+		【Throws】：
+			SecurityException - 如果当前线程无法在指定的线程组中创建线程
+	getDefaultUncaughtExceptionHandler():static UncaughtExceptionHandler
+		 返回当线程因未捕获的异常而突然终止时调用的默认处理器（handler）。如果返回值为null，则没有默认值。
+	holdsLock(Object obj):static native boolean 
+		仅当当前线程持有指定对象上的监视器锁（monitor lock ）时返回true。
+		此方法旨在允许程序断言当前线程已持有指定的锁：
+			assert Thread.holdsLock(obj);
+		【Throws】：
+			NullPointerException 如果obj为null
+	interrupted():static boolean 
+		测试当前线程是否已中断。此方法将清除线程的中断状态。换句话说，如果连续两次调用此方法，则第二次调用将返回false（除非当前线程在第一次调用清除其中断状态之后和第二次调用检查它之前再次中断）。
+		线程中断被忽略，因为线程在中断时不活动，此方法将返回false。
+	setDefaultUncaughtExceptionHandler(UncaughtExceptionHandler eh):static void 
+		设置当线程由于未捕获的异常而突然终止时调用的默认处理器，并且没有为该线程定义其他处理器。
+		未捕获的异常处理首先由线程控制，然后由线程的ThreadGroup对象控制，最后由默认的未捕获异常处理程序控制。如果线程没有显式的未捕获异常处理程序集，并且线程的线程组（包括父线程组）没有专针对其未捕获异常方法，则将调用默认处理器的未捕获异常方法。
+		通过设置默认的未捕获异常处理程序，应用程序可以为那些已经接受系统提供的任何“默认”行为的线程更改处理未捕获异常的方式（例如登录到特定设备或文件）。
+		注意，默认的未捕获异常处理程序通常不应遵从线程的ThreadGroup对象，因为这可能导致无限递归。
+		【Throws】：
+			SecurityException - 如果当前线程无法在指定的线程组中创建线程
+	sleep(long millis):static native void 
+		使当前执行的线程在指定的毫秒数内休眠（暂时停止执行），这取决于系统计时器和调度程序的精度和准确性。线程不会丢失任何监视器的所有权。
+		【Throws】：
+			IllegalArgumentException 如果millis值为负
+			InterruptedException 如果有线程中断了当前线程。当抛出此异常时，当前线程的中断状态将被清除。
+	sleep(long millis, int nanos):static void
+		millis - 以毫秒为单位的休眠时间长度
+		nanos - 0-999999额外休眠纳秒数
+		使当前执行的线程休眠（暂时停止执行）指定的毫秒数millis加上指定的纳秒数nanos，取决于系统计时器和调度程序的精度和准确性。线程不会丢失任何监视器的所有权。
+		【Throws】：
+			IllegalArgumentException 如果millis或者nanos为负数
+			InterruptedException 如果有线程中断了当前线程。当抛出此异常时，当前线程的中断状态将被清除。
+	yield():static native void 
+		向调度程序提示当前线程愿意产生对目前处理器的使用。调度程序可以忽略此提示。
+		yield是一种启发式的尝试，用于改善线程之间的相对进程，否则会过度使用CPU。它的使用应该与详细的分析和基准测试相结合，以确保它实际上具有预期的效果。
+		很少适合使用这种方法。它可能对调试或测试有用，因为在调试或测试中，它可能有助于根据竞争条件重现错误。在设计并发控制结构（如jjava.util.concurrent.locks包中的结构）时，它也可能很有用。
+	checkAccess():final void 
+		确定当前运行的线程是否具有修改此线程的权限。
+		如果存在安全管理器，则使用此线程作为参数调用其checkAccess方法。这可能导致引发SecurityException异常。
+		【Throws】：
+			SecurityException 如果不允许当前线程访问此线程。
+	clone():protected Object 
+		△ 抛出CloneNotSupportedException异常作为Thread不具有任何有意义地克隆。而是构造一个新线程。
+		【Throws】：
+			CloneNotSupportedException 任何时候总是抛出该异常
+	countStackFrames():native int 
+		✘ 已被淘汰。此调用的定义依赖于suspend()，已弃用。而且，这个调用的结果从未被很好地定义。
+		计算此线程中栈帧的数目。线程必须挂起。
+		【Throws】：
+			IllegalThreadStateException 如果这个线程没有挂起。
+	getContextClassLoader():ClassLoader 
+		返回此线程的上下文ClassLoader。上下文ClassLoader由线程的创建者提供，供加载类和资源时此线程中运行的代码使用。如果未设置，则默认为父线程的上下文ClassLoader。原始线程的上下文ClassLoader通常设置为用于加载应用程序的类加载器。
+		如果存在安全管理器，并且调用程序的类加载器不为null，并且与上下文类加载器不相同或不是上下文类加载器的祖先，则此方法使用RuntimePermission("getClassLoader")权限调用安全管理器的checkPermission方法，以验证是否允许检索上下文类加载器。
+		【Throws】：
+			SecurityException 如果当前线程无法获取上下文类加载器。
+	getId():long 
+		返回此线程的标识符。线程ID是创建此线程时生成的正long数字。线程ID是唯一的，在其生存期内保持不变。当一个线程终止时，这个线程ID可以重用。
+	getName():final String 
+		返回此线程的名称。
+	getPriority():final int 
+		返回此线程的优先级。
+	getStackTrace():StackTraceElement[] 
+		返回表示此线程栈转储的栈跟踪元素数组。如果此线程尚未启动、已启动但尚未计划由系统运行或已终止，则此方法将返回零长度数组。如果返回的数组的长度为非零，则数组的第一个元素表示栈的顶部，这是序列中最近最多的调用方法。数组的最后一个元素表示栈的底部，这是序列中最近最少的调用方法。
+		如果存在安全管理器，而此线程不是当前线程，则使用RuntimePermission("getStackTrace")权限调用安全管理器的checkPermission方法，以查看是否可以获取栈跟踪。
+		某些虚拟机在某些情况下可能会从栈跟踪中省略一个或多个栈帧。在极端情况下，允许没有与此线程相关的栈跟踪信息的虚拟机从此方法返回长度为零的数组。
+		【Throws】：
+			SecurityException 如果安全管理器存在，并且其checkPermission方法不允许获取线程的栈跟踪。
+	getState():State 
+		返回此线程的状态。此方法设计用于监视系统状态，而不是同步控制。
+	getThreadGroup():final ThreadGroup 
+		返回此线程所属的线程组。如果此线程已终止（已停止），则此方法返回null。
+	getUncaughtExceptionHandler():UncaughtExceptionHandler 
+		返回当此线程由于未捕获的异常而突然终止时调用的处理程序。如果该线程没有显式设置未捕获的异常处理程序，则返回该线程的ThreadGroup对象，除非该线程已终止，在这种情况下返回null。
+	interrupt():void 
+		中断此线程。
+		除非当前线程正在中断自身（这是始终允许的），否则将调用此线程的checkAccess方法，这可能导致引发SecurityException。
+		如果在调用Object类的wait()、wait(long)或wait(long,int)方法，或此类的join()、join(long)、join(long,int)、sleep(long)或sleep(long,int)方法时阻塞了此线程，那么它的中断状态将被清除，并且它将接收到InterruptedException。
+		如果此线程在I/O操作中在可中断通道上被阻塞，那么通道将被关闭，线程的中断状态将被设置，线程将收到ClosedByInterruptException。
+		如果该线程在选择器(Selector)中被阻塞，那么该线程的中断状态将被设置，并且它将立即从选择操作返回，可能带有非零值，就像调用了选择器(Selector)的唤醒方法一样。
+		如果前面的条件都不成立，那么这个线程的中断状态将被设置。
+		中断一个非活动线程不需要有任何效果。
+		【Throws】：
+			SecurityException 如果当前线程无法修改此线程。
+	isAlive():final native boolean 
+		测试此线程是否活动。如果线程已启动但尚未死亡，则该线程是活动的。
+	isDaemon():final boolean 
+		测试此线程是否为守护进程线程。
+	isInterrupted():boolean 
+		测试此线程是否已中断。线程的中断状态不受此方法的影响。
+		线程中断被忽略，因为线程在中断时不活动，此方法将返回false。
+	join():final void 
+		等待此线程结束。
+		此方法的调用与join(0)调用的行为完全相同
+		【Throws】：
+			InterruptedException 如果有线程中断了当前线程。当抛出此异常时，当前线程的中断状态将被清除。
+	join(long millis):final synchronized void 
+		等待此线程结束的时间最多为指定millis毫秒。指定为0表示永远等待。
+		此方法实现使用以this.isAlive为条件的this.wait调用的循环。当线程终止时，将调用this.notifyAll方法。建议应用程序不要在线程实例上使用wait、notify或notifyAll。
+		【Throws】：
+			IllegalArgumentException 如果millis值为负
+			InterruptedException 如果有线程中断了当前线程。当抛出此异常时，当前线程的中断状态将被清除。
+	join(long millis, int nanos):final synchronized void
+		millis - 以毫秒为单位的休眠时间长度
+		nanos - 0-999999额外休眠纳秒数 
+		等待该线程结束的时间最多为millis毫秒加nanos纳秒。
+		此方法实现使用以this.isAlive为条件的this.wait调用的循环。当线程终止时，将调用this.notifyAll方法。建议应用程序不要在线程实例上使用wait、notify或notifyAll。
+		【Throws】：
+			IllegalArgumentException 如果millis或者nanos为负数
+			InterruptedException 如果有线程中断了当前线程。当抛出此异常时，当前线程的中断状态将被清除。
+	resume():final void 
+		✘ 已被淘汰。此方法仅用于suspend()，由于suspend()容易死锁，因此已被弃用。有关详细信息，请参阅为什么不推荐使用Thread.stop、Thread.suspend和Thread.resume。
+		恢复挂起的线程。
+		首先，调用此线程的checkAccess方法时不带参数。这可能导致抛出SecurityException（在当前线程中）。
+		如果线程是活动的但是是挂起的，那么它将被恢复并允许在执行过程中取得进展。
+	run():void 
+		△ 如果此线程是使用单独的Runnable的run对象构造的，那么将调用该Runnable对象的run方法；否则，此方法不执行任何操作并返回。
+		线程的子类应重写此方法。
+	setContextClassLoader(ClassLoader cl):void 
+		设置此线程的上下文ClassLoader。上下文ClassLoader可以在创建线程时设置，并允许线程的创建者通过getContextClassLoader为加载类和资源时在线程中运行的代码提供适当的类加载器。
+		如果存在安全管理器，则使用RuntimePermission("setContextClassLoader")权限调用其checkPermission方法，以查看是否允许设置上下文ClassLoader。
+		【Throws】：
+			SecurityException 如果当前线程无法设置上下文类加载器ClassLoader。
+	setDaemon(boolean on):final void
+		 将此线程标记为守护进程线程或用户线程。当运行的唯一线程都是守护进程线程时，Java虚拟机退出。
+		 必须在启动线程之前调用此方法。
+		 【Throws】：
+		 	IllegalThreadStateException 如果线程是活动状态
+			SecurityException 如果checkAccess()确定当前线程无法修改此线程
+	setName(String name):final synchronized void 
+		将此线程的名称更改为与参数指定名称相同。
+		首先，不带参数调用此线程的checkAccess方法。这可能导致引发SecurityException异常。
+		【Throws】：
+			SecurityException 如果当前线程无法修改此线程。
+	setPriority(int newPriority):final void 
+		更改此线程的优先级。
+		首先，不带参数调用此线程的checkAccess方法。这可能导致引发SecurityException异常。
+		否则，该线程的优先级设置为指定的newPriority和线程的线程组的最大允许优先级中的较小者。
+		【Throws】：
+		 	IllegalThreadStateException 如果优先级不在最小优先级MIN_PRIORITY和最大优先级MAX_PRIORITY的范围内。
+			SecurityException 如果当前线程无法修改此线程。
+	setUncaughtExceptionHandler(UncaughtExceptionHandler eh):void 
+		设置当此线程由于未捕获的异常而突然终止时调用的处理程序。
+		线程可以通过显式设置其未捕获的异常处理程序来完全控制它如何响应未捕获的异常。如果未设置此类处理程序，则线程的ThreadGroup对象将充当其处理程序。
+		【Throws】：
+			SecurityException 如果不允许当前线程修改此线程。
+	start():synchronized void 
+		使此线程开始执行；Java虚拟机调用此线程的run方法。
+		结果是两个线程同时运行：当前线程（从对start方法的调用返回）和另一个线程（执行其run方法）。
+		多次启动线程是不合法的。特别是，线程一旦完成执行，就不能重新启动。
+		【Throws】：
+			IllegalThreadStateException 如果线程已经被启动
+	stop():final void 
+		✘ 已被淘汰。这种方法本质上是不安全的。用Thread.stop停止一个线程会导致它解锁所有已锁定的监视器（monitor）（这是未选中ThreadDeath异常向栈上传播的自然结果）。如果以前受这些监视器保护的任何对象处于不一致状态，则其他线程将看到损坏的对象，这可能导致任意行为。stop的许多用法应该替换为简单修改某个变量以指示目标线程应该停止运行的代码。目标线程应定期检查该变量，如果该变量指示它将停止运行，则应按顺序从其run方法返回。如果目标线程等待很长时间（例如，在条件变量上），则应使用interrupt方法中断等待。有关详细信息，请参阅为什么不推荐使用Thread.stop、Thread.suspend和Thread.resume。
+		强制线程停止执行。
+		如果安装了安全管理器，则调用其checkAccess方法，并以此作为参数。这可能导致（在当前线程中）引发SecurityException异常。
+		如果此线程与当前线程不同（即，当前线程试图停止其自身以外的线程），则还将调用安全管理器的checkPermission方法（带有RuntimePermission("stopThread")参数）。同样，这可能会导致抛出SecurityException异常（在当前线程中）。
+		这个线程所代表的线程被强制停止它异常执行的任何操作，并作为异常抛出一个新创建的ThreadDeath对象。
+		允许停止尚未启动的线程。如果线程最终启动，它将立即终止。
+		应用程序通常不应尝试捕获ThreadDeath异常，除非它必须执行一些特殊的清理操作（请注意，ThreadDeath的抛出会导致在线程正式死亡之前执行try语句的finally子句）。如果catch子句捕获ThreadDeath对象，则必须重新抛出该对象，以便线程实际终止。
+		如果未捕获异常是ThreadDeath的实例，则对其他未捕获异常做出反应的顶级错误处理程序不会打印消息或通知应用程序。
+		【Throws】：
+			SecurityException 如果当前线程不能修改此线程。
+	stop(Throwable obj):final synchronized void 
+		✘ 已被淘汰。此方法最初设计为强制线程停止并作为异常抛出给定的可丢弃项。它本质上是不安全的（有关详细信息，请参阅stop()），而且还可以用于生成目标线程不准备处理的异常。有关详细信息，请参阅为什么不推荐使用Thread.stop、Thread.suspend和Thread.resume。
+		抛出UnsupportedOperationException。
+	suspend():final void 
+		✘ 已被淘汰。此方法已被弃用，因为它本身就容易死锁。如果目标线程在挂起时在保护关键系统资源的监视器上持有锁，则在恢复目标线程之前，任何线程都无法访问此资源。如果要恢复目标线程的线程在调用resume之前尝试锁定此监视器，则会导致死锁。这种死锁通常表现为“冻结”的进程。有关详细信息，请参阅为什么不推荐使用Thread.stop、Thread.suspend和Thread.resume。
+		挂起此线程。
+		首先，不带参数调用此线程的checkaccess方法。这可能导致抛出SecurityException（在当前线程中）。
+		如果线程处于活动状态，则它将被挂起，并且在恢复之前不会进一步进行。
+		【Throws】：
+			SecurityException 如果当前线程不能修改此线程。
+	toString():String 
+		△ 返回此线程的字符串表示形式，包括线程的名称、优先级和线程组。
+	
+
+
+----------------------------------------Thread$State-------------------------------------------------------------------------------------------------------------
+1、State：线程状态枚举类。【Since:1.5】
+	线程状态。线程可以处于以下状态之一：
+		NEW				尚未启动的线程处于此状态。
+		RUNNABLE		在Java虚拟机中执行的线程处于该状态。
+		BLOCKED			被阻塞，等待monitor锁（监视器锁）的线程处于此状态。
+		WAITING			无限期等待另一个线程执行特定操作的线程处于此状态。
+		TIMED_WAITING	在指定的等待时间内等待另一个线程执行操作的线程处于此状态。
+		TERMINATED		已退出的线程处于此状态。	
+	线程在给定时间点只能处于一种状态。这些状态是不反映任何操作系统线程状态的虚拟机状态。
+
+	枚举定义	：public static enum Thread.State extends Enum<Thread.State>
+	语法糖	：public enum State
+	实现接口	：Comparable<E>, Serializable
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Enum Constant Detail（枚举常量详情描述）：
+	NEW
+		尚未启动的线程的线程状态。
+	RUNNABLE
+		可运行线程的线程状态。可运行状态中的线程在Java虚拟机中执行，但它可能等待来自操作系统（如处理器）的其他资源。
+	BLOCKED
+		线程被阻塞正在等待监视器锁的线程状态。处于阻塞状态的线程正在等待监视器锁进入同步块/方法，或在调用Object.wait后重新进入同步块/方法。
+	WAITING
+		等待线程的线程状态。由于调用以下方法之一，线程处于等待状态：
+			● 调用Object.wait方法而没有超时
+			● 调用Thread.join方法而没有超时
+			● 调用LockSupport.park
+		处于等待状态的线程正在等待另一个线程执行特定操作。例如，一个在对象上调用Object.wait()的线程正在等待另一个线程在该对象上调用Object.notify()或Object.notifyAll()。调用Thread.join()的线程正在等待指定线程终止。
+	TIMED_WAITING
+		具有指定等待时间的等待线程的线程状态。由于使用指定的正数等待时间调用以下方法之一，线程处于正等待状态：
+			● 调用Thread.sleep方法
+			● 调用Object.wait方法而没有超时
+			● 调用Thread.join方法而没有超时
+			● 调用LockSupport.parkNanos方法
+			● 调用LockSupport.parkUntil方法
+	TERMINATED
+		终止线程的线程状态。线程已完成执行。		
+		
+	
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已被淘汰掉的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	3、loadFactor：负载因子（或称为负载系数），它等于“size/capacity”（即大小与容量的比率）。负载因子为0，表示空的hash表，0.5表示半满的散列表，依此类推。轻负载的散列表具有冲突少、适宜插入与查询的特点（但是使用Iterator迭代元素时比较慢）
+	4、initialCapacity：初始容量。创建hash表时桶的数量，并发操作时ConcurrentHashMap是一次锁住一个桶。ConcurrentHashMap默认将hash表分为16个桶，诸如get、put、remove等常用操作只锁住当前需要用到的桶。这样，原来只能一个线程进入，现在却能同时有16个写线程执行，并发性能的提升是显而易见的。
+	5、java并发一致性：
+		对于一致性，可以分为从客户端和服务端两个不同的视角。从客户端来看，一致性主要指的是多并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。一致性是因为有并发读写才有的问题，因此在理解一致性的问题时，一定要注意结合考虑并发读写的场景。
+		从客户端角度，多进程并发访问时，更新过的数据在不同进程如何获取的不同策略，决定了不同的一致性。对于关系型数据库，要求更新过的数据能被后续的访问都能看到，这是“强一致性”。如果能容忍后续的部分或者全部访问不到，则是“弱一致性”。如果经过一段时间后要求能访问到更新后的数据，则是“最终一致性”。
+	6、SkipList：跳表。	使用“空间换时间”的算法，令链表的每个结点不仅记录next结点位置，还可以按照level层级分别记录后继第level个结点。在查找时，首先按照层级查找，比如：当前跳表最高层级为3，即每个结点中不仅记录了next结点（层级1），还记录了next的next（层级2）、next的next的next（层级3）结点。现在查找一个结点，则从头结点开始先按高层级开始查：head->head的next的next的next->。。。直到找到结点或者当前结点q的值大于所查结点，则此时当前查找层级的q的前一节点p开始，在p~q之间进行下一层级（隔1个结点）的查找......直到最终迫近、找到结点。此法使用的就是“先大步查找确定范围，再逐渐缩小迫近”的思想进行的查找。	
+	7、constant-time（常量时间）：意思就是无论n是什么值运算所花时间都一样。
+	8、Linear-time（线性时间）：则是说多大n就花多少时间。
+	9、Multiple-time（多项式时间）：则意味着随着n增大，n每增加1所花的时间增长越来越多。对于n^2-3这样一个多项式时间来说，n=2的时候可能只要花1的时间，甚至低于线性时间，但n=4的时候可能就要花13的时间了，可以想象再大一些这个数值会变得巨大。但是它又不及指数时间增长快(m^n)，且m^n不能写成多项式形式，所以它又和多项式时间有区别。	
+	10、	Copy-On-Write：简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+		CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+		
+		
+		
+-----------------------------------------Thread$UncaughtExceptionHandler-----------------------------------------------------------------------------------------------------------------------------		
+2、UncaughtExceptionHandler：未捕获异常处理器 【Since:1.5】
+	当线程（Thread）因“未捕获异常”而突然终止时调用的处理程序接口。
+	当一个线程由于一个未被排除的异常即将终止时，Java虚拟机将使用Thread.getUncaughtExceptionHandler()查询线程的UncaughtExceptionHandler，并调用处理程序的uncaughtException方法，将线程和异常作为参数传递。如果线程没有显式设置其UncaughtExceptionHandler，则其ThreadGroup对象将充当其UncaughtExceptionHandler。如果ThreadGroup对象没有处理异常的特殊要求，它可以将调用转发到默认的未捕获异常处理器。
+
+
+	接口定义	：@FunctionalInterface public interface Thread.UncaughtExceptionHandler
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Method Summary（方法概要）
+	uncaughtException(Thread t, Throwable e):void 
+		当给定线程t因给定的“未捕获异常”e而终止时调用的方法。此方法所引发的任何异常都将被Java虚拟机忽略。
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、函数接口UncaughtExceptionHandler是Thread类中的一个内部接口。	
+		
+		
+		
+		

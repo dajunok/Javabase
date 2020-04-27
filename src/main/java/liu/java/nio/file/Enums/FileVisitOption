@@ -1,0 +1,54 @@
+-------------------------------FileVisitOption-----------------------------------------------------------------------------------------------------------------------
+FileVisitOption：文件访问选项。【since 1.7】
+	定义文件树遍历选项。
+	
+		
+	枚举定义	：public enum FileVisitOption extends Enum<FileVisitOption>
+	语法糖	：enum FileVisitOption
+	实现接口	：Serializable, Comparable<FileVisitOption>
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Enum Constant Summary（枚举常量概要）：
+	FOLLOW_LINKS
+		遵循符号链接。
+
+Method Summary（方法概要）：
+	valueOf(String name):static FileVisitOption 
+		name - 要返回的枚举常量的名称。
+		返回具有指定名称的此类型的枚举常量。字符串必须与用于在此类型中声明枚举常量的标识符完全匹配。（不允许使用外部空白字符。）
+		返回具有指定名称的枚举常量
+		【Throws】：
+			IllegalArgumentException 如果此枚举类型没有具有指定名称的常量
+			NullPointerException 如果参数为null
+	values():static FileVisitOption[] 
+		返回一个数组，该数组包含此枚举类型的常量，按照其声明顺序排序。此方法可用于对常量进行迭代，如下所示：
+			for (FileVisitOption c : FileVisitOption.values())
+    			System.out.println(c);		
+		
+			    
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已被淘汰掉的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

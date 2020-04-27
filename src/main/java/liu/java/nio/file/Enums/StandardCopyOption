@@ -1,0 +1,37 @@
+-------------------------------StandardCopyOption-----------------------------------------------------------------------------------------------------------------------
+StandardCopyOption：标准复制选项。【since 1.7】
+	定义标准复制选项。
+	
+		
+	枚举定义	：public enum StandardCopyOption extends Enum<StandardCopyOption> implements CopyOption
+	语法糖	：enum StandardCopyOption implements CopyOption
+	实现接口	：Serializable, Comparable<StandardCopyOption>, CopyOption
+------------------------------------------------------------------------------------------------------------------------------------------------------		
+Enum Constant Summary（枚举常量概要）：
+	ATOMIC_MOVE
+		将文件作为原子文件系统操作移动。
+	COPY_ATTRIBUTES
+		将属性复制到新文件。
+	REPLACE_EXISTING	
+		替换现有文件（如果存在）。
+		
+Method Summary（方法概要）：
+	valueOf(String name):static StandardCopyOption 
+		name - 要返回的枚举常量的名称。
+		返回具有指定名称的此类型的枚举常量。字符串必须与用于在此类型中声明枚举常量的标识符完全匹配。（不允许使用外部空白字符。）
+		返回具有指定名称的枚举常量
+		【Throws】：
+			IllegalArgumentException 如果此枚举类型没有具有指定名称的常量
+			NullPointerException 如果参数为null
+	values():static StandardCopyOption[] 
+		返回一个数组，该数组包含此枚举类型的常量，按照其声明顺序排序。此方法可用于对常量进行迭代，如下所示：
+			for (StandardCopyOption c : StandardCopyOption.values())
+    			System.out.println(c);		
+		
+			    
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
+	1、注：文档中的△符号表示覆盖重写方法，✘符号表示已被淘汰掉的方法。	
+	2、注：文档中的★符号表示抽象方法或者直接抛出UnsupportedOperationException异常的方法，总之没有实现具体功能代码的方法。
+	

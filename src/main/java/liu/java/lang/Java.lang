@@ -1,0 +1,127 @@
+----------------------------------------Package java.io--------------------------------------------------------------------------------------------------------------
+										【Since JDK1.0】
+Package Description（包描述说明）：
+	提供对Java编程语言的设计至关重要的类。最重要的类是Object，Object是类层次结构的根，Class的实例在运行时表示类。
+	通常需要将原始类型的值表示为对象。包装类Boolean、Character、Integer、Long、Float和Double就是这样的。例如，Double类型的对象包含一个类型为double的字段，以这样的方式表示该值，对该值的引用可以存储在引用类型的变量中。这些类还提供了一些在原始值之间转换的方法，以及支持诸如equals和hashCode之类的标准方法。Void类是一个不可实例化的类，它保存对表示void类型的类对象的引用。
+	Math类提供常用的数学函数，如正弦（sine）、余弦（cosine）和平方根（square root）。String类、StringBuffer和StringBuilder同样提供了对字符串的常用操作。
+	类ClassLoader、Process、ProcessBuilder、Runtime、SecurityManager和System提供“系统操作”，用于管理类的动态加载、创建外部进程、主机环境查询（如时间）和安全策略的实施。
+	Throwable类包含可以由throw语句引发的对象。Throwable的子类表示错误和异常。
+	
+	Character Encodings（字符编码）
+		java.nio.charset.Charset类的规范描述了字符编码的命名约定以及必须由Java平台的每个实现所支持的标准编码集。
+	
+
+Interface Summary（接口概要）
+	Appendable
+	AutoCloseable
+	CharSequence
+	Cloneable
+	Comparable
+	Iterable
+	Readable
+	Runnable
+	Thread.UncaughtExceptionHandler		
+
+Class Summary(类概要)
+	Boolean
+	Byte
+	Character
+	Character.Subset
+	Character.UnicodeBlock
+	Class
+	ClassLoader
+	ClassValue
+	Compiler
+	Double
+	Enum
+	Float
+	InheritableThreadLocal
+	Integer
+	Long
+	Math
+	Number
+	Object
+	Package
+	Process
+	ProcessBuilder
+	ProcessBuilder.Redirect
+	Runtime
+	RuntimePermission
+	SecurityManager
+	Short
+	StackTraceElement
+	StrictMath
+	String
+	StringBuffer
+	StringBuilder
+	System
+	Thread
+	ThreadGroup
+	ThreadLocal
+	Throwable
+	Void
+Enums（枚举）
+	Character.UnicodeScript
+	ProcessBuilder.Redirect.Type
+	Thread.State
+Exceptions Summary（异常概要）
+	ArithmeticException
+	ArrayIndexOutOfBoundsException
+	ArrayStoreException
+	ClassCastException
+	ClassNotFoundException
+	CloneNotSupportedException
+	EnumConstantNotPresentException
+	Exception
+	IllegalAccessException
+	IllegalArgumentException
+	IllegalMonitorStateException
+	IllegalStateException
+	IllegalThreadStateException
+	IndexOutOfBoundsException
+	InstantiationException
+	InterruptedException
+	NegativeArraySizeException
+	NoSuchFieldException
+	NoSuchMethodException
+	NullPointerException
+	NumberFormatException
+	ReflectiveOperationException
+	RuntimeException
+	SecurityException
+	StringIndexOutOfBoundsException
+	TypeNotPresentException
+	UnsupportedOperationException	
+Errors Summary（错误概要）
+	AbstractMethodError
+	AssertionError
+	BootstrapMethodError
+	ClassCircularityError
+	ClassFormatError
+	Error
+	ExceptionInInitializerError
+	IllegalAccessError
+	IncompatibleClassChangeError
+	InstantiationError
+	InternalError
+	LinkageError
+	NoClassDefFoundError
+	NoSuchFieldError
+	NoSuchMethodError
+	OutOfMemoryError
+	StackOverflowError
+	ThreadDeath
+	UnknownError
+	UnsatisfiedLinkError
+	UnsupportedClassVersionError
+	VerifyError
+	VirtualMachineError	
+Annotation Types(注解类型)
+	Deprecated
+	FunctionalInterface
+	Override
+	SafeVarargs
+	SuppressWarnings
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+附录：
